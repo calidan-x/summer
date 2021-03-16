@@ -26,7 +26,6 @@ export const Summer = {
         await mysqlDB.connect(MYSQL_CONNECT_CONFIG);
         locContainer.initLoc();
         requestMappingAssembler.resolveControllers();
-        // console.log(locContainer.locInstance);
         server.createServer(SERVER_CONFIG.port);
       })();
     });
