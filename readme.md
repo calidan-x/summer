@@ -35,6 +35,7 @@ This a basic project for spring boot liked node framework.
 
 
 ```
+yarn global add ts-node
 yarn
 yarn start
 ```
