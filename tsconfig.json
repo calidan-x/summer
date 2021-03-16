@@ -1,0 +1,11 @@
+{
+    "compilerOptions":{
+        "target": "esnext",
+        "experimentalDecorators":true,
+        "emitDecoratorMetadata":true,
+        "useDefineForClassFields":true,
+        "outDir":"./out",
+        "moduleResolution":"Node"
+    },
+    "files": [""]
+}
