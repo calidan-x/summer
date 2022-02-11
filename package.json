@@ -1,26 +1,49 @@
 {
-  "name": "server",
-  "version": "1.0.0",
+  "name": "summer",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "start": "onchange -i -k 'src/**/*' 'lib/**/*' 'resource/**/*' -- ts-node ./src/main.ts"
+  "bin": {
+    "summer": "lib/cli.mjs"
   },
-  "author": "",
+  "scripts": {
+    "dev": "onchange -i -k 'src/**/*' 'lib/**/*' 'resource/**/*' --exclude src/auto-imports.ts -- npm run compile:dev",
+    "compile:dev": "rm -rdf .summer-compile && cross-env SUMMER_ENV=local node compile.mjs && node --enable-source-maps ./.summer-compile/src/main.js",
+    "compile:prod": "rm -rdf .summer-compile && cross-env SUMMER_ENV=prod node compile.mjs",
+    "test": "rm -rdf .summer-compile && node compile.mjs && jest",
+    "build": "npm run compile:prod && rm -rdf ./build && esbuild ./.summer-compile/src/main.js --bundle --sourcemap=inline --platform=node --outfile=./build/server.js",
+    "start": "node --enable-source-maps ./build/server.js"
+  },
+  "author": "Calidan",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calidan-x/summer"
+  },
   "dependencies": {
-    "class-validator": "^0.13.1",
-    "figlet": "^1.5.0",
-    "mysql2": "^2.2.5",
-    "onchange": "^7.1.0",
-    "path-to-regexp": "^6.2.0",
-    "reflect-metadata": "^0.1.13",
-    "sequelize": "^6.5.0",
-    "sequelize-typescript": "^2.1.0",
-    "typeorm": "^0.2.31"
+    "body-parser": "^1.19.0",
+    "cookie": "^0.4.1",
+    "cross-env": "^7.0.3",
+    "jest": "^27.3.0",
+    "ora": "^6.0.1",
+    "path-to-regexp": "^6.2.0"
   },
   "devDependencies": {
-    "@types/node": "^14.14.33",
-    "@types/validator": "^13.1.3"
+    "@types/jest": "^27.0.2",
+    "@types/node": "14.14.33",
+    "@types/validator": "13.1.3",
+    "esbuild": "^0.13.12",
+    "got": "11.8.2",
+    "md5": "^2.3.0",
+    "mysql2": "^2.2.5",
+    "onchange": "7.1.0",
+    "reflect-metadata": "0.1.13",
+    "sequelize": "^6.5.0",
+    "sequelize-typescript": "^2.1.0",
+    "ts-jest": "^27.0.7",
+    "ts-morph": "^12.1.0",
+    "ts-node": "10.4.0",
+    "typeorm": "^0.2.31",
+    "typescript": "4.4.2"
   }
 }

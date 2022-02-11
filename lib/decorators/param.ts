@@ -1,4 +1,6 @@
+import { Context } from '../request-handler';
 import { requestMappingAssembler } from '../request-mapping';
+import { OmitFirstAndSecondArg } from './utility';
 
 const getArgName = (func, argIndex: number) => {
   var args = func.toString().match(/.*?\(([^)]*)\)/)[1];
@@ -14,31 +16,58 @@ const getArgName = (func, argIndex: number) => {
 
 const getArgType = (target: Object, propertyKey: string, parameterIndex: number) => {
   const types = Reflect.getMetadata('design:paramtypes', target, propertyKey);
-  return types.map((a) => a)[parameterIndex];
+  return types[parameterIndex];
 };
 
-const generateParamDecorator = (paramType: string, name: string = '') => {
-  return (target: Object, propertyKey: string, parameterIndex: number) => {
+const getArgDeclareType = (target: Object, propertyKey: string, parameterIndex: number) => {
+  const types = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey);
+  return types[parameterIndex];
+};
+
+const generateParamDecorator =
+  (paramMethod: any, ...args: any[]) =>
+  (target: Object, propertyKey: string, parameterIndex: number) => {
     const type = getArgType(target, propertyKey, parameterIndex);
-    const paramName = name || getArgName(target[propertyKey], parameterIndex);
-    requestMappingAssembler.addParam(paramType, paramName, type, parameterIndex);
+    const declareType = getArgDeclareType(target, propertyKey, parameterIndex);
+    if (!args) {
+      args = [];
+    }
+    args.splice(0, 0, getArgName(target[propertyKey], parameterIndex));
+    requestMappingAssembler.addParam(paramMethod, args, type, declareType, parameterIndex);
   };
-};
 
-export const QueryParamFrom = (name: string = ''): ParameterDecorator => {
-  return generateParamDecorator('QueryParam', name);
-};
+type DecoratorMethodType = (ctx: Context, ...args: any[]) => any;
 
-export const PathParamFrom = (name: string = ''): ParameterDecorator => {
-  return generateParamDecorator('PathParam', name);
-};
+export const createParamDecorator =
+  <T extends DecoratorMethodType>(paramMethod: T): ParamDecoratorType<T> =>
+  (...dArgs) => {
+    if (dArgs.length === 3 && dArgs[0].constructor?.toString().startsWith('class ')) {
+      generateParamDecorator(paramMethod)(dArgs[0], dArgs[1], dArgs[2]);
+      return;
+    }
+    return generateParamDecorator(paramMethod, ...dArgs);
+  };
 
-export const RequestBodyFrom = (name: string = ''): ParameterDecorator => {
-  return generateParamDecorator('RequestBody', name);
-};
+interface ParamDecoratorType<T extends DecoratorMethodType> {
+  (...name: Parameters<OmitFirstAndSecondArg<T>>): ParameterDecorator;
+  (target: Object, propertyKey: string, parameterIndex: number): void;
+}
 
-export const QueryParam = generateParamDecorator('QueryParam');
-
-export const PathParam = generateParamDecorator('PathParam');
-
-export const RequestBody = generateParamDecorator('RequestBody');
+export const Ctx = createParamDecorator((ctx) => ctx);
+export const Body = createParamDecorator((ctx) => ctx.request.body);
+export const Queries = createParamDecorator((ctx) => ctx.request.queries);
+export const Query = createParamDecorator(
+  (ctx, paramName: string, name: string) => ctx.request.queries[name || paramName]
+);
+export const Param = createParamDecorator(
+  (ctx, paramName: string, name: string) => ctx.request.pathParams[name || paramName]
+);
+export const Session = createParamDecorator(
+  (ctx, paramName: string, name: string) => ctx.request.sessions[name || paramName]
+);
+export const Header = createParamDecorator(
+  (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
+);
+export const Cookie = createParamDecorator(
+  (ctx, paramName: string, name: string) => ctx.request.cookies[name || paramName]
+);

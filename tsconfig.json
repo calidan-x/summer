@@ -1,11 +1,13 @@
 {
-    "compilerOptions":{
-        "target": "esnext",
-        "experimentalDecorators":true,
-        "emitDecoratorMetadata":true,
-        "useDefineForClassFields":true,
-        "outDir":"./out",
-        "moduleResolution":"Node"
-    },
-    "files": [""]
+  "compilerOptions": {
+    "target": "ES2020",
+    "types": ["node", "jest"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "inlineSourceMap": true,
+    "esModuleInterop": true,
+    "outDir": "./.summer-compile",
+    "moduleResolution": "Node",
+    "module": "commonjs"
+  }
 }

@@ -1,6 +1,6 @@
 import { getRepository } from 'typeorm';
 import { Service } from '../../lib/decorators';
-import { Person } from '../entity/person';
+import { Person } from '../entity';
 
 @Service
 export class PersonService {
@@ -11,7 +11,7 @@ export class PersonService {
     return person;
   }
 
-  async getPersonInfo(id: string) {
+  async getPersonInfo(id: number) {
     const person = await this.personRepository.findOne(id);
     return person;
   }
