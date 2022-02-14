@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "outDir": "./lib",
     "moduleResolution": "Node",
-    "module": "commonjs"
+    "module": "commonjs",
+    "declaration": true
   }
 }
