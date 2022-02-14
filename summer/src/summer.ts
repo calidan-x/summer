@@ -7,6 +7,11 @@ import { session } from './session';
 import { Logger } from './logger';
 import { configHandler } from './config-handler';
 
+declare global {
+  type int = bigint;
+  type float = number;
+}
+
 (global as any)._PropDeclareType = (type: any) => (target: Object, propertyKey: string | symbol) => {
   // Reflect.metadata('DeclareType', type);
   Reflect.defineMetadata(propertyKey, propertyKey, target);

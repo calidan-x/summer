@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '../../lib/decorators';
+import { Body, Controller, Get, Post, Query } from '@summer/summer';
 import { Dog } from '../dto/request/Dog';
 
 class Obj {

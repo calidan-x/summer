@@ -8,8 +8,8 @@
   },
   "scripts": {
     "package link": "rm -f ./node_modules/.bin/summer && rm -f ./node_modules/@summer/summer && npm i && mkdir -p ./node_modules/@summer && mkdir -p ./node_modules/.bin && ln -s ../../../summer ./node_modules/@summer/summer && ln -s ../../../summer/lib/cli.js ./node_modules/.bin/summer && chmod +x ./node_modules/.bin/summer",
-    "cli test": "summer",
-    "dev": "onchange -i -k 'src/**/*' 'lib/**/*' 'resource/**/*' --exclude src/auto-imports.ts -- npm run compile:dev",
+    "cli start": "summer -s",
+    "dev": "onchange -i -k 'src/**/*' --exclude src/auto-imports.ts -- npm run compile:dev",
     "compile:dev": "rm -rdf .summer-compile && cross-env SUMMER_ENV=local node compile.mjs && node --enable-source-maps ./.summer-compile/src/main.js",
     "compile:prod": "rm -rdf .summer-compile && cross-env SUMMER_ENV=prod node compile.mjs",
     "test": "rm -rdf .summer-compile && node compile.mjs && jest",
@@ -20,6 +20,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "md5": "^2.3.0"
+    "md5": "^2.3.0",
+    "cross-env": "^7.0.3",
+    "jest": "^27.3.0"
   }
 }

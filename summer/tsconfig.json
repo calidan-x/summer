@@ -10,5 +10,6 @@
     "moduleResolution": "Node",
     "module": "commonjs",
     "declaration": true
-  }
+  },
+  "exclude": ["**/*.d.ts"]
 }
