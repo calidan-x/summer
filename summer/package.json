@@ -1,0 +1,45 @@
+{
+  "name": "@summer",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "files": [
+    "lib"
+  ],
+  "bin": {
+    "summer": "lib/cli.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "Calidan",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calidan-x/summer"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie": "^0.4.1",
+    "cross-env": "^7.0.3",
+    "jest": "^27.3.0",
+    "ora": "^6.0.1",
+    "path-to-regexp": "^6.2.0",
+    "esbuild": "^0.13.12",
+    "reflect-metadata": "0.1.13",
+    "ts-morph": "^12.1.0",
+    "typescript": "4.4.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@types/node": "14.14.33",
+    "@types/validator": "13.1.3",
+    "got": "11.8.2",
+    "md5": "^2.3.0",
+    "mysql2": "^2.2.5",
+    "onchange": "7.1.0",
+    "ts-jest": "^27.0.7",
+    "ts-node": "10.4.0",
+    "typeorm": "^0.2.31"
+  }
+}

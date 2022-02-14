@@ -1,0 +1,21 @@
+{
+  "name": "summer-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "package link": "",
+    "dev": "onchange -i -k 'src/**/*' 'lib/**/*' 'resource/**/*' --exclude src/auto-imports.ts -- npm run compile:dev",
+    "compile:dev": "rm -rdf .summer-compile && cross-env SUMMER_ENV=local node compile.mjs && node --enable-source-maps ./.summer-compile/src/main.js",
+    "compile:prod": "rm -rdf .summer-compile && cross-env SUMMER_ENV=prod node compile.mjs",
+    "test": "rm -rdf .summer-compile && node compile.mjs && jest",
+    "build": "npm run compile:prod && rm -rdf ./build && esbuild ./.summer-compile/src/main.js --bundle --sourcemap=inline --platform=node --outfile=./build/server.js",
+    "start": "node --enable-source-maps ./build/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -1,4 +1,4 @@
 {
-  "cSpell.words": ["Autowired", "notype"],
+  "cSpell.words": ["Autowired", "clazz", "notype"],
   "typescript.tsdk": "node_modules/typescript/lib"
 }
