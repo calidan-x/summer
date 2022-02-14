@@ -1,6 +1,10 @@
 import cookie from 'cookie';
-import md5 from 'md5';
+import crypto from 'crypto';
 import { Logger } from './logger';
+
+const md5 = (str: string) => {
+  return crypto.createHash('md5').update(str).digest('hex');
+};
 
 export interface SessionConfig {
   expireIn: number;
@@ -43,7 +47,7 @@ export const session = {
     if (sessionId && SESSIONS[sessionId]) {
       sessionValues = SESSIONS[sessionId];
     } else {
-      sessionId = md5(new Date().getTime() + Math.random());
+      sessionId = md5(Date.now() + '' + Math.random());
       const expireDate = new Date();
       expireDate.setTime(new Date().getTime() + this.expireIn);
       setCookie = cookie.serialize(this.sessionName, sessionId, {

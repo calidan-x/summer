@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "package link": "",
+    "package link": "rm -f ./node_modules/@summer/summer && npm i && mkdir -p ./node_modules/@summer && ln -s ../../../summer ./node_modules/@summer/summer",
     "dev": "onchange -i -k 'src/**/*' 'lib/**/*' 'resource/**/*' --exclude src/auto-imports.ts -- npm run compile:dev",
     "compile:dev": "rm -rdf .summer-compile && cross-env SUMMER_ENV=local node compile.mjs && node --enable-source-maps ./.summer-compile/src/main.js",
     "compile:prod": "rm -rdf .summer-compile && cross-env SUMMER_ENV=prod node compile.mjs",
@@ -17,5 +17,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "md5": "^2.3.0"
+  }
 }

@@ -1,6 +1,6 @@
-import { requestHandler } from '../lib/request-handler';
+import { requestHandler } from '@summer/summer';
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   const context = {
     request: {
       method: event.httpMethod,
