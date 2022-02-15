@@ -1,8 +1,17 @@
 {
-  "name": "@summer/mysql",
+  "name": "@summer/cli",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "summer": "index.js"
+  },
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "ora": "^6.0.1",
+    "commander": "^9.0.0"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,7 +19,6 @@
     "type": "git",
     "url": "git+https://github.com/calidan-x/summer.git"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {

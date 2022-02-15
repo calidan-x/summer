@@ -16,6 +16,7 @@
   "workspaces": [
     "@summer/mysql",
     "@summer/summer",
-    "@summer/summer-test"
+    "@summer/summer-test",
+    "@summer/cli"
   ]
 }

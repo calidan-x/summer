@@ -3,10 +3,6 @@
 import fs from 'fs';
 import path from 'path';
 import { Project } from 'ts-morph';
-// import ora from 'ora';
-
-// const spinner = ora('Compiling...');
-// spinner.start();
 
 const project = new Project({
   tsConfigFilePath: './tsconfig.json'
@@ -142,4 +138,3 @@ fs.writeFileSync('./src/auto-imports.ts', fileContent);
 
 project.resolveSourceFileDependencies();
 project.emitSync();
-// spinner.stop();

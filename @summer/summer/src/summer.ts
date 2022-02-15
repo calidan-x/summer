@@ -52,7 +52,12 @@ export const Summer = {
   },
 
   async start() {
-    !this.isTestEnv && console.log(`\n🔆SUMMER Ver ${version}\n`);
+    !this.isTestEnv &&
+      console.log(`
+===========================\n
+🔆SUMMER Ver ${version}    \n
+===========================\n
+`);
     !this.isTestEnv && global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`);
 
     this.envConfig = await configHandler.loadConfig();
