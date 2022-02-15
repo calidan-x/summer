@@ -18,7 +18,7 @@ if (options.s) {
     try {
       console.log('Starting...');
       childProcess = exec(
-        'rm -rdf .summer-compile && cross-env SUMMER_ENV=local node ./node_modules/@summer/summer/lib/compile.js && node --enable-source-maps ./.summer-compile/src/main.js'
+        'rm -rdf .summer-compile && cross-env SUMMER_ENV=local summer-compile && node --enable-source-maps ./.summer-compile/src/main.js'
       );
 
       childProcess.stdout.on('data', (data) => {

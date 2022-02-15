@@ -40,7 +40,6 @@ export const Summer = {
       if (mysqlConnection.isConnected) {
         !this.isTestEnv && Logger.log('MySQL DB connected');
         this.dbConnections.push(mysqlConnection);
-        console.log('mysqlConnection', mysqlConnection);
       }
     }
 

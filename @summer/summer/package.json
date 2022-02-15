@@ -8,11 +8,11 @@
     "lib"
   ],
   "bin": {
-    "summer": "lib/cli.js"
+    "summer": "lib/cli.js",
+    "summer-compile": "lib/compile.js"
   },
   "scripts": {
-    "build": "tsc",
-    "cli-link": "ln -s ../@summer/summer/lib/cli.js ../../node_modules/.bin/summer && chmod +x ../../node_modules/.bin/summer"
+    "build": "tsc"
   },
   "author": "Calidan",
   "license": "ISC",
