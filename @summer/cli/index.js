@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // @ts-check
 
-import { ChildProcess, exec, execSync } from 'child_process';
+import { exec } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import { program } from 'commander';
+import chokidar from 'chokidar';
 import ora from 'ora';
 
 program.option('-b').option('-s');
@@ -59,19 +60,23 @@ if (options.s) {
   serve();
 
   const watchDir = './src/';
-  fs.watch(watchDir, { recursive: true }, (event, filename) => {
-    const md5 = crypto.createHash('md5');
-    const currentMD5 = md5.update(fs.readFileSync(watchDir + filename).toString()).digest('hex');
-    if (filename.indexOf('auto-imports') >= 0) {
+  chokidar.watch(watchDir, { ignored: 'auto-imports' }).on('all', (event, path) => {
+    if (fs.lstatSync('./' + path).isDirectory()) {
       return;
     }
-    if (currentMD5 === fileHashes[filename]) {
+    const md5 = crypto.createHash('md5');
+    const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex');
+    if (!fileHashes[path]) {
+      fileHashes[path] = currentMD5;
+      return;
+    }
+    if (currentMD5 === fileHashes[path]) {
       return;
     }
     if (childProcess) {
       childProcess.kill();
     }
-    fileHashes[filename] = currentMD5;
+    fileHashes[path] = currentMD5;
     serve();
   });
 }
