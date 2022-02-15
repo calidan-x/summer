@@ -1,5 +1,5 @@
 import { getRepository } from 'typeorm';
-import { Service } from '../../lib/decorators';
+import { Service } from '@summer/summer';
 import { Person } from '../entity';
 
 @Service

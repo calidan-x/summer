@@ -9,3 +9,5 @@ export * from './property';
 
 export * from './inject';
 export * from './validate';
+
+export * from './middleware';

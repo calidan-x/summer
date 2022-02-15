@@ -1,5 +1,5 @@
 {
-  "name": "summer-test",
+  "name": "@summer/summer-test",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,6 @@
     "test": "test"
   },
   "scripts": {
-    "package link": "rm -f ./node_modules/.bin/summer && rm -f ./node_modules/@summer/summer && npm i && mkdir -p ./node_modules/@summer && mkdir -p ./node_modules/.bin && ln -s ../../../summer ./node_modules/@summer/summer && ln -s ../../../summer/lib/cli.js ./node_modules/.bin/summer && chmod +x ./node_modules/.bin/summer",
     "cli start": "summer -s",
     "dev": "onchange -i -k 'src/**/*' --exclude src/auto-imports.ts -- npm run compile:dev",
     "compile:dev": "rm -rdf .summer-compile && cross-env SUMMER_ENV=local node compile.mjs && node --enable-source-maps ./.summer-compile/src/main.js",
@@ -20,8 +19,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@summer/summer": "^0.1.0",
     "md5": "^2.3.0",
     "cross-env": "^7.0.3",
-    "jest": "^27.3.0"
+    "jest": "^27.3.0",
+    "typeorm": "^0.2.31",
+    "mysql2": "^2.2.5"
   }
 }

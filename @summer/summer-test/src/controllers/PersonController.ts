@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Inject, AutoInject } from '../../lib/decorators';
+import { Controller, Get, Param, Post, Body, Inject, AutoInject } from '@summer/summer';
 import { PersonRequest } from '../dto/request/person-request';
 import { PersonResource } from '../dto/resource/person-resource';
 import { PersonService } from '../service/person-service';

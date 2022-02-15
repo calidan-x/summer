@@ -1,4 +1,4 @@
-import { Service } from '../../lib/decorators';
+import { Service } from '@summer/summer';
 
 @Service
 export class ValidateService {

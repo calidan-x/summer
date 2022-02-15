@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Post, Query, Response } from '../../lib/decorators';
-import { fillData } from '../../lib/utils';
+import { Body, Controller, Get, Post, Query, Response, fillData } from '@summer/summer';
 import { Dog } from '../dto/request/Dog';
 
 @Controller('/')

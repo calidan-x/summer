@@ -1,4 +1,4 @@
-import { Middleware } from '../../lib/decorators/middleware';
+import { Middleware } from '@summer/summer';
 
 @Middleware({
   order: 0,

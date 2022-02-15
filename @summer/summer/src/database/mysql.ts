@@ -19,6 +19,7 @@ export const mysqlDB = {
       entities: global['$$_ENTITIES'],
       ...connectOptions
     });
+
     if (!connection.isConnected) {
       Logger.error('Failed to connect to database');
     }
