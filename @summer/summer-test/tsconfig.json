@@ -9,5 +9,6 @@
     "outDir": "./.summer-compile",
     "moduleResolution": "Node",
     "module": "commonjs"
-  }
+  },
+  "include": ["src/**/*"]
 }

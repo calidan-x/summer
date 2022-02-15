@@ -70,7 +70,7 @@ export const Summer = {
   async initTest() {
     process.env.SUMMER_ENV = 'test';
     this.isTestEnv = true;
-    await import(path.resolve('./.summer-compile/src/auto-imports'));
+    await import(path.resolve('./.summer-compile/auto-imports'));
     await this.start();
   },
 

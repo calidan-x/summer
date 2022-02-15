@@ -7,11 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "cli start": "summer -s",
-    "dev": "onchange -i -k 'src/**/*' --exclude src/auto-imports.ts -- npm run compile:dev",
-    "compile:dev": "rm -rdf .summer-compile && cross-env SUMMER_ENV=local node compile.mjs && node --enable-source-maps ./.summer-compile/src/main.js",
+    "dev": "summer -s",
     "compile:prod": "rm -rdf .summer-compile && cross-env SUMMER_ENV=prod node compile.mjs",
-    "test": "rm -rdf .summer-compile && node compile.mjs && jest",
+    "test": "summer -c && jest",
     "build": "npm run compile:prod && rm -rdf ./build && esbuild ./.summer-compile/src/main.js --bundle --sourcemap=inline --platform=node --outfile=./build/server.js",
     "start": "node --enable-source-maps ./build/server.js"
   },
@@ -24,6 +22,7 @@
     "cross-env": "^7.0.3",
     "jest": "^27.3.0",
     "typeorm": "^0.2.31",
-    "mysql2": "^2.2.5"
+    "mysql2": "^2.2.5",
+    "ts-jest": "^27.1.3"
   }
 }

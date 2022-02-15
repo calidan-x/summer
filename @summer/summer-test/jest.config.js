@@ -1,6 +1,5 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  modulePathIgnorePatterns: ['<rootDir>/src', '<rootDir>/test', 'config']
+  modulePathIgnorePatterns: ['<rootDir>/src', 'config']
 };

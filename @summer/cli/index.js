@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // @ts-check
 
-import { exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
 import { program } from 'commander';
 import chokidar from 'chokidar';
 import ora from 'ora';
 
-program.option('-b').option('-s');
+program.option('-c').option('-s');
 program.parse();
 
 const options = program.opts();
@@ -78,6 +78,25 @@ if (options.s) {
     }
     fileHashes[path] = currentMD5;
     serve();
+  });
+} else if (options.c) {
+  const spinner = ora('Starting Test...');
+  spinner.start();
+  const compileProcess = exec('rm -rdf .summer-compile && cross-env SUMMER_ENV=test summer-compile');
+  compileProcess.stdout.on('data', (data) => {
+    process.stdout.write(data);
+  });
+
+  compileProcess.stderr.on('data', (data) => {
+    process.stdout.write(data);
+  });
+
+  compileProcess.on('error', (data) => {
+    //@ts-ignore
+    process.stdout.write(data);
+  });
+  compileProcess.on('exit', () => {
+    spinner.stop();
   });
 }
 

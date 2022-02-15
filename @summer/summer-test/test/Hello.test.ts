@@ -1,5 +1,4 @@
-import { Context, requestHandler } from '../lib/request-handler';
-import { Summer } from '../lib/summer';
+import { Context, requestHandler, Summer } from '@summer/summer';
 
 describe('Hello Test', () => {
   beforeAll(async () => {
