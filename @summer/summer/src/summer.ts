@@ -21,7 +21,7 @@ declare global {
   Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey);
 };
 
-const version = '0.1.0';
+const version = '$$SUMMER_VERSION';
 
 export const Summer = {
   dbConnections: [],

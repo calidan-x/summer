@@ -8,7 +8,7 @@
     "lib"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && node replace-version"
   },
   "author": "Calidan",
   "license": "ISC",
