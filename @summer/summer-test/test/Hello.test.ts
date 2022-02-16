@@ -1,23 +1,16 @@
-import { Context, requestHandler, Summer } from '@summer/summer';
+import { initTest, endTest, request } from '@summer/test';
 
 describe('Hello Test', () => {
   beforeAll(async () => {
-    await Summer.initTest();
+    await initTest();
   });
 
   afterAll(async () => {
-    await Summer.endTest();
+    await endTest();
   });
 
   test('should response hello', async () => {
-    const content: Context = {
-      request: {
-        method: 'GET',
-        path: '/'
-      },
-      response: { code: 200, body: '', contentType: '' }
-    };
-    await requestHandler(content);
-    expect(content.response.body).toBe('Hello Summer!');
+    const response = await request.get('/');
+    expect(response.body).toBe('Hello Summer!');
   });
 });

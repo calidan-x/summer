@@ -17,6 +17,7 @@
     "@summer/mysql",
     "@summer/summer",
     "@summer/summer-test",
-    "@summer/cli"
+    "@summer/cli",
+    "@summer/test"
   ]
 }

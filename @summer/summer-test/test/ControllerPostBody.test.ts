@@ -1,42 +1,26 @@
-import { Context, requestHandler, Summer } from '@summer/summer';
+import { initTest, endTest, request } from '@summer/test';
 
 const typeVal = (value) => {
   return JSON.stringify({ type: typeof value, value });
 };
 
 const testRequestParam = async (requestValue: string, resultValue: any) => {
-  const context: Context = {
-    request: {
-      method: 'POST',
-      path: '/request-body-value',
-      body: requestValue
-    },
-    response: { code: 200, body: '', contentType: '' }
-  };
-  await requestHandler(context);
-  expect(context.response.body).toBe(typeVal(resultValue));
+  const response = await request.post('/request-body-value', requestValue);
+  expect(response.body).toBe(typeVal(resultValue));
 };
 
 const testErrorRequestParam = async (requestValue: string, errorMessage: any) => {
-  const context: Context = {
-    request: {
-      method: 'POST',
-      path: '/request-body-value',
-      body: requestValue
-    },
-    response: { code: 200, body: '', contentType: '' }
-  };
-  await requestHandler(context);
-  expect(context.response.body).toContain(errorMessage);
+  const response = await request.post('/request-body-value', requestValue);
+  expect(response.body).toContain(errorMessage);
 };
 
 describe('Controller Object Convert Test', () => {
   beforeAll(async () => {
-    await Summer.initTest();
+    await initTest();
   });
 
   afterAll(async () => {
-    await Summer.endTest();
+    await endTest();
   });
 
   test('test object convert', async () => {

@@ -1,4 +1,4 @@
-import { Context, requestHandler, Summer } from '@summer/summer';
+import { initTest, endTest, request } from '@summer/test';
 
 type TestTypes =
   | 'notype'
@@ -27,42 +27,26 @@ const typeVal = (value) => {
 };
 
 const testRequestParam = async (requestValue: string, convertType: TestTypes, resultValue: any) => {
-  const context: Context = {
-    request: {
-      method: 'GET',
-      path: '/request-basic-type-value',
-      queries: {
-        [convertType + 'Value']: requestValue
-      }
-    },
-    response: { code: 200, body: '', contentType: '' }
-  };
-  await requestHandler(context);
-  expect(context.response.body).toBe(typeVal(resultValue));
+  const response = await request.get('/request-basic-type-value', {
+    [convertType + 'Value']: requestValue
+  });
+  expect(response.body).toBe(typeVal(resultValue));
 };
 
 const testErrorRequestParam = async (requestValue: string, convertType: TestTypes, errorMessage: any) => {
-  const context: Context = {
-    request: {
-      method: 'GET',
-      path: '/request-basic-type-value',
-      queries: {
-        [convertType + 'Value']: requestValue
-      }
-    },
-    response: { code: 200, body: '', contentType: '' }
-  };
-  await requestHandler(context);
-  expect(context.response.body).toContain(errorMessage);
+  const response = await request.get('/request-basic-type-value', {
+    [convertType + 'Value']: requestValue
+  });
+  expect(response.body).toContain(errorMessage);
 };
 
 describe('Controller Params Test', () => {
   beforeAll(async () => {
-    await Summer.initTest();
+    await initTest();
   });
 
   afterAll(async () => {
-    await Summer.endTest();
+    await endTest();
   });
 
   test('test no type request value', async () => {

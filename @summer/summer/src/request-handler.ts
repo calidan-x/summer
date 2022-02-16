@@ -15,7 +15,7 @@ interface RequestContext {
   body?: string;
 }
 
-interface ResponseContext {
+export interface ResponseContext {
   code: number;
   contentType: string;
   headers?: Record<string, string>;
@@ -136,7 +136,7 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
   }
 };
 
-export const requestHandler = async (ctx: Context): Promise<ResponseContext> => {
+export const requestHandler = async (ctx: Context) => {
   context = ctx;
   return await callMiddleware(ctx);
 };

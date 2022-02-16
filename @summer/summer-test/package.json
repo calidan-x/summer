@@ -18,6 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "@summer/summer": "^0.1.0",
+    "@summer/test": "^0.1.0",
     "md5": "^2.3.0",
     "cross-env": "^7.0.3",
     "jest": "^27.3.0",

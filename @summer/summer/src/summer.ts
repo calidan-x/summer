@@ -47,7 +47,7 @@ export const Summer = {
       if (config['SESSION_CONFIG']) {
         session.init(config['SESSION_CONFIG']);
       }
-      await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG']);
+      !this.isTestEnv && (await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG']));
     }
   },
 
@@ -56,8 +56,7 @@ export const Summer = {
       console.log(`
 ===========================\n
 🔆SUMMER Ver ${version}    \n
-===========================\n
-`);
+===========================\n`);
     !this.isTestEnv && global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`);
 
     this.envConfig = await configHandler.loadConfig();
@@ -65,19 +64,5 @@ export const Summer = {
     await this.resolveConfig();
 
     locContainer.resolveLoc();
-  },
-
-  async initTest() {
-    process.env.SUMMER_ENV = 'test';
-    this.isTestEnv = true;
-    await import(path.resolve('./.summer-compile/auto-imports'));
-    await this.start();
-  },
-
-  async endTest() {
-    while (this.dbConnections.length) {
-      const connection = this.dbConnections.pop();
-      await connection.close();
-    }
   }
 };
