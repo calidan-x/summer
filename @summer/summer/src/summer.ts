@@ -1,10 +1,7 @@
 import 'reflect-metadata';
-import path from 'path';
 import { httpServer } from './http-server';
-import { mysqlDB } from './database/mysql';
 import { locContainer } from './loc';
 import { session } from './session';
-import { Logger } from './logger';
 import { configHandler } from './config-handler';
 
 declare global {
@@ -24,7 +21,6 @@ declare global {
   Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey);
 };
 
-// const { version } = require(fs.existsSync('../package.json') ? '../package.json' : '../../package.json');
 const version = '0.1.0';
 
 export const Summer = {
@@ -35,19 +31,17 @@ export const Summer = {
   // 通过用户设置的配置加载服务
   async resolveConfig() {
     const config = this.envConfig;
-    if (config['MYSQL_CONFIG']) {
-      const mysqlConnection = await mysqlDB.connect(config['MYSQL_CONFIG']);
-      if (mysqlConnection.isConnected) {
-        !this.isTestEnv && Logger.log('MySQL DB connected');
-        this.dbConnections.push(mysqlConnection);
-      }
+
+    for (const Plugin of global['$$_PLUGINS']) {
+      const plugin = new Plugin();
+      await plugin.init(config[plugin.configKey]);
     }
 
     if (config['SERVER_CONFIG']) {
       if (config['SESSION_CONFIG']) {
         session.init(config['SESSION_CONFIG']);
       }
-      !this.isTestEnv && (await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG']));
+      await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG']);
     }
   },
 

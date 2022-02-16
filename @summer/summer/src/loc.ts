@@ -1,6 +1,10 @@
 import { Logger } from './logger';
 import { Summer } from './summer';
 
+export interface Class<T> extends Function {
+  new (...args: any[]): T;
+}
+
 export const locContainer = {
   locClass: [],
   locInstance: {},
@@ -17,7 +21,8 @@ export const locContainer = {
     }
     this.locInstance[className] = instance;
   },
-  getInstance(className: string) {
+  getInstance<T>(clazz: string | Class<T>): T {
+    const className: string = typeof clazz === 'string' ? clazz : clazz.constructor.name;
     if (!this.locInstance[className]) {
       return undefined;
     }
@@ -101,3 +106,5 @@ export const locContainer = {
     this.locInstance = {};
   }
 };
+
+export const getLocInstance = locContainer.getInstance;

@@ -1,6 +1,6 @@
 import path from 'path';
 import { createConnection, Connection } from 'typeorm';
-import { Logger } from '../../logger';
+import { Summer, Logger } from '@summer/summer';
 import { DefaultNamingStrategy } from 'typeorm';
 import { snakeCase } from 'typeorm/util/StringUtils';
 import { Decorator, ClassDeclaration } from 'ts-morph';
@@ -25,13 +25,13 @@ export interface MySQLConfig {
 interface SummerPlugin {
   configKey: string;
   compile: (classDecorator: Decorator, clazz: ClassDeclaration) => void;
-  autoImport: () => void;
+  getAutoImportContent: () => void;
   init: (config: any) => void;
 }
 
 export default class implements SummerPlugin {
-  configKey: 'MYSQL_CONFIG';
-  entityList: any[];
+  configKey = 'MYSQL_CONFIG';
+  entityList = [];
 
   compile(classDecorator, clazz) {
     if (classDecorator.getName() === 'Entity') {
@@ -40,11 +40,14 @@ export default class implements SummerPlugin {
         .getFilePath()
         .replace(path.resolve('.') + '/src', '.')
         .replace(/\.ts$/, '');
+      if (!this.entityList[filePath]) {
+        this.entityList[filePath] = [];
+      }
       this.entityList[filePath].push(clazz.getName());
     }
   }
 
-  autoImport() {
+  getAutoImportContent() {
     const allEntities = [];
     let fileContent = '';
     for (const path in this.entityList) {
@@ -60,16 +63,22 @@ export default class implements SummerPlugin {
   }
 
   async connect(connectOptions: MySQLConfig) {
-    const connection: Connection = await createConnection({
-      type: 'mysql',
-      port: 3306,
-      namingStrategy: new DBNamingStrategy(),
-      entities: global['$$_ENTITIES'],
-      ...connectOptions
-    });
-    if (!connection.isConnected) {
-      Logger.error('Failed to connect to database');
+    if (connectOptions) {
+      const connection: Connection = await createConnection({
+        type: 'mysql',
+        port: 3306,
+        namingStrategy: new DBNamingStrategy(),
+        entities: global['$$_ENTITIES'],
+        ...connectOptions
+      });
+      if (!connection.isConnected) {
+        Logger.error('Failed to connect to database');
+      } else {
+        !Summer.isTestEnv && Logger.log('MySQL DB connected');
+        Summer.dbConnections.push(connection);
+      }
+    } else {
+      Logger.warning('Missing MYSQL_CONFIG in config file');
     }
-    return connection;
   }
 }

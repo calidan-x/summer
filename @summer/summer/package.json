@@ -7,9 +7,6 @@
   "files": [
     "lib"
   ],
-  "bin": {
-    "summer-compile": "lib/compile.js"
-  },
   "scripts": {
     "build": "tsc"
   },

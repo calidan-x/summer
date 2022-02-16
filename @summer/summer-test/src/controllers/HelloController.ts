@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query, Response, fillData } from '@summer/summer';
 import { Dog } from '../dto/request/Dog';
 
-@Controller('/')
+@Controller('')
 export class HelloController {
   @Get()
   hello() {
@@ -9,8 +9,8 @@ export class HelloController {
     return 'Hello Summer!';
   }
 
-  @Post()
-  helloP(@Body aaa: Dog) {
-    return aaa;
+  @Get('/error')
+  error() {
+    throw new Error('hello');
   }
 }

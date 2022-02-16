@@ -8,9 +8,9 @@
   },
   "scripts": {
     "dev": "summer -s",
-    "compile:prod": "rm -rdf .summer-compile && cross-env SUMMER_ENV=prod node compile.mjs",
     "test": "summer -c && jest",
-    "build": "npm run compile:prod && rm -rdf ./build && esbuild ./.summer-compile/src/main.js --bundle --sourcemap=inline --platform=node --outfile=./build/server.js",
+    "jest": " jest",
+    "build": "summer -c && esbuild ./.summer-compile/main.js --bundle --sourcemap=inline --platform=node --outfile=./build/server.js",
     "start": "node --enable-source-maps ./build/server.js"
   },
   "keywords": [],

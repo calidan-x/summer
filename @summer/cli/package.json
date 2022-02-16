@@ -4,7 +4,8 @@
   "description": "",
   "type": "module",
   "bin": {
-    "summer": "index.js"
+    "summer": "index.js",
+    "summer-compile": "compile.js"
   },
   "dependencies": {
     "chokidar": "^3.5.3",

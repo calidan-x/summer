@@ -1,4 +1,5 @@
-import { MySQLConfig, ServerConfig, SessionConfig } from '../../lib/config-handler';
+import { ServerConfig, SessionConfig } from '@summer/summer';
+import { MySQLConfig } from '@summer/mysql';
 
 export const MYSQL_CONFIG: MySQLConfig = {
   host: 'localhost',

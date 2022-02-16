@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// @ts-check
 
 import { exec, execSync } from 'child_process';
 import crypto from 'crypto';
@@ -38,7 +37,7 @@ if (options.s) {
 
       childProcess.on('exit', () => {
         spinner.stop();
-        childProcess = exec('node --enable-source-maps ./.summer-compile/src/main.js');
+        childProcess = exec('node --enable-source-maps ./.summer-compile/main.js');
         childProcess.stdout.on('data', (data) => {
           process.stdout.write(data);
         });
@@ -99,7 +98,3 @@ if (options.s) {
     spinner.stop();
   });
 }
-
-// onchange -i -k 'src/**/*' --exclude src/auto-imports.ts -- npm run compile:dev
-// rm -rdf .summer-compile && cross-env SUMMER_ENV=local node compile.mjs && node --enable-source-maps ./.summer-compile/src/main.js
-// node --enable-source-maps ./.summer-compile/src/main.js

@@ -1,8 +1,8 @@
-import { MySQLConfig } from '../../lib/config-handler';
+import { MySQLConfig } from '@summer/mysql';
 
 export const MYSQL_CONFIG: MySQLConfig = {
   host: 'localhost',
-  database: 'testdb',
+  database: 'summer-db',
   username: 'root',
   password: 'root'
 };
