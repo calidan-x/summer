@@ -79,7 +79,7 @@ if (options.s) {
     serve();
   });
 } else if (options.c) {
-  const spinner = ora('Starting Test...');
+  const spinner = ora('Compiling...');
   spinner.start();
   const compileProcess = exec('rm -rdf .summer-compile && cross-env SUMMER_ENV=test summer-compile');
   compileProcess.stdout.on('data', (data) => {
