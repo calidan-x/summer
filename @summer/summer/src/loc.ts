@@ -1,5 +1,5 @@
+import { loadConfig } from './config-handler';
 import { Logger } from './logger';
-import { Summer } from './summer';
 
 export interface Class<T> extends Function {
   new (...args: any[]): T;
@@ -84,12 +84,13 @@ export const locContainer = {
     target._paddingAssign[propertyKey] = { decoratorFunc, args };
   },
   async resolveAssign() {
+    const config = loadConfig();
     for (const locKey in this.locInstance) {
       const obj = this.locInstance[locKey];
       if (obj._paddingAssign) {
         for (const assignKey in obj._paddingAssign) {
           obj[assignKey] = await obj._paddingAssign[assignKey].decoratorFunc(
-            Summer.envConfig,
+            config,
             assignKey,
             ...obj._paddingAssign[assignKey].args
           );

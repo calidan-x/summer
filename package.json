@@ -18,6 +18,7 @@
     "@summer/summer",
     "@summer/summer-test",
     "@summer/cli",
-    "@summer/test"
+    "@summer/test",
+    "@summer/swagger"
   ]
 }

@@ -1,8 +1,13 @@
 {
-  "name": "@summer/mysql",
+  "name": "@summer/swagger",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
+  "module": "lib/index.js",
+  "dependencies": {
+    "swagger-ui-dist": "^4.5.0"
+  },
+  "devDependencies": {},
   "scripts": {
     "build": "tsc"
   },

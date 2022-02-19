@@ -1,18 +1,8 @@
-import { requestHandler } from '@summer/summer';
+import { summerStart, handler } from '@summer/summer';
+import './auto-imports';
+export { handler };
 
-export const handler = async (event) => {
-  const context = {
-    request: {
-      method: event.httpMethod,
-      path: event.path,
-      queries: event.queryStringParameters,
-      headers: event.headers,
-      body: event.body,
-      cookies: event.cookies,
-      sessions: {}
-    },
-    response: { code: 200, body: '', contentType: '' }
-  };
-  await requestHandler(context);
-  return context.response;
-};
+summerStart({
+  init(config) {},
+  serverStarted(config) {}
+});

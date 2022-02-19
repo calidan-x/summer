@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { Project } from 'ts-morph';
 
-const PLUGINS = ['@summer/mysql'];
+const PLUGINS = ['@summer/mysql', '@summer/swagger'];
 const pluginIncs = [];
 const existPlugins = {};
 
@@ -105,7 +105,7 @@ const existPlugins = {};
         }
 
         for (const p of pluginIncs) {
-          p.compile(classDecorator, cls);
+          p.compile && p.compile(classDecorator, cls);
         }
       });
     });
@@ -145,11 +145,15 @@ const existPlugins = {};
   fileContent += '\n';
 
   for (const p of pluginIncs) {
-    fileContent += p.getAutoImportContent();
+    fileContent += p.getAutoImportContent ? p.getAutoImportContent() : '';
   }
 
   fs.writeFileSync('./src/auto-imports.ts', fileContent);
 
   project.resolveSourceFileDependencies();
   project.emitSync();
+
+  for (const p of pluginIncs) {
+    p.postCompile && p.postCompile();
+  }
 })();

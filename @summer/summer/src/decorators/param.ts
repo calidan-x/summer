@@ -59,15 +59,12 @@ export const Queries = createParamDecorator((ctx) => ctx.request.queries);
 export const Query = createParamDecorator(
   (ctx, paramName: string, name: string) => ctx.request.queries[name || paramName]
 );
-export const Param = createParamDecorator(
+export const PathParam = createParamDecorator(
   (ctx, paramName: string, name: string) => ctx.request.pathParams[name || paramName]
 );
-export const Session = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.sessions[name || paramName]
-);
+export const Session = createParamDecorator((ctx, paramName: string, name: string) => ctx.sessions[name || paramName]);
 export const Header = createParamDecorator(
   (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
 );
-export const Cookie = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.cookies[name || paramName]
-);
+export const Cookie = createParamDecorator((ctx, paramName: string, name: string) => ctx.cookies[name || paramName]);
+export const RequestPath = createParamDecorator((ctx) => ctx.request.path);

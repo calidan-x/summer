@@ -10,8 +10,8 @@
     "dev": "summer -s",
     "test": "summer -c && jest",
     "jest": " jest",
-    "build": "summer -c && esbuild ./.summer-compile/main.js --bundle --sourcemap=inline --platform=node --outfile=./build/server.js",
-    "start": "node --enable-source-maps ./build/server.js"
+    "build": "summer -c && esbuild ./.summer-compile/index.js --bundle --sourcemap=inline --platform=node --outfile=./build/index.js",
+    "start": "node --enable-source-maps ./build/index.js"
   },
   "keywords": [],
   "author": "",

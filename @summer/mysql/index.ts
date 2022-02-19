@@ -1,9 +1,8 @@
 import path from 'path';
 import { createConnection, Connection } from 'typeorm';
-import { Summer, Logger } from '@summer/summer';
+import { Logger, SummerPlugin } from '@summer/summer';
 import { DefaultNamingStrategy } from 'typeorm';
 import { snakeCase } from 'typeorm/util/StringUtils';
-import { Decorator, ClassDeclaration } from 'ts-morph';
 
 class DBNamingStrategy extends DefaultNamingStrategy {
   tableName(targetName: string, userSpecifiedName: string | undefined): string {
@@ -22,16 +21,10 @@ export interface MySQLConfig {
   password: string;
 }
 
-interface SummerPlugin {
-  configKey: string;
-  compile: (classDecorator: Decorator, clazz: ClassDeclaration) => void;
-  getAutoImportContent: () => void;
-  init: (config: any) => void;
-}
-
 export default class implements SummerPlugin {
   configKey = 'MYSQL_CONFIG';
   entityList = [];
+  dbConnections: Connection[] = [];
 
   compile(classDecorator, clazz) {
     if (classDecorator.getName() === 'Entity') {
@@ -74,11 +67,18 @@ export default class implements SummerPlugin {
       if (!connection.isConnected) {
         Logger.error('Failed to connect to database');
       } else {
-        !Summer.isTestEnv && Logger.log('MySQL DB connected');
-        Summer.dbConnections.push(connection);
+        !process.env.SUMMER_TESTING && Logger.log('MySQL DB connected');
+        this.dbConnections.push(connection);
       }
     } else {
       Logger.warning('Missing MYSQL_CONFIG in config file');
+    }
+  }
+
+  async destroy() {
+    while (this.dbConnections.length) {
+      const conn = this.dbConnections.pop();
+      await conn.close();
     }
   }
 }

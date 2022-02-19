@@ -1,5 +1,4 @@
 import { locContainer } from '../loc';
-import { Summer } from '../summer';
 import { OmitFirstAndSecondArg } from './utility';
 
 const generatePropertyDecorator =

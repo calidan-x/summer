@@ -1,41 +1,39 @@
-import { Context, requestHandler, Summer } from '@summer/summer';
+import { Context, requestHandler, summerStart, summerDestroy } from '@summer/summer';
 import path from 'path';
 
 export const initTest = async () => {
-  process.env.SUMMER_ENV = 'test';
-  Summer.isTestEnv = true;
+  process.env.SUMMER_TESTING = 'true';
   await import(path.resolve('./.summer-compile/auto-imports'));
-  await Summer.start();
+  await summerStart();
 };
 
 export const endTest = async () => {
-  while (Summer.dbConnections.length) {
-    const connection = Summer.dbConnections.pop();
-    await connection.close();
-  }
+  summerDestroy();
 };
 
 export const request = {
-  async get(path: string, queries?: any) {
+  async get(path: string, queries?: any, headers?: any) {
     const context: Context = {
       request: {
         method: 'GET',
         path,
-        queries
+        queries,
+        headers
       },
-      response: { code: 200, body: '', contentType: '' }
+      response: { statusCode: 200, body: '' }
     };
     await requestHandler(context);
     return context.response;
   },
-  async post(path: string, body?: any) {
+  async post(path: string, body?: any, headers?: any) {
     const context: Context = {
       request: {
         method: 'POST',
         path,
-        body
+        body,
+        headers
       },
-      response: { code: 200, body: '', contentType: '' }
+      response: { statusCode: 200, body: '' }
     };
     await requestHandler(context);
     return context.response;

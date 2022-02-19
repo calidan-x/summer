@@ -37,7 +37,7 @@ if (options.s) {
 
       childProcess.on('exit', () => {
         spinner.stop();
-        childProcess = exec('node --enable-source-maps ./.summer-compile/main.js');
+        childProcess = exec('node --enable-source-maps ./.summer-compile/index.js');
         childProcess.stdout.on('data', (data) => {
           process.stdout.write(data);
         });
@@ -59,7 +59,7 @@ if (options.s) {
   serve();
 
   const watchDir = './src/';
-  chokidar.watch(watchDir, { ignored: 'auto-imports' }).on('all', (event, path) => {
+  chokidar.watch(watchDir, { ignored: 'src/auto-imports.ts' }).on('all', (event, path) => {
     if (fs.lstatSync('./' + path).isDirectory()) {
       return;
     }

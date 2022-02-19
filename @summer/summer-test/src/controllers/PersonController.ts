@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Inject, AutoInject } from '@summer/summer';
+import { Controller, Get, PathParam, Post, Body, Inject, AutoInject } from '@summer/summer';
 import { PersonRequest } from '../dto/request/person-request';
 import { PersonResource } from '../dto/resource/person-resource';
 import { PersonService } from '../service/person-service';
@@ -21,7 +21,7 @@ export class PersonController {
   }
 
   @Get('/:id/:name')
-  async personInfo(@Param id: number) {
+  async personInfo(@PathParam id: number) {
     const person = await this.personService.getPersonInfo(id);
     return person;
   }

@@ -1,62 +1,54 @@
 import 'reflect-metadata';
+import { SummerPlugin } from './index';
 import { httpServer } from './http-server';
 import { locContainer } from './loc';
 import { session } from './session';
-import { configHandler } from './config-handler';
-
-declare global {
-  type int = bigint;
-  type float = number;
-}
-
-(global as any)._PropDeclareType = (type: any) => (target: Object, propertyKey: string | symbol) => {
-  // Reflect.metadata('DeclareType', type);
-  Reflect.defineMetadata(propertyKey, propertyKey, target);
-  Reflect.defineMetadata('DeclareType', type, target, propertyKey);
-};
-
-(global as any)._ParamDeclareType = (type: any) => (target: Object, propertyKey: string | symbol, index: number) => {
-  let existingParameterTypes: number[] = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey) || [];
-  existingParameterTypes[index] = type;
-  Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey);
-};
+import { loadConfig } from './config-handler';
 
 const version = '$$SUMMER_VERSION';
 
-export const Summer = {
-  dbConnections: [],
-  isTestEnv: false,
-  envConfig: {},
+interface SummerStartOptions {
+  init?: (config: any) => void;
+  serverStarted?: (config: any) => void;
+}
 
-  // 通过用户设置的配置加载服务
-  async resolveConfig() {
-    const config = this.envConfig;
+const pluginIncs: SummerPlugin[] = [];
 
-    for (const Plugin of global['$$_PLUGINS']) {
-      const plugin = new Plugin();
-      await plugin.init(config[plugin.configKey]);
+export const summerStart = async (options?: SummerStartOptions) => {
+  options = options || {};
+  const config = loadConfig();
+
+  for (const Plugin of global['$$_PLUGINS']) {
+    const plugin: SummerPlugin = new Plugin();
+    pluginIncs.push(plugin);
+    plugin.init && (await plugin.init(config[plugin.configKey]));
+  }
+
+  options.init && (await options.init(config));
+
+  const isAWSLambda = process.env.AWS_LAMBDA_FUNCTION_VERSION !== undefined;
+  const isSummerTesting = process.env.SUMMER_TESTING !== undefined;
+
+  if (config['SERVER_CONFIG'] && !isAWSLambda && !isSummerTesting) {
+    if (config['SESSION_CONFIG']) {
+      session.init(config['SESSION_CONFIG']);
     }
 
-    if (config['SERVER_CONFIG']) {
-      if (config['SESSION_CONFIG']) {
-        session.init(config['SESSION_CONFIG']);
-      }
-      await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG']);
-    }
-  },
-
-  async start() {
-    !this.isTestEnv &&
-      console.log(`
+    console.log(`
 ===========================\n
 🔆SUMMER Ver ${version}    \n
 ===========================\n`);
-    !this.isTestEnv && global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`);
+    global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`);
+    await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG'], () => {
+      options.serverStarted && options.serverStarted(config);
+    });
+  }
 
-    this.envConfig = await configHandler.loadConfig();
+  locContainer.resolveLoc();
+};
 
-    await this.resolveConfig();
-
-    locContainer.resolveLoc();
+export const summerDestroy = async () => {
+  for (const plugin of pluginIncs) {
+    plugin.destroy && (await plugin.destroy());
   }
 };

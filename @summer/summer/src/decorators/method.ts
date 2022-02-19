@@ -74,7 +74,7 @@ export const Cache = createMethodDecorator(async (ctx, callMethod, key: string) 
 
 export const Response = createMethodDecorator(async (ctx, callMethod, code: number, message: string) => {
   await callMethod();
-  ctx.response.code = code;
+  ctx.response.statusCode = code;
   ctx.response.body = message;
 });
 

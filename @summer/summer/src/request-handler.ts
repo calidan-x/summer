@@ -10,14 +10,11 @@ interface RequestContext {
   pathParams?: Record<string, string>;
   queries?: Record<string, string>;
   headers?: Record<string, string>;
-  cookies?: Record<string, string>;
-  sessions?: Record<string, string>;
   body?: string;
 }
 
 export interface ResponseContext {
-  code: number;
-  contentType: string;
+  statusCode: number;
   headers?: Record<string, string>;
   body: string;
 }
@@ -25,6 +22,9 @@ export interface ResponseContext {
 export interface Context {
   request: RequestContext;
   response: ResponseContext;
+  cookies?: Record<string, string>;
+  sessions?: Record<string, string>;
+  data?: Record<string, string>;
 }
 
 export let context: Context = {} as any;
@@ -72,8 +72,10 @@ export const applyResponse = (ctx: Context, responseData: any) => {
   const isJSON = typeof responseData === 'object';
   ctx.response = {
     ...ctx.response,
-    code: 200,
-    contentType: isJSON ? 'application/json' : 'text/plain',
+    statusCode: 200,
+    headers: {
+      'Content-Type': isJSON ? 'application/json' : 'text/plain'
+    },
     body: isJSON ? JSON.stringify(responseData) : responseData + ''
   };
 };
@@ -109,7 +111,11 @@ const callControllerMethod = async (ctx: Context) => {
     }
 
     if (allErrors.length > 0) {
-      ctx.response = { code: 403, contentType: 'application/json', body: JSON.stringify({ allErrors }) };
+      ctx.response = {
+        statusCode: 403,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ allErrors })
+      };
     } else {
       try {
         let responseData = await controller[callMethod].apply(controller, applyParam);
@@ -118,11 +124,11 @@ const callControllerMethod = async (ctx: Context) => {
         }
       } catch (e) {
         Logger.error(e.stack);
-        ctx.response = { code: 400, contentType: 'text/html', body: '400 Bad Request' };
+        ctx.response = { statusCode: 400, headers: { 'Content-Type': 'text/html' }, body: '400 Bad Request' };
       }
     }
   } else {
-    ctx.response = { code: 404, contentType: 'text/html', body: '404 Not Found' };
+    ctx.response = { statusCode: 404, headers: { 'Content-Type': 'text/html' }, body: '404 Not Found' };
   }
 };
 
@@ -137,6 +143,15 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
 };
 
 export const requestHandler = async (ctx: Context) => {
+  if (!ctx.data) {
+    ctx.data = {};
+  }
+  if (!ctx.sessions) {
+    ctx.sessions = {};
+  }
+  if (!ctx.response.headers) {
+    ctx.response.headers = {};
+  }
   context = ctx;
   return await callMiddleware(ctx);
 };
