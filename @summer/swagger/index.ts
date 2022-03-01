@@ -197,6 +197,9 @@ const intToInteger = (type: string) => {
   if (type === 'int' || type === 'bigint') {
     return 'integer';
   }
+  if (type === 'float') {
+    return 'number';
+  }
   return type;
 };
 
@@ -232,13 +235,22 @@ const getRequestTypeDesc = (t: any) => {
         items: getRequestTypeDesc(declareType)
       };
     } else {
-      typeDesc[key] = {
-        type: intToInteger(declareType.name.toLowerCase()),
-        description: ''
-      };
+      // enum
+      if (typeof declareType === 'object' && designType.name === 'String') {
+        typeDesc[key] = {
+          type: 'string',
+          enum: Object.keys(declareType),
+          description: ''
+        };
+      } else {
+        typeDesc[key] = {
+          type: intToInteger(declareType.name.toLowerCase()),
+          description: ''
+        };
+      }
     }
   }
-  return typeDesc;
+  return { type: 'object', properties: typeDesc, description: '' };
 };
 
 let outSwaggerJson = null;
@@ -276,10 +288,9 @@ export class SummerSwaggerUIController {
               schema:
                 ptype === 'object'
                   ? {
-                      type: 'object',
                       example: api.requestBody,
                       required: [],
-                      properties: getRequestTypeDesc(param.declareType)
+                      ...getRequestTypeDesc(param.declareType)
                     }
                   : null
             });

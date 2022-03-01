@@ -18,7 +18,7 @@ import { Dog } from '../dto/request/Dog';
 class HelloRequest {
   name: string;
   age: int;
-  pets: string[];
+  pets: Dog[];
 }
 
 @Controller()
