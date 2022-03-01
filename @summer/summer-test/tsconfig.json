@@ -10,5 +10,5 @@
     "moduleResolution": "Node",
     "module": "commonjs"
   },
-  "include": ["src/**/*"]
+  "include": ["./src/**/*"]
 }

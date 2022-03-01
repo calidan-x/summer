@@ -20,22 +20,20 @@ export interface SwaggerConfig {
 export default class implements SummerPlugin {
     configKey: string;
     init(config: SwaggerConfig): Promise<void>;
-    postCompile(): void;
+    getAutoImportContent(): string;
+    postCompile(): Promise<void>;
 }
 export declare const ApiGroupDoc: (name: string, description?: string, order?: number) => (target: any) => void;
-export declare const ApiDoc: (api: {
-    description: string;
-    request: {
-        header: any;
-        param: any;
-        query: any;
-        path: any;
-        body: any;
-    };
-    response: {
-        header: any;
-        stateCode: string;
-        body: any;
-    }[];
+interface ControllerApiDoc {
+    summery: string;
+    description?: string;
+    requestBody?: any;
+    response?: any;
+    errorResponses?: Record<string | number, any>;
     order?: number;
-}) => (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void;
+}
+export declare const ApiDoc: (api: ControllerApiDoc) => (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void;
+export declare class SummerSwaggerUIController {
+    getSwaggerDocument(): any;
+}
+export {};

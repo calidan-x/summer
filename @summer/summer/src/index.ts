@@ -35,7 +35,7 @@ export const handler = async (event) => {
 };
 
 declare global {
-  type int = bigint;
+  type int = number;
   type float = number;
 }
 

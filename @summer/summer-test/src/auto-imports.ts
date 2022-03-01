@@ -12,3 +12,6 @@ import * as $M3 from './middleware/PathMiddleware';
 $M0;$M1;$M2;$M3;
 import { Person } from './entity/person';
 global["$$_ENTITIES"] = [Person];
+import { SummerSwaggerUIController } from "@summer/swagger";
+SummerSwaggerUIController;
+

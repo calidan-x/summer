@@ -52,7 +52,7 @@ export const httpServer = {
               if (!path.resolve(requestFile).startsWith(path.resolve(staticPrePath))) {
                 continue;
               }
-              if (req.url.startsWith('/' + staticPrePath)) {
+              if (req.url.startsWith('/' + staticPrePath + '/') || req.url === '/' + staticPrePath) {
                 requestFile = requestFile.replace(staticPrePath, targetPath);
                 if (targetPath.startsWith('/')) {
                   requestFile = requestFile.replace('./', '');
