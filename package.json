@@ -14,11 +14,12 @@
   },
   "homepage": "https://github.com/calidan-x/summer#readme",
   "workspaces": [
-    "@summer/mysql",
-    "@summer/summer",
-    "@summer/summer-test",
-    "@summer/cli",
-    "@summer/test",
-    "@summer/swagger"
+    "create-summer",
+    "@summer-js/summer",
+    "@summer-js/typeorm",
+    "@summer-js/summer-test",
+    "@summer-js/cli",
+    "@summer-js/test",
+    "@summer-js/swagger"
   ]
 }

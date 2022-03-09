@@ -2,5 +2,4 @@
 node_modules
 build
 .summer-compile
-@summer/summer/lib
-@summer/test/lib
+@summer-js/*/lib

@@ -1,0 +1,25 @@
+{
+  "name": "@summer-js/summer-test",
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+    "dev": "summer -s",
+    "test": "summer -c && jest",
+    "jest": " jest",
+    "build": "summer -c && esbuild ./.summer-compile/index.js --bundle --sourcemap=inline --platform=node --outfile=./build/index.js",
+    "start": "node --enable-source-maps ./build/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@summer-js/summer": "^0.1.0",
+    "@summer-js/test": "^0.1.0",
+    "md5": "^2.3.0",
+    "cross-env": "^7.0.3",
+    "jest": "^27.3.0",
+    "typeorm": "^0.2.31",
+    "mysql2": "^2.2.5",
+    "ts-jest": "^27.1.3"
+  }
+}
