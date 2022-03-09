@@ -150,6 +150,7 @@ const existPlugins = {};
 
   fs.writeFileSync('./src/auto-imports.ts', fileContent);
 
+  project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync();
   project.resolveSourceFileDependencies();
   project.emitSync();
 

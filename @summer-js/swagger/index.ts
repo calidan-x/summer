@@ -85,6 +85,9 @@ const swaggerJson: SwaggerDoc = {
 export default class implements SummerPlugin {
   configKey = 'SWAGGER_CONFIG';
   async init(config: SwaggerConfig) {
+    if (!config) {
+      return;
+    }
     Object.assign(swaggerJson, config);
     const serverConfig = loadConfig()['SERVER_CONFIG'];
     if (serverConfig) {
@@ -98,7 +101,7 @@ export default class implements SummerPlugin {
           serverConfig.serveStatic.indexFiles = [];
         }
       }
-      serverConfig.serveStatic.paths[config.swaggerDocPath] = 'resource/swagger-ui';
+      serverConfig.serveStatic.paths[config.swaggerDocPath || 'swagger-ui'] = 'resource/swagger-ui';
     }
   }
 

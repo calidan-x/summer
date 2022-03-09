@@ -18,6 +18,17 @@ export const summerStart = async (options?: SummerStartOptions) => {
   options = options || {};
   const config = loadConfig();
 
+  const isAWSLambda = process.env.AWS_LAMBDA_FUNCTION_VERSION !== undefined;
+  const isSummerTesting = process.env.SUMMER_TESTING !== undefined;
+
+  if (config['SERVER_CONFIG'] && !isAWSLambda && !isSummerTesting) {
+    console.log(`
+===========================\n
+🔆SUMMER Ver ${version}    \n
+===========================\n`);
+    global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`);
+  }
+
   for (const Plugin of global['$$_PLUGINS']) {
     const plugin: SummerPlugin = new Plugin();
     pluginIncs.push(plugin);
@@ -26,19 +37,11 @@ export const summerStart = async (options?: SummerStartOptions) => {
 
   options.init && (await options.init(config));
 
-  const isAWSLambda = process.env.AWS_LAMBDA_FUNCTION_VERSION !== undefined;
-  const isSummerTesting = process.env.SUMMER_TESTING !== undefined;
-
   if (config['SERVER_CONFIG'] && !isAWSLambda && !isSummerTesting) {
     if (config['SESSION_CONFIG']) {
       session.init(config['SESSION_CONFIG']);
     }
 
-    console.log(`
-===========================\n
-🔆SUMMER Ver ${version}    \n
-===========================\n`);
-    global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`);
     await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG'], () => {
       options.serverStarted && options.serverStarted(config);
     });

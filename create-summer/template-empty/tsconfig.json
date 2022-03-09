@@ -4,7 +4,7 @@
     "types": ["node", "jest"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "inlineSourceMap": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./.summer-compile",
     "moduleResolution": "Node",

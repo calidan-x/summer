@@ -1,6 +1,6 @@
 import { initTest, endTest, request } from '@summer-js/test';
 
-describe('Hello Test', () => {
+describe('Test HelloController', () => {
   beforeAll(async () => {
     await initTest();
   });

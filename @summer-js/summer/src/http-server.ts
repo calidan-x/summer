@@ -36,7 +36,7 @@ export const httpServer = {
           const urlParts = req.url.split('?');
           const requestPath = urlParts[0].split('#')[0];
 
-          if (serverConfig.serveStatic.paths) {
+          if (serverConfig.serveStatic && serverConfig.serveStatic.paths) {
             let pathMap: Record<string, string> = {};
             if (Array.isArray(serverConfig.serveStatic.paths)) {
               serverConfig.serveStatic.paths.forEach((path) => {

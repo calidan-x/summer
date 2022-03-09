@@ -1,12 +1,17 @@
 {
   "name": "@summer-js/test",
-  "version": "0.1.0",
+  "version": "0.0.3",
   "description": "",
   "main": "lib/index.js",
   "module": "lib/index.js",
   "files": [
     "lib"
   ],
+  "dependencies": {
+    "@types/jest": "^27.4.1",
+    "jest": "^27.3.0",
+    "ts-jest": "^27.1.3"
+  },
   "devDependencies": {},
   "scripts": {
     "build": "tsc"

@@ -12,7 +12,6 @@ import {
   Header
 } from '@summer-js/summer';
 import { ApiDoc, ApiGroupDoc } from '@summer-js/swagger';
-import fs from 'fs';
 import { Dog } from '../dto/request/Dog';
 
 class HelloRequest {

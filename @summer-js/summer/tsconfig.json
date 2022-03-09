@@ -4,7 +4,7 @@
     "types": ["node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "inlineSourceMap": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./lib",
     "moduleResolution": "Node",
