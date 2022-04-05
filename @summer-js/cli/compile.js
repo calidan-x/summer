@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Project } from 'ts-morph';
+import { Project, ClassDeclaration } from 'ts-morph';
 
 const PLUGINS = ['@summer-js/typeorm', '@summer-js/swagger'];
 const pluginIncs = [];
@@ -18,13 +18,23 @@ const existPlugins = {};
     }
   }
 
+  fs.writeFileSync('./src/auto-imports.ts', '');
+
   const project = new Project({
     tsConfigFilePath: './tsconfig.json'
   });
+
+  const diagnostics = project.getPreEmitDiagnostics();
+  if (diagnostics.length > 0) {
+    console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:');
+    console.log(project.formatDiagnosticsWithColorAndContext(diagnostics));
+    return;
+  }
+
   const sourceFiles = project.getSourceFiles();
 
   const getDeclareType = (declareLine, isArray) => {
-    const parts = declareLine.split(':');
+    const parts = declareLine.split(/:(.*)/s);
     let type = undefined;
     if (parts.length > 1) {
       type = parts[1].replace(';', '').replace(/=.+$/, '').trim();
@@ -45,6 +55,19 @@ const existPlugins = {};
       type = 'BigInt';
     }
 
+    if (typeof type === 'string' && type.indexOf('|') > 0) {
+      const eachStrings = type.split('|');
+      let stringEnum = '{';
+      eachStrings.forEach((es) => {
+        es = es.trim();
+        if ((es.startsWith('"') && es.endsWith('"')) || (es.startsWith("'") && es.endsWith("'"))) {
+          stringEnum += es + ':' + es;
+        }
+      });
+      stringEnum += '}';
+      return stringEnum;
+    }
+
     return type;
   };
 
@@ -57,17 +80,15 @@ const existPlugins = {};
       if (type === undefined || type === null) {
         return;
       }
-      // if (p.getSourceFile().getClass(type)) {
-      //   addPropDecorator(p.getSourceFile().getClass(type));
-      // } else {
-      //   const importSourceFiles = p.getSourceFile().getReferencedSourceFiles();
-      //   importSourceFiles.forEach((sf) => {
-      //     if (sf.getClass(type)) {
-      //       addPropDecorator(sf.getClass(type));
-      //     }
-      //   });
-      // }
-      p.addDecorator({ name: '_PropDeclareType', arguments: [type] });
+
+      if (!p.hasQuestionToken()) {
+        if (!p.getDecorators().find((d) => d.getName() === '_Required')) {
+          p.addDecorator({ name: '_Required', arguments: [] });
+        }
+      }
+      if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
+        p.addDecorator({ name: '_PropDeclareType', arguments: [type] });
+      }
     });
     if (cls.getExtends()) {
       addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0]);
@@ -75,7 +96,6 @@ const existPlugins = {};
   };
 
   let controllerFilesList = [];
-  let entityList = {};
   for (const sf of sourceFiles) {
     for (const cls of sf.getClasses()) {
       addPropDecorator(cls);
@@ -95,10 +115,6 @@ const existPlugins = {};
                   name: '_ParamDeclareType',
                   arguments: [getDeclareType(param.getText(), paramType.isArray())]
                 });
-                // if (paramType.isClass()) {
-                //   const requestValidateClass = paramType.getSymbolOrThrow().getDeclarations()[0];
-                //   addPropDecorator(requestValidateClass);
-                // }
               }
             });
           });

@@ -1,7 +1,8 @@
-import { Controller, Get, PathParam, Post, Body, Inject, AutoInject, Query } from '@summer-js/summer';
+import { Controller, Get, PathParam, Post, Body, Inject, AutoInject, Query, convertData } from '@summer-js/summer';
 import { ApiDoc, ApiGroupDoc } from '@summer-js/swagger';
 import { PersonRequest } from '../dto/request/person-request';
 import { PersonResource } from '../dto/resource/person-resource';
+import { Person } from '../entity';
 import { PersonService } from '../service/person-service';
 
 @AutoInject
@@ -19,11 +20,11 @@ export class PersonController {
 
   @Post
   async addPerson(@Body personRequest: PersonRequest) {
-    const persons = await this.personService.savePerson(personRequest.toPerson());
+    const persons = await this.personService.savePerson(convertData(personRequest, Person));
     return persons;
   }
 
-  @Get('/:id/:name')
+  @Get('/:id')
   async personInfo(@PathParam id: number) {
     const person = await this.personService.getPersonInfo(id);
     return person;

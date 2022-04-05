@@ -1,16 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Query,
-  Response,
-  fillData,
-  Request,
-  RequestPath,
-  PathParam,
-  Header
-} from '@summer-js/summer';
+import { Body, Controller, Get, Query, PathParam, Header } from '@summer-js/summer';
 import { ApiDoc, ApiGroupDoc } from '@summer-js/swagger';
 import { Dog } from '../dto/request/Dog';
 

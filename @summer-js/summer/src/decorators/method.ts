@@ -2,12 +2,12 @@ import { applyResponse, Context, context } from '../request-handler';
 import { requestMappingAssembler } from '../request-mapping';
 import { OmitFirstAndSecondArg } from './utility';
 
-interface ControllerMethodDecoratorType {
+export interface ControllerMethodDecoratorType {
   (path?: string): MethodDecorator;
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor): void;
 }
 
-const restfulMethodDecorator =
+export const restfulMethodDecorator =
   (httpMethod: string): ControllerMethodDecoratorType =>
   (...dArgs): MethodDecorator => {
     if (dArgs.length <= 1) {
@@ -20,13 +20,6 @@ const restfulMethodDecorator =
       requestMappingAssembler.addMethodDescriptor(dArgs[2]);
     }
   };
-
-export const Get = restfulMethodDecorator('GET');
-export const Post = restfulMethodDecorator('POST');
-export const Put = restfulMethodDecorator('PUT');
-export const Patch = restfulMethodDecorator('PATCH');
-export const Delete = restfulMethodDecorator('DELETE');
-export const Request = restfulMethodDecorator('REQUEST');
 
 const generateMethodDecorator =
   (paramMethod: any, ...args: any[]) =>
@@ -62,23 +55,3 @@ export const createMethodDecorator =
     }
     return generateMethodDecorator(paramMethod, ...dArgs);
   };
-
-////
-const CACHE = {};
-export const Cache = createMethodDecorator(async (ctx, callMethod, key: string) => {
-  if (CACHE[key] === undefined) {
-    CACHE[key] = await callMethod();
-  }
-  return CACHE[key];
-});
-
-export const Response = createMethodDecorator(async (ctx, callMethod, code: number, message: string) => {
-  await callMethod();
-  ctx.response.statusCode = code;
-  ctx.response.body = message;
-});
-
-export const Hihi = createMethodDecorator(async (ctx, callMethod, message: string) => {
-  await callMethod();
-  console.log(message);
-});

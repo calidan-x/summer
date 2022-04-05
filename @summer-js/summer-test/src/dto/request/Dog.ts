@@ -13,7 +13,7 @@ class Toy {
 
 export class Dog extends Animal {
   eyeColor: Color;
-  tailLength: float;
+  tailLength: number;
   toys: Toy[];
 
   bark() {

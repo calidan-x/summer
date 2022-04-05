@@ -82,13 +82,6 @@ describe('Controller Params Test', () => {
     await testRequestParam('-123', 'bigint', -123);
   });
 
-  test('test float type request value', async () => {
-    await testErrorRequestParam('hello', 'float', 'is not a float');
-    await testErrorRequestParam('123', 'float', 'is not a float');
-    await testRequestParam('-123.123', 'float', -123.123);
-    await testRequestParam('.123', 'float', 0.123);
-  });
-
   test('test boolean type request value', async () => {
     await testErrorRequestParam('hello', 'boolean', 'is not a boolean');
     await testErrorRequestParam('123', 'boolean', 'is not a boolean');
@@ -142,14 +135,6 @@ describe('Controller Params Test', () => {
     await testErrorRequestParam('[0,"2",3]', 'intArray', 'is not an integer');
     await testErrorRequestParam('[1,2,3,32.23]', 'intArray', 'is not an integer');
     await testRequestParam('[1,-2,3,32]', 'intArray', [1, -2, 3, 32]);
-  });
-
-  test('test float array type request value', async () => {
-    await testErrorRequestParam('hello', 'floatArray', 'error parsing');
-    await testErrorRequestParam('{"a":123}', 'floatArray', 'is not an array');
-    await testErrorRequestParam('[0,"2",3]', 'floatArray', 'is not a float');
-    await testErrorRequestParam('[1,2,3,32.23]', 'floatArray', 'is not a float');
-    await testRequestParam('[1.3,-2.2,3.2,32.3]', 'floatArray', [1.3, -2.2, 3.2, 32.3]);
   });
 
   test('test boolean array type request value', async () => {

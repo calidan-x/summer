@@ -1,4 +1,4 @@
-import { Max, Min, MaxLength, Required } from '../../../lib/decorators';
+import { Max, Min, MaxLen } from '@summer-js/summer';
 import { Pet } from './Pet';
 
 export enum Direction {
@@ -25,8 +25,7 @@ class Base {
 }
 
 export class HelloRequest extends Base {
-  @MaxLength(5)
-  @Required()
+  @MaxLen(5)
   message: string[];
 
   direction: Direction;

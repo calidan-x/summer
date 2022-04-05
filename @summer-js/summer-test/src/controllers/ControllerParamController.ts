@@ -24,7 +24,6 @@ export class ControllerParamController {
     @Query stringValue: string,
     @Query intValue: int,
     @Query bigintValue: bigint,
-    @Query floatValue: float,
     @Query numberValue: number,
     @Query booleanValue: boolean,
     @Query numberEnumValue: NumberEnum,
@@ -33,7 +32,6 @@ export class ControllerParamController {
     @Query anyArrayValue: any[],
     @Query stringArrayValue: string[],
     @Query intArrayValue: int[],
-    @Query floatArrayValue: float[],
     @Query numberArrayValue: number[],
     @Query booleanArrayValue: boolean[],
     @Query numberEnumArrayValue: NumberEnum[],
@@ -46,7 +44,6 @@ export class ControllerParamController {
       stringValue ||
       intValue ||
       bigintValue ||
-      floatValue ||
       numberValue ||
       numberEnumValue ||
       stringEnumValue ||
@@ -54,7 +51,6 @@ export class ControllerParamController {
       anyArrayValue ||
       stringArrayValue ||
       intArrayValue ||
-      floatArrayValue ||
       numberArrayValue ||
       booleanArrayValue ||
       objArrayValue ||

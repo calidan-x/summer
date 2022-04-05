@@ -13,6 +13,11 @@ const defineMetaValue = (arg, validateKey, validateValue) => {
   }
 };
 
+interface ValidateDecoratorType {
+  (): PropertyDecorator;
+  (target: any, propertyKey: string): void;
+}
+
 export const Max =
   (max: number) =>
   (...arg) =>
@@ -23,27 +28,34 @@ export const Min =
   (...arg) =>
     defineMetaValue(arg, 'min', min);
 
-export const MaxLength =
+export const MaxLen =
   (maxLength: number) =>
   (...arg) =>
-    defineMetaValue(arg, 'maxLength', maxLength);
+    defineMetaValue(arg, 'maxLen', maxLength);
 
-export const MinLength =
+export const MinLen =
   (minLength: number) =>
   (...arg) =>
-    defineMetaValue(arg, 'minLength', minLength);
+    defineMetaValue(arg, 'minLen', minLength);
 
-export const Required =
-  () =>
-  (...arg) =>
-    defineMetaValue(arg, 'required', true);
+const Required: ValidateDecoratorType = (...args) => {
+  if (args.length === 0) {
+    return (...arg) => defineMetaValue(arg, 'required', true);
+  } else {
+    defineMetaValue(args, 'required', true);
+  }
+};
+(global as any)._Required = Required;
 
 export const Match =
   (regExp: RegExp) =>
   (...arg) =>
     defineMetaValue(arg, 'match', regExp);
 
-export const Email =
-  () =>
-  (...arg) =>
-    defineMetaValue(arg, 'email', true);
+export const Email: ValidateDecoratorType = (...args) => {
+  if (args.length === 0) {
+    return (...arg) => defineMetaValue(arg, 'email', true);
+  } else {
+    defineMetaValue(args, 'email', true);
+  }
+};

@@ -10,6 +10,11 @@ interface AutoInjectDecoratorType {
   (target: any): void;
 }
 
+interface InjectableDecoratorType {
+  (): ClassDecorator;
+  (target: any): void;
+}
+
 export const Inject: InjectDecoratorType = (...arg) => {
   if (arg.length === 0) {
     return (target: any, propertyKey: string) => {
@@ -34,6 +39,14 @@ export const AutoInject: AutoInjectDecoratorType = (...arg) => {
   }
 };
 
-export const Component: ClassDecorator = (clazz: any) => {
-  locContainer.paddingLocClass(clazz);
+export const Injectable: InjectableDecoratorType = (...args) => {
+  if (args.length === 0) {
+    return (clazz: any) => {
+      locContainer.paddingLocClass(clazz);
+    };
+  } else {
+    locContainer.paddingLocClass(args[0]);
+  }
 };
+
+export const Service = Injectable;

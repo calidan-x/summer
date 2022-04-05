@@ -112,9 +112,9 @@ const callControllerMethod = async (ctx: Context) => {
 
     if (allErrors.length > 0) {
       ctx.response = {
-        statusCode: 403,
+        statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ allErrors })
+        body: JSON.stringify({ errors: allErrors })
       };
     } else {
       try {

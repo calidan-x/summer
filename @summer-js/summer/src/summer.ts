@@ -23,7 +23,6 @@ export const summerStart = async (options?: SummerStartOptions) => {
 
   if (config['SERVER_CONFIG'] && !isAWSLambda && !isSummerTesting) {
     console.log(`
-===========================\n
 🔆SUMMER Ver ${version}    \n
 ===========================\n`);
     global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`);

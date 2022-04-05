@@ -62,8 +62,3 @@ export const createClassAndMethodDecorator =
     }
     return generateClassMethodDecorator(paramMethod, ...dArgs);
   };
-
-//
-export const RequireLogin = createClassAndMethodDecorator(async (ctx, callMethod) => {
-  console.log('RequireLogin');
-});

@@ -3,10 +3,13 @@ import { pathToRegexp } from 'path-to-regexp';
 import { Logger } from './logger';
 
 export const requestMapping = {};
-export const controllerMethodDescriptors = [];
 export const requestMappingAssembler = {
   params: [],
+  controllerMethodDescriptors: [],
   controllerRequestMapping: {},
+  nextController() {
+    this.controllerMethodDescriptors = [];
+  },
   addParam(paramMethod: (ctx: any) => any, paramValues: any[], type: any, declareType: any, index: number) {
     this.params[index] = {
       paramValues,
@@ -28,7 +31,7 @@ export const requestMappingAssembler = {
     this.params = [];
   },
   addMethodDescriptor(descriptor: PropertyDescriptor) {
-    controllerMethodDescriptors.push(descriptor);
+    this.controllerMethodDescriptors.push(descriptor);
   },
   addControllerRoute(controllerName: string, controllerPath: string) {
     Object.keys(this.controllerRequestMapping).forEach((path) => {

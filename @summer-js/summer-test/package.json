@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "summer -s --env local",
-    "test": "summer -c --env test && jest",
+    "test": "summer -t --env test",
     "build": "summer -b --env prod",
     "start": "node --enable-source-maps ./build/index.js"
   },

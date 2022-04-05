@@ -25,24 +25,19 @@ const generateClassDecorator =
     });
   };
 
-type DecoratorMethodType<T = any> = (ctx: Context, callMethod: () => T, ...args: any[]) => void;
+type DecoratorMethodType<T = any> = (ctx: Context, invokeMethod: () => T, ...args: any[]) => void;
 
-interface MethodDecoratorType<T extends DecoratorMethodType> {
+export interface MethodDecoratorType<T extends DecoratorMethodType> {
   (...name: Parameters<OmitFirstAndSecondArg<T>>): ClassDecorator;
   (constructor: Function): void;
 }
 
-export const createControllerDecorator =
+export const createClassDecorator =
   <T extends DecoratorMethodType>(paramMethod: T): MethodDecoratorType<T> =>
   (...dArgs) => {
-    console.log(dArgs.length);
     if (dArgs.length === 1 && dArgs[0].toString().startsWith('class ')) {
       generateClassDecorator(paramMethod)(dArgs[0]);
       return;
     }
     return generateClassDecorator(paramMethod, ...dArgs);
   };
-
-export const Hi = createControllerDecorator(async (ctx, callMethod, aa) => {
-  await callMethod();
-});

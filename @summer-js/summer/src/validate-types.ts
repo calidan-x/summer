@@ -1,5 +1,4 @@
 (global as any).Int = class Int {};
-(global as any).Float = class Float {};
 
 interface ValidateError {
   param: string;
@@ -73,7 +72,6 @@ export const validateAndConvertType = (
       );
       break;
     case 'number':
-    case 'float':
     case 'int':
     case 'bigint':
       const numVal = isFirstLevel ? Number(propValue) : propValue;
@@ -90,14 +88,6 @@ export const validateAndConvertType = (
           allErrors.push({
             param: errorParam,
             message: typeDisplayText(propValue, isFirstLevel) + ' is not an integer'
-          });
-        }
-        value = numVal;
-      } else if (declareTypeName === 'float') {
-        if (Number.isNaN(numVal) || (numVal + '').indexOf('.') < 0) {
-          allErrors.push({
-            param: errorParam,
-            message: typeDisplayText(propValue, isFirstLevel) + ' is not a float'
           });
         }
         value = numVal;
@@ -148,7 +138,8 @@ export const validateAndConvertType = (
       } catch (e) {
         allErrors.push({
           param: errorParam,
-          message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel)
+          message:
+            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' into ' + (declareType?.name || 'any') + '[]'
         });
         break;
       }
@@ -202,7 +193,8 @@ export const validateAndConvertType = (
       } catch (e) {
         allErrors.push({
           param: errorParam,
-          message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel)
+          message:
+            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' into ' + (declareType?.name || 'object')
         });
         break;
       }
@@ -227,6 +219,7 @@ export const validateAndConvertType = (
             });
           }
         }
+
         for (const k of allProperties) {
           let propType = Reflect.getMetadata('design:type', classInstance, k);
           let declareType = Reflect.getMetadata('DeclareType', classInstance, k);
@@ -236,7 +229,7 @@ export const validateAndConvertType = (
             continue;
           }
 
-          classInstance[k] = validateAndConvertType(
+          const validateValue = validateAndConvertType(
             propType,
             declareType,
             k,
@@ -247,6 +240,10 @@ export const validateAndConvertType = (
             classInstance,
             errorParam
           );
+          if (objectValue[k] === undefined) {
+            continue;
+          }
+          classInstance[k] = validateValue;
         }
         value = classInstance;
       }
@@ -257,11 +254,11 @@ export const validateAndConvertType = (
 const typeDisplayText = (val: any, isFirstLevel: boolean) => {
   if (typeof val === 'string') {
     if (isFirstLevel) {
-      return val.substr(0, 50);
+      return val || "''";
     }
-    return "'" + val.substr(0, 50) + "'";
+    return "'" + val + "'";
   } else if (typeof val === 'object') {
-    return JSON.stringify(val).replace(/"/g, "'").substr(0, 200);
+    return JSON.stringify(val).replace(/"/g, "'").substring(0, 200);
   }
   return val;
 };
@@ -341,7 +338,7 @@ const validateMinMaxLength = (
   errors: ValidateError[],
   isFirstLevel: boolean
 ) => {
-  let maxLength = getMetaData('maxLength', instance, methodName, paramIndex, propName);
+  let maxLength = getMetaData('maxLen', instance, methodName, paramIndex, propName);
   if (maxLength !== undefined) {
     if (propValue.length > maxLength) {
       errors.push({
@@ -352,7 +349,7 @@ const validateMinMaxLength = (
       });
     }
   }
-  const minLength = getMetaData('minLength', instance, methodName, paramIndex, propName);
+  const minLength = getMetaData('minLen', instance, methodName, paramIndex, propName);
   if (minLength !== undefined) {
     if (propValue.length < minLength) {
       errors.push({

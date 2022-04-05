@@ -3,7 +3,7 @@ import path from 'path';
 
 export const initTest = async () => {
   process.env.SUMMER_TESTING = 'true';
-  await import(path.resolve('./.summer-compile/auto-imports'));
+  await import(path.resolve('./node_modules/.summer-compile/auto-imports'));
   await summerStart();
 };
 

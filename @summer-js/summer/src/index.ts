@@ -36,11 +36,9 @@ export const handler = async (event) => {
 
 declare global {
   type int = number;
-  type float = number;
 }
 
 (global as any)._PropDeclareType = (type: any) => (target: Object, propertyKey: string | symbol) => {
-  // Reflect.metadata('DeclareType', type);
   Reflect.defineMetadata(propertyKey, propertyKey, target);
   Reflect.defineMetadata('DeclareType', type, target, propertyKey);
 };

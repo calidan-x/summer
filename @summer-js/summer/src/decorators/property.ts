@@ -9,7 +9,7 @@ const generatePropertyDecorator =
 
 type DecoratorMethodType = (config: any, propertyName: string, ...args: any[]) => any;
 
-interface PropertyDecoratorType<T extends DecoratorMethodType> {
+export interface PropertyDecoratorType<T extends DecoratorMethodType> {
   (...name: Parameters<OmitFirstAndSecondArg<T>>): PropertyDecorator;
   (target: Object, propertyKey: string): void;
 }
@@ -23,11 +23,3 @@ export const createPropertyDecorator =
     }
     return generatePropertyDecorator(paramMethod, ...dArgs);
   };
-
-export const Config = createPropertyDecorator(async (config, propertyName, configKey: string) => {
-  return config[configKey || propertyName];
-});
-
-export const MysqlConfig = createPropertyDecorator(async (config) => {
-  return config['MYSQL_CONFIG'];
-});

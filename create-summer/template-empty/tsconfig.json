@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "sourceMap": true,
     "esModuleInterop": true,
-    "outDir": "./.summer-compile",
+    "outDir": "./node_modules/.summer-compile",
     "moduleResolution": "Node",
     "module": "commonjs"
   },

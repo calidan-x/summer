@@ -48,23 +48,7 @@ export const createParamDecorator =
     return generateParamDecorator(paramMethod, ...dArgs);
   };
 
-interface ParamDecoratorType<T extends DecoratorMethodType> {
+export interface ParamDecoratorType<T extends DecoratorMethodType> {
   (...name: Parameters<OmitFirstAndSecondArg<T>>): ParameterDecorator;
   (target: Object, propertyKey: string, parameterIndex: number): void;
 }
-
-export const Ctx = createParamDecorator((ctx) => ctx);
-export const Body = createParamDecorator((ctx) => ctx.request.body);
-export const Queries = createParamDecorator((ctx) => ctx.request.queries);
-export const Query = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.queries[name || paramName]
-);
-export const PathParam = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.pathParams[name || paramName]
-);
-export const Session = createParamDecorator((ctx, paramName: string, name: string) => ctx.sessions[name || paramName]);
-export const Header = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
-);
-export const Cookie = createParamDecorator((ctx, paramName: string, name: string) => ctx.cookies[name || paramName]);
-export const RequestPath = createParamDecorator((ctx) => ctx.request.path);
