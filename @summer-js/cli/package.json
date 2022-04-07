@@ -8,6 +8,7 @@
     "summer-compile": "compile.js"
   },
   "dependencies": {
+    "tree-kill": "^1.2.2",
     "chokidar": "^3.5.3",
     "ora": "^6.0.1",
     "commander": "^9.0.0",

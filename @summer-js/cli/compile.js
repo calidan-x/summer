@@ -1,104 +1,104 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
-import path from 'path';
-import { Project, ClassDeclaration } from 'ts-morph';
+import fs from 'fs'
+import path from 'path'
+import { Project, ClassDeclaration } from 'ts-morph'
 
-const PLUGINS = ['@summer-js/typeorm', '@summer-js/swagger'];
-const pluginIncs = [];
-const existPlugins = {};
+const PLUGINS = ['@summer-js/typeorm', '@summer-js/swagger']
+const pluginIncs = []
+const existPlugins = {}
 
-(async () => {
+;(async () => {
   for (const plugin of PLUGINS) {
     if (fs.existsSync('./node_modules/' + plugin) || fs.existsSync('../../node_modules/' + plugin)) {
-      const p = await import(plugin);
-      const P = p.default.default;
-      pluginIncs.push(new P());
-      existPlugins[plugin.replace(/[/-]/g, '').replace(/@/g, '')] = plugin;
+      const p = await import(plugin)
+      const P = p.default.default
+      pluginIncs.push(new P())
+      existPlugins[plugin.replace(/[/-]/g, '').replace(/@/g, '')] = plugin
     }
   }
 
-  fs.writeFileSync('./src/auto-imports.ts', '');
+  fs.writeFileSync('./src/auto-imports.ts', '')
 
   const project = new Project({
     tsConfigFilePath: './tsconfig.json'
-  });
+  })
 
-  const diagnostics = project.getPreEmitDiagnostics();
+  const diagnostics = project.getPreEmitDiagnostics()
   if (diagnostics.length > 0) {
-    console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:');
-    console.log(project.formatDiagnosticsWithColorAndContext(diagnostics));
-    return;
+    console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:')
+    console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
+    return
   }
 
-  const sourceFiles = project.getSourceFiles();
+  const sourceFiles = project.getSourceFiles()
 
   const getDeclareType = (declareLine, isArray) => {
-    const parts = declareLine.split(/:(.*)/s);
-    let type = undefined;
+    const parts = declareLine.split(/:(.*)/s)
+    let type = undefined
     if (parts.length > 1) {
-      type = parts[1].replace(';', '').replace(/=.+$/, '').trim();
+      type = parts[1].replace(';', '').replace(/=.+$/, '').trim()
     }
     if (isArray) {
-      type = type.replace('[]', '');
+      type = type.replace('[]', '')
     }
 
     if (type === 'any' || type === 'undefined' || type === 'null' || !Number.isNaN(Number(type))) {
-      type = undefined;
+      type = undefined
     }
 
     if (['number', 'string', 'boolean', 'int', 'float'].includes(type)) {
-      type = type.replace(/^(.)/, (matched, index, original) => matched.toUpperCase());
+      type = type.replace(/^(.)/, (matched, index, original) => matched.toUpperCase())
     }
 
     if (type === 'bigint') {
-      type = 'BigInt';
+      type = 'BigInt'
     }
 
     if (typeof type === 'string' && type.indexOf('|') > 0) {
-      const eachStrings = type.split('|');
-      let stringEnum = '{';
+      const eachStrings = type.split('|')
+      let stringEnum = '{'
       eachStrings.forEach((es) => {
-        es = es.trim();
+        es = es.trim()
         if ((es.startsWith('"') && es.endsWith('"')) || (es.startsWith("'") && es.endsWith("'"))) {
-          stringEnum += es + ':' + es;
+          stringEnum += es + ':' + es
         }
-      });
-      stringEnum += '}';
-      return stringEnum;
+      })
+      stringEnum += '}'
+      return stringEnum
     }
 
-    return type;
-  };
+    return type
+  }
 
   const addPropDecorator = (cls) => {
     if (!cls) {
-      return;
+      return
     }
     cls.getProperties().forEach((p) => {
-      let type = getDeclareType(p.getText(), p.getType().isArray());
+      let type = getDeclareType(p.getText(), p.getType().isArray())
       if (type === undefined || type === null) {
-        return;
+        return
       }
 
       if (!p.hasQuestionToken()) {
         if (!p.getDecorators().find((d) => d.getName() === '_Required')) {
-          p.addDecorator({ name: '_Required', arguments: [] });
+          p.addDecorator({ name: '_Required', arguments: [] })
         }
       }
       if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
-        p.addDecorator({ name: '_PropDeclareType', arguments: [type] });
+        p.addDecorator({ name: '_PropDeclareType', arguments: [type] })
       }
-    });
+    })
     if (cls.getExtends()) {
-      addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0]);
+      addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0])
     }
-  };
+  }
 
-  let controllerFilesList = [];
+  let controllerFilesList = []
   for (const sf of sourceFiles) {
     for (const cls of sf.getClasses()) {
-      addPropDecorator(cls);
+      addPropDecorator(cls)
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller' || classDecorator.getName() === 'Middleware') {
           controllerFilesList.push(
@@ -106,71 +106,71 @@ const existPlugins = {};
               .getSourceFile()
               .getFilePath()
               .replace(path.resolve() + '/src', '.')
-          );
+          )
           cls.getMethods().forEach((cMethod) => {
             cMethod.getParameters().forEach((param) => {
               if (param.getDecorators().length > 0) {
-                const paramType = param.getType();
+                const paramType = param.getType()
                 param.addDecorator({
                   name: '_ParamDeclareType',
                   arguments: [getDeclareType(param.getText(), paramType.isArray())]
-                });
+                })
               }
-            });
-          });
+            })
+          })
         }
 
         for (const p of pluginIncs) {
-          p.compile && (await p.compile(classDecorator, cls));
+          p.compile && (await p.compile(classDecorator, cls))
         }
       }
     }
   }
 
-  let fileContent = '// this file is generated by compiler\n';
-  fileContent += 'global["$$_SUMMER_ENV"] = "' + process.env.SUMMER_ENV + '";\n';
+  let fileContent = '// this file is generated by compiler\n'
+  fileContent += 'global["$$_SUMMER_ENV"] = "' + process.env.SUMMER_ENV + '";\n'
 
   for (const pk in existPlugins) {
-    fileContent += `import ${pk} from '${existPlugins[pk]}';\n`;
+    fileContent += `import ${pk} from '${existPlugins[pk]}';\n`
   }
 
-  fileContent += `global["$$_PLUGINS"] = [${Object.keys(existPlugins).join(',')}];\n`;
+  fileContent += `global["$$_PLUGINS"] = [${Object.keys(existPlugins).join(',')}];\n`
 
   if (fs.existsSync('./src/config/default.config.ts')) {
     if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {
-      fileContent += 'import * as defaultConfig from "./config/default.config";\n';
-      fileContent += 'global["$$_DEFAULT_CONFIG"] = defaultConfig;\n';
+      fileContent += 'import * as defaultConfig from "./config/default.config";\n'
+      fileContent += 'global["$$_DEFAULT_CONFIG"] = defaultConfig;\n'
     }
   }
 
   if (fs.existsSync(`./src/config/${process.env.SUMMER_ENV}.config.ts`)) {
     if (fs.readFileSync(`./src/config/${process.env.SUMMER_ENV}.config.ts`, { encoding: 'utf-8' }).trim().length > 0) {
-      fileContent += `import * as envConfig from "./config/${process.env.SUMMER_ENV}.config";\n`;
-      fileContent += 'global["$$_ENV_CONFIG"] = envConfig;\n';
+      fileContent += `import * as envConfig from "./config/${process.env.SUMMER_ENV}.config";\n`
+      fileContent += 'global["$$_ENV_CONFIG"] = envConfig;\n'
     }
   }
 
   controllerFilesList.forEach((path, inx) => {
-    fileContent += `import * as $M${inx} from '${path.replace(/\.ts$/, '')}';\n`;
-  });
+    fileContent += `import * as $M${inx} from '${path.replace(/\.ts$/, '')}';\n`
+  })
 
   controllerFilesList.forEach((path, inx) => {
-    fileContent += `$M${inx};`;
-  });
+    fileContent += `$M${inx};`
+  })
 
-  fileContent += '\n';
-
-  for (const p of pluginIncs) {
-    fileContent += p.getAutoImportContent ? p.getAutoImportContent() + '\n' : '';
-  }
-
-  fs.writeFileSync('./src/auto-imports.ts', fileContent);
-
-  project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync();
-  project.resolveSourceFileDependencies();
-  project.emitSync();
+  fileContent += '\n'
 
   for (const p of pluginIncs) {
-    p.postCompile && (await p.postCompile());
+    fileContent += p.getAutoImportContent ? p.getAutoImportContent() + '\n' : ''
   }
-})();
+
+  fs.writeFileSync('./src/auto-imports.ts', fileContent)
+
+  project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync()
+  project.resolveSourceFileDependencies()
+  project.emitSync()
+
+  for (const p of pluginIncs) {
+    p.postCompile && (await p.postCompile())
+  }
+})()

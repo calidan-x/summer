@@ -1,242 +1,349 @@
-import { SummerPlugin, loadConfig, Controller, Get, Query } from '@summer-js/summer';
-import { requestMapping } from '@summer-js/summer/lib/request-mapping';
-import { getAbsoluteFSPath } from 'swagger-ui-dist';
-import fs from 'fs';
+import { SummerPlugin, getConfig, Controller, Get, Query } from '@summer-js/summer'
+import { pathToRegexp } from 'path-to-regexp'
+import { requestMapping } from '@summer-js/summer/lib/request-mapping'
+import { getAbsoluteFSPath } from 'swagger-ui-dist'
+import { ClassDeclaration, TypeFormatFlags } from 'ts-morph'
+import fs from 'fs'
+;(global as any)._ApiReturnType =
+  (returnType: string, rootType: string) => (target: Object, propertyKey: string, descriptor: any) => {
+    Reflect.defineMetadata('Api:ReturnType', returnType, target, propertyKey)
+    Reflect.defineMetadata('Api:RootType', rootType, target, propertyKey)
+  }
+
+declare const _ParamDeclareType: any
 
 interface Schema {
-  type: string;
-  example?: any;
-  required?: string[];
-  properties: Record<string, { type: string; description?: string }>;
+  type: string
+  example?: any
+  required?: string[]
+  properties?: Record<string, { type: string; description?: string }>
+  items?: Schema
 }
 
 interface SwaggerDoc {
-  swagger: string;
+  swagger: string
+  swaggerDocPath: string
   info: {
-    title: string;
-    description?: string;
-    version?: string;
-    termsOfService?: string;
-    contact?: { email: string };
-    license?: { name: string; url: string };
-  };
-  host: string;
-  basePath: string;
+    title: string
+    description?: string
+    version?: string
+    termsOfService?: string
+    contact?: { email: string }
+    license?: { name: string; url: string }
+  }
+  host: string
+  basePath: string
   tags: {
-    name: string;
-    description: string;
-    externalDocs?: { description: string; url: string };
-  }[];
-  schemes: ('https' | 'http' | 'ws' | 'wss')[];
+    name: string
+    description: string
+    externalDocs?: { description: string; url: string }
+  }[]
+  schemes: ('https' | 'http' | 'ws' | 'wss')[]
   paths: Record<
     string,
     Record<
       string,
       {
-        tags: string[];
-        summary: string;
-        description?: string;
-        operationId?: string;
-        consumes?: string[];
-        produces?: string[];
+        tags: string[]
+        summary: string
+        description?: string
+        operationId?: string
+        consumes?: string[]
+        produces?: string[]
         parameters?: {
-          name: string;
-          in: 'path';
-          description: string;
-          required: true;
-          type: 'string' | 'integer' | 'boolean' | 'object';
-          schema?: Schema;
-        }[];
-        responses?: Record<string, { description?: string; schema?: Schema }>;
-        security?: [Record<string, string[]>];
-        deprecated?: boolean;
+          name: string
+          in: 'path'
+          description: string
+          required: boolean
+          type: 'string' | 'integer' | 'boolean' | 'object'
+          schema?: Schema
+        }[]
+        responses?: Record<string, { description?: string; schema?: Schema }>
+        security?: [Record<string, string[]>]
+        deprecated?: boolean
       }
     >
-  >;
-  securityDefinitions?: {};
-  definitions?: {};
-  externalDocs?: { description: string; url: string };
+  >
+  securityDefinitions?: {}
+  definitions?: {}
+  externalDocs?: { description: string; url: string }
 }
 
 export interface SwaggerConfig {
   info: {
-    title: string;
-    description?: string;
-    version?: string;
-    termsOfService?: string;
-    contact?: { email: string };
-    license?: { name: string; url: string };
-  };
-  host?: string;
-  basePath?: string;
-  swaggerDocPath: string;
+    title: string
+    description?: string
+    version?: string
+    termsOfService?: string
+    contact?: { email: string }
+    license?: { name: string; url: string }
+  }
+  host?: string
+  basePath?: string
+  swaggerDocPath: string
 }
 
 const swaggerJson: SwaggerDoc = {
   swagger: '2.0',
+  swaggerDocPath: '',
   info: { title: '' },
   host: '',
   basePath: '',
   tags: [],
   schemes: ['http'],
   paths: {}
-};
+}
 
 export default class implements SummerPlugin {
-  configKey = 'SWAGGER_CONFIG';
+  configKey = 'SWAGGER_CONFIG'
   async init(config: SwaggerConfig) {
     if (!config) {
-      return;
+      return
     }
-    Object.assign(swaggerJson, config);
-    const serverConfig = loadConfig()['SERVER_CONFIG'];
+    Object.assign(swaggerJson, config)
+    const serverConfig = getConfig()['SERVER_CONFIG']
     if (serverConfig) {
       if (!serverConfig.serveStatic) {
-        serverConfig.serveStatic = { paths: {}, indexFiles: [] };
+        serverConfig.serveStatic = { paths: {}, indexFiles: [] }
       } else {
         if (!serverConfig.serveStatic.paths) {
-          serverConfig.serveStatic.paths = {};
+          serverConfig.serveStatic.paths = {}
         }
         if (!serverConfig.serveStatic.indexFiles) {
-          serverConfig.serveStatic.indexFiles = [];
+          serverConfig.serveStatic.indexFiles = []
         }
       }
-      serverConfig.serveStatic.paths[config.swaggerDocPath || 'swagger-ui'] = 'resource/swagger-ui';
+      serverConfig.serveStatic.paths['swagger-res'] = 'resource/swagger-res'
+      if (config.swaggerDocPath) {
+        // change path
+        requestMapping[`${config.swaggerDocPath}`] = requestMapping['/swagger-ui']
+        requestMapping[`${config.swaggerDocPath}`].pathRegExp = pathToRegexp(`${config.swaggerDocPath}`)
+        delete requestMapping['/swagger-ui']
+
+        requestMapping[`${config.swaggerDocPath}/swagger-docs.json`] = requestMapping['/swagger-ui/swagger-docs.json']
+        requestMapping[`${config.swaggerDocPath}/swagger-docs.json`].pathRegExp = pathToRegexp(
+          `${config.swaggerDocPath}/swagger-docs.json`
+        )
+        delete requestMapping['/swagger-ui/swagger-docs.json']
+      }
     }
   }
 
   getAutoImportContent() {
-    return 'import { SummerSwaggerUIController } from "@summer-js/swagger";\nSummerSwaggerUIController;\n';
+    return 'import { SummerSwaggerUIController } from "@summer-js/swagger";\nSummerSwaggerUIController;\n'
+  }
+
+  compile(classDecorator, clazz: ClassDeclaration) {
+    if (classDecorator.getName() === 'ApiDocGroup') {
+      const instanceMethods = clazz.getInstanceMethods()
+      instanceMethods.forEach((m) => {
+        const apiDoc = m.getDecorator('ApiDoc')
+        if (apiDoc) {
+          let returnType = m.getReturnType().getText(m, TypeFormatFlags.NoTruncation)
+          let isArray = false
+
+          if (returnType.endsWith('[]')) {
+            isArray = true
+            returnType = returnType.replace(/\[\]$/, '')
+          }
+
+          if (['number', 'string', 'boolean', 'int', 'float'].includes(returnType)) {
+            returnType = returnType.replace(/^(.)/, (matched) => matched.toUpperCase())
+          }
+          if (returnType === 'bigint') {
+            returnType = 'BigInt'
+          }
+          if (
+            returnType.indexOf('<') >= 0 ||
+            returnType.indexOf('[') >= 0 ||
+            returnType.indexOf('{') >= 0 ||
+            returnType === 'void'
+          ) {
+            returnType = undefined
+          }
+
+          m.addDecorator({
+            name: '_ApiReturnType',
+            arguments: [returnType, isArray ? "'array'" : returnType ? "'object'" : "'string'"]
+          })
+        }
+      })
+    }
   }
 
   async postCompile() {
-    let swaggerUIPath = getAbsoluteFSPath();
+    let swaggerUIPath = getAbsoluteFSPath()
     if (!fs.existsSync(swaggerUIPath)) {
-      swaggerUIPath = '../../node_modules/swagger-ui-dist';
+      swaggerUIPath = '../../node_modules/swagger-ui-dist'
     }
 
-    let swaggerPluginPath = './node_modules/@summer-js/swagger';
+    let swaggerPluginPath = './node_modules/@summer-js/swagger'
     if (!fs.existsSync(swaggerPluginPath)) {
-      swaggerPluginPath = '../../node_modules/@summer-js/swagger';
+      swaggerPluginPath = '../../node_modules/@summer-js/swagger'
     }
 
     if (!fs.existsSync('./resource')) {
-      fs.mkdirSync('./resource');
+      fs.mkdirSync('./resource')
     }
-    if (!fs.existsSync('./resource/swagger-ui')) {
-      fs.mkdirSync('./resource/swagger-ui');
+
+    if (fs.existsSync('./resource/swagger-res')) {
+      fs.rmSync('./resource/swagger-res', { recursive: true, force: true })
     }
-    const files = ['swagger-ui.css', 'swagger-ui-bundle.js', 'swagger-ui-standalone-preset.js'];
+    fs.mkdirSync('./resource/swagger-res')
+
+    const files = ['swagger-ui.css', 'swagger-ui-bundle.js', 'swagger-ui-standalone-preset.js']
     files.forEach((f) => {
-      fs.copyFileSync(swaggerUIPath + '/' + f, './resource/swagger-ui/' + f);
-    });
-    fs.copyFileSync(swaggerPluginPath + '/index.html', './resource/swagger-ui/index.html');
+      fs.copyFileSync(swaggerUIPath + '/' + f, './resource/swagger-res/' + f)
+    })
+    fs.copyFileSync(swaggerPluginPath + '/index.html', './resource/swagger-res/index.html')
   }
 }
 
-const allTags = [];
-export const ApiGroupDoc = (name: string, description: string = '', order = 999999999) => {
-  return function (target: any) {
-    allTags.push({ controllerName: target.name, name, description, order });
-  };
-};
-
-interface ControllerApiDoc {
-  summery: string;
-  description?: string;
-  requestBody?: any;
-  response?: any;
-  errorResponses?: Record<string | number, any>;
-  order?: number;
+interface ApiDocGroupOption {
+  description?: string
+  order?: number
+  category?: string
 }
 
-const allApis: (ControllerApiDoc & { controllerName: string; callMethod: string })[] = [];
-export const ApiDoc = (api: ControllerApiDoc) => {
-  api.order = api.order || 9999999;
+const allTags = []
+export const ApiDocGroup = (name: string, apiDocGroupOptions: ApiDocGroupOption = {}) => {
+  const options = { description: '', order: 9999999, category: '' }
+  Object.assign(options, apiDocGroupOptions)
+  return function (target: any) {
+    allTags.push({
+      controllerName: target.name,
+      name,
+      ...options
+    })
+  }
+}
+
+interface ControllerApiDoc {
+  description?: string
+  example?: {
+    request?: any
+    response?: any
+  }
+  errors?: Record<string | number, any>
+  order?: number
+}
+
+const allApis: (ControllerApiDoc & { summary: string; controller: any; controllerName: string; callMethod: string })[] =
+  []
+export const ApiDoc = (summary: string, options: ControllerApiDoc = {}) => {
+  const opts = { order: 9999999, example: {} }
+  Object.assign(opts, options)
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    allApis.push({ ...api, controllerName: target.constructor.name, callMethod: propertyKey });
-  };
-};
+    allApis.push({
+      ...opts,
+      summary,
+      controller: target,
+      controllerName: target.constructor.name,
+      callMethod: propertyKey
+    })
+  }
+}
 
 const findRoute = (controllerName: string, callMethod: string) => {
   for (const path in requestMapping) {
     for (const requestMethod in requestMapping[path]) {
-      const route = requestMapping[path][requestMethod];
+      const route = requestMapping[path][requestMethod]
       if (route.controllerName === controllerName && route.callMethod === callMethod) {
-        return { path, requestMethod, params: route.params };
+        return { path, requestMethod, params: route.params }
       }
     }
   }
-  return null;
-};
+  return null
+}
 
 const findTag = (controllerName: string) => {
-  const tag = allTags.find((tag) => tag.controllerName === controllerName);
+  const tag = allTags.find((tag) => tag.controllerName === controllerName)
   if (tag) {
-    return tag.name;
+    return tag.name
   }
-  return '';
-};
+  return ''
+}
+
+const findCategory = (controllerName: string) => {
+  const tag = allTags.find((tag) => tag.controllerName === controllerName)
+  if (tag) {
+    return tag.category
+  }
+  return ''
+}
 
 const parmMatchPattern = {
   '(ctx, paramName, name) => ctx.request.queries[name || paramName]': 'query',
   '(ctx, paramName, name) => ctx.request.pathParams[name || paramName]': 'path',
   '(ctx, paramName, name) => ctx.request.headers[name || paramName]': 'header',
   '(ctx) => ctx.request.body': 'body'
-};
+}
 
 const getType = (type: any) => {
   if (!type) {
-    return '';
+    return ''
   }
-  const basicTypes = ['int', 'bigint', 'number', 'string', 'boolean'];
+  const basicTypes = ['int', 'bigint', 'number', 'string', 'boolean']
   if (basicTypes.includes(type.name.toLowerCase())) {
-    return intToInteger(type.name.toLowerCase());
+    return intToInteger(type.name.toLowerCase())
   }
-  return 'object';
-};
+  return 'object'
+}
 
 const intToInteger = (type: string) => {
   if (type === 'int' || type === 'bigint') {
-    return 'integer';
+    return 'integer'
   }
   if (type === 'float') {
-    return 'number';
+    return 'number'
   }
-  return type;
-};
+  return type
+}
 
 const getParamType = (func) => {
   for (const p in parmMatchPattern) {
     if (func.toString().indexOf(p) >= 0) {
-      return parmMatchPattern[p];
+      return parmMatchPattern[p]
     }
   }
-  return null;
-};
+  return null
+}
+
+const getRequiredKeys = (t: any) => {
+  const requireKeys = []
+  const typeInc = new t()
+  for (const key of Reflect.getOwnMetadataKeys(t.prototype)) {
+    const required = Reflect.getMetadata('required', typeInc, key)
+    if (required) {
+      requireKeys.push(key)
+    }
+  }
+  return requireKeys
+}
 
 const getRequestTypeDesc = (t: any) => {
   if (getType(t) !== 'object') {
-    return { type: getType(t), description: '' };
+    return { type: getType(t), description: '' }
   }
 
-  const typeInc = new t();
-  const typeDesc = {};
+  const typeInc = new t()
+  const typeDesc = {}
   for (const key of Reflect.getOwnMetadataKeys(t.prototype)) {
-    const declareType = Reflect.getMetadata('DeclareType', typeInc, key);
-    const designType = Reflect.getMetadata('design:type', typeInc, key);
+    const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
+    const designType = Reflect.getMetadata('design:type', typeInc, key)
+
     if (designType.name.toLowerCase() === 'object') {
       typeDesc[key] = {
         type: 'object',
         description: '',
         properties: getRequestTypeDesc(declareType)
-      };
+      }
     } else if (designType.name.toLowerCase() === 'array') {
       typeDesc[key] = {
         type: 'array',
         description: '',
         items: getRequestTypeDesc(declareType)
-      };
+      }
     } else {
       // enum
       if (typeof declareType === 'object' && designType.name === 'String') {
@@ -244,96 +351,144 @@ const getRequestTypeDesc = (t: any) => {
           type: 'string',
           enum: Object.keys(declareType),
           description: ''
-        };
+        }
       } else {
         typeDesc[key] = {
           type: intToInteger(declareType.name.toLowerCase()),
           description: ''
-        };
+        }
       }
     }
   }
-  return { type: 'object', properties: typeDesc, description: '' };
-};
+  return { type: 'object', properties: typeDesc, description: '', required: getRequiredKeys(t) }
+}
 
-let outSwaggerJson = null;
-
-@Controller()
+@Controller('/swagger-ui')
 export class SummerSwaggerUIController {
-  @Get('/swagger-docs.json')
-  getSwaggerDocument() {
-    if (outSwaggerJson) {
-      return outSwaggerJson;
+  @Get
+  getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType(String) primaryName: string) {
+    let allPages = allTags.map((at) => at.category || '')
+    allPages = Array.from(new Set(allPages))
+    let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
+    if (allPages.length === 1) {
+      indexHTML = indexHTML.replace(
+        '//{{URLS}}',
+        `urls:[{url:"${swaggerJson.swaggerDocPath}/swagger-docs.json",name:"All"}]`
+      )
+    } else {
+      const urls = allPages.map((ap) => ({
+        name: ap,
+        url: `${swaggerJson.swaggerDocPath}/swagger-docs.json?category=${encodeURIComponent(ap)}`
+      }))
+      indexHTML = indexHTML.replace('//{{URLS}}', `urls:${JSON.stringify(urls)},\n'urls.primaryName':'${primaryName}',`)
     }
-    allTags.forEach((tag) => {
-      swaggerJson.tags.push({ name: tag.name, description: tag.description });
-    });
+
+    return indexHTML
+  }
+
+  @Get('/swagger-docs.json')
+  getSwaggerDocument(@Query @_ParamDeclareType(String) category: string) {
+    swaggerJson.tags = []
+    swaggerJson.paths = {}
+    category = category || ''
+
+    allTags.sort((a, b) => a.order - b.order)
+    allTags
+      .filter((t) => t.category === category)
+      .forEach((tag) => {
+        swaggerJson.tags.push({ name: tag.name, description: tag.description })
+      })
+
+    allApis.sort((a, b) => a.order - b.order)
     allApis.forEach((api) => {
-      const roteInfo = findRoute(api.controllerName, api.callMethod);
+      const apiCate = findCategory(api.controllerName)
+      if (apiCate !== category) {
+        return
+      }
+      const roteInfo = findRoute(api.controllerName, api.callMethod)
       if (roteInfo) {
-        const { path, requestMethod, params } = roteInfo;
-        let docPath = (path || '/').replace(/\/{2,}/g, '/');
-        docPath = docPath.replace(/:([^/]+)/g, '{$1}');
+        const { path, requestMethod, params } = roteInfo
+        let docPath = (path || '/').replace(/\/{2,}/g, '/')
+        docPath = docPath.replace(/:([^/]+)/g, '{$1}')
         if (!swaggerJson.paths[docPath]) {
-          swaggerJson.paths[docPath] = {};
+          swaggerJson.paths[docPath] = {}
         }
-        const parameters = [];
+        const parameters = []
         params.forEach((param) => {
-          const paramType = getParamType(param.paramMethod.toString());
+          const paramType = getParamType(param.paramMethod.toString())
           if (paramType) {
-            const ptype = getType(param.declareType);
+            const ptype = getType(param.declareType)
             parameters.push({
               name: param.paramValues[0],
               in: paramType,
               description: '',
-              // required: true,
+              required: ['path', 'body'].includes(paramType) ? true : false,
               type: ptype,
               schema:
                 ptype === 'object'
                   ? {
-                      example: api.requestBody,
-                      required: [],
+                      example: api.example?.request,
                       ...getRequestTypeDesc(param.declareType)
                     }
+                  : ptype === 'array'
+                  ? {
+                      example: api.example?.request,
+                      type: 'array',
+                      items: getRequestTypeDesc(param.declareType)
+                    }
                   : null
-            });
+            })
           }
-        });
+        })
 
-        const errorResponse = {};
-        for (const key in api.errorResponses) {
-          const resExample = api.errorResponses[key] || '';
+        const errorResponse = {}
+        for (const key in api.errors) {
+          const resExample = api.errors[key] || ''
           errorResponse[key] = {
             description: '',
             schema: { type: typeof resExample === 'object' ? 'object' : 'string', properties: {}, example: resExample }
-          };
+          }
         }
 
-        const successResExample = api.response || '';
+        const successResExample = api.example?.response
+
+        const declareReturnType = Reflect.getMetadata('Api:ReturnType', api.controller, api.callMethod)
+        const returnRootType = Reflect.getMetadata('Api:RootType', api.controller, api.callMethod)
 
         swaggerJson.paths[docPath][requestMethod.toLowerCase()] = {
           tags: [findTag(api.controllerName)],
-          summary: api.summery,
+          summary: api.summary,
           description: api.description,
-          operationId: api.callMethod,
+          operationId: api.summary || api.callMethod,
           // consumes: ['application/json'],
           // produces: ['application/json'],
           parameters,
           responses: {
             200: {
               description: '',
-              schema: {
-                type: typeof successResExample === 'object' ? 'object' : 'string',
-                properties: {},
-                example: successResExample
-              }
+              schema:
+                returnRootType === 'object'
+                  ? {
+                      example: successResExample,
+                      description: '',
+                      ...getRequestTypeDesc(declareReturnType)
+                    }
+                  : returnRootType === 'array'
+                  ? {
+                      example: successResExample,
+                      type: 'array',
+                      items: getRequestTypeDesc(declareReturnType)
+                    }
+                  : {
+                      example: successResExample,
+                      type: 'string'
+                    }
             },
             ...errorResponse
           }
-        };
+        }
       }
-    });
-    outSwaggerJson = swaggerJson;
-    return swaggerJson;
+    })
+    return swaggerJson
   }
 }

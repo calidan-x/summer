@@ -1,14 +1,14 @@
-import { pathToRegexp } from 'path-to-regexp';
+import { pathToRegexp } from 'path-to-regexp'
 
-import { Logger } from './logger';
+import { Logger } from './logger'
 
-export const requestMapping = {};
+export const requestMapping = {}
 export const requestMappingAssembler = {
   params: [],
   controllerMethodDescriptors: [],
   controllerRequestMapping: {},
   nextController() {
-    this.controllerMethodDescriptors = [];
+    this.controllerMethodDescriptors = []
   },
   addParam(paramMethod: (ctx: any) => any, paramValues: any[], type: any, declareType: any, index: number) {
     this.params[index] = {
@@ -17,7 +17,7 @@ export const requestMappingAssembler = {
       type,
       declareType,
       index
-    };
+    }
   },
   addMethodRoute(path: string, httpMethod: string, callMethod: string, controllerName: string) {
     this.controllerRequestMapping[path] = {
@@ -27,38 +27,38 @@ export const requestMappingAssembler = {
         params: this.params,
         controllerName
       }
-    };
-    this.params = [];
+    }
+    this.params = []
   },
   addMethodDescriptor(descriptor: PropertyDescriptor) {
-    this.controllerMethodDescriptors.push(descriptor);
+    this.controllerMethodDescriptors.push(descriptor)
   },
   addControllerRoute(controllerName: string, controllerPath: string) {
     Object.keys(this.controllerRequestMapping).forEach((path) => {
-      const keys = [];
-      const fullPath = controllerPath + path;
-      const regexp = pathToRegexp(fullPath, keys);
+      const keys = []
+      const fullPath = controllerPath + path
+      const regexp = pathToRegexp(fullPath, keys)
 
-      let pathMappingData = requestMapping[fullPath] || {};
-      ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'REQUEST'].forEach((reqMethod) => {
+      let pathMappingData = requestMapping[fullPath] || {}
+      ;['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'REQUEST'].forEach((reqMethod) => {
         if (pathMappingData[reqMethod] && this.controllerRequestMapping[path][reqMethod]) {
           Logger.error(
-            `Duplicate request routes: ${reqMethod} '${fullPath}' in ${JSON.stringify([
+            `Duplicate request routes: ${reqMethod} ${fullPath || '/'} in ${JSON.stringify([
               pathMappingData[reqMethod].controllerName,
               controllerName
             ])}`
-          );
-          process.exit();
+          )
+          process.exit()
         }
-      });
+      })
 
       requestMapping[fullPath] = {
         ...pathMappingData,
         ...this.controllerRequestMapping[path],
         pathRegExp: regexp,
         pathKeys: keys.map((key) => key.name)
-      };
-    });
-    this.controllerRequestMapping = {};
+      }
+    })
+    this.controllerRequestMapping = {}
   }
-};
+}
