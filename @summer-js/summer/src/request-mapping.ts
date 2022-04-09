@@ -1,5 +1,4 @@
 import { pathToRegexp } from 'path-to-regexp'
-
 import { Logger } from './logger'
 
 export const requestMapping = {}

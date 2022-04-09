@@ -52,9 +52,7 @@ if (options.serve) {
         childProcess = null
       }
 
-      childProcess = exec(
-        `rm -rdf ./node_modules/.summer-compile && cross-env SUMMER_ENV=${options.env} summer-compile`
-      )
+      childProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
 
       printProcessData(childProcess)
 
@@ -66,10 +64,10 @@ if (options.serve) {
           childProcess2 = null
         }
 
-        if (!fs.existsSync('./node_modules/.summer-compile/index.js')) {
+        if (!fs.existsSync('./compile/index.js')) {
           return
         }
-        childProcess2 = spawn('node', ['--enable-source-maps', './node_modules/.summer-compile/index.js'])
+        childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
         printProcessData(childProcess2)
       })
     } catch (e) {
@@ -104,14 +102,12 @@ if (options.serve) {
 } else if (options.test) {
   spinner = ora('Preparing...')
   spinner.start()
-  const compileProcess = exec(
-    `rm -rdf ./node_modules/.summer-compile && cross-env SUMMER_ENV=${options.env} summer-compile`
-  )
+  const compileProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
   printProcessData(compileProcess)
 
   compileProcess.on('exit', () => {
     spinner.stop()
-    if (fs.existsSync('./node_modules/.summer-compile/index.js')) {
+    if (fs.existsSync('./compile/index.js')) {
       const testProcess = exec(' jest --colors')
       printProcessData(testProcess)
     }
@@ -119,13 +115,11 @@ if (options.serve) {
 } else if (options.build) {
   spinner = ora('Building ...')
   spinner.start()
-  const compileProcess = exec(
-    `rm -rdf ./node_modules/.summer-compile && cross-env SUMMER_ENV=${options.env} summer-compile`
-  )
+  const compileProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
   printProcessData(compileProcess)
   compileProcess.on('exit', (code) => {
     spinner.stop()
-    if (fs.existsSync('./node_modules/.summer-compile/index.js')) {
+    if (fs.existsSync('./compile/index.js')) {
       if (fs.existsSync('./resource')) {
         fs.mkdirSync('./build')
         fs.mkdirSync('./build/resource')
@@ -133,7 +127,7 @@ if (options.serve) {
       }
 
       const buildProcess = exec(
-        'npx esbuild ./node_modules/.summer-compile/index.js --bundle --sourcemap --platform=node --outfile=./build/index.js'
+        'npx esbuild ./compile/index.js --bundle --sourcemap --platform=node --outfile=./build/index.js'
       )
       printProcessData(buildProcess)
     }
