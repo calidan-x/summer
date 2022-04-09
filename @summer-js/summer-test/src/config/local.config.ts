@@ -11,9 +11,13 @@ export const MYSQL_CONFIG: MySQLConfig = {
 
 export const SERVER_CONFIG: ServerConfig = {
   port: 8801,
-  serveStatic: {
-    paths: { f: 'resource' }
-  }
+  static: [
+    {
+      requestPathRoot: '/f',
+      destPathRoot: 'resource',
+      indexFiles: ['1.txt']
+    }
+  ]
 }
 
 export const SESSION_CONFIG: SessionConfig = {

@@ -1,4 +1,4 @@
-import { SummerPlugin, getConfig, Controller, Get, Query } from '@summer-js/summer'
+import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
 import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
@@ -101,19 +101,12 @@ export default class implements SummerPlugin {
       return
     }
     Object.assign(swaggerJson, config)
-    const serverConfig = getConfig()['SERVER_CONFIG']
+    const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
     if (serverConfig) {
-      if (!serverConfig.serveStatic) {
-        serverConfig.serveStatic = { paths: {}, indexFiles: [] }
-      } else {
-        if (!serverConfig.serveStatic.paths) {
-          serverConfig.serveStatic.paths = {}
-        }
-        if (!serverConfig.serveStatic.indexFiles) {
-          serverConfig.serveStatic.indexFiles = []
-        }
+      if (!serverConfig.static) {
+        serverConfig.static = []
       }
-      serverConfig.serveStatic.paths['swagger-res'] = 'resource/swagger-res'
+      serverConfig.static.push({ requestPathRoot: '/swagger-res', destPathRoot: 'resource/swagger-res' })
       if (config.swaggerDocPath) {
         // change path
         requestMapping[`${config.swaggerDocPath}`] = requestMapping['/swagger-ui']
@@ -309,7 +302,10 @@ const getParamType = (func) => {
   return null
 }
 
-const getRequiredKeys = (t: any) => {
+const getRequiredKeys = (t: any, isRequest: boolean) => {
+  if (!isRequest) {
+    return []
+  }
   const requireKeys = []
   const typeInc = new t()
   for (const key of Reflect.getOwnMetadataKeys(t.prototype)) {
@@ -321,7 +317,7 @@ const getRequiredKeys = (t: any) => {
   return requireKeys
 }
 
-const getRequestTypeDesc = (t: any) => {
+const getRequestTypeDesc = (t: any, isRequest: boolean) => {
   if (getType(t) !== 'object') {
     return { type: getType(t), description: '' }
   }
@@ -336,13 +332,13 @@ const getRequestTypeDesc = (t: any) => {
       typeDesc[key] = {
         type: 'object',
         description: '',
-        properties: getRequestTypeDesc(declareType)
+        properties: getRequestTypeDesc(declareType, isRequest)
       }
     } else if (designType.name.toLowerCase() === 'array') {
       typeDesc[key] = {
         type: 'array',
         description: '',
-        items: getRequestTypeDesc(declareType)
+        items: getRequestTypeDesc(declareType, isRequest)
       }
     } else {
       // enum
@@ -360,7 +356,8 @@ const getRequestTypeDesc = (t: any) => {
       }
     }
   }
-  return { type: 'object', properties: typeDesc, description: '', required: getRequiredKeys(t) }
+
+  return { type: 'object', properties: typeDesc, description: '', required: getRequiredKeys(t, isRequest) }
 }
 
 @Controller('/swagger-ui')
@@ -428,13 +425,13 @@ export class SummerSwaggerUIController {
                 ptype === 'object'
                   ? {
                       example: api.example?.request,
-                      ...getRequestTypeDesc(param.declareType)
+                      ...getRequestTypeDesc(param.declareType, true)
                     }
                   : ptype === 'array'
                   ? {
                       example: api.example?.request,
                       type: 'array',
-                      items: getRequestTypeDesc(param.declareType)
+                      items: getRequestTypeDesc(param.declareType, true)
                     }
                   : null
             })
@@ -471,13 +468,13 @@ export class SummerSwaggerUIController {
                   ? {
                       example: successResExample,
                       description: '',
-                      ...getRequestTypeDesc(declareReturnType)
+                      ...getRequestTypeDesc(declareReturnType, false)
                     }
                   : returnRootType === 'array'
                   ? {
                       example: successResExample,
                       type: 'array',
-                      items: getRequestTypeDesc(declareReturnType)
+                      items: getRequestTypeDesc(declareReturnType, false)
                     }
                   : {
                       example: successResExample,

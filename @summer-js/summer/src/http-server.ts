@@ -1,19 +1,21 @@
 import http = require('http')
 import cookie from 'cookie'
-import mine = require('mime-types')
-import fs from 'fs'
+
 import { Logger } from './logger'
 import { requestHandler } from './request-handler'
 import { session, SessionConfig } from './session'
 import { Context } from './'
-import path = require('path')
+import { handleStaticRequest } from './static-server'
+
+interface StaticConfig {
+  requestPathRoot: string
+  destPathRoot: string
+  indexFiles?: string[]
+}
 
 export interface ServerConfig {
   port: number
-  serveStatic?: {
-    paths: string[] | Record<string, string>
-    indexFiles?: string[]
-  }
+  static?: StaticConfig[]
 }
 
 export const httpServer = {
@@ -36,68 +38,8 @@ export const httpServer = {
           const urlParts = req.url.split('?')
           const requestPath = urlParts[0].split('#')[0]
 
-          if (serverConfig.serveStatic && serverConfig.serveStatic.paths) {
-            let pathMap: Record<string, string> = {}
-            if (Array.isArray(serverConfig.serveStatic.paths)) {
-              serverConfig.serveStatic.paths.forEach((path) => {
-                pathMap[path] = path
-              })
-            } else {
-              pathMap = serverConfig.serveStatic.paths
-            }
-
-            for (const staticPrePath in pathMap) {
-              let requestFile = '.' + requestPath
-              const targetPath = pathMap[staticPrePath]
-              if (!path.resolve(requestFile).startsWith(path.resolve(staticPrePath))) {
-                continue
-              }
-              if (req.url.startsWith('/' + staticPrePath + '/') || req.url === '/' + staticPrePath) {
-                requestFile = requestFile.replace(staticPrePath, targetPath)
-                if (targetPath.startsWith('/')) {
-                  requestFile = requestFile.replace('./', '')
-                }
-
-                if (fs.existsSync(requestFile) && !fs.lstatSync(requestFile).isDirectory()) {
-                } else if (
-                  fs.existsSync(requestFile) &&
-                  fs.lstatSync(requestFile).isDirectory() &&
-                  !requestFile.endsWith('/')
-                ) {
-                  res.writeHead(301, { Location: requestPath + '/', 'Cache-Control': 'no-store' })
-                  res.end()
-                  return
-                } else if (serverConfig.serveStatic.indexFiles) {
-                  let foundFile = false
-                  for (const file of serverConfig.serveStatic.indexFiles) {
-                    if (fs.existsSync(requestFile + file)) {
-                      requestFile = requestFile + file
-                      foundFile = true
-                      break
-                    }
-                  }
-                  if (!foundFile) {
-                    requestFile = ''
-                  }
-                }
-
-                if (requestFile) {
-                  if (mine.lookup(requestFile)) {
-                    res.writeHead(200, { 'Content-Type': mine.lookup(requestFile) })
-                  }
-                  fs.createReadStream(requestFile)
-                    .pipe(res)
-                    .on('finish', () => {
-                      res.end()
-                    })
-                } else {
-                  res.writeHead(404)
-                  res.write('')
-                  res.end()
-                }
-                return
-              }
-            }
+          if (handleStaticRequest(requestPath, req, res, serverConfig)) {
+            return
           }
 
           const cookies = cookie?.parse(req.headers.cookie || '') || {}
