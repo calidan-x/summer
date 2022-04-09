@@ -1,6 +1,6 @@
 {
   "name": "@summer-js/summer",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -8,7 +8,8 @@
     "lib"
   ],
   "scripts": {
-    "build": "tsc && node replace-version"
+    "build": "tsc && node replace-version",
+    "release": "npm publish --access public"
   },
   "author": "Calidan",
   "license": "ISC",

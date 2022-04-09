@@ -118,18 +118,22 @@ if (options.serve) {
   const compileProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
   printProcessData(compileProcess)
   compileProcess.on('exit', (code) => {
-    spinner.stop()
     if (fs.existsSync('./compile/index.js')) {
       if (fs.existsSync('./resource')) {
-        fs.mkdirSync('./build')
-        fs.mkdirSync('./build/resource')
+        if (!fs.existsSync('./build')) {
+          fs.mkdirSync('./build')
+        }
+        if (!fs.existsSync('./build/resource')) {
+          fs.mkdirSync('./build/resource')
+        }
         exec('cp -r ./resource/* ./build/resource')
       }
-
+      spinner.stop()
       const buildProcess = exec(
         'npx esbuild ./compile/index.js --bundle --sourcemap --platform=node --outfile=./build/index.js'
       )
       printProcessData(buildProcess)
     }
+    spinner.stop()
   })
 }

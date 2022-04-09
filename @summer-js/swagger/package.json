@@ -1,6 +1,6 @@
 {
   "name": "@summer-js/swagger",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -9,7 +9,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "release": "npm publish --access public"
   },
   "repository": {
     "type": "git",

@@ -1,11 +1,14 @@
 {
   "name": "@summer-js/cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "type": "module",
   "bin": {
     "summer": "index.js",
     "summer-compile": "compile.js"
+  },
+  "script": {
+    "release": "npm publish --access public"
   },
   "dependencies": {
     "tree-kill": "^1.2.2",

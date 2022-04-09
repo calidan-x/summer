@@ -1,6 +1,6 @@
 {
   "name": "@summer-js/test",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -14,7 +14,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "release": "npm publish --access public"
   },
   "repository": {
     "type": "git",
