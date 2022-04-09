@@ -1,4 +1,4 @@
-import { Controller, Get, Query, PathParam, Header } from '@summer-js/summer'
+import { Controller, Get, Query, PathParam, Header, getLocInstance } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 
 @Controller

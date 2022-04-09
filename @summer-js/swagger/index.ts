@@ -370,7 +370,7 @@ export class SummerSwaggerUIController {
     if (allPages.length === 1) {
       indexHTML = indexHTML.replace(
         '//{{URLS}}',
-        `urls:[{url:"${swaggerJson.swaggerDocPath}/swagger-docs.json",name:"All"}]`
+        `urls:[{url:"${swaggerJson.swaggerDocPath}/swagger-docs.json",name:"All"}],`
       )
     } else {
       const urls = allPages.map((ap) => ({

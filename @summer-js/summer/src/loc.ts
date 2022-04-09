@@ -22,7 +22,7 @@ export const locContainer = {
     this.locInstance[className] = instance
   },
   getInstance<T>(clazz: string | Class<T>): T {
-    const className: string = typeof clazz === 'string' ? clazz : clazz.constructor.name
+    const className: string = typeof clazz === 'string' ? clazz : clazz.name
     if (!this.locInstance[className]) {
       return undefined
     }
@@ -108,4 +108,6 @@ export const locContainer = {
   }
 }
 
-export const getLocInstance = locContainer.getInstance
+export const getLocInstance = <T>(clazz: Class<T>): T => {
+  return locContainer.getInstance(clazz)
+}

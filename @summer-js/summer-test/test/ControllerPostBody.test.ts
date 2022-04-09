@@ -1,27 +1,27 @@
-import { initTest, endTest, request } from '@summer-js/test';
+import { initTest, endTest, request } from '@summer-js/test'
 
 const typeVal = (value) => {
-  return JSON.stringify({ type: typeof value, value });
-};
+  return JSON.stringify({ type: typeof value, value })
+}
 
 const testRequestParam = async (requestValue: string, resultValue: any) => {
-  const response = await request.post('/request-body-value', requestValue);
-  expect(response.body).toBe(typeVal(resultValue));
-};
+  const response = await request.post('/request-body-value', { body: requestValue })
+  expect(response.body).toBe(typeVal(resultValue))
+}
 
 const testErrorRequestParam = async (requestValue: string, errorMessage: any) => {
-  const response = await request.post('/request-body-value', requestValue);
-  expect(response.body).toContain(errorMessage);
-};
+  const response = await request.post('/request-body-value', { body: requestValue })
+  expect(response.body).toContain(errorMessage)
+}
 
 describe('Controller Object Convert Test', () => {
   beforeAll(async () => {
-    await initTest();
-  });
+    await initTest()
+  })
 
   afterAll(async () => {
-    await endTest();
-  });
+    await endTest()
+  })
 
   test('test object convert', async () => {
     await testErrorRequestParam(
@@ -44,7 +44,7 @@ describe('Controller Object Convert Test', () => {
       
       }`,
       'is not a string'
-    );
+    )
 
     await testRequestParam(
       `{
@@ -82,6 +82,6 @@ describe('Controller Object Convert Test', () => {
         name: 'Max',
         gender: 1
       }
-    );
-  });
-});
+    )
+  })
+})

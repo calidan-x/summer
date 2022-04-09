@@ -13,7 +13,7 @@ export const SERVER_CONFIG: ServerConfig = {
   port: 8801,
   static: [
     {
-      requestPathRoot: '/f',
+      requestPathRoot: '/static',
       destPathRoot: 'resource',
       indexFiles: ['1.txt']
     }
