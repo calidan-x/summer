@@ -17,6 +17,9 @@ let spinner
 
 const printProcessData = (p) => {
   p.stdout.on('data', (data) => {
+    if (['COMPILE_START', 'COMPILE_DONE'].includes(data.trim())) {
+      return
+    }
     spinner.stop()
     process.stdout.write(data)
   })
@@ -45,7 +48,7 @@ if (options.serve) {
         childProcess = null
       }
 
-      childProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
+      childProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile listen`)
       childProcess.stdout.on('data', (data) => {
         if (data.startsWith('COMPILE_START')) {
           clearScreen()
@@ -60,9 +63,6 @@ if (options.serve) {
           }
           childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
           printProcessData(childProcess2)
-          setTimeout(() => {
-            spinner.stop()
-          }, 3000)
         } else {
           process.stdout.write(data)
         }
@@ -120,7 +120,6 @@ if (options.serve) {
         }
         exec('cp -r ./resource/* ./build/resource')
       }
-      spinner.stop()
       const buildProcess = exec(
         'npx esbuild ./compile/index.js --bundle --sourcemap --platform=node --outfile=./build/index.js'
       )

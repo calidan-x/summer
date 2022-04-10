@@ -7,6 +7,8 @@ import path from 'path'
 import { Project, ClassDeclaration } from 'ts-morph'
 import { execSync } from 'child_process'
 
+const listen = process.argv[2] === 'listen'
+
 const PLUGINS = ['@summer-js/typeorm', '@summer-js/swagger']
 
 const project = new Project({
@@ -15,9 +17,11 @@ const project = new Project({
 
 let dirty = false
 let firstCompile = true
+let compiling = false
 const updateFileList = []
 const compile = async () => {
   dirty = false
+  compiling = true
   const pluginIncs = []
   const existPlugins = {}
 
@@ -29,7 +33,9 @@ const compile = async () => {
       project.addSourceFilesAtPaths(updatePath)
     }
     if (['unlink'].includes(event)) {
-      project.removeSourceFile(project.getSourceFileOrThrow(updatePath))
+      try {
+        project.removeSourceFile(project.getSourceFileOrThrow(updatePath))
+      } catch (e) {}
     }
   })
 
@@ -56,15 +62,6 @@ const compile = async () => {
     compile()
     return
   }
-
-  // let sourceFiles = []
-  // if (updateFileList.length) {
-  //   updateFileList.forEach(({ updatePath }) => {
-  //     sourceFiles.push(project.getSourceFileOrThrow(updatePath))
-  //   })
-  // } else {
-  //   sourceFiles = project.getSourceFiles()
-  // }
 
   const sourceFiles = project.getSourceFiles()
 
@@ -223,38 +220,45 @@ const compile = async () => {
     updateFileList.splice(0, updateFileList.length)
     console.log('COMPILE_DONE')
   }
+
+  compiling = false
 }
 
-const fileHashes = {}
-const watchDir = './src/'
-const watcher = chokidar.watch(watchDir, { ignored: 'src/auto-imports.ts' }).on('all', async (event, path) => {
-  if (fs.existsSync('./' + path)) {
-    if (fs.lstatSync('./' + path).isDirectory()) {
-      return
-    }
-    const md5 = crypto.createHash('md5')
-    const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
+if (listen) {
+  const fileHashes = {}
+  const watchDir = './src/'
+  const watcher = chokidar.watch(watchDir, { ignored: 'src/auto-imports.ts' }).on('all', async (event, path) => {
+    if (fs.existsSync('./' + path)) {
+      if (fs.lstatSync('./' + path).isDirectory()) {
+        return
+      }
+      const md5 = crypto.createHash('md5')
+      const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
 
-    if (!fileHashes[path] && firstCompile) {
+      if (!fileHashes[path] && firstCompile) {
+        fileHashes[path] = currentMD5
+        return
+      }
+
+      if (currentMD5 === fileHashes[path]) {
+        return
+      }
+
       fileHashes[path] = currentMD5
+    } else {
+      delete fileHashes[path]
+    }
+    updateFileList.push({ event, updatePath: path })
+    dirty = true
+    if (compiling || firstCompile) {
       return
     }
-
-    if (currentMD5 === fileHashes[path]) {
-      return
-    }
-
-    fileHashes[path] = currentMD5
-  } else {
-    delete fileHashes[path]
-  }
-  updateFileList.push({ event, updatePath: path })
-  dirty = true
-  if (!firstCompile) {
     await compile()
-  }
-})
+  })
 
-watcher.on('ready', async () => {
-  await compile()
-})
+  watcher.on('ready', async () => {
+    await compile()
+  })
+} else {
+  compile()
+}
