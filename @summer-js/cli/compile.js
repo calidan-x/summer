@@ -1,14 +1,38 @@
 #!/usr/bin/env node
 
 import fs from 'fs'
+import crypto from 'crypto'
+import chokidar from 'chokidar'
 import path from 'path'
 import { Project, ClassDeclaration } from 'ts-morph'
+import { execSync } from 'child_process'
 
 const PLUGINS = ['@summer-js/typeorm', '@summer-js/swagger']
-const pluginIncs = []
-const existPlugins = {}
 
-;(async () => {
+const project = new Project({
+  tsConfigFilePath: './tsconfig.json'
+})
+
+let dirty = false
+let firstCompile = true
+const updateFileList = []
+const compile = async () => {
+  dirty = false
+  const pluginIncs = []
+  const existPlugins = {}
+
+  console.log('COMPILE_START')
+  execSync('rm -rdf ./compile/*')
+
+  updateFileList.forEach(({ event, updatePath }) => {
+    if (['add'].includes(event)) {
+      project.addSourceFilesAtPaths(updatePath)
+    }
+    if (['unlink'].includes(event)) {
+      project.removeSourceFile(project.getSourceFileOrThrow(updatePath))
+    }
+  })
+
   for (const plugin of PLUGINS) {
     if (fs.existsSync('./node_modules/' + plugin) || fs.existsSync('../../node_modules/' + plugin)) {
       const p = await import(plugin)
@@ -19,10 +43,7 @@ const existPlugins = {}
   }
 
   fs.writeFileSync('./src/auto-imports.ts', '')
-
-  const project = new Project({
-    tsConfigFilePath: './tsconfig.json'
-  })
+  project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync()
 
   const diagnostics = project.getPreEmitDiagnostics()
   if (diagnostics.length > 0) {
@@ -30,6 +51,20 @@ const existPlugins = {}
     console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
     return
   }
+
+  if (dirty && !firstCompile) {
+    compile()
+    return
+  }
+
+  // let sourceFiles = []
+  // if (updateFileList.length) {
+  //   updateFileList.forEach(({ updatePath }) => {
+  //     sourceFiles.push(project.getSourceFileOrThrow(updatePath))
+  //   })
+  // } else {
+  //   sourceFiles = project.getSourceFiles()
+  // }
 
   const sourceFiles = project.getSourceFiles()
 
@@ -61,9 +96,10 @@ const existPlugins = {}
       eachStrings.forEach((es) => {
         es = es.trim()
         if ((es.startsWith('"') && es.endsWith('"')) || (es.startsWith("'") && es.endsWith("'"))) {
-          stringEnum += es + ':' + es
+          stringEnum += es + ':' + es + ','
         }
       })
+      stringEnum = stringEnum.replace(/,$/, '')
       stringEnum += '}'
       return stringEnum
     }
@@ -95,13 +131,14 @@ const existPlugins = {}
     }
   }
 
-  let controllerFilesList = []
+  let importFilesList = []
   for (const sf of sourceFiles) {
+    sf.refreshFromFileSystemSync()
     for (const cls of sf.getClasses()) {
       addPropDecorator(cls)
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller' || classDecorator.getName() === 'Middleware') {
-          controllerFilesList.push(
+          importFilesList.push(
             cls
               .getSourceFile()
               .getFilePath()
@@ -150,11 +187,11 @@ const existPlugins = {}
     }
   }
 
-  controllerFilesList.forEach((path, inx) => {
+  importFilesList.forEach((path, inx) => {
     fileContent += `import * as $M${inx} from '${path.replace(/\.ts$/, '')}';\n`
   })
 
-  controllerFilesList.forEach((path, inx) => {
+  importFilesList.forEach((path, inx) => {
     fileContent += `$M${inx};`
   })
 
@@ -164,8 +201,12 @@ const existPlugins = {}
     fileContent += p.getAutoImportContent ? p.getAutoImportContent() + '\n' : ''
   }
 
-  fs.writeFileSync('./src/auto-imports.ts', fileContent)
+  if (dirty && !firstCompile) {
+    compile()
+    return
+  }
 
+  fs.writeFileSync('./src/auto-imports.ts', fileContent)
   project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync()
   project.resolveSourceFileDependencies()
   project.emitSync()
@@ -173,4 +214,47 @@ const existPlugins = {}
   for (const p of pluginIncs) {
     p.postCompile && (await p.postCompile())
   }
-})()
+
+  firstCompile = false
+
+  if (dirty) {
+    compile()
+  } else {
+    updateFileList.splice(0, updateFileList.length)
+    console.log('COMPILE_DONE')
+  }
+}
+
+const fileHashes = {}
+const watchDir = './src/'
+const watcher = chokidar.watch(watchDir, { ignored: 'src/auto-imports.ts' }).on('all', async (event, path) => {
+  if (fs.existsSync('./' + path)) {
+    if (fs.lstatSync('./' + path).isDirectory()) {
+      return
+    }
+    const md5 = crypto.createHash('md5')
+    const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
+
+    if (!fileHashes[path] && firstCompile) {
+      fileHashes[path] = currentMD5
+      return
+    }
+
+    if (currentMD5 === fileHashes[path]) {
+      return
+    }
+
+    fileHashes[path] = currentMD5
+  } else {
+    delete fileHashes[path]
+  }
+  updateFileList.push({ event, updatePath: path })
+  dirty = true
+  if (!firstCompile) {
+    await compile()
+  }
+})
+
+watcher.on('ready', async () => {
+  await compile()
+})

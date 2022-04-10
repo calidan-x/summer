@@ -36,13 +36,16 @@ export const handler = async (event) => {
 
 declare global {
   type int = number
+  const _PropDeclareType: any
+  const _ParamDeclareType: any
+  const _Required: any
+  const Int: any
 }
 
 ;(global as any)._PropDeclareType = (type: any) => (target: Object, propertyKey: string | symbol) => {
   Reflect.defineMetadata(propertyKey, propertyKey, target)
   Reflect.defineMetadata('DeclareType', type, target, propertyKey)
 }
-
 ;(global as any)._ParamDeclareType = (type: any) => (target: Object, propertyKey: string | symbol, index: number) => {
   let existingParameterTypes: number[] = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey) || []
   existingParameterTypes[index] = type

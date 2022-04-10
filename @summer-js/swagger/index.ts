@@ -11,6 +11,9 @@ import fs from 'fs'
   }
 
 declare const _ParamDeclareType: any
+declare global {
+  const _ApiReturnType: any
+}
 
 interface Schema {
   type: string
@@ -157,7 +160,7 @@ export default class implements SummerPlugin {
 
           m.addDecorator({
             name: '_ApiReturnType',
-            arguments: [returnType, isArray ? "'array'" : returnType ? "'object'" : "'string'"]
+            arguments: [returnType || 'undefined', isArray ? "'array'" : returnType ? "'object'" : "'string'"]
           })
         }
       })

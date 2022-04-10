@@ -2,10 +2,8 @@
 
 import { exec, execSync, spawn } from 'child_process'
 import kill from 'tree-kill'
-import crypto from 'crypto'
 import fs from 'fs'
 import { program } from 'commander'
-import chokidar from 'chokidar'
 import ora from 'ora'
 
 program.option('-t, --test').option('-s, --serve').option('-b, --build').option('--env [char]', '', '')
@@ -35,70 +33,64 @@ const printProcessData = (p) => {
   })
 }
 
-let serveStared = false
 if (options.serve) {
-  const fileHashes = {}
   let childProcess = null
   let childProcess2 = null
   spinner = ora('Compiling...')
 
   const serve = () => {
     try {
-      clearScreen()
-      spinner.start()
-
       if (childProcess) {
         kill(childProcess.pid)
         childProcess = null
       }
 
-      childProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
+      childProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
+      childProcess.stdout.on('data', (data) => {
+        if (data.startsWith('COMPILE_START')) {
+          clearScreen()
+          spinner.start()
+          if (childProcess2) {
+            kill(childProcess2.pid)
+            childProcess2 = null
+          }
+        } else if (data.startsWith('COMPILE_DONE')) {
+          if (!fs.existsSync('./compile/index.js')) {
+            return
+          }
+          childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
+          printProcessData(childProcess2)
+          setTimeout(() => {
+            spinner.stop()
+          }, 3000)
+        } else {
+          process.stdout.write(data)
+        }
+      })
 
-      printProcessData(childProcess)
-
-      childProcess.on('exit', () => {
-        serveStared = true
-
+      childProcess.stderr.on('data', (data) => {
         if (childProcess2) {
           kill(childProcess2.pid)
           childProcess2 = null
         }
+        spinner.stop()
+        process.stdout.write(data)
+      })
 
-        if (!fs.existsSync('./compile/index.js')) {
-          return
+      childProcess.on('error', (data) => {
+        if (childProcess2) {
+          kill(childProcess2.pid)
+          childProcess2 = null
         }
-        childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
-        printProcessData(childProcess2)
+        spinner.stop()
+        //@ts-ignore
+        process.stdout.write(data)
       })
     } catch (e) {
       console.log(e)
     }
   }
-
   serve()
-
-  const watchDir = './src/'
-  chokidar.watch(watchDir, { ignored: 'src/auto-imports.ts' }).on('all', (event, path) => {
-    if (fs.existsSync('./' + path)) {
-      if (fs.lstatSync('./' + path).isDirectory()) {
-        return
-      }
-      const md5 = crypto.createHash('md5')
-      const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
-      if (!fileHashes[path] && !serveStared) {
-        fileHashes[path] = currentMD5
-        return
-      }
-      if (currentMD5 === fileHashes[path]) {
-        return
-      }
-
-      fileHashes[path] = currentMD5
-    } else {
-      delete fileHashes[path]
-    }
-    serve()
-  })
 } else if (options.test) {
   spinner = ora('Preparing...')
   spinner.start()
