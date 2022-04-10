@@ -17,7 +17,7 @@ let spinner
 
 const printProcessData = (p) => {
   p.stdout.on('data', (data) => {
-    if (['COMPILE_START', 'COMPILE_DONE'].includes(data.trim())) {
+    if (['COMPILE_START', 'COMPILE_DONE'].includes(data.toString().trim())) {
       return
     }
     spinner.stop()
@@ -58,11 +58,10 @@ if (options.serve) {
             childProcess2 = null
           }
         } else if (data.startsWith('COMPILE_DONE')) {
-          if (!fs.existsSync('./compile/index.js')) {
-            return
+          if (fs.existsSync('./compile/index.js')) {
+            childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
+            printProcessData(childProcess2)
           }
-          childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
-          printProcessData(childProcess2)
         } else {
           process.stdout.write(data)
         }

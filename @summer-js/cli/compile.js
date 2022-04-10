@@ -26,9 +26,8 @@ const compile = async () => {
   const existPlugins = {}
 
   console.log('COMPILE_START')
-  execSync('rm -rdf ./compile/*')
 
-  updateFileList.forEach(({ event, updatePath }) => {
+  for (const { event, updatePath } of updateFileList) {
     if (['add'].includes(event)) {
       project.addSourceFilesAtPaths(updatePath)
     }
@@ -37,7 +36,7 @@ const compile = async () => {
         project.removeSourceFile(project.getSourceFileOrThrow(updatePath))
       } catch (e) {}
     }
-  })
+  }
 
   for (const plugin of PLUGINS) {
     if (fs.existsSync('./node_modules/' + plugin) || fs.existsSync('../../node_modules/' + plugin)) {
@@ -206,6 +205,7 @@ const compile = async () => {
   fs.writeFileSync('./src/auto-imports.ts', fileContent)
   project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync()
   project.resolveSourceFileDependencies()
+  execSync('rm -rdf ./compile/*')
   project.emitSync()
 
   for (const p of pluginIncs) {
@@ -240,9 +240,9 @@ if (listen) {
         return
       }
 
-      if (currentMD5 === fileHashes[path]) {
-        return
-      }
+      // if (currentMD5 === fileHashes[path]) {
+      //   return
+      // }
 
       fileHashes[path] = currentMD5
     } else {

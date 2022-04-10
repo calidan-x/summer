@@ -7,6 +7,6 @@ export class HelloController {
   @Get
   @ApiDoc('获取Hello', { description: '描述描述描述描述描述', example: { response: 'Hello Summer!' } })
   hello() {
-    return 'Hello Summer'
+    return 'Hello Summer!'
   }
 }

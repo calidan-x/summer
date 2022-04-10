@@ -11,7 +11,7 @@ import * as $M0 from './controllers/AnimalController';
 import * as $M1 from './controllers/BookController';
 import * as $M2 from './controllers/ConfigController';
 import * as $M3 from './controllers/ControllerParamController';
-import * as $M4 from './controllers/ExamlpeController';
+import * as $M4 from './controllers/ExampleController';
 import * as $M5 from './controllers/HelloController';
 import * as $M6 from './controllers/LoggerController';
 import * as $M7 from './controllers/MovieController';
