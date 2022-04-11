@@ -1,13 +1,13 @@
 {
   "name": "@summer-js/cli",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "",
   "type": "module",
   "bin": {
     "summer": "index.js",
     "summer-compile": "compile.js"
   },
-  "script": {
+  "scripts": {
     "release": "npm publish --access public"
   },
   "dependencies": {
@@ -18,7 +18,6 @@
     "cross-env": "^7.0.3"
   },
   "devDependencies": {},
-  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/calidan-x/summer.git"

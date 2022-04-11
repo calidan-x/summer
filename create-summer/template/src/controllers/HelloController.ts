@@ -1,9 +1,9 @@
-import { Controller, Get } from '@summer-js/summer';
+import { Controller, Get } from '@summer-js/summer'
 
-@Controller()
+@Controller
 export class HelloController {
-  @Get()
+  @Get
   hello() {
-    return 'Hello Summer!';
+    return 'Hello Summer!'
   }
 }

@@ -1,16 +1,16 @@
-import { initTest, endTest, request } from '@summer-js/test';
+import { initTest, endTest, request } from '@summer-js/test'
 
 describe('Test HelloController', () => {
   beforeAll(async () => {
-    await initTest();
-  });
+    await initTest()
+  })
 
   afterAll(async () => {
-    await endTest();
-  });
+    await endTest()
+  })
 
-  test('Should response hello', async () => {
-    const response = await request.get('/');
-    expect(response.body).toBe('Hello Summer!');
-  });
-});
+  test('should response hello', async () => {
+    const response = await request.get('/')
+    expect(response.body).toBe('Hello Summer!')
+  })
+})
