@@ -1,5 +1,4 @@
 import { ClassDeclaration, Decorator } from 'ts-morph'
-import { Context, requestHandler } from './request-handler'
 export { summerStart, summerDestroy } from './summer'
 export * from './decorators'
 export * from './utils'
@@ -9,6 +8,7 @@ export { Logger } from './logger'
 export { SessionConfig } from './session'
 export { ServerConfig } from './http-server'
 export { getConfig } from './config-handler'
+export { handler } from './serverless'
 
 export interface SummerPlugin {
   configKey: string
@@ -17,21 +17,6 @@ export interface SummerPlugin {
   getAutoImportContent?: () => void
   init: (config: any) => void
   destroy?: () => void
-}
-// AWS Lambda
-export const handler = async (event) => {
-  const context: Context = {
-    request: {
-      method: event.httpMethod,
-      path: event.path,
-      queries: event.queryStringParameters,
-      headers: event.headers,
-      body: event.body
-    },
-    response: { statusCode: 200, body: '' }
-  }
-  await requestHandler(context)
-  return context.response
 }
 
 declare global {

@@ -70,8 +70,6 @@ export default class implements SummerPlugin {
         !process.env.SUMMER_TESTING && Logger.log('MySQL DB connected')
         this.dbConnections.push(connection)
       }
-    } else {
-      Logger.warning('Missing MYSQL_CONFIG in config file')
     }
   }
 

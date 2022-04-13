@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import { getServerType } from './serverless'
 import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
 import { locContainer } from './loc'
@@ -18,10 +19,10 @@ export const summerStart = async (options?: SummerStartOptions) => {
   options = options || {}
   const config = getConfig()
 
-  const isAWSLambda = process.env.AWS_LAMBDA_FUNCTION_VERSION !== undefined
+  const isNormalServer = getServerType() === 'Normal'
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
 
-  if (config['SERVER_CONFIG'] && !isAWSLambda && !isSummerTesting) {
+  if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
     console.log(`
 🔆SUMMER Ver ${version}    \n
 ===========================\n`)
@@ -36,7 +37,7 @@ export const summerStart = async (options?: SummerStartOptions) => {
 
   options.before && (await options.before(config))
 
-  if (config['SERVER_CONFIG'] && !isAWSLambda && !isSummerTesting) {
+  if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
     if (config['SESSION_CONFIG']) {
       session.init(config['SESSION_CONFIG'])
     }
