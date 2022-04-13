@@ -1,4 +1,4 @@
-import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig } from '@summer-js/summer'
+import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
 import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
@@ -97,7 +97,7 @@ const swaggerJson: SwaggerDoc = {
   paths: {}
 }
 
-export default class implements SummerPlugin {
+class SwaggerPlugin implements SummerPlugin {
   configKey = 'SWAGGER_CONFIG'
   async init(config: SwaggerConfig) {
     if (!config) {
@@ -123,10 +123,6 @@ export default class implements SummerPlugin {
         delete requestMapping['/swagger-ui/swagger-docs.json']
       }
     }
-  }
-
-  getAutoImportContent() {
-    return 'import { SummerSwaggerUIController } from "@summer-js/swagger";\nSummerSwaggerUIController;\n'
   }
 
   compile(classDecorator, clazz: ClassDeclaration) {
@@ -492,3 +488,6 @@ export class SummerSwaggerUIController {
     return swaggerJson
   }
 }
+
+addPlugin(SwaggerPlugin)
+export default SwaggerPlugin

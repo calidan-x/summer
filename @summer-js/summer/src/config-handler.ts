@@ -1,5 +1,4 @@
-export { ServerConfig } from './http-server'
-export { SessionConfig } from './session'
+import merge from 'deepmerge'
 
 let _envConfig = null
 export const getConfig = () => {
@@ -8,15 +7,7 @@ export const getConfig = () => {
   }
   const defaultConfig = global['$$_DEFAULT_CONFIG'] || {}
   const envConfig = global['$$_ENV_CONFIG'] || {}
-
-  const finalConfig = defaultConfig
-  Object.keys(envConfig).forEach((key) => {
-    if (finalConfig[key]) {
-      finalConfig[key] = { ...finalConfig[key], ...envConfig[key] }
-    } else {
-      finalConfig[key] = envConfig[key]
-    }
-  })
+  const finalConfig = merge(defaultConfig, envConfig)
 
   _envConfig = finalConfig
   return finalConfig

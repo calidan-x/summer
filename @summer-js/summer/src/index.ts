@@ -9,6 +9,7 @@ export { SessionConfig } from './session'
 export { ServerConfig } from './http-server'
 export { getConfig } from './config-handler'
 export { handler } from './serverless'
+export { addPlugin } from './summer'
 
 export interface SummerPlugin {
   configKey: string

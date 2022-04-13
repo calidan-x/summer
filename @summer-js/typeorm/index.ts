@@ -1,6 +1,6 @@
 import path from 'path'
 import { createConnection, Connection } from 'typeorm'
-import { Logger, SummerPlugin } from '@summer-js/summer'
+import { Logger, SummerPlugin, addPlugin } from '@summer-js/summer'
 import { DefaultNamingStrategy } from 'typeorm'
 import { snakeCase } from 'typeorm/util/StringUtils'
 
@@ -21,13 +21,19 @@ export interface MySQLConfig {
   password: string
 }
 
-export default class implements SummerPlugin {
+const AllEntities = []
+;(global as any)._TypeORMEntity = (target: Object) => {
+  AllEntities.push(target)
+}
+
+class TypeORMPlugin implements SummerPlugin {
   configKey = 'MYSQL_CONFIG'
   entityList = []
   dbConnections: Connection[] = []
 
   compile(classDecorator, clazz) {
     if (classDecorator.getName() === 'Entity') {
+      clazz.addDecorator({ name: '_TypeORMEntity' })
       const filePath = classDecorator
         .getSourceFile()
         .getFilePath()
@@ -45,9 +51,8 @@ export default class implements SummerPlugin {
     let fileContent = ''
     for (const path in this.entityList) {
       allEntities.push(...this.entityList[path])
-      fileContent += 'import { ' + this.entityList[path].join(',') + " } from '" + path + "';\n"
+      fileContent += "import '" + path + "'\n"
     }
-    fileContent += 'global["$$_ENTITIES"] = [' + allEntities.join(',') + '];'
     return fileContent
   }
 
@@ -61,7 +66,7 @@ export default class implements SummerPlugin {
         type: 'mysql',
         port: 3306,
         namingStrategy: new DBNamingStrategy(),
-        entities: global['$$_ENTITIES'],
+        entities: AllEntities,
         ...connectOptions
       })
       if (!connection.isConnected) {
@@ -80,3 +85,6 @@ export default class implements SummerPlugin {
     }
   }
 }
+
+addPlugin(TypeORMPlugin)
+export default TypeORMPlugin

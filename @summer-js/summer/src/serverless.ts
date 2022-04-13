@@ -1,4 +1,11 @@
 import { Context, requestHandler } from './request-handler'
+import { handleStaticRequest } from './static-server'
+import fs from 'fs'
+
+import { getConfig } from './config-handler'
+import { ServerConfig } from './http-server'
+
+const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
 
 export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
@@ -15,6 +22,24 @@ export const handler = async (...args) => {
   const serverType = getServerType()
   if (serverType === 'AWSLambda') {
     const event = args[0]
+
+    if (serverConfig.basePath) {
+      if (event.path.indexOf(serverConfig.basePath) === 0) {
+        event.path = event.path.replace(serverConfig.basePath, '')
+      }
+    }
+
+    const staticHandleResult = handleStaticRequest(event.path)
+    if (staticHandleResult) {
+      const contents = fs.readFileSync(staticHandleResult.filePath, { encoding: 'base64' })
+      return {
+        isBase64Encoded: true,
+        statusCode: staticHandleResult.code,
+        body: contents,
+        headers: staticHandleResult.headers
+      }
+    }
+
     const context: Context = {
       request: {
         method: event.httpMethod,
@@ -36,7 +61,23 @@ export const handler = async (...args) => {
     const req = args[0]
     const resp = args[1]
 
+    if (serverConfig.basePath) {
+      if (req.path.indexOf(serverConfig.basePath) === 0) {
+        req.path = req.path.replace(serverConfig.basePath, '')
+      }
+    }
+
     getRawBody(req, async (err, body) => {
+      const staticHandleResult = handleStaticRequest(req.path)
+      if (staticHandleResult) {
+        resp.setStatusCode(staticHandleResult.code)
+        for (var key in staticHandleResult.headers) {
+          resp.setHeader(key, staticHandleResult.headers[key])
+        }
+        resp.send(fs.readFileSync(req.path))
+        return
+      }
+
       const context: Context = {
         request: {
           method: req.method,

@@ -1,5 +1,6 @@
 import http = require('http')
 import cookie from 'cookie'
+import fs from 'fs'
 
 import { Logger } from './logger'
 import { requestHandler } from './request-handler'
@@ -14,8 +15,9 @@ interface StaticConfig {
 }
 
 export interface ServerConfig {
-  port: number
+  port?: number
   static?: StaticConfig[]
+  basePath?: string
 }
 
 export const httpServer = {
@@ -27,6 +29,9 @@ export const httpServer = {
     return result
   },
   createServer(serverConfig: ServerConfig, sessionConfig: SessionConfig, serverStated?: () => void) {
+    if (!serverConfig.port) {
+      return
+    }
     http
       .createServer((req, res) => {
         let bodyData = ''
@@ -35,10 +40,24 @@ export const httpServer = {
         })
 
         req.on('end', async () => {
+          if (serverConfig.basePath) {
+            if (req.url.indexOf(serverConfig.basePath) === 0) {
+              req.url = req.url.replace(serverConfig.basePath, '')
+            }
+          }
           const urlParts = req.url.split('?')
           const requestPath = urlParts[0].split('#')[0]
 
-          if (handleStaticRequest(requestPath, req, res, serverConfig)) {
+          const staticHandleResult = handleStaticRequest(requestPath)
+          if (staticHandleResult) {
+            res.writeHead(staticHandleResult.code, staticHandleResult.headers)
+            if (staticHandleResult.filePath) {
+              fs.createReadStream(staticHandleResult.filePath)
+                .pipe(res)
+                .on('finish', () => {
+                  res.end()
+                })
+            }
             return
           }
 

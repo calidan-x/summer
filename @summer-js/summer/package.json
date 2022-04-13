@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc && node replace-version",
-    "release": "npm publish --access public"
+    "release": "node replace-version && npm publish --access public"
   },
   "author": "Calidan",
   "license": "ISC",
@@ -24,6 +24,7 @@
     "esbuild": "^0.13.12",
     "reflect-metadata": "0.1.13",
     "ts-morph": "^12.1.0",
+    "deepmerge": "^4.2.2",
     "typescript": "^4.4.2"
   },
   "devDependencies": {

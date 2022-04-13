@@ -1,5 +1,6 @@
 import { ServerConfig, SessionConfig } from '@summer-js/summer'
 import { SwaggerConfig } from '@summer-js/swagger'
+
 import { MySQLConfig } from '@summer-js/typeorm'
 
 export const MYSQL_CONFIG: MySQLConfig = {

@@ -1,17 +1,19 @@
-import http from 'http'
 import fs from 'fs'
 import mine = require('mime-types')
 import path = require('path')
 
+import { getConfig } from './config-handler'
 import { ServerConfig } from './http-server'
 
-export const handleStaticRequest = (
-  requestPath: string,
-  req: http.IncomingMessage,
-  res: http.ServerResponse,
-  serverConfig: ServerConfig
-) => {
-  let requestHandled = false
+const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
+
+interface StaticResult {
+  code: number
+  headers: any
+  filePath?: string
+}
+
+export const handleStaticRequest = (requestPath: string): StaticResult | null => {
   if (serverConfig.static) {
     for (const staticConfig of serverConfig.static) {
       let { requestPathRoot, destPathRoot, indexFiles } = staticConfig
@@ -22,7 +24,7 @@ export const handleStaticRequest = (
         continue
       }
 
-      if (req.url.startsWith(requestPathRoot + '/') || req.url === requestPathRoot) {
+      if (requestPath.startsWith(requestPathRoot + '/') || requestPath === requestPathRoot) {
         requestFile = requestFile.replace(requestPathRoot.replace(/^\//, ''), targetPath)
         if (targetPath.startsWith('/')) {
           requestFile = requestFile.replace('./', '')
@@ -31,10 +33,7 @@ export const handleStaticRequest = (
         if (fs.existsSync(requestFile) && !fs.lstatSync(requestFile).isDirectory()) {
         } else if (fs.existsSync(requestFile) && fs.lstatSync(requestFile).isDirectory()) {
           if (!requestFile.endsWith('/')) {
-            res.writeHead(301, { Location: requestPath + '/', 'Cache-Control': 'no-store' })
-            res.end()
-            requestHandled = true
-            break
+            return { code: 301, headers: { Location: requestPath + '/', 'Cache-Control': 'no-store' } }
           } else if (indexFiles) {
             let foundFile = false
             for (const file of indexFiles) {
@@ -53,23 +52,17 @@ export const handleStaticRequest = (
         }
 
         if (requestFile) {
-          if (mine.lookup(requestFile)) {
-            res.writeHead(200, { 'Content-Type': mine.lookup(requestFile), 'Cache-Control': 'max-age=2592000' })
+          const mineType = mine.lookup(requestFile)
+          const headers = { 'Cache-Control': 'max-age=2592000' }
+          if (mineType) {
+            headers['Content-Type'] = mineType
           }
-          fs.createReadStream(requestFile)
-            .pipe(res)
-            .on('finish', () => {
-              res.end()
-            })
+          return { code: 200, headers, filePath: requestFile }
         } else {
-          res.writeHead(404)
-          res.write('')
-          res.end()
+          return { code: 404, headers: {} }
         }
-        requestHandled = true
-        break
       }
     }
   }
-  return requestHandled
+  return null
 }

@@ -14,6 +14,10 @@ interface SummerStartOptions {
 }
 
 const pluginIncs: SummerPlugin[] = []
+const plugins: any[] = []
+export const addPlugin = (plugin: any) => {
+  plugins.push(plugin)
+}
 
 export const summerStart = async (options?: SummerStartOptions) => {
   options = options || {}
@@ -26,10 +30,10 @@ export const summerStart = async (options?: SummerStartOptions) => {
     console.log(`
 🔆SUMMER Ver ${version}    \n
 ===========================\n`)
-    global['$$_SUMMER_ENV'] && console.log(`ENV: ${global['$$_SUMMER_ENV']}\n`)
+    process.env.SUMMER_ENV && console.log(`ENV: ${process.env.SUMMER_ENV}\n`)
   }
 
-  for (const Plugin of global['$$_PLUGINS']) {
+  for (const Plugin of plugins) {
     const plugin: SummerPlugin = new Plugin()
     pluginIncs.push(plugin)
     plugin.init && (await plugin.init(config[plugin.configKey]))
