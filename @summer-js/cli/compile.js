@@ -17,12 +17,10 @@ const project = new Project({
   tsConfigFilePath: './tsconfig.json'
 })
 
-let dirty = false
 let firstCompile = true
 let compiling = false
 const updateFileList = []
 const compile = async () => {
-  dirty = false
   compiling = true
   const pluginIncs = []
 
@@ -244,48 +242,46 @@ const compile = async () => {
   }
 
   firstCompile = false
-
-  if (dirty) {
-    compile()
-  } else {
-    updateFileList.splice(0, updateFileList.length)
-    console.log('COMPILE_DONE')
-  }
-
+  updateFileList.splice(0, updateFileList.length)
+  console.log('COMPILE_DONE')
   compiling = false
 }
 
 if (listen) {
   const fileHashes = {}
   const watchDir = './src/'
-  const watcher = chokidar.watch(watchDir, { ignored: 'src/auto-imports.ts' }).on('all', async (event, path) => {
-    if (fs.existsSync('./' + path)) {
-      if (fs.lstatSync('./' + path).isDirectory()) {
-        return
-      }
-      const md5 = crypto.createHash('md5')
-      const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
+  const watcher = chokidar
+    .watch(watchDir, {
+      ignored: 'src/auto-imports.ts',
+      awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 100 }
+    })
+    .on('all', async (event, path) => {
+      if (fs.existsSync('./' + path)) {
+        if (fs.lstatSync('./' + path).isDirectory()) {
+          return
+        }
+        const md5 = crypto.createHash('md5')
+        const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
 
-      if (!fileHashes[path] && firstCompile) {
+        if (!fileHashes[path] && firstCompile) {
+          fileHashes[path] = currentMD5
+          return
+        }
+
+        // if (currentMD5 === fileHashes[path]) {
+        //   return
+        // }
+
         fileHashes[path] = currentMD5
+      } else {
+        delete fileHashes[path]
+      }
+      updateFileList.push({ event, updatePath: path })
+      if (compiling || firstCompile) {
         return
       }
-
-      // if (currentMD5 === fileHashes[path]) {
-      //   return
-      // }
-
-      fileHashes[path] = currentMD5
-    } else {
-      delete fileHashes[path]
-    }
-    updateFileList.push({ event, updatePath: path })
-    dirty = true
-    if (compiling || firstCompile) {
-      return
-    }
-    await compile()
-  })
+      await compile()
+    })
 
   watcher.on('ready', async () => {
     await compile()

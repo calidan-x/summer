@@ -28,7 +28,12 @@ var copyRecursiveSync = function (src, dest) {
   })
 
   const projectName = response.value
+  if (!projectName) {
+    return
+  }
   copyRecursiveSync(path.join(__dirname, 'template'), projectName)
+
+  fs.writeFileSync(projectName + '/.gitignore', ['.DS_Store', 'node_modules', 'build', 'compile'].join('\n'))
 
   console.log('Project Created! Now run:')
   console.log('')
