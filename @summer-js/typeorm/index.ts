@@ -1,4 +1,3 @@
-import path from 'path'
 import { createConnection, Connection } from 'typeorm'
 import { Logger, SummerPlugin, addPlugin } from '@summer-js/summer'
 import { DefaultNamingStrategy } from 'typeorm'
@@ -26,34 +25,22 @@ const AllEntities = []
   AllEntities.push(target)
 }
 
+declare global {
+  const _TypeORMEntity: any
+}
+
 class TypeORMPlugin implements SummerPlugin {
   configKey = 'MYSQL_CONFIG'
-  entityList = []
   dbConnections: Connection[] = []
 
   compile(classDecorator, clazz) {
     if (classDecorator.getName() === 'Entity') {
       clazz.addDecorator({ name: '_TypeORMEntity' })
-      const filePath = classDecorator
-        .getSourceFile()
-        .getFilePath()
-        .replace(path.resolve('.') + '/src', '.')
-        .replace(/\.ts$/, '')
-      if (!this.entityList[filePath]) {
-        this.entityList[filePath] = []
-      }
-      this.entityList[filePath].push(clazz.getName())
     }
   }
 
-  getAutoImportContent() {
-    const allEntities = []
-    let fileContent = ''
-    for (const path in this.entityList) {
-      allEntities.push(...this.entityList[path])
-      fileContent += "import '" + path + "'\n"
-    }
-    return fileContent
+  autoImportDecorators() {
+    return ['Entity']
   }
 
   async init(config) {

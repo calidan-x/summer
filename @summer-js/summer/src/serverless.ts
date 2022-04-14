@@ -1,11 +1,11 @@
 import { Context, requestHandler } from './request-handler'
 import { handleStaticRequest } from './static-server'
 import fs from 'fs'
+import path from 'path'
+import zlib from 'zlib'
 
 import { getConfig } from './config-handler'
 import { ServerConfig } from './http-server'
-
-const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
 
 export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
@@ -17,8 +17,22 @@ export const getServerType = () => {
   return serverType
 }
 
+const getGZipData = async (data: string): Promise<string> => {
+  return new Promise((resolve, rejected) => {
+    zlib.gzip(data, function (error, gzippedResponse) {
+      if (error) {
+        rejected(error)
+      } else {
+        resolve(gzippedResponse.toString('base64'))
+      }
+    })
+  })
+}
+
 // Serverless
 export const handler = async (...args) => {
+  const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
+
   const serverType = getServerType()
   if (serverType === 'AWSLambda') {
     const event = args[0]
@@ -26,18 +40,33 @@ export const handler = async (...args) => {
     if (serverConfig.basePath) {
       if (event.path.indexOf(serverConfig.basePath) === 0) {
         event.path = event.path.replace(serverConfig.basePath, '')
+      } else {
+        return {
+          statusCode: 404,
+          body: ''
+        }
       }
     }
 
     const staticHandleResult = handleStaticRequest(event.path)
     if (staticHandleResult) {
-      const contents = fs.readFileSync(staticHandleResult.filePath, { encoding: 'base64' })
-      return {
+      const resData = {
         isBase64Encoded: true,
         statusCode: staticHandleResult.code,
-        body: contents,
+        body: '',
         headers: staticHandleResult.headers
       }
+
+      if (staticHandleResult.filePath) {
+        if (['.css', '.js', '.txt'].includes(path.extname(staticHandleResult.filePath))) {
+          resData.body = await getGZipData(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }))
+          resData.headers['Content-Encoding'] = 'gzip'
+        } else {
+          resData.body = fs.readFileSync(staticHandleResult.filePath, { encoding: 'base64' })
+        }
+      }
+
+      return resData
     }
 
     const context: Context = {
@@ -64,6 +93,10 @@ export const handler = async (...args) => {
     if (serverConfig.basePath) {
       if (req.path.indexOf(serverConfig.basePath) === 0) {
         req.path = req.path.replace(serverConfig.basePath, '')
+      } else {
+        resp.setStatusCode(404)
+        resp.send('')
+        return
       }
     }
 
@@ -74,7 +107,7 @@ export const handler = async (...args) => {
         for (var key in staticHandleResult.headers) {
           resp.setHeader(key, staticHandleResult.headers[key])
         }
-        resp.send(fs.readFileSync(req.path))
+        resp.send(staticHandleResult.filePath ? fs.readFileSync(staticHandleResult.filePath) : '')
         return
       }
 

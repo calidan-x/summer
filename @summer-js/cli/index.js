@@ -16,12 +16,21 @@ const clearScreen = () => process.stdout.write(process.platform === 'win32' ? '\
 let spinner
 
 const printProcessData = (p) => {
-  p.stdout.on('data', (data) => {
-    if (['COMPILE_START', 'COMPILE_DONE'].includes(data.toString().trim())) {
-      return
+  p.stdout.on('data', (dataLines) => {
+    if (typeof dataLines === 'string') {
+      dataLines.split('\n').forEach((data) => {
+        if (['COMPILE_START', 'COMPILE_DONE'].includes(data.toString().trim())) {
+          return
+        } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
+          spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
+        } else {
+          process.stdout.write(data)
+        }
+      })
+    } else {
+      spinner.stop()
+      process.stdout.write(dataLines)
     }
-    spinner.stop()
-    process.stdout.write(data)
   })
 
   p.stderr.on('data', (data) => {
@@ -49,22 +58,26 @@ if (options.serve) {
       }
 
       childProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile listen`)
-      childProcess.stdout.on('data', (data) => {
-        if (data.startsWith('COMPILE_START')) {
-          clearScreen()
-          spinner.start()
-          if (childProcess2) {
-            kill(childProcess2.pid)
-            childProcess2 = null
+      childProcess.stdout.on('data', (dataLines) => {
+        dataLines.split('\n').forEach((data) => {
+          if (data.trim().startsWith('COMPILE_START')) {
+            clearScreen()
+            spinner.start()
+            if (childProcess2) {
+              kill(childProcess2.pid)
+              childProcess2 = null
+            }
+          } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
+            spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
+          } else if (data.trim().startsWith('COMPILE_DONE')) {
+            if (fs.existsSync('./compile/index.js')) {
+              childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
+              printProcessData(childProcess2)
+            }
+          } else {
+            process.stdout.write(data)
           }
-        } else if (data.startsWith('COMPILE_DONE')) {
-          if (fs.existsSync('./compile/index.js')) {
-            childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
-            printProcessData(childProcess2)
-          }
-        } else {
-          process.stdout.write(data)
-        }
+        })
       })
 
       childProcess.stderr.on('data', (data) => {
@@ -91,7 +104,7 @@ if (options.serve) {
   }
   serve()
 } else if (options.test) {
-  spinner = ora('Preparing...')
+  spinner = ora('Compiling...')
   spinner.start()
   const compileProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
   printProcessData(compileProcess)
@@ -104,7 +117,7 @@ if (options.serve) {
     }
   })
 } else if (options.build) {
-  spinner = ora('Building ...')
+  spinner = ora('Compiling...')
   spinner.start()
   const compileProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
   printProcessData(compileProcess)

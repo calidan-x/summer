@@ -43,6 +43,11 @@ export const httpServer = {
           if (serverConfig.basePath) {
             if (req.url.indexOf(serverConfig.basePath) === 0) {
               req.url = req.url.replace(serverConfig.basePath, '')
+            } else {
+              res.writeHead(404)
+              res.write('404 Not Found')
+              res.end()
+              return
             }
           }
           const urlParts = req.url.split('?')
@@ -57,6 +62,8 @@ export const httpServer = {
                 .on('finish', () => {
                   res.end()
                 })
+            } else {
+              res.end()
             }
             return
           }

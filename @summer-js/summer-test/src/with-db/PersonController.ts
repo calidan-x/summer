@@ -2,7 +2,7 @@ import { Controller, Get, PathParam, Post, Body, Inject, AutoInject, Query, conv
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 import { PersonRequest } from '../dto/request/person-request'
 import { Person } from '../entity'
-import { PersonService } from '../service/person-service'
+import { PersonService } from './PersonService'
 
 @AutoInject
 @Controller('/persons')

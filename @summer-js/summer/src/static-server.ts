@@ -5,8 +5,6 @@ import path = require('path')
 import { getConfig } from './config-handler'
 import { ServerConfig } from './http-server'
 
-const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
-
 interface StaticResult {
   code: number
   headers: any
@@ -14,6 +12,7 @@ interface StaticResult {
 }
 
 export const handleStaticRequest = (requestPath: string): StaticResult | null => {
+  const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
   if (serverConfig.static) {
     for (const staticConfig of serverConfig.static) {
       let { requestPathRoot, destPathRoot, indexFiles } = staticConfig

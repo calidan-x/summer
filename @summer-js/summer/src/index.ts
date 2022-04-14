@@ -15,7 +15,7 @@ export interface SummerPlugin {
   configKey: string
   compile?: (classDecorator: Decorator, clazz: ClassDeclaration) => void
   postCompile?: () => void
-  getAutoImportContent?: () => void
+  autoImportDecorators?: () => string[]
   init: (config: any) => void
   destroy?: () => void
 }
