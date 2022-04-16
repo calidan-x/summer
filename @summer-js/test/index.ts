@@ -1,4 +1,6 @@
 import { Context, requestHandler, summerStart, summerDestroy } from '@summer-js/summer'
+import queryString from 'query-string'
+import merge from 'deepmerge'
 import path from 'path'
 
 export const initTest = async () => {
@@ -32,20 +34,45 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
   return context.response
 }
 
+const parseUrl = (requestPath: string) => {
+  const qInx = requestPath.indexOf('?')
+  if (qInx < 0 || requestPath.endsWith('?')) {
+    return { path: requestPath, queries: {} }
+  }
+  const queries = queryString.parse(requestPath.substring(qInx + 1, requestPath.length))
+  const path = requestPath.substring(0, qInx)
+  return { path, queries }
+}
+
 export const request = {
-  async get(path: string, requestParams: RequestParams = {}) {
+  async get(requestPath: string, requestParams: RequestParams = {}) {
+    let { path, queries } = parseUrl(requestPath)
+    requestParams.queries = merge(queries, requestParams.queries || {})
     return await sendRequest('GET', path, requestParams)
   },
-  async post(path: string, requestParams: RequestParams = {}) {
+  async post(requestPath: string, requestParams: RequestParams = {}) {
+    let { path, queries } = parseUrl(requestPath)
+    requestParams.queries = merge(queries, requestParams.queries || {})
     return await sendRequest('POST', path, requestParams)
   },
-  async put(path: string, requestParams: RequestParams = {}) {
+  async put(requestPath: string, requestParams: RequestParams = {}) {
+    let { path, queries } = parseUrl(requestPath)
+    requestParams.queries = merge(queries, requestParams.queries || {})
     return await sendRequest('PUT', path, requestParams)
   },
-  async delete(path: string, requestParams: RequestParams = {}) {
+  async delete(requestPath: string, requestParams: RequestParams = {}) {
+    let { path, queries } = parseUrl(requestPath)
+    requestParams.queries = merge(queries, requestParams.queries || {})
     return await sendRequest('DELETE', path, requestParams)
   },
-  async patch(path: string, requestParams: RequestParams = {}) {
+  async patch(requestPath: string, requestParams: RequestParams = {}) {
+    let { path, queries } = parseUrl(requestPath)
+    requestParams.queries = merge(queries, requestParams.queries || {})
     return await sendRequest('PATCH', path, requestParams)
+  },
+  async options(requestPath: string, requestParams: RequestParams = {}) {
+    let { path, queries } = parseUrl(requestPath)
+    requestParams.queries = merge(queries, requestParams.queries || {})
+    return await sendRequest('OPTIONS', path, requestParams)
   }
 }

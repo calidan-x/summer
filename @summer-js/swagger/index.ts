@@ -2,7 +2,7 @@ import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugi
 import { pathToRegexp } from 'path-to-regexp'
 import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
-import { ClassDeclaration, TypeFormatFlags } from 'ts-morph'
+import { ClassDeclaration, TypeFormatFlags, Decorator } from 'ts-morph'
 import fs from 'fs'
 ;(global as any)._ApiReturnType =
   (returnType: string, rootType: string) => (target: Object, propertyKey: string, descriptor: any) => {
@@ -25,7 +25,7 @@ interface Schema {
 
 interface SwaggerDoc {
   swagger: string
-  swaggerDocPath: string
+  docPath: string
   info: {
     title: string
     description?: string
@@ -35,7 +35,6 @@ interface SwaggerDoc {
     license?: { name: string; url: string }
   }
   host: string
-  basePath: string
   tags: {
     name: string
     description: string
@@ -82,16 +81,14 @@ export interface SwaggerConfig {
     license?: { name: string; url: string }
   }
   host?: string
-  basePath?: string
-  swaggerDocPath: string
+  docPath: string
 }
 
 const swaggerJson: SwaggerDoc = {
   swagger: '2.0',
-  swaggerDocPath: '',
+  docPath: '',
   info: { title: '' },
   host: '',
-  basePath: '',
   tags: [],
   schemes: ['http'],
   paths: {}
@@ -110,22 +107,22 @@ class SwaggerPlugin implements SummerPlugin {
         serverConfig.static = []
       }
       serverConfig.static.push({ requestPathRoot: '/swagger-res', destPathRoot: 'resource/swagger-res' })
-      if (config.swaggerDocPath) {
+      if (config.docPath) {
         // change path
-        requestMapping[`${config.swaggerDocPath}`] = requestMapping['/swagger-ui']
-        requestMapping[`${config.swaggerDocPath}`].pathRegExp = pathToRegexp(`${config.swaggerDocPath}`)
+        requestMapping[`${config.docPath}`] = requestMapping['/swagger-ui']
+        requestMapping[`${config.docPath}`].pathRegExp = pathToRegexp(`${config.docPath}`)
         delete requestMapping['/swagger-ui']
 
-        requestMapping[`${config.swaggerDocPath}/swagger-docs.json`] = requestMapping['/swagger-ui/swagger-docs.json']
-        requestMapping[`${config.swaggerDocPath}/swagger-docs.json`].pathRegExp = pathToRegexp(
-          `${config.swaggerDocPath}/swagger-docs.json`
+        requestMapping[`${config.docPath}/swagger-docs.json`] = requestMapping['/swagger-ui/swagger-docs.json']
+        requestMapping[`${config.docPath}/swagger-docs.json`].pathRegExp = pathToRegexp(
+          `${config.docPath}/swagger-docs.json`
         )
         delete requestMapping['/swagger-ui/swagger-docs.json']
       }
     }
   }
 
-  compile(classDecorator, clazz: ClassDeclaration) {
+  compile(classDecorator: Decorator, clazz: ClassDeclaration) {
     if (classDecorator.getName() === 'ApiDocGroup') {
       const instanceMethods = clazz.getInstanceMethods()
       instanceMethods.forEach((m) => {
@@ -372,12 +369,12 @@ export class SummerSwaggerUIController {
     if (allPages.length === 1) {
       indexHTML = indexHTML.replace(
         '//{{URLS}}',
-        `urls:[{url:"${basePath + swaggerJson.swaggerDocPath}/swagger-docs.json",name:"All"}],`
+        `urls:[{url:"${basePath + swaggerJson.docPath}/swagger-docs.json",name:"All"}],`
       )
     } else {
       const urls = allPages.map((ap) => ({
         name: ap,
-        url: `${basePath + swaggerJson.swaggerDocPath}/swagger-docs.json?category=${encodeURIComponent(ap)}`
+        url: `${basePath + swaggerJson.docPath}/swagger-docs.json?category=${encodeURIComponent(ap)}`
       }))
       indexHTML = indexHTML.replace('//{{URLS}}', `urls:${JSON.stringify(urls)},\n'urls.primaryName':'${primaryName}',`)
     }

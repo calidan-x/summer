@@ -57,7 +57,7 @@ if (options.serve) {
         childProcess = null
       }
 
-      childProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile listen`)
+      childProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile watch`)
       childProcess.stdout.on('data', (dataLines) => {
         dataLines.split('\n').forEach((data) => {
           if (data.trim().startsWith('COMPILE_START')) {

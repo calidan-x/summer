@@ -12,8 +12,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@summer-js/summer": "^0.0.2",
-    "@summer-js/test": "^0.0.3",
     "md5": "^2.3.0",
     "cross-env": "^7.0.3",
     "typeorm": "^0.2.31",

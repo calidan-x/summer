@@ -21,7 +21,7 @@ export const Query = createParamDecorator(
 export const PathParam = createParamDecorator(
   (ctx, paramName: string, name: string) => ctx.request.pathParams[name || paramName]
 )
-export const Session = createParamDecorator((ctx, paramName: string, name: string) => ctx.sessions[name || paramName])
+export const Session = createParamDecorator((ctx) => ctx.session)
 export const Header = createParamDecorator(
   (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
 )

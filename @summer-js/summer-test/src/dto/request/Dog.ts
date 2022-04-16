@@ -1,4 +1,4 @@
-import { Animal } from './Animal';
+import { Animal } from './Animal'
 
 enum Color {
   'Blue' = 'blue',
@@ -7,16 +7,17 @@ enum Color {
 }
 
 class Toy {
-  id: int;
-  name: string;
+  id: int
+  name: string
 }
 
 export class Dog extends Animal {
-  eyeColor: Color;
-  tailLength: number;
-  toys: Toy[];
+  eyeColor: Color
+  tailLength: number
+  toys: Toy[]
+  legLength?: number
 
   bark() {
-    console.log('wang wang!');
+    console.log('wang wang!')
   }
 }

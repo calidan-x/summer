@@ -21,6 +21,7 @@ type TestTypes =
   | 'stringEnumArray'
   | 'obj'
   | 'objArray'
+  | 'stringUnion'
 
 const typeVal = (value) => {
   return JSON.stringify({ type: typeof value, value })
@@ -155,9 +156,14 @@ describe('Controller Params Test', () => {
     await testRequestParam('["E1","E2"]', 'numberEnumArray', [1, 2])
   })
 
-  test('test number string array type request value', async () => {
+  test('test string enum array type request value', async () => {
     await testErrorRequestParam('hello', 'stringEnumArray', 'error parsing')
     await testErrorRequestParam('["hello","E1"]', 'stringEnumArray', "is not in ['E1','E2']")
     await testRequestParam('["E1","E2"]', 'stringEnumArray', ['E1', 'E2'])
+  })
+
+  test('test string union type request value', async () => {
+    await testErrorRequestParam('SU4', 'stringUnion', "is not in ['SU1','SU2']")
+    await testRequestParam('SU1', 'stringUnion', 'SU1')
   })
 })

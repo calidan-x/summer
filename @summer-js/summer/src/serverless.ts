@@ -1,9 +1,9 @@
-import { Context, requestHandler } from './request-handler'
-import { handleStaticRequest } from './static-server'
 import fs from 'fs'
 import path from 'path'
 import zlib from 'zlib'
 
+import { Context, requestHandler } from './request-handler'
+import { handleStaticRequest } from './static-server'
 import { getConfig } from './config-handler'
 import { ServerConfig } from './http-server'
 

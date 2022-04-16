@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+// @ts-check
 import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
@@ -7,7 +8,7 @@ import path from 'path'
 import { Project, ClassDeclaration } from 'ts-morph'
 import { execSync } from 'child_process'
 
-const listen = process.argv[2] === 'listen'
+const watch = process.argv[2] === 'listen'
 
 let PLUGINS = []
 
@@ -44,51 +45,61 @@ const compile = async () => {
 
   const sourceFiles = project.getSourceFiles()
 
-  const getDeclareType = (declareLine, isArray) => {
+  const TypeMapping = {
+    number: 'Number',
+    string: 'String',
+    boolean: 'Boolean',
+    int: 'Int',
+    bigint: 'BigInt',
+    any: undefined,
+    undefined: undefined,
+    null: undefined
+  }
+
+  const getDeclareType = (declareLine, paramType) => {
     const parts = declareLine.split(/:(.*)/s)
+
     let type = undefined
     if (parts.length > 1) {
-      type = parts[1].replace(';', '').replace(/=.+$/, '').trim()
-    }
-    if (isArray) {
-      type = type.replace('[]', '')
-    }
-
-    if (type === 'any' || type === 'undefined' || type === 'null' || !Number.isNaN(Number(type))) {
-      type = undefined
+      type = parts[1]
+        .replace(';', '')
+        .replace(/[^=]=.+$/, '')
+        .trim()
     }
 
-    if (['number', 'string', 'boolean', 'int', 'float'].includes(type)) {
-      type = type.replace(/^(.)/, (matched, index, original) => matched.toUpperCase())
-    }
-
-    if (type === 'bigint') {
-      type = 'BigInt'
-    }
-
-    if (typeof type === 'string' && type.indexOf('|') > 0) {
-      const eachStrings = type.split('|')
-      let stringEnum = '{'
-      eachStrings.forEach((es) => {
-        es = es.trim()
-        if ((es.startsWith('"') && es.endsWith('"')) || (es.startsWith("'") && es.endsWith("'"))) {
-          stringEnum += es + ':' + es + ','
+    if (paramType.isUnion() && !paramType.isEnum() && !paramType.isBoolean()) {
+      const unionTypes = paramType.getUnionTypes()
+      const enumJSON = {}
+      for (const ut of unionTypes) {
+        if (ut.isStringLiteral()) {
+          const suv = ut.getText().replace(/^['"]/, '').replace(/['"]$/, '')
+          enumJSON[suv] = suv
+        } else {
+          return undefined
         }
-      })
-      stringEnum = stringEnum.replace(/,$/, '')
-      stringEnum += '}'
-      return stringEnum
+      }
+      return JSON.stringify(enumJSON)
+    } else if (paramType.isArray()) {
+      type = type.replace('[]', '')
+      const pType = paramType.getArrayElementTypeOrThrow()
+      if (pType.isClass() || pType.isEnum()) {
+      } else {
+        type = TypeMapping[type]
+      }
+    } else if (paramType.isClass() || paramType.isEnum()) {
+    } else {
+      type = TypeMapping[type]
     }
 
     return type
   }
 
-  const addPropDecorator = (cls) => {
+  const addPropDecorator = (cls, sourceFile) => {
     if (!cls) {
       return
     }
     cls.getProperties().forEach((p) => {
-      let type = getDeclareType(p.getText(), p.getType().isArray())
+      let type = getDeclareType(p.getText(), p.getType())
       if (type === undefined || type === null) {
         return
       }
@@ -104,7 +115,7 @@ const compile = async () => {
       }
     })
     if (cls.getExtends()) {
-      addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0])
+      addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0], sourceFile)
     }
   }
 
@@ -151,13 +162,12 @@ const compile = async () => {
   for (const sf of sourceFiles) {
     compileCounter++
 
-    if (sf.getFilePath().endsWith('.d.ts') || sf.getFilePath().endsWith('.test.ts')) {
+    if (sf.getFilePath().endsWith('.d.ts') || (watch && sf.getFilePath().endsWith('.test.ts'))) {
       continue
     }
 
     // add import file list
     for (const cls of sf.getClasses()) {
-      addPropDecorator(cls)
       for (const classDecorator of cls.getDecorators()) {
         if (autoImportDecorators.includes(classDecorator.getName())) {
           importFilesList.push(
@@ -176,7 +186,7 @@ const compile = async () => {
 
     sf.refreshFromFileSystemSync()
     for (const cls of sf.getClasses()) {
-      addPropDecorator(cls)
+      addPropDecorator(cls, sf)
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller') {
           cls.getMethods().forEach((cMethod) => {
@@ -185,7 +195,7 @@ const compile = async () => {
                 const paramType = param.getType()
                 param.addDecorator({
                   name: '_ParamDeclareType',
-                  arguments: [getDeclareType(param.getText(), paramType.isArray())]
+                  arguments: [getDeclareType(param.getText(), paramType)]
                 })
               }
             })
@@ -247,7 +257,7 @@ const compile = async () => {
   compiling = false
 }
 
-if (listen) {
+if (watch) {
   const fileHashes = {}
   const watchDir = './src/'
   const watcher = chokidar

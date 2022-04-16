@@ -108,6 +108,6 @@ export const locContainer = {
   }
 }
 
-export const getLocInstance = <T>(clazz: Class<T>): T => {
+export const getInjectable = <T>(clazz: Class<T>): T => {
   return locContainer.getInstance(clazz)
 }

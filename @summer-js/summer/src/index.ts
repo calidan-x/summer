@@ -3,13 +3,14 @@ export { summerStart, summerDestroy } from './summer'
 export * from './decorators'
 export * from './utils'
 export { requestHandler, Context } from './request-handler'
-export { getLocInstance } from './loc'
+export { getInjectable } from './loc'
 export { Logger } from './logger'
 export { SessionConfig } from './session'
 export { ServerConfig } from './http-server'
 export { getConfig } from './config-handler'
 export { handler } from './serverless'
 export { addPlugin } from './summer'
+export { setCookie, clearCookie } from './cookie'
 
 export interface SummerPlugin {
   configKey: string

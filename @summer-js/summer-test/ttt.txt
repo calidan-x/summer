@@ -1,0 +1,12 @@
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static/static.txt
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/404.txt
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static/404.txt
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/src/index.ts
+/Users/calidan/Desktop/技术研究/summer/@summer-js/summer-test/static

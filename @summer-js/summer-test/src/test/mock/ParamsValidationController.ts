@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Post, Query } from '@summer-js/summer';
-import { Dog } from '../dto/request/Dog';
+import { Body, Controller, Get, Post, Query } from '@summer-js/summer'
+import { Dog } from '../../dto/request/Dog'
 
 class Obj {
-  key: string;
+  key: string
 }
 
 enum NumberEnum {
@@ -16,7 +16,7 @@ enum StringEnum {
 }
 
 @Controller()
-export class ControllerParamController {
+export class ParamsValidationController {
   @Get('/request-basic-type-value')
   async requestBasicTypeValue(
     @Query notypeValue,
@@ -36,7 +36,8 @@ export class ControllerParamController {
     @Query booleanArrayValue: boolean[],
     @Query numberEnumArrayValue: NumberEnum[],
     @Query stringEnumArrayValue: StringEnum[],
-    @Query objArrayValue: Obj[]
+    @Query objArrayValue: Obj[],
+    @Query stringUnionValue: 'SU1' | 'SU2'
   ) {
     let value =
       notypeValue ||
@@ -56,18 +57,19 @@ export class ControllerParamController {
       objArrayValue ||
       numberEnumArrayValue ||
       stringEnumArrayValue ||
-      objValue;
+      objValue ||
+      stringUnionValue
     if (booleanValue !== undefined) {
-      value = booleanValue;
+      value = booleanValue
     }
-    let type = typeof value;
+    let type = typeof value
 
-    return { type, value };
+    return { type, value }
   }
 
   @Post('/request-body-value')
   async requestBodyValue(@Body dog: Dog) {
-    let type = typeof dog;
-    return { type, value: dog };
+    let type = typeof dog
+    return { type, value: dog }
   }
 }

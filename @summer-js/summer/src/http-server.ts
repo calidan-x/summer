@@ -68,8 +68,6 @@ export const httpServer = {
             return
           }
 
-          const cookies = cookie?.parse(req.headers.cookie || '') || {}
-
           const requestCtx = {
             method: req.method as any,
             path: requestPath,
@@ -81,21 +79,24 @@ export const httpServer = {
           const context: Context = {
             request: requestCtx,
             response: { statusCode: 200, body: '' },
-            cookies: cookies
+            cookies: {}
           }
 
           let sessionCookie = ''
           if (sessionConfig) {
+            const cookies = cookie.parse(req.headers.cookie || '') || {}
             const { setCookie, sessionValues } = session.getSession(cookies[session.sessionName])
-            context.sessions = sessionValues
+            context.session = sessionValues
             sessionCookie = setCookie
           }
 
           await requestHandler(context)
 
           if (sessionCookie) {
-            context.response.headers['set-cookie'] = sessionCookie
+            context.response.headers['set-cookie'] = context.response.headers['set-cookie'] || []
+            ;(context.response.headers['set-cookie'] as string[]).push(sessionCookie)
           }
+
           res.writeHead(context.response.statusCode, context.response.headers)
           res.write(context.response.body)
           res.end()

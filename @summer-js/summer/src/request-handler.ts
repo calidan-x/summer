@@ -1,8 +1,10 @@
+import cookie from 'cookie'
 import { locContainer } from './loc'
 import { Logger } from './logger'
 import { middlewares } from './middleware'
 import { requestMapping } from './request-mapping'
 import { validateAndConvertType } from './validate-types'
+import { responseCookies } from './cookie'
 
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
@@ -15,7 +17,7 @@ interface RequestContext {
 
 export interface ResponseContext {
   statusCode: number
-  headers?: Record<string, string>
+  headers?: Record<string, string | string[]>
   body: string
 }
 
@@ -23,7 +25,7 @@ export interface Context {
   request: RequestContext
   response: ResponseContext
   cookies?: Record<string, string>
-  sessions?: Record<string, string>
+  session?: Record<string, string>
   data?: Record<string, string>
 }
 
@@ -34,7 +36,7 @@ const matchPathMethod = (path: string, httpMethod: string) => {
 
   // 直接匹配
   if (routeData) {
-    const methodData = routeData[httpMethod]
+    const methodData = routeData[httpMethod] || routeData['REQUEST']
     if (methodData) {
       return {
         controller: locContainer.getInstance(methodData.controllerName),
@@ -147,15 +149,26 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
 }
 
 export const requestHandler = async (ctx: Context) => {
+  ctx.cookies = cookie.parse(ctx.request.headers.cookie || '') || {}
+
   if (!ctx.data) {
     ctx.data = {}
   }
-  if (!ctx.sessions) {
-    ctx.sessions = {}
+  if (!ctx.session) {
+    ctx.session = {}
   }
   if (!ctx.response.headers) {
     ctx.response.headers = {}
   }
   context = ctx
-  return await callMiddleware(ctx)
+  await callMiddleware(ctx)
+
+  const resCookies = []
+  if (responseCookies.length > 0) {
+    responseCookies.forEach((rc) => {
+      resCookies.push(cookie.serialize(rc.name, rc.value, rc))
+    })
+    responseCookies.splice(0, responseCookies.length)
+    ctx.response.headers['set-cookie'] = resCookies
+  }
 }

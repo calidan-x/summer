@@ -22,10 +22,10 @@ export const SERVER_CONFIG: ServerConfig = {
 }
 
 export const SESSION_CONFIG: SessionConfig = {
-  expireIn: 5000
+  expireIn: 5
 }
 
 export const SWAGGER_CONFIG: SwaggerConfig = {
-  swaggerDocPath: '/swagger',
+  docPath: '/swagger',
   info: { title: 'Summer' }
 }
