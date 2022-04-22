@@ -122,41 +122,43 @@ class SwaggerPlugin implements SummerPlugin {
     }
   }
 
-  compile(classDecorator: Decorator, clazz: ClassDeclaration) {
-    if (classDecorator.getName() === 'ApiDocGroup') {
-      const instanceMethods = clazz.getInstanceMethods()
-      instanceMethods.forEach((m) => {
-        const apiDoc = m.getDecorator('ApiDoc')
-        if (apiDoc) {
-          let returnType = m.getReturnType().getText(m, TypeFormatFlags.NoTruncation)
-          let isArray = false
+  compile(clazz: ClassDeclaration) {
+    for (const classDecorator of clazz.getDecorators()) {
+      if (classDecorator.getName() === 'ApiDocGroup') {
+        const instanceMethods = clazz.getInstanceMethods()
+        instanceMethods.forEach((m) => {
+          const apiDoc = m.getDecorator('ApiDoc')
+          if (apiDoc) {
+            let returnType = m.getReturnType().getText(m, TypeFormatFlags.NoTruncation)
+            let isArray = false
 
-          if (returnType.endsWith('[]')) {
-            isArray = true
-            returnType = returnType.replace(/\[\]$/, '')
-          }
+            if (returnType.endsWith('[]')) {
+              isArray = true
+              returnType = returnType.replace(/\[\]$/, '')
+            }
 
-          if (['number', 'string', 'boolean', 'int', 'float'].includes(returnType)) {
-            returnType = returnType.replace(/^(.)/, (matched) => matched.toUpperCase())
-          }
-          if (returnType === 'bigint') {
-            returnType = 'BigInt'
-          }
-          if (
-            returnType.indexOf('<') >= 0 ||
-            returnType.indexOf('[') >= 0 ||
-            returnType.indexOf('{') >= 0 ||
-            returnType === 'void'
-          ) {
-            returnType = undefined
-          }
+            if (['number', 'string', 'boolean', 'int', 'float'].includes(returnType)) {
+              returnType = returnType.replace(/^(.)/, (matched) => matched.toUpperCase())
+            }
+            if (returnType === 'bigint') {
+              returnType = 'BigInt'
+            }
+            if (
+              returnType.indexOf('<') >= 0 ||
+              returnType.indexOf('[') >= 0 ||
+              returnType.indexOf('{') >= 0 ||
+              returnType === 'void'
+            ) {
+              returnType = undefined
+            }
 
-          m.addDecorator({
-            name: '_ApiReturnType',
-            arguments: [returnType || 'undefined', isArray ? "'array'" : returnType ? "'object'" : "'string'"]
-          })
-        }
-      })
+            m.addDecorator({
+              name: '_ApiReturnType',
+              arguments: [returnType || 'undefined', isArray ? "'array'" : returnType ? "'object'" : "'string'"]
+            })
+          }
+        })
+      }
     }
   }
 

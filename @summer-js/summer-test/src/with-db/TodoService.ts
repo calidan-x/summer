@@ -1,5 +1,5 @@
 import { Service } from '@summer-js/summer'
-import { getRepository } from 'typeorm'
+import { getRepository } from './DataSource'
 
 import { Todo } from '../entity/todo'
 

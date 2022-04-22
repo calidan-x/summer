@@ -1,6 +1,6 @@
 {
   "name": "@summer-js/test",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -8,10 +8,13 @@
     "lib"
   ],
   "dependencies": {
+    "query-string": "^7.1.1",
     "@types/jest": "^27.4.1",
-    "jest": "^27.5.1",
     "ts-jest": "^27.1.4",
-    "query-string": "^7.1.1"
+    "jest": "^27.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.25"
   },
   "scripts": {
     "build": "tsc",

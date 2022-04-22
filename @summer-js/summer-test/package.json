@@ -1,12 +1,13 @@
 {
   "name": "@summer-js/summer-test",
-  "version": "0.0.1",
+  "version": "0.0.10",
   "description": "",
   "scripts": {
     "dev": "summer -s --env local",
     "test": "summer -t --env test",
     "build": "summer -b --env prod",
-    "start": "node --enable-source-maps ./build/index.js"
+    "start": "node --enable-source-maps ./build/index.js",
+    "generate-migration": "typeorm-ts-node-commonjs migration:generate src/migrations/migration -d ormconfig.ts -p"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +15,7 @@
   "dependencies": {
     "md5": "^2.3.0",
     "cross-env": "^7.0.3",
-    "typeorm": "^0.2.31",
-    "mysql2": "^2.2.5"
+    "mysql": "^2.2.5",
+    "ts-node": "^10.7.0"
   }
 }

@@ -14,7 +14,7 @@ export { setCookie, clearCookie } from './cookie'
 
 export interface SummerPlugin {
   configKey: string
-  compile?: (classDecorator: Decorator, clazz: ClassDeclaration) => void
+  compile?: (clazz: ClassDeclaration) => void
   postCompile?: () => void
   autoImportDecorators?: () => string[]
   init: (config: any) => void

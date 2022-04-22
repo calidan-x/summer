@@ -8,7 +8,7 @@ import path from 'path'
 import { Project, ClassDeclaration } from 'ts-morph'
 import { execSync } from 'child_process'
 
-const watch = process.argv[2] === 'listen'
+const watch = process.argv[2] === 'watch'
 
 let PLUGINS = []
 
@@ -201,8 +201,18 @@ const compile = async () => {
             })
           })
         }
-        for (const p of pluginIncs) {
-          p.compile && (await p.compile(classDecorator, cls))
+      }
+      for (const p of pluginIncs) {
+        p.compile && (await p.compile(cls))
+        for (const classDecorator of cls.getDecorators()) {
+          if (autoImportDecorators.includes(classDecorator.getName())) {
+            importFilesList.push(
+              cls
+                .getSourceFile()
+                .getFilePath()
+                .replace(path.resolve() + '/src', '.')
+            )
+          }
         }
       }
     }
@@ -229,7 +239,7 @@ const compile = async () => {
     }
   }
 
-  importFilesList.forEach((path, inx) => {
+  Array.from(new Set(importFilesList)).forEach((path, inx) => {
     fileContent += `import '${path.replace(/\.ts$/, '')}'\n`
   })
 

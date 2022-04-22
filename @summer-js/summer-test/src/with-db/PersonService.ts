@@ -1,5 +1,6 @@
-import { getRepository } from 'typeorm'
 import { Service } from '@summer-js/summer'
+import { getRepository } from './DataSource'
+
 import { Person } from '../entity'
 
 @Service
@@ -12,7 +13,7 @@ export class PersonService {
   }
 
   async getPersonInfo(id: number) {
-    const person = await this.personRepository.findOne(id)
+    const person = await this.personRepository.findOneBy({ id })
     return person
   }
 

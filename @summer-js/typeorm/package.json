@@ -1,6 +1,6 @@
 {
   "name": "@summer-js/typeorm",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/calidan-x/summer/issues"
   },
-  "homepage": "https://github.com/calidan-x/summer#readme"
+  "homepage": "https://summerjs.dev",
+  "dependencies": {
+    "typeorm": "^0.3.6"
+  }
 }

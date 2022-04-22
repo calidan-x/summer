@@ -1,13 +1,15 @@
 import { ServerConfig, SessionConfig } from '@summer-js/summer'
 import { SwaggerConfig } from '@summer-js/swagger'
+import { TypeORMConfig } from '@summer-js/typeorm'
 
-import { MySQLConfig } from '@summer-js/typeorm'
-
-export const MYSQL_CONFIG: MySQLConfig = {
-  host: 'localhost',
-  database: 'summer-db',
-  username: 'root',
-  password: 'root'
+export const TYPEORM_CONFIG: TypeORMConfig = {
+  DATA_SOURCE: {
+    type: 'mysql',
+    host: 'localhost',
+    database: 'summer-db',
+    username: 'root',
+    password: 'root'
+  }
 }
 
 export const SERVER_CONFIG: ServerConfig = {
