@@ -6,13 +6,13 @@ import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
 import { Project, ClassDeclaration } from 'ts-morph'
-import { execSync } from 'child_process'
 
 const watch = process.argv[2] === 'watch'
 
 let PLUGINS = []
 
-execSync('rm -rdf ./compile/*')
+fs.rmdirSync('./compile', { recursive: true })
+fs.mkdirSync('./compile')
 
 const project = new Project({
   tsConfigFilePath: './tsconfig.json'

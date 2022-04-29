@@ -86,6 +86,7 @@ export const httpServer = {
   },
   createServer(serverConfig: ServerConfig, serverStated?: () => void) {
     if (!serverConfig.port) {
+      Logger.error('Server port not set in ServerConfig')
       return
     }
     http

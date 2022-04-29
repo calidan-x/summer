@@ -70,9 +70,12 @@ if (options.serve) {
           } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
             spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
           } else if (data.trim().startsWith('COMPILE_DONE')) {
+            spinner.text = 'Starting...'
             if (fs.existsSync('./compile/index.js')) {
               childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
               printProcessData(childProcess2)
+            } else {
+              console.error('Error starting server')
             }
           } else {
             process.stdout.write(data)
@@ -106,7 +109,7 @@ if (options.serve) {
 } else if (options.test) {
   spinner = ora('Compiling...')
   spinner.start()
-  const compileProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
+  const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
   printProcessData(compileProcess)
 
   compileProcess.on('exit', () => {
@@ -119,7 +122,7 @@ if (options.serve) {
 } else if (options.build) {
   spinner = ora('Compiling...')
   spinner.start()
-  const compileProcess = exec(`rm -rdf ./compile/* && cross-env SUMMER_ENV=${options.env} summer-compile`)
+  const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
   printProcessData(compileProcess)
   compileProcess.on('exit', (code) => {
     if (fs.existsSync('./compile/index.js')) {
