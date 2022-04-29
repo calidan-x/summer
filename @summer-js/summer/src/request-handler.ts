@@ -105,20 +105,16 @@ const callControllerMethod = async (ctx: Context) => {
       if (param) {
         let convertedValue
         let paramValue = param.paramMethod(ctx, ...param.paramValues)
-        if (typeof paramValue === 'object') {
-          convertedValue = paramValue
-        } else {
-          convertedValue = await validateAndConvertType(
-            param.type,
-            param.declareType,
-            param.paramValues[0],
-            paramValue,
-            allErrors,
-            callMethod,
-            param.index,
-            controller
-          )
-        }
+        convertedValue = await validateAndConvertType(
+          param.type,
+          param.declareType,
+          param.paramValues[0],
+          paramValue,
+          allErrors,
+          callMethod,
+          param.index,
+          controller
+        )
         applyParam.push(convertedValue)
       } else {
         applyParam.push(undefined)
