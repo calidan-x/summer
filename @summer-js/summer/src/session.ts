@@ -11,19 +11,19 @@ const md5 = (str: string) => {
 
 export interface SessionConfig {
   expireIn: number
-  sessionName?: string
+  cookieName?: string
 }
 
 const SESSIONS = {}
 const SESSION_IDS = []
 export const session = {
   enabled: false,
-  sessionName: 'SUMMER_SESSION',
+  cookieName: 'SUMMER_SESSION',
   expireIn: 0,
   init(config: SessionConfig) {
     this.enabled = true
-    if (config.sessionName) {
-      this.sessionName = config.sessionName
+    if (config.cookieName) {
+      this.cookieName = config.cookieName
     }
     const SixHours = 6 * 60 * 60 * 1000
     if (config.expireIn > SixHours) {
@@ -52,7 +52,7 @@ export const session = {
       }
     }
 
-    let sessionId = ctx.cookies[this.sessionName]
+    let sessionId = ctx.cookies[this.cookieName]
     if (sessionId && SESSIONS[sessionId]) {
       sessionValues = SESSIONS[sessionId]
     } else {
@@ -63,7 +63,7 @@ export const session = {
 
     const expireDate = new Date()
     expireDate.setTime(new Date().getTime() + this.expireIn * 1000)
-    const sessionCookie = cookie.serialize(this.sessionName, sessionId, {
+    const sessionCookie = cookie.serialize(this.cookieName, sessionId, {
       httpOnly: true
     })
     sessionValues._expireIn = expireDate.getTime()

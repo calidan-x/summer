@@ -2,8 +2,8 @@ import { Controller, Post, UploadedFile, Body, File } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 
 class Request {
-  ss: string
-  xxx?: int
+  field1: string
+  field2?: int
 }
 
 @Controller('/upload')
