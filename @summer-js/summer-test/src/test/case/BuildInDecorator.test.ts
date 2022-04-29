@@ -34,11 +34,6 @@ describe('Build-In Decorator Test', () => {
     expect(result.body).toEqual('Delete Done')
   })
 
-  test('test @Options', async () => {
-    const result = await request.options('/build-in-decorator/options')
-    expect(result.body).toEqual('Options Done')
-  })
-
   test('test @Request', async () => {
     let result = await request.get('/build-in-decorator/request')
     expect(result.body).toEqual('Request Done')

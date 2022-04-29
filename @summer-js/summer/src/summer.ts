@@ -45,10 +45,11 @@ export const summerStart = async (options?: SummerStartOptions) => {
     if (config['SESSION_CONFIG']) {
       session.init(config['SESSION_CONFIG'])
     }
-
-    await httpServer.createServer(config['SERVER_CONFIG'], config['SESSION_CONFIG'], () => {
+    await httpServer.createServer(config['SERVER_CONFIG'], () => {
       options.after && options.after(config)
     })
+  } else {
+    options.after && options.after(config)
   }
 
   locContainer.resolveLoc()

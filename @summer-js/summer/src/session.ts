@@ -1,5 +1,8 @@
 import cookie from 'cookie'
 import crypto from 'crypto'
+
+import { Context } from '.'
+import { setCookie } from './cookie'
 import { Logger } from './logger'
 
 const md5 = (str: string) => {
@@ -14,9 +17,11 @@ export interface SessionConfig {
 const SESSIONS = {}
 const SESSION_IDS = []
 export const session = {
+  enabled: false,
   sessionName: 'SUMMER_SESSION',
   expireIn: 0,
   init(config: SessionConfig) {
+    this.enabled = true
     if (config.sessionName) {
       this.sessionName = config.sessionName
     }
@@ -27,9 +32,12 @@ export const session = {
     }
     this.expireIn = config.expireIn
   },
-  getSession(sessionId: string) {
+  handleSession(ctx: Context) {
+    if (!this.enabled) {
+      return
+    }
+
     let sessionValues: Record<string, any> = {}
-    let setCookie = ''
 
     while (true) {
       if (SESSION_IDS.length === 0) {
@@ -44,6 +52,7 @@ export const session = {
       }
     }
 
+    let sessionId = ctx.cookies[this.sessionName]
     if (sessionId && SESSIONS[sessionId]) {
       sessionValues = SESSIONS[sessionId]
     } else {
@@ -54,11 +63,10 @@ export const session = {
 
     const expireDate = new Date()
     expireDate.setTime(new Date().getTime() + this.expireIn * 1000)
-    setCookie = cookie.serialize(this.sessionName, sessionId, {
+    const sessionCookie = cookie.serialize(this.sessionName, sessionId, {
       httpOnly: true
     })
     sessionValues._expireIn = expireDate.getTime()
-
-    return { setCookie, sessionValues }
+    setCookie(sessionCookie)
   }
 }

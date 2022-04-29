@@ -15,8 +15,7 @@ import {
   Body,
   RequestPath,
   Session,
-  Cookie,
-  Options
+  Cookie
 } from '@summer-js/summer'
 
 @Controller('/build-in-decorator')
@@ -49,11 +48,6 @@ export class BuildInDecoratorTestController {
   @Request('/request')
   request() {
     return 'Request Done'
-  }
-
-  @Options('/options')
-  options() {
-    return 'Options Done'
   }
 
   @Get('/path-param/:id')

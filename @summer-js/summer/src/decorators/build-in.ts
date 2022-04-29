@@ -8,7 +8,6 @@ export const Post = restfulMethodDecorator('POST')
 export const Put = restfulMethodDecorator('PUT')
 export const Patch = restfulMethodDecorator('PATCH')
 export const Delete = restfulMethodDecorator('DELETE')
-export const Options = restfulMethodDecorator('OPTIONS')
 export const Request = restfulMethodDecorator('REQUEST')
 
 // params

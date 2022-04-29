@@ -28,7 +28,7 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
       headers: requestParams.headers || {},
       queries: requestParams.queries || {}
     },
-    response: { statusCode: 200, body: '' }
+    response: { statusCode: 200, headers: {}, body: '' }
   }
   await requestHandler(context)
   return context.response

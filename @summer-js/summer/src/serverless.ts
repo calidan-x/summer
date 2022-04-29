@@ -37,13 +37,15 @@ export const handler = async (...args) => {
   if (serverType === 'AWSLambda') {
     const event = args[0]
 
-    if (serverConfig.basePath) {
-      if (event.path.indexOf(serverConfig.basePath) === 0) {
-        event.path = event.path.replace(serverConfig.basePath, '')
-      } else {
-        return {
-          statusCode: 404,
-          body: ''
+    if (serverConfig) {
+      if (serverConfig.basePath) {
+        if (event.path.indexOf(serverConfig.basePath) === 0) {
+          event.path = event.path.replace(serverConfig.basePath, '')
+        } else {
+          return {
+            statusCode: 404,
+            body: ''
+          }
         }
       }
     }
@@ -77,26 +79,35 @@ export const handler = async (...args) => {
         headers: event.headers,
         body: event.body
       },
-      response: { statusCode: 200, body: '' }
+      response: { statusCode: 200, headers: {}, body: '' }
     }
     await requestHandler(context)
+    const setCookies = context.response.headers['set-cookie']
+    if (setCookies) {
+      delete context.response.headers['set-cookie']
+    }
     return {
       statusCode: context.response.statusCode,
       body: context.response.body,
-      headers: context.response.headers
+      headers: context.response.headers,
+      multiValueHeaders: {
+        'set-cookie': setCookies
+      }
     }
   } else if (serverType === 'AliFC') {
     const getRawBody = require('raw-body')
     const req = args[0]
     const resp = args[1]
 
-    if (serverConfig.basePath) {
-      if (req.path.indexOf(serverConfig.basePath) === 0) {
-        req.path = req.path.replace(serverConfig.basePath, '')
-      } else {
-        resp.setStatusCode(404)
-        resp.send('')
-        return
+    if (serverConfig) {
+      if (serverConfig.basePath) {
+        if (req.path.indexOf(serverConfig.basePath) === 0) {
+          req.path = req.path.replace(serverConfig.basePath, '')
+        } else {
+          resp.setStatusCode(404)
+          resp.send('')
+          return
+        }
       }
     }
 
@@ -119,7 +130,7 @@ export const handler = async (...args) => {
           headers: req.headers,
           body
         },
-        response: { statusCode: 200, body: '' }
+        response: { statusCode: 200, headers: {}, body: '' }
       }
 
       await requestHandler(context)

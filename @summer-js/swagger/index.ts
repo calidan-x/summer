@@ -2,7 +2,7 @@ import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugi
 import { pathToRegexp } from 'path-to-regexp'
 import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
-import { ClassDeclaration, TypeFormatFlags, Decorator } from 'ts-morph'
+import { ClassDeclaration } from 'ts-morph'
 import fs from 'fs'
 ;(global as any)._ApiReturnType =
   (returnType: string, rootType: string) => (target: Object, propertyKey: string, descriptor: any) => {
@@ -129,7 +129,8 @@ class SwaggerPlugin implements SummerPlugin {
         instanceMethods.forEach((m) => {
           const apiDoc = m.getDecorator('ApiDoc')
           if (apiDoc) {
-            let returnType = m.getReturnType().getText(m, TypeFormatFlags.NoTruncation)
+            // TypeFormatFlags.NoTruncation = 1
+            let returnType = m.getReturnType().getText(m, 1)
             let isArray = false
 
             if (returnType.endsWith('[]')) {

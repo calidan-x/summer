@@ -9,7 +9,7 @@ describe('Config Test', () => {
     await endTest()
   })
 
-  test('test static server', async () => {
+  test('test middleware', async () => {
     let result = await request.get('/middleware')
     expect(result.body).toEqual('Middleware works')
   })

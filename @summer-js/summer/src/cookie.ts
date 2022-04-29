@@ -1,3 +1,6 @@
+import cookie from 'cookie'
+import { Context } from '.'
+
 interface Cookie {
   name: string
   value: string
@@ -9,6 +12,17 @@ interface Cookie {
 }
 
 export const responseCookies: Cookie[] = []
+
+export const parseCookie = (ctx: Context) => {
+  if (ctx.request.headers.cookie) {
+    ctx.cookies = cookie.parse(ctx.request.headers.cookie) || {}
+  }
+  responseCookies.splice(0, responseCookies.length)
+}
+
+export const assembleCookie = (ctx: Context) => {
+  ctx.response.headers['set-cookie'] = responseCookies.map((rc) => cookie.serialize(rc.name, rc.value, rc))
+}
 
 export const setCookie = (cookie: Cookie) => {
   responseCookies.push(cookie)

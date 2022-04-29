@@ -1,13 +1,14 @@
-import cookie from 'cookie'
 import { locContainer } from './loc'
 import { Logger } from './logger'
 import { middlewares } from './middleware'
 import { requestMapping } from './request-mapping'
 import { validateAndConvertType } from './validate-types'
-import { responseCookies } from './cookie'
+import { session } from './session'
+import { parseCookie, assembleCookie } from './cookie'
+import { handleCors } from './cors'
 
 interface RequestContext {
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
   path: string
   pathParams?: Record<string, string>
   queries?: Record<string, string>
@@ -17,7 +18,7 @@ interface RequestContext {
 
 export interface ResponseContext {
   statusCode: number
-  headers?: Record<string, string | string[]>
+  headers: Record<string, string | string[]>
   body: string
 }
 
@@ -49,7 +50,7 @@ const matchPathMethod = (path: string, httpMethod: string) => {
     const paths = Object.keys(requestMapping)
     for (let i = 0; i < paths.length; i++) {
       routeData = requestMapping[paths[i]]
-      const methodData = routeData[httpMethod]
+      const methodData = routeData[httpMethod] || routeData['REQUEST']
       if (methodData) {
         const pathParamArray = routeData.pathRegExp.exec(path)
         if (pathParamArray) {
@@ -149,26 +150,17 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
 }
 
 export const requestHandler = async (ctx: Context) => {
-  ctx.cookies = cookie.parse(ctx.request.headers.cookie || '') || {}
-
-  if (!ctx.data) {
-    ctx.data = {}
-  }
-  if (!ctx.session) {
-    ctx.session = {}
-  }
-  if (!ctx.response.headers) {
-    ctx.response.headers = {}
-  }
   context = ctx
+
+  if (handleCors(ctx)) {
+    return
+  }
+
+  parseCookie(ctx)
+
+  session.handleSession(ctx)
+
   await callMiddleware(ctx)
 
-  const resCookies = []
-  if (responseCookies.length > 0) {
-    responseCookies.forEach((rc) => {
-      resCookies.push(cookie.serialize(rc.name, rc.value, rc))
-    })
-    responseCookies.splice(0, responseCookies.length)
-    ctx.response.headers['set-cookie'] = resCookies
-  }
+  assembleCookie(ctx)
 }

@@ -21,5 +21,6 @@ export const SESSION_CONFIG: SessionConfig = {
 }
 
 export const SERVER_CONFIG: ServerConfig = {
-  static: [{ requestPathRoot: '/static', destPathRoot: 'resource', indexFiles: ['index.html'] }]
+  static: [{ requestPathRoot: '/static', destPathRoot: 'resource', indexFiles: ['index.html'] }],
+  cors: true
 }

@@ -38,7 +38,7 @@ var copyRecursiveSync = function (src, dest) {
   console.log('Project Created! Now run:')
   console.log('')
   console.log(`$ cd ${projectName}`)
-  console.log(`$ npm i`)
+  console.log(`$ npm install`)
   console.log(`$ npm run dev`)
   console.log('')
 })()
