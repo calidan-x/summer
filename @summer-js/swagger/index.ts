@@ -130,7 +130,8 @@ class SwaggerPlugin implements SummerPlugin {
           const apiDoc = m.getDecorator('ApiDoc')
           if (apiDoc) {
             // TypeFormatFlags.NoTruncation = 1
-            let returnType = m.getReturnType().getText(m, 1)
+            const retType = m.getReturnType()
+            let returnType = retType.getText(m, 1)
             let isArray = false
 
             if (returnType.endsWith('[]')) {
@@ -145,6 +146,8 @@ class SwaggerPlugin implements SummerPlugin {
               returnType = 'BigInt'
             }
             if (
+              retType.isInterface() ||
+              retType.isTypeParameter() ||
               returnType.indexOf('<') >= 0 ||
               returnType.indexOf('[') >= 0 ||
               returnType.indexOf('{') >= 0 ||
@@ -268,6 +271,7 @@ const parmMatchPattern = {
   '(ctx, paramName, name) => ctx.request.queries[name || paramName]': 'query',
   '(ctx, paramName, name) => ctx.request.pathParams[name || paramName]': 'path',
   '(ctx, paramName, name) => ctx.request.headers[name || paramName]': 'header',
+  '(ctx, paramName, name) => ctx.request.files[name || paramName]': 'formData',
   '(ctx) => ctx.request.body': 'body'
 }
 
@@ -413,16 +417,39 @@ export class SummerSwaggerUIController {
           swaggerJson.paths[docPath] = {}
         }
         const parameters = []
+        let isFormBody = false
         params.forEach((param) => {
           const paramType = getParamType(param.paramMethod.toString())
-          if (paramType) {
+          if (paramType === 'formData') {
+            isFormBody = true
+          }
+        })
+
+        params.forEach((param) => {
+          let paramType = getParamType(param.paramMethod.toString())
+          if (isFormBody && paramType === 'body') {
+            const formProps = getRequestTypeDesc(param.declareType, true).properties
+            for (const filed in formProps) {
+              let isRequired = false
+              if (param.declareType && typeof param.declareType === 'function') {
+                isRequired = Reflect.getMetadata('required', new param.declareType(), filed)
+              }
+              parameters.push({
+                name: filed,
+                in: 'formData',
+                description: '',
+                required: isRequired,
+                type: formProps[filed].type
+              })
+            }
+          } else if (paramType) {
             const ptype = getType(param.declareType)
             parameters.push({
               name: param.paramValues[0],
               in: paramType,
               description: '',
-              required: ['path', 'body'].includes(paramType) ? true : false,
-              type: ptype,
+              required: ['path', 'body', 'formData'].includes(paramType) ? true : false,
+              type: (paramType === 'formData' ? 'file' : ptype) || 'string',
               schema:
                 ptype === 'object'
                   ? {

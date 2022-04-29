@@ -1,11 +1,17 @@
 import { Controller, Post, UploadedFile, Body, File } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 
+class Request {
+  ss: string
+  xxx?: int
+}
+
 @Controller('/upload')
-@ApiDocGroup('欢迎相关接口')
+@ApiDocGroup('上传相关接口')
 export class FileUploadController {
+  @ApiDoc('上传文件')
   @Post
-  hello(@File file: UploadedFile, @Body body) {
+  hello(@File file: UploadedFile, @Body body: Request) {
     console.log('body', body)
     return file
   }
