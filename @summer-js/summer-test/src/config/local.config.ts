@@ -14,6 +14,7 @@ export const TYPEORM_CONFIG: TypeORMConfig = {
 
 export const SERVER_CONFIG: ServerConfig = {
   port: 8801,
+  cors: true,
   static: [
     {
       requestPathRoot: '/static',

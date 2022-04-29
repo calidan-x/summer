@@ -30,7 +30,7 @@ export const handleCors = (ctx: Context) => {
       ctx.response = {
         statusCode: 200,
         body: '',
-        headers: corsHeader(ctx.request.headers['HTTP_ORIGIN'])
+        headers: corsHeader(ctx.request.headers['origin'])
       }
       return true
     }
