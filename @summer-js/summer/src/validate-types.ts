@@ -134,7 +134,7 @@ export const validateAndConvertType = (
     case 'array':
       let arrayValue = []
       try {
-        arrayValue = isFirstLevel ? JSON.parse(propValue) : propValue
+        arrayValue = typeof propValue === 'string' ? JSON.parse(propValue) : propValue
       } catch (e) {
         allErrors.push({
           param: errorParam,
@@ -190,7 +190,7 @@ export const validateAndConvertType = (
       let objectValue = {}
 
       try {
-        objectValue = isFirstLevel ? JSON.parse(propValue) : propValue
+        objectValue = typeof propValue === 'string' ? JSON.parse(propValue) : propValue
       } catch (e) {
         allErrors.push({
           param: errorParam,

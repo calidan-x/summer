@@ -7,6 +7,7 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./compile",
+    "lib": ["es6"],
     "moduleResolution": "Node",
     "module": "commonjs"
   },

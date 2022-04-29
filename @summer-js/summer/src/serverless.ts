@@ -1,11 +1,13 @@
 import fs from 'fs'
 import path from 'path'
 import zlib from 'zlib'
+import { Readable } from 'stream'
 
 import { Context, requestHandler } from './request-handler'
 import { handleStaticRequest } from './static-server'
 import { getConfig } from './config-handler'
 import { ServerConfig } from './http-server'
+import { parseBody } from './body-parser'
 
 export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
@@ -71,13 +73,26 @@ export const handler = async (...args) => {
       return resData
     }
 
+    let bodyData = event.body
+    let files = {}
+    if (event.isBase64Encoded) {
+      const parseResult = await parseBody(
+        Readable.from(Buffer.from(event.body as string, 'base64')),
+        event.httpMethod,
+        event.headers
+      )
+      bodyData = parseResult.bodyData
+      files = parseResult.files
+    }
+
     const context: Context = {
       request: {
         method: event.httpMethod,
         path: event.path,
         queries: event.queryStringParameters,
         headers: event.headers,
-        body: event.body
+        body: bodyData,
+        files
       },
       response: { statusCode: 200, headers: {}, body: '' }
     }
@@ -95,7 +110,6 @@ export const handler = async (...args) => {
       }
     }
   } else if (serverType === 'AliFC') {
-    const getRawBody = require('raw-body')
     const req = args[0]
     const resp = args[1]
 
@@ -111,39 +125,40 @@ export const handler = async (...args) => {
       }
     }
 
-    getRawBody(req, async (err, body) => {
-      const staticHandleResult = handleStaticRequest(req.path)
-      if (staticHandleResult) {
-        resp.setStatusCode(staticHandleResult.code)
-        for (var key in staticHandleResult.headers) {
-          resp.setHeader(key, staticHandleResult.headers[key])
-        }
-        resp.send(staticHandleResult.filePath ? fs.readFileSync(staticHandleResult.filePath) : '')
-        return
+    const staticHandleResult = handleStaticRequest(req.path)
+    if (staticHandleResult) {
+      resp.setStatusCode(staticHandleResult.code)
+      for (var key in staticHandleResult.headers) {
+        resp.setHeader(key, staticHandleResult.headers[key])
       }
+      resp.send(staticHandleResult.filePath ? fs.readFileSync(staticHandleResult.filePath) : '')
+      return
+    }
 
-      const context: Context = {
-        request: {
-          method: req.method,
-          path: req.path,
-          queries: req.queries,
-          headers: req.headers,
-          body
-        },
-        response: { statusCode: 200, headers: {}, body: '' }
-      }
+    const { bodyData, files } = await parseBody(req, req.method, req.headers)
 
-      await requestHandler(context)
+    const context: Context = {
+      request: {
+        method: req.method,
+        path: req.path,
+        queries: req.queries,
+        headers: req.headers,
+        body: bodyData,
+        files
+      },
+      response: { statusCode: 200, headers: {}, body: '' }
+    }
 
-      for (var key in req.queries) {
-        var value = req.queries[key]
-        resp.setHeader(key, value)
-      }
-      resp.setStatusCode(context.response.statusCode)
-      for (var key in context.response.headers) {
-        resp.setHeader(key, context.response.headers[key])
-      }
-      resp.send(context.response.body)
-    })
+    await requestHandler(context)
+
+    for (var key in req.queries) {
+      var value = req.queries[key]
+      resp.setHeader(key, value)
+    }
+    resp.setStatusCode(context.response.statusCode)
+    for (var key in context.response.headers) {
+      resp.setHeader(key, context.response.headers[key])
+    }
+    resp.send(context.response.body)
   }
 }

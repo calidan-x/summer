@@ -7,6 +7,13 @@ import { session } from './session'
 import { parseCookie, assembleCookie } from './cookie'
 import { handleCors } from './cors'
 
+export interface UploadedFile {
+  filename: string
+  encoding: string
+  mimeType: string
+  tmpPath: string
+}
+
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
   path: string
@@ -14,6 +21,7 @@ interface RequestContext {
   queries?: Record<string, string>
   headers?: Record<string, string>
   body?: string
+  files?: Record<string, UploadedFile>
 }
 
 export interface ResponseContext {

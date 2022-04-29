@@ -26,6 +26,7 @@ export const Header = createParamDecorator(
 )
 export const Cookie = createParamDecorator((ctx, paramName: string, name: string) => ctx.cookies[name || paramName])
 export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
+export const File = createParamDecorator((ctx, paramName: string, name: string) => ctx.request.files[name || paramName])
 
 // property
 export const Config = createPropertyDecorator(async (config, propertyName, configKey?: string) => {

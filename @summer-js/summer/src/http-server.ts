@@ -2,7 +2,8 @@ import http = require('http')
 import fs from 'fs'
 
 import { Logger } from './logger'
-import { requestHandler } from './request-handler'
+import { parseBody } from './body-parser'
+import { requestHandler, UploadedFile } from './request-handler'
 import { Context } from './'
 import { handleStaticRequest } from './static-server'
 
@@ -27,7 +28,13 @@ export const httpServer = {
     }
     return result
   },
-  async handlerRequest(req: http.IncomingMessage, res: http.ServerResponse, bodyData, serverConfig: ServerConfig) {
+  async handlerRequest(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+    bodyData,
+    files: Record<string, UploadedFile>,
+    serverConfig: ServerConfig
+  ) {
     if (serverConfig.basePath) {
       if (req.url.indexOf(serverConfig.basePath) === 0) {
         req.url = req.url.replace(serverConfig.basePath, '')
@@ -56,16 +63,15 @@ export const httpServer = {
       return
     }
 
-    const requestCtx = {
-      method: req.method as any,
-      path: requestPath,
-      queries: this.paramsToObject(new URLSearchParams(urlParts[1]).entries()),
-      headers: req.headers as any,
-      body: bodyData
-    }
-
     const context: Context = {
-      request: requestCtx,
+      request: {
+        method: req.method as any,
+        path: requestPath,
+        queries: this.paramsToObject(new URLSearchParams(urlParts[1]).entries()),
+        headers: req.headers as any,
+        files,
+        body: bodyData
+      },
       response: { statusCode: 200, headers: {}, body: '' },
       cookies: {},
       session: {},
@@ -83,15 +89,9 @@ export const httpServer = {
       return
     }
     http
-      .createServer((req, res) => {
-        let bodyData = ''
-        req.on('data', (chunk) => {
-          bodyData += chunk
-        })
-
-        req.on('end', async () => {
-          this.handlerRequest(req, res, bodyData, serverConfig)
-        })
+      .createServer(async (req, res) => {
+        const { bodyData, files } = await parseBody(req, req.method, req.headers)
+        this.handlerRequest(req, res, bodyData, files, serverConfig)
       })
       .listen(serverConfig.port, '', () => {
         Logger.log('Server running at: http://127.0.0.1:' + serverConfig.port)
