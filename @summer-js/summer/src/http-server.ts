@@ -95,7 +95,7 @@ export const httpServer = {
         this.handlerRequest(req, res, bodyData, files, serverConfig)
       })
       .listen(serverConfig.port, '', () => {
-        Logger.log('Server running at: http://127.0.0.1:' + serverConfig.port)
+        Logger.log('Server running at: http://127.0.0.1:' + serverConfig.port + (serverConfig.basePath || ''))
         serverStated && serverStated()
       })
   }
