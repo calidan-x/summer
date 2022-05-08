@@ -22,19 +22,28 @@ export const parseBody = (
       (headers['content-type'] === 'application/x-www-form-urlencoded' ||
         (headers['content-type'] || '').startsWith('multipart/form-data'))
     ) {
+      let parseEnd = false
       const bodyData = {}
       const files = {}
       const bb = busboy({ headers })
       bb.on('file', (name, file, info) => {
         const saveTo = path.join(os.tmpdir(), `upload-${random()}`)
-        file.pipe(fs.createWriteStream(saveTo))
+        const steam = file.pipe(fs.createWriteStream(saveTo))
         files[name] = { ...info, tmpPath: saveTo }
+        steam.on('finish', () => {
+          if (parseEnd) {
+            resolve({ bodyData, files })
+          }
+        })
       })
       bb.on('field', (name, value) => {
         bodyData[name] = value
       })
       bb.on('close', () => {
-        resolve({ bodyData, files })
+        parseEnd = true
+        if (Object.keys(files).length === 0) {
+          resolve({ bodyData, files })
+        }
       })
       req.pipe(bb)
     } else {

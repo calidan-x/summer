@@ -3,6 +3,7 @@
 import { exec, execSync, spawn } from 'child_process'
 import kill from 'tree-kill'
 import fs from 'fs'
+import path from 'path'
 import { program } from 'commander'
 import ora from 'ora'
 
@@ -14,6 +15,20 @@ const options = program.opts()
 const clearScreen = () => process.stdout.write(process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H')
 
 let spinner
+
+var copyRecursiveSync = function (src, dest) {
+  var exists = fs.existsSync(src)
+  var stats = exists && fs.statSync(src)
+  var isDirectory = exists && stats.isDirectory()
+  if (isDirectory) {
+    fs.mkdirSync(dest)
+    fs.readdirSync(src).forEach(function (childItemName) {
+      copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName))
+    })
+  } else {
+    fs.copyFileSync(src, dest)
+  }
+}
 
 const printProcessData = (p) => {
   p.stdout.on('data', (dataLines) => {
@@ -127,13 +142,9 @@ if (options.serve) {
   compileProcess.on('exit', (code) => {
     if (fs.existsSync('./compile/index.js')) {
       if (fs.existsSync('./resource')) {
-        if (!fs.existsSync('./build')) {
-          fs.mkdirSync('./build')
-        }
-        if (!fs.existsSync('./build/resource')) {
-          fs.mkdirSync('./build/resource')
-        }
-        exec('cp -r ./resource/* ./build/resource')
+        fs.rmdirSync('./build', { recursive: true })
+        fs.mkdirSync('./build')
+        copyRecursiveSync('./resource', './build/resource')
       }
       const buildProcess = exec(
         'npx esbuild ./compile/index.js --bundle --sourcemap --platform=node --outfile=./build/index.js'

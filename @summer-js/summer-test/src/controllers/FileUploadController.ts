@@ -1,5 +1,6 @@
 import { Controller, Post, UploadedFile, Body, File } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
+import fs from 'fs'
 
 class Request {
   field1: string
@@ -13,6 +14,7 @@ export class FileUploadController {
   @Post
   hello(@File file: UploadedFile, @Body body: Request) {
     console.log('body', body)
+    console.log(fs.statSync(file.tmpPath))
     return file
   }
 }
