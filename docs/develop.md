@@ -6,19 +6,19 @@ run `npm i -ws` to install all dependencies
 
 
 
-### Intro
+### Packages
 
 There are 7 npm projects in this repo
 
 1. **create-summer**
-   project create command
+   project create command `npm create summer`
 
 2. **@summer-js/cli**
    compiler and local develop listener
 
 3. **@summer-js/summer**
 
-   summer core code
+   core code
 
 4. **@summer-js/summer-test** (not pulish to npmjs)
 
@@ -30,11 +30,13 @@ There are 7 npm projects in this repo
 
 6. **@summer-js/test**
 
-   summer project testing library
+   project testing library
 
 7. **@summer-js/typeorm**
 
    typeorm plugin
+
+
 
 
 
