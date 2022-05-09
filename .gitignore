@@ -3,3 +3,6 @@ node_modules
 build
 compile
 @summer-js/*/lib
+
+## IDEs
+.idea
