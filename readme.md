@@ -24,9 +24,11 @@ run `npm i -ws` to install all dependencies
 There are 7 npm projects in this repo
 
 1. **create-summer**
+
    project create command `npm create summer`
 
 2. **@summer-js/cli**
+
    compiler and local dev server
 
 3. **@summer-js/summer**
