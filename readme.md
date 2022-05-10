@@ -51,7 +51,7 @@ There are 7 npm projects in this repo
 
    typeorm plugin
 
-### git commit message example
+### Git commit message examples
 
 - feat: add new feature
 - fix: fix bug
