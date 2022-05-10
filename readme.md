@@ -58,3 +58,35 @@ There are 7 npm projects in this repo
 - docs: update docs
 - refactor: refactor code
 - test: add test case
+
+### Develop a new plugin
+
+```
+class PluginName implements SummerPlugin {
+    configKey: "CONFIG_KEY"
+
+    // optional
+    compile(clazz: ClassDeclaration) {
+       // code implement during compiling
+       // compiler will go through all classes
+    }
+
+    // optional
+    postCompile() {
+       // code implement after compile
+    }
+    autoImportDecorators() {
+       // auto-import Decorator
+       return ["DecoratorName"]
+    };
+    init(config: any) {
+       // code implement when server start
+    };
+
+    // optional
+    destroy(){
+       // code implement when server destroyed
+    };
+}
+
+```
