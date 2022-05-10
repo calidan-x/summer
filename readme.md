@@ -19,6 +19,9 @@ This project maintain monorepo by npm v8 workspace
 
 run `npm i -ws` to install all dependencies
 
+`cd \@summer-js/summer-test/`
+run `npm run dev` to start
+
 ### Packages
 
 There are 7 npm projects in this repo
@@ -59,7 +62,18 @@ There are 7 npm projects in this repo
 - refactor: refactor code
 - test: add test case
 
+### Add new feature to core
+
+Modify code in @summer-js/summer
+
 ### Develop a new plugin
+
+1. Add a new package to workspace
+   `npm init -w ./@summer-js/packagename`
+
+2. Add index.ts
+
+Example:
 
 ```
 class PluginName implements SummerPlugin {
