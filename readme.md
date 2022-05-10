@@ -35,7 +35,7 @@ There are 7 npm projects in this repo
 
    core code
 
-4. **@summer-js/summer-test** (not pulish to npmjs)
+4. **@summer-js/summer-test** (not publish to npmjs)
 
    test project for testing summer core code
 
