@@ -19,8 +19,7 @@ This project maintain monorepo by npm v8 workspace
 
 run `npm i -ws` to install all dependencies
 
-`cd \@summer-js/summer-test/`
-run `npm run dev` to start
+`cd \@summer-js/summer-test/` and run `npm run dev` to start
 
 ### Packages
 
