@@ -50,3 +50,11 @@ There are 7 npm projects in this repo
 7. **@summer-js/typeorm**
 
    typeorm plugin
+
+### git commit message example
+
+- feat: add new feature
+- fix: fix bug
+- docs: update docs
+- refactor: refactor code
+- test: add test case
