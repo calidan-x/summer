@@ -61,9 +61,9 @@ There are 7 npm projects in this repo
 - refactor: refactor code
 - test: add test case
 
-### Add new feature to core
+### Develop core code
 
-Modify code in @summer-js/summer
+Add / Modify code in @summer-js/summer
 
 ### Develop a new plugin
 
