@@ -22,6 +22,7 @@ type TestTypes =
   | 'obj'
   | 'objArray'
   | 'stringUnion'
+  | 'fixedString'
 
 const typeVal = (value) => {
   return JSON.stringify({ type: typeof value, value })
@@ -163,7 +164,145 @@ describe('Controller Params Test', () => {
   })
 
   test('test string union type request value', async () => {
-    await testErrorRequestParam('SU4', 'stringUnion', "is not in ['SU1','SU2']")
+    await testErrorRequestParam('SU4', 'stringUnion', "is not in ['SU1','SU2','SU:3']")
     await testRequestParam('SU1', 'stringUnion', 'SU1')
+  })
+
+  test('test fixed string type request value', async () => {
+    await testRequestParam('str:ing', 'fixedString', 'str:ing')
+    await testErrorRequestParam('str', 'fixedString', "is not in ['str:ing']")
+  })
+
+  test('test optional key', async () => {
+    let result = await request.post('/request-key-validate/optional', {
+      body: { optionalKey: 'optionalKey', requiredKey: 'requiredKey' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ optionalKey: 'optionalKey', requiredKey: 'requiredKey' }))
+
+    result = await request.post('/request-key-validate/optional', {
+      body: { requiredKey: 'requiredKey' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ requiredKey: 'requiredKey' }))
+
+    result = await request.post('/request-key-validate/optional', {
+      body: { optionalKey: 'optionalKey' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("'requiredKey' is required")
+  })
+
+  test('test @Min', async () => {
+    let result = await request.post('/request-key-validate/min', {
+      body: { min: 12 }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ min: 12 }))
+
+    result = await request.post('/request-key-validate/min', {
+      body: { min: 7 }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("7 should not less than 10 for field 'min'")
+  })
+
+  test('test @Max', async () => {
+    let result = await request.post('/request-key-validate/max', {
+      body: { max: 8 }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ max: 8 }))
+
+    result = await request.post('/request-key-validate/max', {
+      body: { max: 14 }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("14 should not greater than 10 for field 'max'")
+  })
+
+  test('test @MinLen', async () => {
+    let result = await request.post('/request-key-validate/min-len', {
+      body: { minLen: 'xxxxxxxxxxxxx' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ minLen: 'xxxxxxxxxxxxx' }))
+
+    result = await request.post('/request-key-validate/min-len', {
+      body: { minLen: 'xxx' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain('length(3)  should not less than 5')
+  })
+
+  test('test @MaxLen', async () => {
+    let result = await request.post('/request-key-validate/max-len', {
+      body: { maxLen: 'xxx' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ maxLen: 'xxx' }))
+
+    result = await request.post('/request-key-validate/max-len', {
+      body: { maxLen: 'xxxxxxxxxxxxx' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain('length(13) should not greater than 5')
+  })
+
+  test('test @Email', async () => {
+    let result = await request.post('/request-key-validate/email', {
+      body: { email: 'aa@bb.com' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ email: 'aa@bb.com' }))
+
+    result = await request.post('/request-key-validate/email', {
+      body: { email: 'not an email' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("'not an email' is no a valid email")
+  })
+
+  test('test @Pattern', async () => {
+    let result = await request.post('/request-key-validate/pattern', {
+      body: { pattern: '123123' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ pattern: '123123' }))
+
+    result = await request.post('/request-key-validate/pattern', {
+      body: { pattern: 'xxx' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain('is not match')
+  })
+
+  test('test @Pattern', async () => {
+    let result = await request.post('/request-key-validate/pattern', {
+      body: { pattern: '123123' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ pattern: '123123' }))
+
+    result = await request.post('/request-key-validate/pattern', {
+      body: { pattern: 'xxx' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain('is not match')
+  })
+
+  test('test @Validate', async () => {
+    let result = await request.post('/request-key-validate/custom-validate', {
+      body: { value: 'aaaaa,bbbb' }
+    })
+
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe(JSON.stringify({ value: 'aaaaa,bbbb' }))
+
+    result = await request.post('/request-key-validate/custom-validate', {
+      body: { value: 'cccccc' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain('is invalid')
   })
 })

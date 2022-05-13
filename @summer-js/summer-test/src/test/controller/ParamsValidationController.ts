@@ -1,4 +1,17 @@
-import { Body, Controller, Get, Post, Query } from '@summer-js/summer'
+import {
+  Body,
+  Controller,
+  Get,
+  Min,
+  Post,
+  Query,
+  Max,
+  MinLen,
+  MaxLen,
+  Email,
+  Pattern,
+  Validate
+} from '@summer-js/summer'
 import { Dog } from '../../dto/request/Dog'
 
 class Obj {
@@ -15,7 +28,49 @@ enum StringEnum {
   E2 = 'E2'
 }
 
-@Controller()
+class OptionalRequest {
+  optionalKey?: string
+  requiredKey: string
+}
+
+class MinRequest {
+  @Min(10)
+  min: int
+}
+
+class MaxRequest {
+  @Max(10)
+  max: int
+}
+
+class MinLenRequest {
+  @MinLen(5)
+  minLen: string
+}
+
+class MaxLenRequest {
+  @MaxLen(5)
+  maxLen: string
+}
+
+class EmailRequest {
+  @Email
+  email: string
+}
+
+class PatternRequest {
+  @Pattern(/\d+/)
+  pattern: string
+}
+
+class CustomValidateRequest {
+  @Validate((val: string) => {
+    return val.indexOf(',') > 0
+  })
+  value: string
+}
+
+@Controller
 export class ParamsValidationController {
   @Get('/request-basic-type-value')
   async requestBasicTypeValue(
@@ -37,7 +92,8 @@ export class ParamsValidationController {
     @Query numberEnumArrayValue: NumberEnum[],
     @Query stringEnumArrayValue: StringEnum[],
     @Query objArrayValue: Obj[],
-    @Query stringUnionValue: 'SU1' | 'SU2'
+    @Query stringUnionValue: 'SU1' | 'SU2' | 'SU:3',
+    @Query fixedStringValue: 'str:ing'
   ) {
     let value =
       notypeValue ||
@@ -58,7 +114,8 @@ export class ParamsValidationController {
       numberEnumArrayValue ||
       stringEnumArrayValue ||
       objValue ||
-      stringUnionValue
+      stringUnionValue ||
+      fixedStringValue
     if (booleanValue !== undefined) {
       value = booleanValue
     }
@@ -71,5 +128,45 @@ export class ParamsValidationController {
   async requestBodyValue(@Body dog: Dog) {
     let type = typeof dog
     return { type, value: dog }
+  }
+
+  @Post('/request-key-validate/optional')
+  optionalKey(@Body request: OptionalRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/min')
+  minKey(@Body request: MinRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/max')
+  maxKey(@Body request: MaxRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/min-len')
+  minLenKey(@Body request: MinLenRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/max-len')
+  maxLenKey(@Body request: MaxLenRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/email')
+  emailKey(@Body request: EmailRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/pattern')
+  patternKey(@Body request: PatternRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/custom-validate')
+  customValidateKey(@Body request: CustomValidateRequest) {
+    return request
   }
 }

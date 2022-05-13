@@ -5,7 +5,7 @@ import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
-import { Project, ClassDeclaration } from 'ts-morph'
+import { Project } from 'ts-morph'
 
 const watch = process.argv[2] === 'watch'
 
@@ -56,8 +56,8 @@ const compile = async () => {
     null: undefined
   }
 
-  const getDeclareType = (declareLine, paramType) => {
-    const parts = declareLine.split(/:(.*)/s)
+  const getDeclareType = (declareLine, paramType, parameter) => {
+    const parts = declareLine.split(/:([^:]*)$/s)
 
     let type = undefined
     if (parts.length > 1) {
@@ -66,6 +66,9 @@ const compile = async () => {
         .replace(/[^=]=.+$/, '')
         .trim()
     }
+
+    //fs.appendFileSync('a.txt', declareLine + ' - ' + paramType.getText(parameter) + '\n\n')
+    //fs.appendFileSync('a.txt', paramType.isStringLiteral() + '\n\n')
 
     if (paramType.isUnion() && !paramType.isEnum() && !paramType.isBoolean()) {
       const unionTypes = paramType.getUnionTypes()
@@ -86,6 +89,10 @@ const compile = async () => {
       } else {
         type = TypeMapping[type]
       }
+    } else if (paramType.isStringLiteral()) {
+      let stringText = paramType.getText(parameter).trim()
+      stringText = stringText.substring(1, stringText.length - 1)
+      return JSON.stringify({ [stringText]: stringText })
     } else if (paramType.isClass() || paramType.isEnum()) {
     } else {
       type = TypeMapping[type]
@@ -99,7 +106,7 @@ const compile = async () => {
       return
     }
     cls.getProperties().forEach((p) => {
-      let type = getDeclareType(p.getText(), p.getType())
+      let type = getDeclareType(p.getText(), p.getType(), p)
       if (type === undefined || type === null) {
         return
       }
@@ -195,7 +202,7 @@ const compile = async () => {
                 const paramType = param.getType()
                 param.addDecorator({
                   name: '_ParamDeclareType',
-                  arguments: [getDeclareType(param.getText(), paramType)]
+                  arguments: [getDeclareType(param.getText(), paramType, param)]
                 })
               }
             })

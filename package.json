@@ -1,8 +1,12 @@
 {
   "name": "summer-packages",
-  "version": "1.0.0",
+  "version": "0.0.14",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build",
+    "test-all": "npm -w @summer-js/summer-test run test",
+    "release-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w create-summer run release"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/calidan-x/summer.git"

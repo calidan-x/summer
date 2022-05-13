@@ -31,6 +31,7 @@ export const validateAndConvertType = (
     return undefined
   }
 
+  customValidate(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors, isFirstLevel)
   switch (typeName) {
     case 'string':
       value = isFirstLevel ? propValue + '' : propValue
@@ -59,7 +60,7 @@ export const validateAndConvertType = (
       }
 
       validateEmail(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors)
-      validateMatch(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors, isFirstLevel)
+      validatePattern(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors, isFirstLevel)
       validateMinMaxLength(
         instance,
         methodName,
@@ -139,7 +140,7 @@ export const validateAndConvertType = (
         allErrors.push({
           param: errorParam,
           message:
-            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' into ' + (declareType?.name || 'any') + '[]'
+            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to ' + (declareType?.name || 'any') + '[]'
         })
         break
       }
@@ -195,7 +196,7 @@ export const validateAndConvertType = (
         allErrors.push({
           param: errorParam,
           message:
-            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' into ' + (declareType?.name || 'object')
+            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to ' + (declareType?.name || 'object')
         })
         break
       }
@@ -212,6 +213,7 @@ export const validateAndConvertType = (
           allProperties.push(...Reflect.getOwnMetadataKeys(proto.constructor.prototype))
           proto = proto.__proto__
         }
+
         for (const k in objectValue) {
           if (!allProperties.includes(k)) {
             allErrors.push({
@@ -310,7 +312,7 @@ const validateEmail = (
   }
 }
 
-const validateMatch = (
+const validatePattern = (
   instance: any,
   methodName,
   paramIndex: number,
@@ -320,11 +322,11 @@ const validateMatch = (
   errors: ValidateError[],
   isFirstLevel: boolean
 ) => {
-  const match: RegExp = getMetaData('match', instance, methodName, paramIndex, propName)
+  const match: RegExp = getMetaData('pattern', instance, methodName, paramIndex, propName)
   if (match && !match.test(propValue)) {
     errors.push({
       param: errorParam,
-      message: `'${typeDisplayText(propValue, isFirstLevel)}' is not match ${match}`
+      message: `${typeDisplayText(propValue, isFirstLevel)} is not match ${match}`
     })
   }
 }
@@ -391,6 +393,34 @@ const validateMinMax = (
       errors.push({
         param: propName,
         message: `${typeDisplayText(propValue, isFirstLevel)} should not less than ${min} for field '${propName}'`
+      })
+    }
+  }
+}
+
+const customValidate = (
+  instance: any,
+  methodName,
+  paramIndex: number,
+  propName: string,
+  errorParam: string,
+  propValue: number,
+  errors: ValidateError[],
+  isFirstLevel: boolean
+) => {
+  const validateFunc = getMetaData('validate', instance, methodName, paramIndex, propName)
+  if (validateFunc) {
+    try {
+      if (!validateFunc(propValue)) {
+        errors.push({
+          param: errorParam,
+          message: `${typeDisplayText(propValue, isFirstLevel)} is invalid`
+        })
+      }
+    } catch (err) {
+      errors.push({
+        param: errorParam,
+        message: `${typeDisplayText(propValue, isFirstLevel)} is invalid`
       })
     }
   }

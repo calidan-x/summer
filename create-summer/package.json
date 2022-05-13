@@ -1,25 +1,25 @@
 {
-  "name": "create-summer",
-  "version": "1.0.23",
-  "description": "",
-  "main": "index.js",
-  "bin": {
-    "create-summer": "index.js"
-  },
-  "scripts": {
-    "release": "npm publish --access public"
-  },
-  "dependencies": {
-    "prompts": "^2.4.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calidan-x/summer.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/calidan-x/summer/issues"
-  },
-  "homepage": "https://github.com/calidan-x/summer#readme"
+	"name": "create-summer",
+	"version": "1.0.24",
+	"description": "",
+	"main": "index.js",
+	"bin": {
+		"create-summer": "index.js"
+	},
+	"scripts": {
+		"release": "npm publish --access public"
+	},
+	"dependencies": {
+		"prompts": "^2.4.2"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calidan-x/summer.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/calidan-x/summer/issues"
+	},
+	"homepage": "https://github.com/calidan-x/summer#readme"
 }

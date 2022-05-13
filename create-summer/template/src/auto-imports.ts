@@ -2,4 +2,4 @@
 process.env.SUMMER_ENV = "test"
 import * as defaultConfig from "./config/default.config"
 global["$$_DEFAULT_CONFIG"] = defaultConfig
-import './controllers/HelloController'
+import './controller/HelloController'
