@@ -1,5 +1,5 @@
 import fs from 'fs'
-import mine = require('mime-types')
+import mine = require('mime')
 import path = require('path')
 
 import { getConfig } from './config-handler'
@@ -51,7 +51,7 @@ export const handleStaticRequest = (requestPath: string): StaticResult | null =>
         }
 
         if (requestFile) {
-          const mineType = mine.lookup(requestFile)
+          const mineType = mine.getType(path.extname(requestFile).replace('.', ''))
           const headers = { 'Cache-Control': 'max-age=2592000' }
           if (mineType) {
             headers['Content-Type'] = mineType
