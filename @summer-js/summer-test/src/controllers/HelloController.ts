@@ -1,4 +1,4 @@
-import { Controller, Get, Validate, Body, Post } from '@summer-js/summer'
+import { Controller, Get, Validate, Body, Post, getInjectable } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 
 class CustomValidateRequest {
@@ -24,7 +24,8 @@ export class HelloController {
   }
 
   @Post('/sss')
-  p2hello(@Body body: 'Good') {
+  p2hello(@Body body) {
+    console.log(typeof body)
     return body
   }
 }

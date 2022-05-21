@@ -3,6 +3,7 @@ import { getServerType } from './serverless'
 import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
 import { locContainer } from './loc'
+import { rpc } from './rpc'
 import { session } from './session'
 import { getConfig } from './config-handler'
 
@@ -36,7 +37,9 @@ export const summerStart = async (options?: SummerStartOptions) => {
   for (const Plugin of plugins) {
     const plugin: SummerPlugin = new Plugin()
     pluginIncs.push(plugin)
-    plugin.init && (await plugin.init(config[plugin.configKey]))
+    if (plugin.init) {
+      await plugin.init(config[plugin.configKey])
+    }
   }
 
   options.before && (await options.before(config))
@@ -53,6 +56,7 @@ export const summerStart = async (options?: SummerStartOptions) => {
   }
 
   locContainer.resolveLoc()
+  rpc.resolveRpc()
 }
 
 export const summerDestroy = async () => {

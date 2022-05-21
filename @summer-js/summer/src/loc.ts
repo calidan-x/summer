@@ -28,8 +28,10 @@ export const locContainer = {
     }
     return this.locInstance[className]
   },
-  paddingLocClass(clazz: Function) {
-    this.locClass.push(clazz)
+  paddingLocClass(clazz: any) {
+    if (!this.locClass.includes(clazz)) {
+      this.locClass.push(clazz)
+    }
   },
   instanceLocClasses() {
     this.locClass.forEach((clazz: any) => {

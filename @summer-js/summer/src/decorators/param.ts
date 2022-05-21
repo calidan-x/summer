@@ -22,6 +22,9 @@ const getArgType = (target: Object, propertyKey: string, parameterIndex: number)
 
 const getArgDeclareType = (target: Object, propertyKey: string, parameterIndex: number) => {
   const types = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey)
+  if (!types) {
+    return undefined
+  }
   return types[parameterIndex]
 }
 

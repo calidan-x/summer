@@ -157,7 +157,7 @@ const compile = async () => {
     }
   }
 
-  const autoImportDecorators = ['Middleware', 'Controller']
+  const autoImportDecorators = ['Middleware', 'Controller', 'RpcProvider', 'Rpc']
   for (const p of pluginIncs) {
     if (p.autoImportDecorators) {
       const aids = p.autoImportDecorators()
@@ -206,6 +206,13 @@ const compile = async () => {
                 })
               }
             })
+          })
+        } else if (classDecorator.getName() === 'Rpc') {
+          cls.getProperties().forEach((p) => {
+            if (p.getType().isAnonymous()) {
+              cls.addMethod({ name: p.getName(), returnType: 'any', parameters: [{ name: '...args', type: 'any' }] })
+              p.remove()
+            }
           })
         }
       }

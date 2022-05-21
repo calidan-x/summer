@@ -1,3 +1,4 @@
+import { getConfig } from './config-handler'
 import { locContainer } from './loc'
 import { Logger } from './logger'
 import { middlewares } from './middleware'
@@ -6,6 +7,7 @@ import { validateAndConvertType } from './validate-types'
 import { session } from './session'
 import { parseCookie, assembleCookie } from './cookie'
 import { handleCors } from './cors'
+import { rpc } from './rpc'
 
 export interface UploadedFile {
   filename: string
@@ -153,8 +155,48 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
   }
 }
 
+const handleRpc = async (ctx: Context) => {
+  if (ctx.request.headers['summer-rpc-access-key']) {
+    if (
+      getConfig()['RPC_CONFIG'].server &&
+      ctx.request.headers['summer-rpc-access-key'] === getConfig()['RPC_CONFIG'].server.accessKey
+    ) {
+      let rpcData
+      try {
+        rpcData = JSON.parse(ctx.request.body)
+        if (!rpcData.class || !rpcData.method) {
+          throw new Error()
+        }
+      } catch (e) {
+        Logger.error('Error parsing rpc data')
+      }
+
+      if (rpcData) {
+        try {
+          const result = await rpc.call(rpcData.class, rpcData.method, rpcData.data || [])
+          ctx.response.statusCode = 200
+          ctx.response.body = JSON.stringify(result)
+        } catch (e) {
+          Logger.error(e)
+          ctx.response.statusCode = 400
+          ctx.response.body = JSON.stringify({ error: e.message })
+        }
+      }
+    } else {
+      const msg = 'Rpc accessKey mismatch'
+      Logger.error(msg)
+      ctx.response.statusCode = 400
+      ctx.response.body = JSON.stringify({ error: msg })
+    }
+    return true
+  }
+  return false
+}
+
 export const requestHandler = async (ctx: Context) => {
-  context = ctx
+  if (await handleRpc(ctx)) {
+    return
+  }
 
   if (handleCors(ctx)) {
     return

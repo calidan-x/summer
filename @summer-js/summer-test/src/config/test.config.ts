@@ -1,4 +1,4 @@
-import { SessionConfig, ServerConfig } from '@summer-js/summer'
+import { SessionConfig, ServerConfig, RpcConfig } from '@summer-js/summer'
 import { TypeORMConfig } from '@summer-js/typeorm'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
@@ -22,5 +22,18 @@ export const SESSION_CONFIG: SessionConfig = {
 
 export const SERVER_CONFIG: ServerConfig = {
   static: [{ requestPathRoot: '/static', destPathRoot: 'resource', indexFiles: ['index.html'] }],
-  cors: true
+  cors: true,
+  port: 8802
+}
+
+export const RPC_CONFIG: RpcConfig = {
+  server: {
+    accessKey: 'xxxxx'
+  },
+  client: {
+    LOCAL_RPC: {
+      url: 'http://localhost:8802',
+      accessKey: 'xxxxx'
+    }
+  }
 }

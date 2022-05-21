@@ -20,6 +20,9 @@ interface RequestParams {
 }
 
 const sendRequest = async (method: any, path: string, requestParams: RequestParams) => {
+  if (typeof requestParams.body === 'object') {
+    requestParams.body = JSON.stringify(requestParams.body)
+  }
   const context: Context = {
     request: {
       method,

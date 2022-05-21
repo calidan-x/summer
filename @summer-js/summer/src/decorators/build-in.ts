@@ -12,21 +12,29 @@ export const Request = restfulMethodDecorator('REQUEST')
 
 // params
 export const Ctx = createParamDecorator((ctx) => ctx)
-export const Body = createParamDecorator((ctx) => ctx.request.body)
-export const Queries = createParamDecorator((ctx) => ctx.request.queries)
-export const Query = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.queries[name || paramName]
-)
-export const PathParam = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.pathParams[name || paramName]
-)
+
+export const _bodyConvertFunc = (ctx) => ctx.request.body
+export const Body = createParamDecorator(_bodyConvertFunc)
+
+export const _queriesConvertFunc = (ctx) => ctx.request.queries
+export const Queries = createParamDecorator(_queriesConvertFunc)
+
+export const _queryConvertFunc = (ctx, paramName: string, name: string) => ctx.request.queries[name || paramName]
+export const Query = createParamDecorator(_queryConvertFunc)
+
+export const _pathParamConvertFunc = (ctx, paramName: string, name: string) => ctx.request.pathParams[name || paramName]
+export const PathParam = createParamDecorator(_pathParamConvertFunc)
+
 export const Session = createParamDecorator((ctx) => ctx.session)
-export const Header = createParamDecorator(
-  (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
-)
+
+export const _headerConvertFunc = (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
+export const Header = createParamDecorator(_headerConvertFunc)
+
 export const Cookie = createParamDecorator((ctx, paramName: string, name: string) => ctx.cookies[name || paramName])
 export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
-export const File = createParamDecorator((ctx, paramName: string, name: string) => ctx.request.files[name || paramName])
+
+export const _fileConvertFunc = (ctx, paramName: string, name: string) => ctx.request.files[name || paramName]
+export const File = createParamDecorator(_fileConvertFunc)
 
 // property
 export const Config = createPropertyDecorator(async (config, propertyName, configKey?: string) => {

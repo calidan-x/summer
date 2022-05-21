@@ -1,5 +1,12 @@
 import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
+import {
+  _queryConvertFunc,
+  _pathParamConvertFunc,
+  _bodyConvertFunc,
+  _headerConvertFunc,
+  _fileConvertFunc
+} from '@summer-js/summer'
 import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
 import { ClassDeclaration } from 'ts-morph'
@@ -268,11 +275,11 @@ const findCategory = (controllerName: string) => {
 }
 
 const parmMatchPattern = {
-  '(ctx, paramName, name) => ctx.request.queries[name || paramName]': 'query',
-  '(ctx, paramName, name) => ctx.request.pathParams[name || paramName]': 'path',
-  '(ctx, paramName, name) => ctx.request.headers[name || paramName]': 'header',
-  '(ctx, paramName, name) => ctx.request.files[name || paramName]': 'formData',
-  '(ctx) => ctx.request.body': 'body'
+  query: _queryConvertFunc,
+  path: _pathParamConvertFunc,
+  header: _headerConvertFunc,
+  formData: _fileConvertFunc,
+  body: _bodyConvertFunc
 }
 
 const getType = (type: any) => {
@@ -298,8 +305,8 @@ const intToInteger = (type: string) => {
 
 const getParamType = (func) => {
   for (const p in parmMatchPattern) {
-    if (func.toString().indexOf(p) >= 0) {
-      return parmMatchPattern[p]
+    if (parmMatchPattern[p].toString() === func.toString()) {
+      return p
     }
   }
   return null
