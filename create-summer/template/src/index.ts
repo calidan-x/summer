@@ -1,5 +1,5 @@
-import { summerStart, handler } from '@summer-js/summer'
 import './auto-imports'
+import { summerStart, handler } from '@summer-js/summer'
 export { handler }
 
 summerStart({

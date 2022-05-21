@@ -67,9 +67,6 @@ const compile = async () => {
         .trim()
     }
 
-    //fs.appendFileSync('a.txt', declareLine + ' - ' + paramType.getText(parameter) + '\n\n')
-    //fs.appendFileSync('a.txt', paramType.isStringLiteral() + '\n\n')
-
     if (paramType.isUnion() && !paramType.isEnum() && !paramType.isBoolean()) {
       const unionTypes = paramType.getUnionTypes()
       const enumJSON = {}
@@ -258,7 +255,12 @@ const compile = async () => {
   })
 
   fs.writeFileSync('./src/auto-imports.ts', fileContent)
-  project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync()
+  try {
+    project.getSourceFileOrThrow('./src/auto-imports.ts').refreshFromFileSystemSync()
+  } catch (e) {
+    project.addSourceFilesAtPaths('./src/auto-imports.ts')
+  }
+  project.resolveSourceFileDependencies()
 
   const diagnostics = project.getPreEmitDiagnostics()
   if (diagnostics.length > 0) {

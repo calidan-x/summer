@@ -9,7 +9,7 @@ export class SendRequestController {
   @Get('/send-request')
   async getUser() {
     try {
-      return await this.sendRequestClient.getHomePage()
+      return await this.sendRequestClient.getApi()
     } catch (e) {
       console.log(e)
     }

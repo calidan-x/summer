@@ -1,13 +1,13 @@
 import { Service, createRequestDecorator, Body, Header } from '@summer-js/summer'
 
 const Send = createRequestDecorator((config) => ({
-  baseUrl: 'https://summerjs.dev'
+  baseUrl: 'http://127.0.0.1:8803'
 }))
 
 @Service()
 export class SendRequestClient {
   @Send('GET', '/')
-  async getHomePage(): Promise<string> {
+  async getApi(): Promise<any> {
     return
   }
 }
