@@ -31,10 +31,10 @@ const compile = async () => {
   for (const { event, updatePath } of updateFileList) {
     if (['add', 'change'].includes(event)) {
       dirtyFiles.push(path.resolve(updatePath))
+      project.resolveSourceFileDependencies()
     }
     if (['add'].includes(event)) {
       project.addSourceFilesAtPaths(updatePath)
-      project.resolveSourceFileDependencies()
     }
     if (['unlink'].includes(event)) {
       try {

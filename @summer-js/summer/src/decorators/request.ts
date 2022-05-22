@@ -1,3 +1,4 @@
+import { compile } from 'path-to-regexp'
 import { locContainer } from './../loc'
 import axios from 'axios'
 import { validateAndConvertType } from './../validate-types'
@@ -39,15 +40,17 @@ export const Send =
     requestMappingAssembler.params = []
     descriptor.value = async function (...args: any) {
       const rConfig = (this as any)._$requestConfig(getConfig())
-      let fullPath = rConfig.baseUrl + requestPath
+      let fullUrl = rConfig.baseUrl + requestPath
       let body
       let headers = rConfig.headers || {}
       let queries = {}
+      const pathReplaceParam = {}
 
       for (let i = 0; i < args.length; i++) {
         const paramDefinition = paramDefinitions[i]
         const paramValues = paramDefinition.paramValues
         const paramName = paramValues.length > 1 ? paramValues[1] : paramValues[0]
+
         switch (paramDefinition.paramMethod) {
           case _bodyConvertFunc:
             body = args[i]
@@ -56,7 +59,7 @@ export const Send =
             headers[paramName] = args[i]
             break
           case _pathParamConvertFunc:
-            fullPath = fullPath.replace(new RegExp(':' + paramName, 'g'), args[i])
+            pathReplaceParam[paramName] = args[i]
             break
           case _queriesConvertFunc:
             queries = args[i]
@@ -66,8 +69,19 @@ export const Send =
             break
         }
       }
+
+      const url = new URL(fullUrl)
+      const toPath = compile(url.pathname, { encode: encodeURIComponent })
+      const fullPath = toPath(pathReplaceParam)
+
       let responseData = await (
-        await axios.request({ method: requestMethod, url: fullPath, params: { queries, body, headers } })
+        await axios.request({
+          method: requestMethod,
+          url: url.protocol + '//' + url.hostname + (url.port ? ':' + url.port : '') + fullPath,
+          params: queries,
+          data: body,
+          headers
+        })
       ).data
 
       const allErrors = []

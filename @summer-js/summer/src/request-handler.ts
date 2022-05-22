@@ -136,7 +136,10 @@ const callControllerMethod = async (ctx: Context) => {
           applyResponse(ctx, responseData)
         }
       } catch (e) {
-        Logger.error(e.stack)
+        Logger.error(e)
+        if (e.stack) {
+          console.log(e.stack)
+        }
         ctx.response = { statusCode: 400, headers: { 'Content-Type': 'text/html' }, body: '400 Bad Request' }
       }
     }
