@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/swagger",
-	"version": "0.0.14",
+	"version": "0.0.15",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
