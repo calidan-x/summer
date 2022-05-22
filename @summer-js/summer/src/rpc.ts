@@ -1,3 +1,4 @@
+import { validateAndConvertType } from './validate-types'
 import { locContainer } from './loc'
 import axios from 'axios'
 import { Logger } from './logger'
@@ -38,10 +39,17 @@ export const rpc = {
       throw new Error('No prc provider named: ' + className)
     }
   },
-  async rpcRequest(rpcConfig: RpcServerConfig, postData: any) {
-    const result = (
+  async rpcRequest(rpcConfig: RpcServerConfig, postData: any, type, declareType, instance) {
+    let result = (
       await axios.post(rpcConfig.url, postData, { headers: { 'summer-rpc-access-key': rpcConfig.accessKey } })
     ).data
+    const allErrors = []
+
+    result = validateAndConvertType(type, declareType, '', result, allErrors, '', -1, instance)
+
+    if (allErrors.length) {
+      throw new Error(JSON.stringify(allErrors))
+    }
     return result
   }
 }

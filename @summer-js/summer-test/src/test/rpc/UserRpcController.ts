@@ -8,6 +8,11 @@ export class UserRpcController {
 
   @Get('/rpc/user')
   async getUser() {
-    return await this.userRpcClientService.getUser(99)
+    return await this.userRpcClientService.getUser(99, { name: '' })
+  }
+
+  @Get('/rpc/users')
+  async getUsers() {
+    return await this.userRpcClientService.getUsers()
   }
 }

@@ -27,6 +27,7 @@ declare global {
   type int = number
   const _PropDeclareType: any
   const _ParamDeclareType: any
+  const _ReturnDeclareType: any
   const _Required: any
   const Int: any
 }
@@ -40,3 +41,7 @@ declare global {
   existingParameterTypes[index] = type
   Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey)
 }
+;(global as any)._ReturnDeclareType =
+  (type: any, declareType: any) => (target: Object, propertyKey: string | symbol) => {
+    Reflect.defineMetadata('ReturnDeclareType', [type, declareType], target, propertyKey)
+  }

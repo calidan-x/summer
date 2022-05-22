@@ -30,17 +30,20 @@ export const Rpc = (source: string, targetClass?: string) => {
             Logger.error('RPC_CONFIG is missing in config')
             return
           }
+          const [type, declareType] = Reflect.getMetadata('ReturnDeclareType', target.prototype, method)
           if (config.client[source]) {
-            try {
-              const result = await rpc.rpcRequest(config.client[source], {
+            const result = await rpc.rpcRequest(
+              config.client[source],
+              {
                 class: targetClass || target.name,
                 method: method,
                 data: args
-              })
-              return result
-            } catch (e) {
-              return e
-            }
+              },
+              type,
+              declareType,
+              this
+            )
+            return result
           } else {
             Logger.error(source + ' not found in RPC_CONFIG.client')
           }

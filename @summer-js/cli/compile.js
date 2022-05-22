@@ -51,12 +51,29 @@ const compile = async () => {
     boolean: 'Boolean',
     int: 'Int',
     bigint: 'BigInt',
-    any: undefined,
-    undefined: undefined,
-    null: undefined
+    any: 'undefined',
+    undefined: 'undefined',
+    null: 'undefined'
+  }
+
+  const getCompileType = (type, p) => {
+    if (!type) {
+      return 'undefined'
+    }
+    if (type.isArray()) {
+      return 'Array'
+    } else if (type.isClass()) {
+      return type.getText(p)
+    }
+
+    return TypeMapping[type.getText(p)] || 'undefined'
   }
 
   const getDeclareType = (declareLine, paramType, parameter) => {
+    if (!paramType) {
+      return undefined
+    }
+
     const parts = declareLine.split(/:([^:]*)$/s)
 
     let type = undefined
@@ -108,14 +125,19 @@ const compile = async () => {
         return
       }
 
+      const pendingDecorators = []
       if (!p.hasQuestionToken()) {
         if (!p.getDecorators().find((d) => d.getName() === '_Required')) {
-          p.addDecorator({ name: '_Required', arguments: [] })
+          pendingDecorators.push({ name: '_Required', arguments: [] })
         }
       }
 
       if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
-        p.addDecorator({ name: '_PropDeclareType', arguments: [type] })
+        pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
+      }
+
+      if (pendingDecorators.length) {
+        p.addDecorators(pendingDecorators)
       }
     })
     if (cls.getExtends()) {
@@ -205,14 +227,66 @@ const compile = async () => {
             })
           })
         } else if (classDecorator.getName() === 'Rpc') {
+          const pendingProperties = []
+          const pendingMethods = []
           cls.getProperties().forEach((p) => {
             if (p.getType().isAnonymous()) {
-              cls.addMethod({ name: p.getName(), returnType: 'any', parameters: [{ name: '...args', type: 'any' }] })
-              p.remove()
+              const callSignature = p.getType().getCallSignatures()[0]
+              pendingProperties.push(p)
+
+              const returnPromiseType = callSignature.getReturnType().getTypeArguments()[0]
+
+              pendingMethods.push({
+                name: p.getName(),
+                returnType: callSignature.getReturnType().getText(p),
+                parameters: callSignature.getParameters().map((param, inx) => ({
+                  name: param.getName(),
+                  type: callSignature.getParameters()[inx].getDeclarations()[0].getType().getText(p)
+                })),
+                statements: 'return {} as Promise<any>',
+                decorators: [
+                  {
+                    name: '_ReturnDeclareType',
+                    arguments: [
+                      getCompileType(returnPromiseType, p),
+                      getDeclareType(':' + (returnPromiseType ? returnPromiseType.getText() : ''), returnPromiseType, p)
+                    ]
+                  }
+                ]
+              })
             }
+          })
+          cls.addMethods(pendingMethods)
+          pendingProperties.forEach((p) => {
+            p.remove()
           })
         }
       }
+
+      if (cls.getDecorators().length > 0) {
+        for (const classProperty of cls.getMethods()) {
+          for (const cpd of classProperty.getDecorators()) {
+            if (cpd.getName() === 'Send') {
+              const callSignature = classProperty.getType().getCallSignatures()[0]
+              const returnPromiseType = callSignature.getReturnType().getTypeArguments()[0]
+              classProperty.addDecorators([
+                {
+                  name: '_ReturnDeclareType',
+                  arguments: [
+                    getCompileType(returnPromiseType, classProperty),
+                    getDeclareType(
+                      ':' + (returnPromiseType ? returnPromiseType.getText() : ''),
+                      returnPromiseType,
+                      classProperty
+                    )
+                  ]
+                }
+              ])
+            }
+          }
+        }
+      }
+
       for (const p of pluginIncs) {
         p.compile && (await p.compile(cls))
         for (const classDecorator of cls.getDecorators()) {
