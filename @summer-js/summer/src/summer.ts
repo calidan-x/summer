@@ -14,6 +14,7 @@ interface SummerStartOptions {
   after?: (config: any) => void
 }
 
+export let startOptions: SummerStartOptions
 const pluginIncs: SummerPlugin[] = []
 const plugins: any[] = []
 export const addPlugin = (plugin: any) => {
@@ -21,7 +22,14 @@ export const addPlugin = (plugin: any) => {
 }
 
 export const summerStart = async (options?: SummerStartOptions) => {
-  options = options || {}
+  startOptions = options || {}
+  if (getServerType() === 'Normal') {
+    await start()
+  }
+}
+
+export const start = async () => {
+  const options = startOptions
   const config = getConfig()
 
   const isNormalServer = getServerType() === 'Normal'
@@ -49,14 +57,15 @@ export const summerStart = async (options?: SummerStartOptions) => {
       session.init(config['SESSION_CONFIG'])
     }
     await httpServer.createServer(config['SERVER_CONFIG'], () => {
+      locContainer.resolveLoc()
+      rpc.resolveRpc()
       options.after && options.after(config)
     })
   } else {
+    locContainer.resolveLoc()
+    rpc.resolveRpc()
     options.after && options.after(config)
   }
-
-  locContainer.resolveLoc()
-  rpc.resolveRpc()
 }
 
 export const summerDestroy = async () => {

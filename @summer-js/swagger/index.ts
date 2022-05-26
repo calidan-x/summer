@@ -114,7 +114,7 @@ class SwaggerPlugin implements SummerPlugin {
         serverConfig.static = []
       }
       serverConfig.static.push({ requestPathRoot: '/swagger-res', destPathRoot: 'resource/swagger-res' })
-      if (config.docPath) {
+      if (config.docPath && config.docPath !== '/swagger-ui') {
         // change path
         requestMapping[`${config.docPath}`] = requestMapping['/swagger-ui']
         requestMapping[`${config.docPath}`].pathRegExp = pathToRegexp(`${config.docPath}`)
@@ -137,9 +137,14 @@ class SwaggerPlugin implements SummerPlugin {
           const apiDoc = m.getDecorator('ApiDoc')
           if (apiDoc) {
             // TypeFormatFlags.NoTruncation = 1
-            const retType = m.getReturnType()
+            let retType = m.getReturnType()
             let returnType = retType.getText(m, 1)
             let isArray = false
+
+            if (returnType.startsWith('Promise<')) {
+              retType = retType.getTypeArguments()[0]
+              returnType = retType.getText(m, 1)
+            }
 
             if (returnType.endsWith('[]')) {
               isArray = true

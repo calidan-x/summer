@@ -9,6 +9,10 @@ class CustomValidateRequest {
   value: string
 }
 
+class Book {
+  name: string
+}
+
 @Controller
 @ApiDocGroup('欢迎相关接口')
 export class HelloController {
@@ -16,6 +20,14 @@ export class HelloController {
   @ApiDoc('获取Hello', { description: '描述描述描述描述描述', example: { response: 'Hello Summer!' } })
   hello() {
     return 'Hello Summer!'
+  }
+
+  @Get('/b')
+  @ApiDoc('获取Book')
+  async hello2() {
+    const book = new Book()
+    book.name = 'Test book'
+    return book
   }
 
   @Post

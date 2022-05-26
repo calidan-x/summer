@@ -29,7 +29,7 @@ export const SESSION_CONFIG: SessionConfig = {
 }
 
 export const SWAGGER_CONFIG: SwaggerConfig = {
-  docPath: '/swagger',
+  docPath: '/swagger-ui',
   info: { title: 'Summer' }
 }
 

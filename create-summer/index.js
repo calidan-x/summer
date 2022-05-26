@@ -39,7 +39,10 @@ var copyRecursiveSync = function (src, dest) {
 
   copyRecursiveSync(path.join(__dirname, 'template'), projectName)
 
-  fs.writeFileSync(projectName + '/.gitignore', ['.DS_Store', 'node_modules', 'build', 'compile'].join('\n'))
+  fs.writeFileSync(
+    projectName + '/.gitignore',
+    ['.DS_Store', 'node_modules', 'build', 'compile', 'auto-imports.ts'].join('\n')
+  )
   const packageJson = JSON.parse(fs.readFileSync(projectName + '/package.json', { encoding: 'utf8' }))
   packageJson.name = projectName
   fs.writeFileSync(projectName + '/package.json', JSON.stringify(packageJson, null, 4))

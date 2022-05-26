@@ -1,8 +1,11 @@
 {
 	"name": "@summer-js/typeorm",
-	"version": "0.0.15",
+	"version": "0.0.16",
 	"description": "",
 	"main": "lib/index.js",
+	"files": [
+		"lib"
+	],
 	"scripts": {
 		"build": "tsc",
 		"release": "npm publish --access public"

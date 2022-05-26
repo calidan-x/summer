@@ -147,7 +147,7 @@ if (options.serve) {
         copyRecursiveSync('./resource', './build/resource')
       }
       const buildProcess = exec(
-        'npx esbuild ./compile/index.js --bundle --sourcemap  --minify-whitespace --minify-syntax --platform=node --outfile=./build/index.js'
+        'npx esbuild ./compile/index.js --bundle --sourcemap  --minify-whitespace  --platform=node --outfile=./build/index.js'
       )
       printProcessData(buildProcess)
     }
