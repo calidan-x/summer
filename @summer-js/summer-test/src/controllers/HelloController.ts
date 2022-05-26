@@ -1,6 +1,6 @@
 import { Controller, Get, Validate, Body, Post, getInjectable } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
-import { Book } from './Book'
+import { getBook2, getBook } from './Book'
 
 class CustomValidateRequest {
   val: int
@@ -21,9 +21,8 @@ export class HelloController {
 
   @Get('/b')
   @ApiDoc('获取Book')
-  async hello2() {
-    const book = new Book()
-    book.name = 'Test book'
+  hello2() {
+    const book = getBook2()
     return book
   }
 

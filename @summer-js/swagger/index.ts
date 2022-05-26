@@ -1,5 +1,6 @@
 import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
+import path from 'path'
 import {
   _queryConvertFunc,
   _pathParamConvertFunc,
@@ -143,12 +144,32 @@ class SwaggerPlugin implements SummerPlugin {
 
             if (returnType.startsWith('Promise<')) {
               retType = retType.getTypeArguments()[0]
-              returnType = retType.getText(m, 1)
+              returnType = retType.getText(clazz, 1)
+            }
+
+            if (returnType && returnType.startsWith('import("')) {
+              const importParts = returnType.split('.')
+              clazz.getSourceFile().addImportDeclaration({
+                namedImports: [importParts[importParts.length - 1].replace(/\[\]$/, '')],
+                moduleSpecifier:
+                  './' +
+                  path.relative(
+                    path.dirname(clazz.getSourceFile().getFilePath()),
+                    JSON.parse('"' + returnType.substring(8).replace(/"\)\..+$/, '') + '"') + '\n'
+                  )
+              })
+
+              returnType = retType.getText(clazz, 1)
             }
 
             if (returnType.endsWith('[]')) {
               isArray = true
               returnType = returnType.replace(/\[\]$/, '')
+            }
+
+            if (returnType.startsWith('Array<')) {
+              isArray = true
+              returnType = returnType.replace(/^Array</, '').replace(/>$/, '')
             }
 
             if (['number', 'string', 'boolean', 'int', 'float'].includes(returnType)) {
@@ -302,9 +323,7 @@ const intToInteger = (type: string) => {
   if (type === 'int' || type === 'bigint') {
     return 'integer'
   }
-  if (type === 'float') {
-    return 'number'
-  }
+
   return type
 }
 
@@ -361,6 +380,12 @@ const getRequestTypeDesc = (t: any, isRequest: boolean) => {
         typeDesc[key] = {
           type: 'string',
           enum: Object.keys(declareType),
+          description: ''
+        }
+      } else if (typeof declareType === 'object' && designType.name === 'Number') {
+        typeDesc[key] = {
+          type: 'string',
+          enum: Object.keys(declareType).filter((k) => typeof declareType[k] === 'number'),
           description: ''
         }
       } else {
