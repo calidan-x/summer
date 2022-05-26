@@ -138,7 +138,7 @@ class SwaggerPlugin implements SummerPlugin {
           if (apiDoc) {
             // TypeFormatFlags.NoTruncation = 1
             let retType = m.getReturnType()
-            let returnType = retType.getText(m, 1)
+            let returnType = retType.getText(clazz, 1)
             let isArray = false
 
             if (returnType.startsWith('Promise<')) {

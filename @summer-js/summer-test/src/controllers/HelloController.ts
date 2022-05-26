@@ -1,5 +1,6 @@
 import { Controller, Get, Validate, Body, Post, getInjectable } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
+import { Book } from './Book'
 
 class CustomValidateRequest {
   val: int
@@ -7,10 +8,6 @@ class CustomValidateRequest {
     return val.indexOf(',') > 0
   })
   value: string
-}
-
-class Book {
-  name: string
 }
 
 @Controller
