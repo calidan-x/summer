@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { getServerType } from './serverless'
+import { getServerType, startUnLock } from './serverless'
 import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
 import { locContainer } from './loc'
@@ -22,14 +22,7 @@ export const addPlugin = (plugin: any) => {
 }
 
 export const summerStart = async (options?: SummerStartOptions) => {
-  startOptions = options || {}
-  if (getServerType() === 'Normal') {
-    await start()
-  }
-}
-
-export const start = async () => {
-  const options = startOptions
+  options = options || {}
   const config = getConfig()
 
   const isNormalServer = getServerType() === 'Normal'
@@ -65,6 +58,10 @@ export const start = async () => {
     locContainer.resolveLoc()
     rpc.resolveRpc()
     options.after && options.after(config)
+    await Promise.resolve()
+    if (startUnLock) {
+      startUnLock('')
+    }
   }
 }
 
