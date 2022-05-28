@@ -1,5 +1,5 @@
-import { ClassDeclaration, Decorator } from 'ts-morph'
-export { summerStart, summerDestroy } from './summer'
+import { ClassDeclaration } from 'ts-morph'
+export { summerStart, summerDestroy, waitForStart } from './summer'
 export * from './decorators'
 export * from './utils'
 export { requestHandler, Context } from './request-handler'

@@ -1,6 +1,5 @@
-import './auto-imports'
-import { getDataSource } from '@summer-js/typeorm'
 import { summerStart, handler, Logger } from '@summer-js/summer'
+import { getDataSource } from '@summer-js/typeorm'
 export { handler }
 
 const runMigrations = async () => {

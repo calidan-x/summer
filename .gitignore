@@ -3,7 +3,6 @@ node_modules
 build
 compile
 @summer-js/*/lib
-auto-imports.ts
 
 ## IDEs
 .idea

@@ -1,12 +1,12 @@
-import { Context, requestHandler, summerStart, summerDestroy } from '@summer-js/summer'
+import { Context, requestHandler, waitForStart, summerDestroy } from '@summer-js/summer'
 import queryString from 'query-string'
 import merge from 'deepmerge'
 import path from 'path'
 
 export const initTest = async () => {
   process.env.SUMMER_TESTING = 'true'
-  await import(path.resolve('./compile/auto-imports'))
-  await summerStart()
+  await import(path.resolve('./compile/index'))
+  await waitForStart('SummerTest')
 }
 
 export const endTest = async () => {

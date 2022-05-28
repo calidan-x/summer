@@ -20,5 +20,5 @@ export const SESSION_CONFIG: SessionConfig = {
 
 export const SWAGGER_CONFIG: SwaggerConfig = {
   docPath: '/swagger',
-  info: { title: 'Summer' }
+  info: { title: 'Summer', version: '1.0.0' }
 }

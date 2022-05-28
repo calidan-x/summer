@@ -8,6 +8,7 @@ import { handleStaticRequest } from './static-server'
 import { getConfig } from './config-handler'
 import { ServerConfig } from './http-server'
 import { parseBody } from './body-parser'
+import { waitForStart } from './summer'
 
 export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
@@ -32,16 +33,8 @@ const getGZipData = async (data: string): Promise<string> => {
 }
 
 // Serverless
-export let startUnLock
 export const handler = async (...args) => {
-  await new Promise((resolve) => {
-    if (!startUnLock) {
-      startUnLock = resolve
-    } else {
-      resolve('')
-    }
-  })
-
+  await waitForStart('ServerLess')
   const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
 
   const serverType = getServerType()

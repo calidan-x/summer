@@ -1,4 +1,3 @@
-import './auto-imports'
 import { summerStart, handler } from '@summer-js/summer'
 export { handler }
 

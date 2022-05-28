@@ -15,6 +15,7 @@ export const TYPEORM_CONFIG: TypeORMConfig = {
 export const SERVER_CONFIG: ServerConfig = {
   port: 8801,
   cors: true,
+  basePath: '/local-service',
   static: [
     {
       requestPathRoot: '/static',
@@ -30,7 +31,7 @@ export const SESSION_CONFIG: SessionConfig = {
 
 export const SWAGGER_CONFIG: SwaggerConfig = {
   docPath: '/swagger-ui',
-  info: { title: 'Summer' }
+  info: { title: 'Summer', version: '1.0.0' }
 }
 
 export const RPC_CONFIG: RpcConfig = {

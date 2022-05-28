@@ -73,7 +73,7 @@ class TypeORMPlugin implements SummerPlugin {
           DataSources[dataSourceName] = dataSource
         } catch (e) {
           Logger.error('Failed to connect data source: ' + dataSourceName)
-          Logger.info(e)
+          Logger.error(e)
         }
       }
     }

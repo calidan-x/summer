@@ -34,15 +34,16 @@ interface Schema {
 interface SwaggerDoc {
   swagger: string
   docPath: string
+  basePath?: string
   info: {
     title: string
     description?: string
-    version?: string
+    version: string
     termsOfService?: string
     contact?: { email: string }
     license?: { name: string; url: string }
   }
-  host: string
+  host?: string
   tags: {
     name: string
     description: string
@@ -62,10 +63,9 @@ interface SwaggerDoc {
         produces?: string[]
         parameters?: {
           name: string
-          in: 'path'
+          in: string
           description: string
           required: boolean
-          type: 'string' | 'integer' | 'boolean' | 'object'
           schema?: Schema
         }[]
         responses?: Record<string, { description?: string; schema?: Schema }>
@@ -95,8 +95,7 @@ export interface SwaggerConfig {
 const swaggerJson: SwaggerDoc = {
   swagger: '2.0',
   docPath: '',
-  info: { title: '' },
-  host: '',
+  info: { title: '', version: '' },
   tags: [],
   schemes: ['http'],
   paths: {}
@@ -397,7 +396,12 @@ const getRequestTypeDesc = (t: any, isRequest: boolean) => {
     }
   }
 
-  return { type: 'object', properties: typeDesc, description: '', required: getRequiredKeys(t, isRequest) }
+  const desc: any = { type: 'object', properties: typeDesc, description: '' }
+  const requireKeys = getRequiredKeys(t, isRequest)
+  if (requireKeys.length > 0) {
+    desc.required = requireKeys
+  }
+  return desc
 }
 
 @Controller('/swagger-ui')
@@ -481,26 +485,34 @@ export class SummerSwaggerUIController {
             }
           } else if (paramType) {
             const ptype = getType(param.declareType)
-            parameters.push({
+            const parameter: any = {
               name: param.paramValues[0],
               in: paramType,
               description: '',
-              required: ['path', 'body', 'formData'].includes(paramType) ? true : false,
-              type: (paramType === 'formData' ? 'file' : ptype) || 'string',
-              schema:
-                ptype === 'object'
-                  ? {
-                      example: api.example?.request,
-                      ...getRequestTypeDesc(param.declareType, true)
-                    }
-                  : ptype === 'array'
-                  ? {
-                      example: api.example?.request,
-                      type: 'array',
-                      items: getRequestTypeDesc(param.declareType, true)
-                    }
-                  : null
-            })
+              required: ['path', 'body', 'formData'].includes(paramType) ? true : false
+            }
+
+            const type = (paramType === 'formData' ? 'file' : ptype) || 'string'
+            if (parameter.in !== 'body') {
+              parameter.type = type
+            }
+            const schema =
+              ptype === 'object'
+                ? {
+                    example: api.example?.request,
+                    ...getRequestTypeDesc(param.declareType, true)
+                  }
+                : ptype === 'array'
+                ? {
+                    example: api.example?.request,
+                    type: 'array',
+                    items: getRequestTypeDesc(param.declareType, true)
+                  }
+                : null
+            if (schema) {
+              parameter.schema = schema
+            }
+            parameters.push(parameter)
           }
         })
 
@@ -518,11 +530,17 @@ export class SummerSwaggerUIController {
         const declareReturnType = Reflect.getMetadata('Api:ReturnType', api.controller, api.callMethod)
         const returnRootType = Reflect.getMetadata('Api:RootType', api.controller, api.callMethod)
 
+        const consumes = []
+        if (parameters.find((p) => p.type === 'file')) {
+          consumes.push('multipart/form-data')
+        }
+
         swaggerJson.paths[docPath][requestMethod.toLowerCase()] = {
           tags: [findTag(api.controllerName)],
           summary: api.summary,
           description: api.description,
           operationId: api.summary || api.callMethod,
+          consumes,
           // consumes: ['application/json'],
           // produces: ['application/json'],
           parameters,
@@ -552,7 +570,13 @@ export class SummerSwaggerUIController {
         }
       }
     })
-    return swaggerJson
+
+    const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
+    const basePath = serverConfig.basePath || ''
+    swaggerJson.basePath = basePath
+    const outPutJSON = { ...swaggerJson }
+    delete outPutJSON.docPath
+    return outPutJSON
   }
 }
 

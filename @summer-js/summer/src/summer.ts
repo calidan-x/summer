@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { getServerType, startUnLock } from './serverless'
+import { getServerType } from './serverless'
 import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
 import { locContainer } from './loc'
@@ -21,6 +21,16 @@ export const addPlugin = (plugin: any) => {
   plugins.push(plugin)
 }
 
+const startLocks = {}
+export const waitForStart = async (key: string) => {
+  return new Promise((resolve) => {
+    if (!startLocks[key]) {
+      startLocks[key] = resolve
+    } else {
+      resolve('')
+    }
+  })
+}
 export const summerStart = async (options?: SummerStartOptions) => {
   options = options || {}
   const config = getConfig()
@@ -59,8 +69,8 @@ export const summerStart = async (options?: SummerStartOptions) => {
     rpc.resolveRpc()
     options.after && options.after(config)
     await Promise.resolve()
-    if (startUnLock) {
-      startUnLock('')
+    for (const k in startLocks) {
+      startLocks[k]('')
     }
   }
 }
