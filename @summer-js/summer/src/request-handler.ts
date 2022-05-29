@@ -81,8 +81,34 @@ const matchPathMethod = (path: string, httpMethod: string) => {
   return null
 }
 
+const convertEnum = (obj) => {
+  for (const key in obj) {
+    if (typeof obj[key] === 'object') {
+      obj[key] = convertEnum(obj[key])
+    } else {
+      const designType = Reflect.getMetadata('design:type', obj, key)
+      const declareType = Reflect.getMetadata('DeclareType', obj, key)
+      if (typeof declareType === 'object' && (designType === String || designType === Number)) {
+        if (declareType[obj[key]]) {
+          obj[key] = declareType[obj[key]]
+        } else {
+          for (const enumKey in declareType) {
+            if (declareType[enumKey] === obj[key]) {
+              obj[key] = enumKey
+            }
+          }
+        }
+      }
+    }
+  }
+  return obj
+}
+
 export const applyResponse = (ctx: Context, responseData: any) => {
   const isJSON = typeof responseData === 'object'
+  if (isJSON) {
+    convertEnum(responseData)
+  }
   ctx.response = {
     ...ctx.response,
     statusCode: 200,

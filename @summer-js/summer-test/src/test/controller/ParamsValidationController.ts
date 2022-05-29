@@ -70,6 +70,28 @@ class CustomValidateRequest {
   value: string
 }
 
+enum GenderNum {
+  Male = 1,
+  Female = 2
+}
+
+enum GenderStr {
+  Male = 'male',
+  Female = 'female'
+}
+
+class EnumGroup {
+  genderNum: GenderNum
+  genderStr: GenderNum
+}
+
+class EnumRequest {
+  genderNum: GenderNum
+  genderStr: GenderStr
+  obj: EnumGroup
+  arr: EnumGroup[]
+}
+
 @Controller
 export class ParamsValidationController {
   @Get('/request-basic-type-value')
@@ -167,6 +189,11 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/custom-validate')
   customValidateKey(@Body request: CustomValidateRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/enum')
+  enum(@Body request: EnumRequest) {
     return request
   }
 }

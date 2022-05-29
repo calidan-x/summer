@@ -66,7 +66,7 @@ describe('Controller Object Convert Test', () => {
       
       }`,
       {
-        eyeColor: 'brown',
+        eyeColor: 'Brown',
         tailLength: 33.12,
         toys: [
           {
@@ -80,7 +80,7 @@ describe('Controller Object Convert Test', () => {
         ],
         id: 1,
         name: 'Max',
-        gender: 1
+        gender: 'Male'
       }
     )
   })

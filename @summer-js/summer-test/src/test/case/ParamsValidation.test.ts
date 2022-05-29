@@ -305,4 +305,25 @@ describe('Controller Params Test', () => {
     expect(result.statusCode).toBe(400)
     expect(result.body).toContain('is invalid')
   })
+
+  test('test enum', async () => {
+    const postBody = {
+      genderNum: 'Female',
+      genderStr: 'Male',
+      obj: {
+        genderNum: 'Female',
+        genderStr: 'Male'
+      },
+      arr: [
+        {
+          genderNum: 'Female',
+          genderStr: 'Male'
+        }
+      ]
+    }
+    const result = await request.post('/request-key-validate/enum', {
+      body: postBody
+    })
+    expect(result.body).toBe(JSON.stringify(postBody))
+  })
 })

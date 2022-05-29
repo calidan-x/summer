@@ -128,7 +128,7 @@ if (options.serve) {
   printProcessData(compileProcess)
 
   compileProcess.on('exit', () => {
-    spinner.stop()
+    spinner.text = 'Starting...'
     if (fs.existsSync('./compile/index.js')) {
       const testProcess = exec(' jest --colors')
       printProcessData(testProcess)

@@ -31,6 +31,20 @@ interface Schema {
   items?: Schema
 }
 
+export interface SwaggerConfig {
+  docPath: string
+  info: {
+    title: string
+    description?: string
+    version: string
+    termsOfService?: string
+    contact?: { email: string }
+    license?: { name: string; url: string }
+  }
+  host?: string
+  schemes?: ('https' | 'http' | 'ws' | 'wss')[]
+}
+
 interface SwaggerDoc {
   swagger: string
   docPath: string
@@ -49,7 +63,7 @@ interface SwaggerDoc {
     description: string
     externalDocs?: { description: string; url: string }
   }[]
-  schemes: ('https' | 'http' | 'ws' | 'wss')[]
+  schemes?: ('https' | 'http' | 'ws' | 'wss')[]
   paths: Record<
     string,
     Record<
@@ -79,25 +93,11 @@ interface SwaggerDoc {
   externalDocs?: { description: string; url: string }
 }
 
-export interface SwaggerConfig {
-  info: {
-    title: string
-    description?: string
-    version?: string
-    termsOfService?: string
-    contact?: { email: string }
-    license?: { name: string; url: string }
-  }
-  host?: string
-  docPath: string
-}
-
 const swaggerJson: SwaggerDoc = {
   swagger: '2.0',
   docPath: '',
   info: { title: '', version: '' },
   tags: [],
-  schemes: ['http'],
   paths: {}
 }
 
