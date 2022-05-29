@@ -39,7 +39,7 @@ export const Logger = {
   },
   log(str: string) {
     if (this[sLogType] === 'All') {
-      console.log(timePrefix() + ' ' + str)
+      console.log(timePrefix() + '[LOG] ' + str)
     }
   }
 }
