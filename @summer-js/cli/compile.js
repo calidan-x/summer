@@ -18,6 +18,17 @@ const project = new Project({
   tsConfigFilePath: './tsconfig.json'
 })
 
+const getAllReferencingSourceFiles = (sf, allRefFiles) => {
+  allRefFiles.push(sf)
+  const refFiles = sf.getReferencingSourceFiles()
+  for (const refFile of refFiles) {
+    if (allRefFiles.includes(refFile)) {
+      continue
+    }
+    getAllReferencingSourceFiles(refFile, allRefFiles)
+  }
+}
+
 let firstCompile = true
 let compiling = false
 const updateFileList = []
@@ -30,7 +41,7 @@ const compile = async () => {
   const dirtyFiles = []
   for (const { event, updatePath } of updateFileList) {
     if (['add', 'change'].includes(event)) {
-      dirtyFiles.push(path.resolve(updatePath))
+      getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles)
       project.resolveSourceFileDependencies()
     }
     if (['add'].includes(event)) {
@@ -218,7 +229,7 @@ const compile = async () => {
       }
     }
 
-    if (!firstCompile && !dirtyFiles.includes(sf.getFilePath())) {
+    if (!firstCompile && !dirtyFiles.includes(sf)) {
       continue
     }
 
@@ -316,7 +327,7 @@ const compile = async () => {
     console.log('COMPILE_PROGRESS(' + compileCounter + '/' + sourceFiles.length + ')')
   }
 
-  console.log('COMPILE_PROGRESS')
+  console.log('COMPILE_PROGRESS(' + sourceFiles.length + '/' + sourceFiles.length + ')')
 
   const statements = []
   statements.push('process.env.SUMMER_ENV = "' + (process.env.SUMMER_ENV || '') + '"\n')

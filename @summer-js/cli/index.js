@@ -77,6 +77,7 @@ if (options.serve) {
         dataLines.split('\n').forEach((data) => {
           if (data.trim().startsWith('COMPILE_START')) {
             clearScreen()
+            spinner.text = 'Compiling...'
             spinner.start()
             if (childProcess2) {
               kill(childProcess2.pid)
