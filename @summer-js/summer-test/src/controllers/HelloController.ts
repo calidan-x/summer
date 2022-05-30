@@ -2,14 +2,6 @@ import { Controller, Get, Validate, Body, Post, getInjectable } from '@summer-js
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 import { getBook2, getBook } from './Book'
 
-class CustomValidateRequest {
-  val: int
-  @Validate((val: string) => {
-    return val.indexOf(',') > 0
-  })
-  value: string
-}
-
 @Controller
 @ApiDocGroup('欢迎相关接口')
 export class HelloController {
@@ -24,11 +16,6 @@ export class HelloController {
   hello2() {
     const book = getBook2()
     return book
-  }
-
-  @Post
-  phello(@Body body: CustomValidateRequest) {
-    return body
   }
 
   @Post('/sss')

@@ -1,5 +1,3 @@
-;(global as any).Int = class Int {}
-
 interface ValidateError {
   param: string
   message: string
@@ -17,21 +15,23 @@ export const validateAndConvertType = (
   propertyNamePath = ''
 ) => {
   const isFirstLevel = paramIndex >= 0
-  const typeName = type?.name.toLowerCase()
+  let typeName = type?.name.toLowerCase()
   if (declareType === undefined && typeName !== 'array') {
     return propValue
   }
   const declareTypeName = (declareType?.name || '').toLowerCase()
+  typeName =
+    ['_timestamp', '_datetime', 'date'].includes(declareTypeName) && typeName !== 'array' ? declareTypeName : typeName
+
   let value: any = undefined
-
   let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
-
   if (propValue === undefined) {
     validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors)
     return undefined
   }
 
   customValidate(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors, isFirstLevel)
+
   switch (typeName) {
     case 'string':
       value = isFirstLevel ? propValue + '' : propValue
@@ -74,6 +74,7 @@ export const validateAndConvertType = (
       break
     case 'number':
     case 'int':
+    case '_int':
     case 'bigint':
       const numVal = isFirstLevel ? Number(propValue) : propValue
       if (declareTypeName === 'number') {
@@ -84,7 +85,7 @@ export const validateAndConvertType = (
           })
         }
         value = numVal
-      } else if (declareTypeName === 'int' || declareTypeName === 'bigint') {
+      } else if (declareTypeName === 'int' || declareTypeName === '_int' || declareTypeName === 'bigint') {
         if (!Number.isInteger(numVal)) {
           allErrors.push({
             param: errorParam,
@@ -109,6 +110,38 @@ export const validateAndConvertType = (
         }
       }
       validateMinMax(instance, methodName, paramIndex, propertyName, errorParam, value, allErrors, isFirstLevel)
+      break
+    case 'date':
+    case '_datetime':
+      const timeStamp = Date.parse(propValue)
+      if (!timeStamp || isNaN(timeStamp)) {
+        allErrors.push({
+          param: errorParam,
+          message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to Date'
+        })
+      } else {
+        value = new Date(timeStamp)
+      }
+      break
+    case '_timestamp':
+      let numTimeStamp = parseInt(propValue)
+      if (!numTimeStamp || isNaN(numTimeStamp)) {
+        allErrors.push({
+          param: errorParam,
+          message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to Date'
+        })
+      } else {
+        if (numTimeStamp < 10000000000) {
+          numTimeStamp *= 1000
+        }
+        value = new Date(numTimeStamp)
+        if (value.getTime() !== numTimeStamp) {
+          allErrors.push({
+            param: errorParam,
+            message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to Date'
+          })
+        }
+      }
       break
     case 'boolean':
       if (isFirstLevel) {

@@ -326,4 +326,19 @@ describe('Controller Params Test', () => {
     })
     expect(result.body).toBe(JSON.stringify(postBody))
   })
+
+  test('test Date/DateTime/TimeStamp', async () => {
+    const postBody = {
+      date: '2012-12-12',
+      dateTime: '2012-12-12 12:12:12',
+      timeStamp: 165387799000,
+      dates: ['2012-12-12', '2012-12-12'],
+      dateTimes: ['2012-12-12 12:12:12', '2012-12-12 12:12:12'],
+      timeStamps: [165387799000, 165387799000]
+    }
+    const result = await request.post('/request-key-validate/date', {
+      body: postBody
+    })
+    expect(result.body).toBe(JSON.stringify(postBody))
+  })
 })

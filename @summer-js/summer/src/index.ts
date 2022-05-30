@@ -25,13 +25,20 @@ export interface SummerPlugin {
 
 declare global {
   type int = number
+  type DateTime = Date
+  type TimeStamp = Date
+  const _Int: any
+  const _TimeStamp: any
+  const _DateTime: any
   const _PropDeclareType: any
   const _ParamDeclareType: any
   const _ReturnDeclareType: any
   const _Required: any
-  const Int: any
 }
 
+;(global as any)._Int = function _Int() {}
+;(global as any)._TimeStamp = function _TimeStamp() {}
+;(global as any)._DateTime = function _DateTime() {}
 ;(global as any)._PropDeclareType = (type: any) => (target: Object, propertyKey: string | symbol) => {
   Reflect.defineMetadata(propertyKey, propertyKey, target)
   Reflect.defineMetadata('DeclareType', type, target, propertyKey)

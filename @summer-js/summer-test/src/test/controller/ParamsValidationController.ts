@@ -92,6 +92,15 @@ class EnumRequest {
   arr: EnumGroup[]
 }
 
+class DateValidateRequest {
+  date: Date
+  dateTime: DateTime
+  timeStamp: TimeStamp
+  dates: Date[]
+  dateTimes: DateTime[]
+  timeStamps: TimeStamp[]
+}
+
 @Controller
 export class ParamsValidationController {
   @Get('/request-basic-type-value')
@@ -194,6 +203,11 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/enum')
   enum(@Body request: EnumRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/date')
+  date(@Body request: DateValidateRequest) {
     return request
   }
 }
