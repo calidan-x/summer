@@ -7,7 +7,12 @@ import path from 'path'
 import { program } from 'commander'
 import ora from 'ora'
 
-program.option('-t, --test').option('-s, --serve').option('-b, --build').option('--env [char]', '', '')
+program
+  .option('-t, --test')
+  .option('--maxWorkers [char]', '', '')
+  .option('-s, --serve')
+  .option('-b, --build')
+  .option('--env [char]', '', '')
 program.parse()
 
 const options = program.opts()
@@ -131,7 +136,7 @@ if (options.serve) {
   compileProcess.on('exit', () => {
     spinner.text = 'Starting...'
     if (fs.existsSync('./compile/index.js')) {
-      const testProcess = exec(' jest --colors')
+      const testProcess = exec('jest --colors ' + (options.maxWorkers ? '--maxWorkers=' + options.maxWorkers : ''))
       printProcessData(testProcess)
     }
   })
@@ -143,7 +148,7 @@ if (options.serve) {
   compileProcess.on('exit', (code) => {
     if (fs.existsSync('./compile/index.js')) {
       if (fs.existsSync('./resource')) {
-        fs.rmdirSync('./build', { recursive: true })
+        fs.rmSync('./build', { recursive: true })
         fs.mkdirSync('./build')
         copyRecursiveSync('./resource', './build/resource')
       }

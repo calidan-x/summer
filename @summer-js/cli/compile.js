@@ -11,7 +11,7 @@ const watch = process.argv[2] === 'watch'
 
 let PLUGINS = []
 
-fs.rmdirSync('./compile', { recursive: true })
+fs.rmSync('./compile', { recursive: true })
 fs.mkdirSync('./compile')
 
 const project = new Project({
