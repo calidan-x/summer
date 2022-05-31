@@ -1,4 +1,5 @@
 import { SessionConfig, ServerConfig, RpcConfig } from '@summer-js/summer'
+import { SwaggerConfig } from '@summer-js/swagger'
 import { TypeORMConfig } from '@summer-js/typeorm'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
@@ -34,6 +35,18 @@ export const RPC_CONFIG: RpcConfig = {
     LOCAL_RPC: {
       url: 'http://localhost:8802',
       accessKey: 'xxxxx'
+    }
+  }
+}
+
+export const SWAGGER_CONFIG: SwaggerConfig = {
+  docPath: '/swagger-ui',
+  info: { title: 'Summer', version: '1.0.0' },
+  securityDefinitions: {
+    AppAuth: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'Authorization'
     }
   }
 }

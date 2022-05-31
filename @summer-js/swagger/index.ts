@@ -3,6 +3,7 @@ import { pathToRegexp } from 'path-to-regexp'
 import path from 'path'
 import {
   _queryConvertFunc,
+  _queriesConvertFunc,
   _pathParamConvertFunc,
   _bodyConvertFunc,
   _headerConvertFunc,
@@ -13,9 +14,9 @@ import { getAbsoluteFSPath } from 'swagger-ui-dist'
 import { ClassDeclaration } from 'ts-morph'
 import fs from 'fs'
 ;(global as any)._ApiReturnType =
-  (returnType: string, rootType: string) => (target: Object, propertyKey: string, descriptor: any) => {
-    Reflect.defineMetadata('Api:ReturnType', returnType, target, propertyKey)
-    Reflect.defineMetadata('Api:RootType', rootType, target, propertyKey)
+  (returnDeclareType: string, returnDesignType: string) => (target: Object, propertyKey: string, descriptor: any) => {
+    Reflect.defineMetadata('Api:ReturnDeclareType', returnDeclareType, target, propertyKey)
+    Reflect.defineMetadata('Api:ReturnDesignType', returnDesignType, target, propertyKey)
   }
 
 declare const _ParamDeclareType: any
@@ -31,6 +32,23 @@ interface Schema {
   items?: Schema
 }
 
+interface SecurityDefinitionBasic {
+  type: 'basic'
+}
+
+interface SecurityDefinitionApiKey {
+  type: 'apiKey'
+  name: string
+  in: 'header' | 'query'
+}
+
+interface SecurityDefinitionOAuth2 {
+  type: 'oauth2'
+  authorizationUrl: string
+  flow: string
+  scopes: Record<string, string>[]
+}
+
 export interface SwaggerConfig {
   docPath: string
   info: {
@@ -43,6 +61,7 @@ export interface SwaggerConfig {
   }
   host?: string
   schemes?: ('https' | 'http' | 'ws' | 'wss')[]
+  securityDefinitions?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
 }
 
 interface SwaggerDoc {
@@ -83,12 +102,12 @@ interface SwaggerDoc {
           schema?: Schema
         }[]
         responses?: Record<string, { description?: string; schema?: Schema }>
-        security?: [Record<string, string[]>]
+        security?: Record<string, string[]>[]
         deprecated?: boolean
       }
     >
   >
-  securityDefinitions?: {}
+  securityDefinitions?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
   definitions?: {}
   externalDocs?: { description: string; url: string }
 }
@@ -131,12 +150,41 @@ class SwaggerPlugin implements SummerPlugin {
 
   compile(clazz: ClassDeclaration) {
     for (const classDecorator of clazz.getDecorators()) {
+      // remember return type and add api doc
       if (classDecorator.getName() === 'ApiDocGroup') {
         const instanceMethods = clazz.getInstanceMethods()
         instanceMethods.forEach((m) => {
-          const apiDoc = m.getDecorator('ApiDoc')
+          let apiDoc = m.getDecorator('ApiDoc') !== undefined
+          if (!apiDoc) {
+            if (
+              m
+                .getDecorators()
+                .find((d) => ['Get', 'Post', 'Put', 'Patch', 'Delete', 'Head', 'Options'].includes(d.getName()))
+            ) {
+              if (!m.getDecorator('ApiDoc')) {
+                let hasImport = false
+                m.getSourceFile()
+                  .getImportDeclarations()
+                  .forEach((d) => {
+                    d.getNamedImports().forEach((n) => {
+                      if (n.getName() === 'ApiDoc') {
+                        hasImport = true
+                      }
+                    })
+                  })
+                if (!hasImport) {
+                  m.getSourceFile().addImportDeclaration({
+                    namedImports: ['ApiDoc'],
+                    moduleSpecifier: '@summer-js/swagger'
+                  })
+                }
+              }
+              m.addDecorator({ name: 'ApiDoc', arguments: ["''"] })
+              apiDoc = true
+            }
+          }
+
           if (apiDoc) {
-            // TypeFormatFlags.NoTruncation = 1
             let retType = m.getReturnType()
             let returnType = retType.getText(clazz, 1)
             let isArray = false
@@ -163,11 +211,13 @@ class SwaggerPlugin implements SummerPlugin {
 
             if (returnType.endsWith('[]')) {
               isArray = true
+              retType = retType.getNumberIndexType()
               returnType = returnType.replace(/\[\]$/, '')
             }
 
             if (returnType.startsWith('Array<')) {
               isArray = true
+              retType = retType.getTypeArguments()[0]
               returnType = returnType.replace(/^Array</, '').replace(/>$/, '')
             }
 
@@ -177,6 +227,12 @@ class SwaggerPlugin implements SummerPlugin {
             if (returnType === 'bigint') {
               returnType = 'BigInt'
             }
+            if (returnType === 'Date' || returnType === '_DateTime') {
+              returnType = 'String'
+            }
+            if (returnType === '_TimeStamp' || returnType === '_Int') {
+              returnType = 'Number'
+            }
 
             if (
               retType.isInterface() ||
@@ -184,14 +240,20 @@ class SwaggerPlugin implements SummerPlugin {
               returnType.indexOf('<') >= 0 ||
               returnType.indexOf('[') >= 0 ||
               returnType.indexOf('{') >= 0 ||
-              returnType === 'void'
+              returnType === 'void' ||
+              returnType === 'any'
             ) {
               returnType = undefined
             }
 
+            let designType = 'String'
+            if (isArray) {
+              designType = 'Array'
+            }
+
             m.addDecorator({
               name: '_ApiReturnType',
-              arguments: [returnType || 'undefined', isArray ? "'array'" : returnType ? "'object'" : "'string'"]
+              arguments: [returnType || 'undefined', designType]
             })
           }
         })
@@ -237,9 +299,16 @@ interface ApiDocGroupOption {
   description?: string
   order?: number
   category?: string
+  security?: Record<string, string[]>[]
 }
 
-const allTags = []
+const allTags: ({
+  controllerName: string
+  name: string
+  description: string
+  order: number
+  category: string
+} & ApiDocGroupOption)[] = []
 export const ApiDocGroup = (name: string, apiDocGroupOptions: ApiDocGroupOption = {}) => {
   const options = { description: '', order: 9999999, category: '' }
   Object.assign(options, apiDocGroupOptions)
@@ -252,8 +321,19 @@ export const ApiDocGroup = (name: string, apiDocGroupOptions: ApiDocGroupOption 
   }
 }
 
+export const PropDoc = (description: string, example: any) => {
+  return (target: any, propertyKey: string) => {
+    Reflect.defineMetadata('Api:PropDescription', description, target, propertyKey)
+    if (example) {
+      Reflect.defineMetadata('Api:PropExample', example, target, propertyKey)
+    }
+  }
+}
+
 interface ControllerApiDoc {
   description?: string
+  deprecated?: boolean
+  security?: Record<string, string[]>[]
   example?: {
     request?: any
     response?: any
@@ -298,6 +378,14 @@ const findTag = (controllerName: string) => {
   return ''
 }
 
+const findSecurity = (controllerName: string) => {
+  const tag = allTags.find((tag) => tag.controllerName === controllerName)
+  if (tag) {
+    return tag.security || []
+  }
+  return []
+}
+
 const findCategory = (controllerName: string) => {
   const tag = allTags.find((tag) => tag.controllerName === controllerName)
   if (tag) {
@@ -307,6 +395,7 @@ const findCategory = (controllerName: string) => {
 }
 
 const parmMatchPattern = {
+  queries: _queriesConvertFunc,
   query: _queryConvertFunc,
   path: _pathParamConvertFunc,
   header: _headerConvertFunc,
@@ -318,10 +407,26 @@ const getType = (type: any) => {
   if (!type) {
     return ''
   }
+  if (!type.name) {
+    return ''
+  }
   const basicTypes = ['int', 'bigint', 'number', 'string', 'boolean']
   if (basicTypes.includes(type.name.toLowerCase())) {
     return intToInteger(type.name.toLowerCase())
   }
+
+  if (type === Date || type === _DateTime) {
+    return 'string'
+  }
+
+  if (type === _Int) {
+    return 'integer'
+  }
+
+  if (type === _TimeStamp) {
+    return 'integer'
+  }
+
   return 'object'
 }
 
@@ -357,81 +462,129 @@ const getRequiredKeys = (t: any, isRequest: boolean) => {
   return requireKeys
 }
 
-const getRequestTypeDesc = (t: any, isRequest: boolean) => {
-  if (getType(t) !== 'object') {
-    return { type: getType(t), description: '' }
+const getTypeDesc = (dType: any, isRequest: boolean) => {
+  if (getType(dType) !== 'object') {
+    return { type: getType(dType) }
   }
 
-  const typeInc = new t()
+  const typeInc = new dType()
   const typeDesc = {}
-  for (const key of Reflect.getOwnMetadataKeys(t.prototype)) {
+  for (const key of Reflect.getOwnMetadataKeys(dType.prototype)) {
     const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
     const designType = Reflect.getMetadata('design:type', typeInc, key)
 
-    if (designType === Object && declareType !== _DateTime && declareType !== _TimeStamp) {
-      typeDesc[key] = {
-        type: 'object',
-        description: '',
-        properties: getRequestTypeDesc(declareType, isRequest)
-      }
-    } else if (designType === Array) {
-      typeDesc[key] = {
-        type: 'array',
-        description: '',
-        items: getRequestTypeDesc(declareType, isRequest)
-      }
+    if (getType(declareType) === 'object') {
+      typeDesc[key] = getTypeDesc(declareType, isRequest)
     } else {
+      let schemeDesc: any = {}
+
       // string enum
-      if (typeof declareType === 'object' && designType.name === 'String') {
-        typeDesc[key] = {
+      if (typeof declareType === 'object' && designType === String) {
+        schemeDesc = {
           type: 'string',
-          enum: Object.keys(declareType),
-          description: ''
+          enum: Object.keys(declareType)
         }
       }
       // number enum
-      else if (typeof declareType === 'object' && designType.name === 'Number') {
-        typeDesc[key] = {
+      else if (typeof declareType === 'object' && designType === Number) {
+        schemeDesc = {
           type: 'string',
-          enum: Object.keys(declareType).filter((k) => typeof declareType[k] === 'number'),
-          description: ''
+          enum: Object.keys(declareType).filter((k) => typeof declareType[k] === 'number')
         }
       } else if (declareType === Date) {
-        typeDesc[key] = {
+        schemeDesc = {
           type: 'string',
           format: 'date',
-          example: '2012-12-12',
-          description: ''
+          example: '2012-12-12'
         }
       } else if (declareType === _DateTime) {
-        typeDesc[key] = {
+        schemeDesc = {
           type: 'string',
-          format: 'datetime',
-          example: '2012-12-12 12:12:12',
-          description: ''
+          format: 'date-time',
+          example: '2012-12-12 12:12:12'
         }
       } else if (declareType === _TimeStamp) {
-        typeDesc[key] = {
+        schemeDesc = {
           type: 'integer',
-          example: Date.now(),
-          description: ''
+          example: 1654030120101
         }
-      } else if (declareType === _Int) {
-        typeDesc[key] = {
-          type: 'integer',
-          description: ''
+      } else if (declareType === _Int || declareType === Number || declareType === BigInt) {
+        schemeDesc = {
+          type: 'integer'
+        }
+
+        const min = Reflect.getMetadata('min', typeInc, key)
+        if (min !== undefined) {
+          schemeDesc.minimum = min
+        }
+
+        const max = Reflect.getMetadata('max', typeInc, key)
+        if (max !== undefined) {
+          schemeDesc.maximum = max
+        }
+      } else if (declareType === String) {
+        schemeDesc = {
+          type: 'string'
+        }
+        if (Reflect.getMetadata('email', typeInc, key)) {
+          schemeDesc.format = 'email'
+        }
+        const pattern = Reflect.getMetadata('pattern', typeInc, key)
+        if (pattern) {
+          schemeDesc.pattern = pattern.toString()
+        }
+
+        if (key.toLowerCase().indexOf('password') >= 0) {
+          schemeDesc.format = 'password'
+        }
+
+        const minLen = Reflect.getMetadata('minLen', typeInc, key)
+        if (minLen !== undefined) {
+          schemeDesc.minLength = minLen
+        }
+
+        const maxLen = Reflect.getMetadata('maxLen', typeInc, key)
+        if (maxLen !== undefined) {
+          schemeDesc.maxLength = maxLen
         }
       } else {
-        typeDesc[key] = {
-          type: intToInteger(declareType.name.toLowerCase()),
-          description: ''
+        schemeDesc = {
+          type: intToInteger(declareType.name.toLowerCase())
         }
+      }
+
+      if (designType === Array) {
+        typeDesc[key] = {
+          type: 'array',
+          items: schemeDesc
+        }
+        const minLen = Reflect.getMetadata('minLen', typeInc, key)
+        if (minLen !== undefined) {
+          typeDesc[key].minItems = minLen
+        }
+
+        const maxLen = Reflect.getMetadata('maxLen', typeInc, key)
+        if (maxLen !== undefined) {
+          typeDesc[key].maxItems = maxLen
+        }
+      } else {
+        typeDesc[key] = schemeDesc
+      }
+
+      const propDescription = Reflect.getMetadata('Api:PropDescription', typeInc, key)
+      const propExample = Reflect.getMetadata('Api:PropExample', typeInc, key)
+
+      if (propDescription) {
+        typeDesc[key].description = propDescription
+      }
+      if (propExample) {
+        typeDesc[key].example = propExample
       }
     }
   }
 
   const desc: any = { type: 'object', properties: typeDesc, description: '' }
-  const requireKeys = getRequiredKeys(t, isRequest)
+  const requireKeys = getRequiredKeys(dType, isRequest)
   if (requireKeys.length > 0) {
     desc.required = requireKeys
   }
@@ -500,10 +653,11 @@ export class SummerSwaggerUIController {
           }
         })
 
+        // request structure
         params.forEach((param) => {
           let paramType = getParamType(param.paramMethod.toString())
           if (isFormBody && paramType === 'body') {
-            const formProps = getRequestTypeDesc(param.declareType, true).properties
+            const formProps = getTypeDesc(param.declareType, true).properties
             for (const filed in formProps) {
               let isRequired = false
               if (param.declareType && typeof param.declareType === 'function') {
@@ -517,33 +671,47 @@ export class SummerSwaggerUIController {
                 type: formProps[filed].type
               })
             }
+          } else if (paramType === 'queries') {
+            const props = getTypeDesc(param.declareType, true).properties
+            for (const filed in props) {
+              let isRequired = false
+              if (param.declareType && typeof param.declareType === 'function') {
+                isRequired = Reflect.getMetadata('required', new param.declareType(), filed)
+              }
+              parameters.push({
+                name: filed,
+                in: 'query',
+                description: '',
+                required: isRequired,
+                type: props[filed].type
+              })
+            }
           } else if (paramType) {
             const ptype = getType(param.declareType)
             const parameter: any = {
               name: param.paramValues[0],
               in: paramType,
-              description: '',
               required: ['path', 'body', 'formData'].includes(paramType) ? true : false
             }
 
             const type = (paramType === 'formData' ? 'file' : ptype) || 'string'
-            if (parameter.in !== 'body') {
+
+            let schema = null
+            if (param.type === Array) {
+              schema = {
+                type: 'array',
+                items: getTypeDesc(param.declareType, true)
+              }
+            } else if (ptype === 'object') {
+              schema = {
+                ...getTypeDesc(param.declareType, true)
+              }
+            } else if (parameter.in !== 'body') {
               parameter.type = type
             }
-            const schema =
-              ptype === 'object'
-                ? {
-                    example: api.example?.request,
-                    ...getRequestTypeDesc(param.declareType, true)
-                  }
-                : ptype === 'array'
-                ? {
-                    example: api.example?.request,
-                    type: 'array',
-                    items: getRequestTypeDesc(param.declareType, true)
-                  }
-                : null
+
             if (schema) {
+              schema.example = api.example?.request
               parameter.schema = schema
             }
             parameters.push(parameter)
@@ -561,44 +729,47 @@ export class SummerSwaggerUIController {
 
         const successResExample = api.example?.response
 
-        const declareReturnType = Reflect.getMetadata('Api:ReturnType', api.controller, api.callMethod)
-        const returnRootType = Reflect.getMetadata('Api:RootType', api.controller, api.callMethod)
+        const returnDeclareType = Reflect.getMetadata('Api:ReturnDeclareType', api.controller, api.callMethod)
+        const returnDesignType = Reflect.getMetadata('Api:ReturnDesignType', api.controller, api.callMethod)
 
         const consumes = []
         if (parameters.find((p) => p.type === 'file')) {
           consumes.push('multipart/form-data')
         }
 
+        const security = [...findSecurity(api.controllerName), ...(api.security || [])]
+
+        // response structure
+        let schema: any = {}
+        if (!returnDeclareType) {
+          schema.type = 'string'
+          schema.example = ''
+        } else if (returnDesignType === Array) {
+          schema.type = 'array'
+          schema.items = getTypeDesc(returnDeclareType, false)
+        } else if (getType(returnDeclareType) === 'object') {
+          schema = { ...schema, ...getTypeDesc(returnDeclareType, false) }
+        } else {
+          schema = { type: getType(returnDeclareType) }
+        }
+
+        if (successResExample) {
+          schema.example = successResExample
+        }
+
         swaggerJson.paths[docPath][requestMethod.toLowerCase()] = {
           tags: [findTag(api.controllerName)],
           summary: api.summary,
           description: api.description,
+          deprecated: api.deprecated,
+          security: security.length > 0 ? security : [],
           operationId: api.summary || api.callMethod,
           consumes,
           // consumes: ['application/json'],
           // produces: ['application/json'],
           parameters,
           responses: {
-            200: {
-              description: '',
-              schema:
-                returnRootType === 'object'
-                  ? {
-                      example: successResExample,
-                      description: '',
-                      ...getRequestTypeDesc(declareReturnType, false)
-                    }
-                  : returnRootType === 'array'
-                  ? {
-                      example: successResExample,
-                      type: 'array',
-                      items: getRequestTypeDesc(declareReturnType, false)
-                    }
-                  : {
-                      example: successResExample,
-                      type: 'string'
-                    }
-            },
+            200: { schema },
             ...errorResponse
           }
         }

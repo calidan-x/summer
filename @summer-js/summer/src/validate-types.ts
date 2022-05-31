@@ -4,10 +4,10 @@ interface ValidateError {
 }
 
 export const validateAndConvertType = (
-  type: any,
+  designType: any,
   declareType: any,
   propertyName: string,
-  propValue: any,
+  propertyValue: any,
   allErrors: ValidateError[],
   methodName = '',
   paramIndex = -1,
@@ -15,42 +15,39 @@ export const validateAndConvertType = (
   propertyNamePath = ''
 ) => {
   const isFirstLevel = paramIndex >= 0
-  let typeName = type?.name.toLowerCase()
-  if (declareType === undefined && typeName !== 'array') {
-    return propValue
+  if (declareType === undefined && designType !== Array) {
+    return propertyValue
   }
-  const declareTypeName = (declareType?.name || '').toLowerCase()
-  typeName =
-    ['_timestamp', '_datetime', 'date'].includes(declareTypeName) && typeName !== 'array' ? declareTypeName : typeName
+  designType = [_TimeStamp, _DateTime, Date].includes(declareType) && designType !== Array ? declareType : designType
 
   let value: any = undefined
   let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
-  if (propValue === undefined) {
-    validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors)
+  if (propertyValue === undefined) {
+    validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
     return undefined
   }
 
-  customValidate(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors, isFirstLevel)
+  customValidate(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors, isFirstLevel)
 
-  switch (typeName) {
-    case 'string':
-      value = isFirstLevel ? propValue + '' : propValue
+  switch (designType) {
+    case String:
+      value = isFirstLevel ? propertyValue + '' : propertyValue
       if (typeof value !== 'string') {
         allErrors.push({
           param: errorParam,
-          message: typeDisplayText(propValue, isFirstLevel) + ' is not a string'
+          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a string'
         })
         break
       }
 
       // string enum
-      if (declareTypeName !== 'string' && typeof declareType === 'object') {
-        value = declareType[propValue]
+      if (declareType !== String && typeof declareType === 'object') {
+        value = declareType[propertyValue]
         if (value === undefined) {
           allErrors.push({
             param: errorParam,
             message:
-              typeDisplayText(propValue, isFirstLevel) +
+              typeDisplayText(propertyValue, isFirstLevel) +
               ' is not in ' +
               JSON.stringify(
                 Object.keys(declareType).filter((key) => typeof declareType[declareType[key]] !== 'number')
@@ -59,49 +56,57 @@ export const validateAndConvertType = (
         }
       }
 
-      validateEmail(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors)
-      validatePattern(instance, methodName, paramIndex, propertyName, errorParam, propValue, allErrors, isFirstLevel)
+      validateEmail(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
+      validatePattern(
+        instance,
+        methodName,
+        paramIndex,
+        propertyName,
+        errorParam,
+        propertyValue,
+        allErrors,
+        isFirstLevel
+      )
       validateMinMaxLength(
         instance,
         methodName,
         paramIndex,
         propertyName,
         errorParam,
-        propValue,
+        propertyValue,
         allErrors,
         isFirstLevel
       )
       break
-    case 'number':
-    case 'int':
-    case '_int':
-    case 'bigint':
-      const numVal = isFirstLevel ? Number(propValue) : propValue
-      if (declareTypeName === 'number') {
+    case Number:
+    case _Int:
+    case BigInt:
+      const numVal = isFirstLevel ? Number(propertyValue) : propertyValue
+      if (declareType === Number) {
         if (Number.isNaN(numVal) || typeof numVal !== 'number') {
           allErrors.push({
             param: errorParam,
-            message: typeDisplayText(propValue, isFirstLevel) + ' is not a number'
+            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a number'
           })
         }
         value = numVal
-      } else if (declareTypeName === 'int' || declareTypeName === '_int' || declareTypeName === 'bigint') {
+      } else if (declareType === _Int || declareType === BigInt) {
         if (!Number.isInteger(numVal)) {
           allErrors.push({
             param: errorParam,
-            message: typeDisplayText(propValue, isFirstLevel) + ' is not an integer'
+            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not an integer'
           })
         }
         value = numVal
       }
       // number enum
       else if (typeof declareType === 'object') {
-        value = declareType[propValue]
+        value = declareType[propertyValue]
         if (value === undefined || typeof value === 'string') {
           allErrors.push({
             param: errorParam,
             message:
-              typeDisplayText(propValue, isFirstLevel) +
+              typeDisplayText(propertyValue, isFirstLevel) +
               ' is not in ' +
               JSON.stringify(
                 Object.keys(declareType).filter((key) => typeof declareType[declareType[key]] !== 'number')
@@ -111,24 +116,24 @@ export const validateAndConvertType = (
       }
       validateMinMax(instance, methodName, paramIndex, propertyName, errorParam, value, allErrors, isFirstLevel)
       break
-    case 'date':
-    case '_datetime':
-      const timeStamp = Date.parse(propValue)
+    case Date:
+    case _DateTime:
+      const timeStamp = Date.parse(propertyValue)
       if (!timeStamp || isNaN(timeStamp)) {
         allErrors.push({
           param: errorParam,
-          message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to Date'
+          message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to Date'
         })
       } else {
         value = new Date(timeStamp)
       }
       break
-    case '_timestamp':
-      let numTimeStamp = parseInt(propValue)
+    case _TimeStamp:
+      let numTimeStamp = parseInt(propertyValue)
       if (!numTimeStamp || isNaN(numTimeStamp)) {
         allErrors.push({
           param: errorParam,
-          message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to Date'
+          message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to Date'
         })
       } else {
         if (numTimeStamp < 10000000000) {
@@ -138,49 +143,53 @@ export const validateAndConvertType = (
         if (value.getTime() !== numTimeStamp) {
           allErrors.push({
             param: errorParam,
-            message: 'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to Date'
+            message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to Date'
           })
         }
       }
       break
-    case 'boolean':
+    case Boolean:
       if (isFirstLevel) {
-        if (propValue.toLowerCase() === 'false' || propValue === '0') {
+        if (propertyValue.toLowerCase() === 'false' || propertyValue === '0') {
           value = false
-        } else if (propValue.toLowerCase() === 'true' || propValue === '1') {
+        } else if (propertyValue.toLowerCase() === 'true' || propertyValue === '1') {
           value = true
         } else {
           allErrors.push({
             param: errorParam,
-            message: typeDisplayText(propValue, isFirstLevel) + ' is not a boolean'
+            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a boolean'
           })
         }
       } else {
-        value = propValue
+        value = propertyValue
         if (typeof value !== 'boolean') {
           allErrors.push({
             param: errorParam,
-            message: typeDisplayText(propValue, isFirstLevel) + ' is not a boolean'
+            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a boolean'
           })
         }
       }
       break
-    case 'array':
+    case Array:
       let arrayValue = []
       try {
-        arrayValue = typeof propValue === 'string' ? JSON.parse(propValue) : propValue
+        arrayValue = typeof propertyValue === 'string' ? JSON.parse(propertyValue) : propertyValue
       } catch (e) {
         allErrors.push({
           param: errorParam,
           message:
-            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to ' + (declareType?.name || 'any') + '[]'
+            'error parsing ' +
+            typeDisplayText(propertyValue, isFirstLevel) +
+            ' to ' +
+            (declareType?.name || 'any') +
+            '[]'
         })
         break
       }
       if (!Array.isArray(arrayValue)) {
         allErrors.push({
           param: errorParam,
-          message: typeDisplayText(propValue, isFirstLevel) + ' is not an array'
+          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not an array'
         })
       } else {
         validateMinMaxLength(
@@ -220,16 +229,16 @@ export const validateAndConvertType = (
       }
       break
     default:
-      let classInstance = new type()
+      let classInstance = new designType()
       let objectValue = {}
 
       try {
-        objectValue = typeof propValue === 'string' ? JSON.parse(propValue) : propValue
+        objectValue = typeof propertyValue === 'string' ? JSON.parse(propertyValue) : propertyValue
       } catch (e) {
         allErrors.push({
           param: errorParam,
           message:
-            'error parsing ' + typeDisplayText(propValue, isFirstLevel) + ' to ' + (declareType?.name || 'object')
+            'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to ' + (declareType?.name || 'object')
         })
         break
       }
@@ -237,7 +246,7 @@ export const validateAndConvertType = (
       if (Array.isArray(objectValue)) {
         allErrors.push({
           param: errorParam,
-          message: typeDisplayText(propValue, isFirstLevel) + ' is not an object'
+          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not an object'
         })
       } else {
         const allProperties = []
@@ -251,7 +260,7 @@ export const validateAndConvertType = (
           if (!allProperties.includes(k)) {
             allErrors.push({
               param: errorParam,
-              message: typeDisplayText(k, isFirstLevel) + ' is not a valid key for ' + type.name
+              message: typeDisplayText(k, isFirstLevel) + ' is not a valid key for ' + designType.name
             })
           }
         }

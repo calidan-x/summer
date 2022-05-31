@@ -19,6 +19,9 @@ const project = new Project({
 })
 
 const getAllReferencingSourceFiles = (sf, allRefFiles) => {
+  if (!sf) {
+    return
+  }
   allRefFiles.push(sf)
   const refFiles = sf.getReferencingSourceFiles()
   for (const refFile of refFiles) {

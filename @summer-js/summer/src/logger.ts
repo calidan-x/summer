@@ -39,7 +39,7 @@ export const Logger = {
   },
   debug(str: string) {
     if (this[sLogType].includes('Debug')) {
-      console.log('\x1b[36m%s\x1b[0m', timePrefix() + '[Debug] ' + str)
+      console.log('\x1b[36m%s\x1b[0m', timePrefix() + '[DEBUG] ' + str)
     }
   }
 }

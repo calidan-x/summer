@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Query, PathParam, Post } from '@summer-js/summer'
-import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
+import { ApiDoc, ApiDocGroup, PropDoc } from '@summer-js/swagger'
 
 class AddMovieRequest {
   name: string
@@ -8,14 +8,18 @@ class AddMovieRequest {
 
 class Movie {
   id: number
+
+  @PropDoc('Name of the movie', '2022')
   name: string
+
+  @PropDoc('Movie Release Year', '2022')
   year: string
 }
 
 @Controller
-@ApiDocGroup('电影相关接口')
+@ApiDocGroup('Movie Apis')
 export class MovieController {
-  @ApiDoc('获取电影列表')
+  @ApiDoc('Get movies')
   @Get('/movies')
   list(@Query search: string) {
     const movies: Movie[] = [
@@ -25,14 +29,14 @@ export class MovieController {
     return movies
   }
 
-  @ApiDoc('获取电影详情')
+  @ApiDoc('Get movie detail')
   @Get('/movies/:id')
   detail(@PathParam id: string) {
     const movies: Movie = { id: 1, name: 'Titanic', year: '1997' }
     return movies
   }
 
-  @ApiDoc('新增电影')
+  @ApiDoc('Add new movie')
   @Post('/movies')
   add(@Body body: AddMovieRequest) {
     const movies: Movie = { id: 1, name: 'Titanic', year: '1997' }

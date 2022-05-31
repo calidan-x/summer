@@ -6,7 +6,7 @@ interface SummerConfig {
 }
 
 let _envConfig = null
-export const getConfig = (): SummerConfig => {
+export const getConfig = (): SummerConfig & Record<string, any> => {
   if (_envConfig) {
     return _envConfig
   }

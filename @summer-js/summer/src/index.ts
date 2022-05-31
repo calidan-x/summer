@@ -36,9 +36,9 @@ declare global {
   const _Required: any
 }
 
-;(global as any)._Int = function _Int() {}
-;(global as any)._TimeStamp = function _TimeStamp() {}
-;(global as any)._DateTime = function _DateTime() {}
+;(global as any)._Int = class _Int {}
+;(global as any)._TimeStamp = class _TimeStamp {}
+;(global as any)._DateTime = class _DateTime {}
 ;(global as any)._PropDeclareType = (type: any) => (target: Object, propertyKey: string | symbol) => {
   Reflect.defineMetadata(propertyKey, propertyKey, target)
   Reflect.defineMetadata('DeclareType', type, target, propertyKey)

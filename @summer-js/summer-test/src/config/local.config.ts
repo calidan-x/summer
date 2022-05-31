@@ -31,7 +31,14 @@ export const SESSION_CONFIG: SessionConfig = {
 
 export const SWAGGER_CONFIG: SwaggerConfig = {
   docPath: '/swagger-ui',
-  info: { title: 'Summer', version: '1.0.0' }
+  info: { title: 'Summer', version: '1.0.0' },
+  securityDefinitions: {
+    AppAuth: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'Authorization'
+    }
+  }
 }
 
 export const RPC_CONFIG: RpcConfig = {
