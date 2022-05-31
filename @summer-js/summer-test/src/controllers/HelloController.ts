@@ -6,6 +6,7 @@ class DateRes {
   d: Date
   dt: DateTime
   ts: TimeStamp
+  year: int
 }
 
 @Controller
@@ -31,6 +32,7 @@ export class HelloController {
     ds.d = new Date()
     ds.dt = new Date()
     ds.ts = new Date()
+    ds.year = 1993
     return ds
   }
 

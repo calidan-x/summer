@@ -148,7 +148,9 @@ if (options.serve) {
   compileProcess.on('exit', (code) => {
     if (fs.existsSync('./compile/index.js')) {
       if (fs.existsSync('./resource')) {
-        fs.rmSync('./build', { recursive: true })
+        if (fs.existsSync('./build')) {
+          fs.rmSync('./build', { recursive: true, force: true })
+        }
         fs.mkdirSync('./build')
         copyRecursiveSync('./resource', './build/resource')
       }

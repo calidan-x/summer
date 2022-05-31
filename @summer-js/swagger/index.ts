@@ -412,8 +412,13 @@ const getRequestTypeDesc = (t: any, isRequest: boolean) => {
         }
       } else if (declareType === _TimeStamp) {
         typeDesc[key] = {
-          type: 'int',
+          type: 'integer',
           example: Date.now(),
+          description: ''
+        }
+      } else if (declareType === _Int) {
+        typeDesc[key] = {
+          type: 'integer',
           description: ''
         }
       } else {
