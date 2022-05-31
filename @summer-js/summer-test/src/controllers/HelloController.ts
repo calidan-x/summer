@@ -2,6 +2,12 @@ import { Controller, Get, Validate, Body, Post, getInjectable } from '@summer-js
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 import { getBook2, getBook } from './Book'
 
+class DateRes {
+  d: Date
+  dt: DateTime
+  ts: TimeStamp
+}
+
 @Controller
 @ApiDocGroup('欢迎相关接口')
 export class HelloController {
@@ -16,6 +22,16 @@ export class HelloController {
   hello2() {
     const book = getBook2()
     return book
+  }
+
+  @Get('/c')
+  @ApiDoc('获取Book3')
+  hello3() {
+    const ds = new DateRes()
+    ds.d = new Date()
+    ds.dt = new Date()
+    ds.ts = new Date()
+    return ds
   }
 
   @Post('/sss')

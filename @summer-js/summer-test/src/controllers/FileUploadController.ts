@@ -12,9 +12,9 @@ class Request {
 export class FileUploadController {
   @ApiDoc('上传文件')
   @Post
-  hello(@File file: UploadedFile, @Body body: Request) {
-    console.log('body', body)
-    console.log(fs.statSync(file.tmpPath))
-    return file
+  uploadFile() {
+    // console.log('body', body)
+    // console.log(fs.statSync(file.tmpPath))
+    // return file
   }
 }

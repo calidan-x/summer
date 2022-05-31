@@ -177,6 +177,7 @@ class SwaggerPlugin implements SummerPlugin {
             if (returnType === 'bigint') {
               returnType = 'BigInt'
             }
+
             if (
               retType.isInterface() ||
               retType.isTypeParameter() ||
@@ -218,7 +219,13 @@ class SwaggerPlugin implements SummerPlugin {
     }
     fs.mkdirSync('./resource/swagger-res')
 
-    const files = ['swagger-ui.css', 'swagger-ui-bundle.js', 'swagger-ui-standalone-preset.js']
+    const files = [
+      'swagger-ui.css',
+      'swagger-ui-bundle.js',
+      'swagger-ui-standalone-preset.js',
+      'favicon-16x16.png',
+      'favicon-32x32.png'
+    ]
     files.forEach((f) => {
       fs.copyFileSync(swaggerUIPath + '/' + f, './resource/swagger-res/' + f)
     })
@@ -361,30 +368,52 @@ const getRequestTypeDesc = (t: any, isRequest: boolean) => {
     const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
     const designType = Reflect.getMetadata('design:type', typeInc, key)
 
-    if (designType.name.toLowerCase() === 'object') {
+    if (designType === Object && declareType !== _DateTime && declareType !== _TimeStamp) {
       typeDesc[key] = {
         type: 'object',
         description: '',
         properties: getRequestTypeDesc(declareType, isRequest)
       }
-    } else if (designType.name.toLowerCase() === 'array') {
+    } else if (designType === Array) {
       typeDesc[key] = {
         type: 'array',
         description: '',
         items: getRequestTypeDesc(declareType, isRequest)
       }
     } else {
-      // enum
+      // string enum
       if (typeof declareType === 'object' && designType.name === 'String') {
         typeDesc[key] = {
           type: 'string',
           enum: Object.keys(declareType),
           description: ''
         }
-      } else if (typeof declareType === 'object' && designType.name === 'Number') {
+      }
+      // number enum
+      else if (typeof declareType === 'object' && designType.name === 'Number') {
         typeDesc[key] = {
           type: 'string',
           enum: Object.keys(declareType).filter((k) => typeof declareType[k] === 'number'),
+          description: ''
+        }
+      } else if (declareType === Date) {
+        typeDesc[key] = {
+          type: 'string',
+          format: 'date',
+          example: '2012-12-12',
+          description: ''
+        }
+      } else if (declareType === _DateTime) {
+        typeDesc[key] = {
+          type: 'string',
+          format: 'datetime',
+          example: '2012-12-12 12:12:12',
+          description: ''
+        }
+      } else if (declareType === _TimeStamp) {
+        typeDesc[key] = {
+          type: 'int',
+          example: Date.now(),
           description: ''
         }
       } else {
@@ -413,7 +442,7 @@ export class SummerSwaggerUIController {
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
     const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
     const basePath = serverConfig.basePath || ''
-    indexHTML = indexHTML.replace(/\{\{BASE_PATH\}\}/g, basePath)
+    indexHTML = indexHTML.replace(/\{\{BASE_PATH\}\}/g, basePath).replace('{{TITLE}}', swaggerJson.info.title)
     if (allPages.length === 1) {
       indexHTML = indexHTML.replace(
         '//{{URLS}}',
