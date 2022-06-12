@@ -756,7 +756,7 @@ export class SummerSwaggerUIController {
         const security = [...findSecurity(api.controllerName), ...(api.security || [])]
 
         // response structure
-        let schema: any = {}
+        let schema: any = { description: '' }
         if (!returnDeclareType) {
           schema.type = 'string'
           schema.example = ''

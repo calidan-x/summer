@@ -20,6 +20,7 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'array',
               items: {
                 type: 'object',
@@ -54,7 +55,7 @@ export const data = {
             }
           }
         ],
-        responses: { '200': { schema: { type: 'string', example: '' } } }
+        responses: { '200': { schema: { description: '', type: 'string', example: '' } } }
       }
     },
     '/persons/{id}': {
@@ -68,14 +69,14 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'object',
               properties: {
                 id: { type: 'integer' },
                 firstName: { type: 'string' },
                 lastName: { type: 'string' },
                 isActive: { type: 'boolean' }
-              },
-              description: ''
+              }
             }
           }
         }
@@ -93,7 +94,7 @@ export const data = {
           { name: 'field2', in: 'formData', type: 'integer' },
           { name: 'file', in: 'formData', required: true, type: 'file' }
         ],
-        responses: { '200': { schema: { type: 'string', example: '' } } }
+        responses: { '200': { schema: { description: '', type: 'string', example: '' } } }
       }
     },
     '/movies': {
@@ -107,6 +108,7 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'array',
               items: {
                 type: 'object',
@@ -143,13 +145,13 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'object',
               properties: {
                 id: { type: 'integer' },
                 name: { type: 'string', description: 'Name of the movie', example: '2022' },
                 year: { type: 'string', description: 'Movie Release Year', example: '2022' }
-              },
-              description: ''
+              }
             }
           }
         }
@@ -166,13 +168,13 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'object',
               properties: {
                 id: { type: 'integer' },
                 name: { type: 'string', description: 'Name of the movie', example: '2022' },
                 year: { type: 'string', description: 'Movie Release Year', example: '2022' }
-              },
-              description: ''
+              }
             }
           }
         }
@@ -297,7 +299,7 @@ export const data = {
           { name: 'header', in: 'header', required: false, type: 'string' }
         ],
         responses: {
-          '200': { schema: { type: 'string', example: '' } },
+          '200': { schema: { description: '', type: 'string', example: '' } },
           '404': {
             description: '',
             schema: { type: 'object', properties: {}, example: { code: 10000, msg: 'not found' } }
@@ -315,7 +317,7 @@ export const data = {
         parameters: [
           { name: 'array', in: 'body', required: true, schema: { type: 'array', items: { type: 'string' } } }
         ],
-        responses: { '200': { schema: { type: 'array', items: { type: 'string' } } } }
+        responses: { '200': { schema: { description: '', type: 'array', items: { type: 'string' } } } }
       }
     },
     '/swagger-test/swagger-obj-array-request': {
@@ -347,6 +349,7 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'array',
               items: {
                 type: 'object',
@@ -394,6 +397,7 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'object',
               properties: {
                 string: { type: 'string' },
@@ -448,8 +452,7 @@ export const data = {
                 email: { type: 'string', format: 'email' },
                 password: { type: 'string', format: 'password' },
                 desc: { type: 'string', description: 'Desc', example: 'Example' }
-              },
-              description: ''
+              }
             }
           }
         }
@@ -463,7 +466,7 @@ export const data = {
         operationId: 'returnArray',
         consumes: [],
         parameters: [],
-        responses: { '200': { schema: { type: 'array', items: { type: 'string' } } } }
+        responses: { '200': { schema: { description: '', type: 'array', items: { type: 'string' } } } }
       }
     },
     '/swagger-test/swagger-return-obj-array-async': {
@@ -477,6 +480,7 @@ export const data = {
         responses: {
           '200': {
             schema: {
+              description: '',
               type: 'array',
               items: {
                 type: 'object',
