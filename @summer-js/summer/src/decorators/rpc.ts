@@ -19,7 +19,7 @@ export const RpcProvider: RpcProviderDecoratorType = (...args) => {
   }
 }
 
-export const Rpc = (source: string, targetClass?: string) => {
+export const RpcClient = (source: string, targetClass?: string) => {
   return (target: any) => {
     locContainer.paddingLocClass(target)
     Object.getOwnPropertyNames(target.prototype).forEach((method) => {

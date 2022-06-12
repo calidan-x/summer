@@ -42,12 +42,12 @@ export const SWAGGER_CONFIG: SwaggerConfig = {
 }
 
 export const RPC_CONFIG: RpcConfig = {
-  server: {
+  provider: {
     accessKey: 'xxxxx'
   },
   client: {
     LOCAL_RPC: {
-      url: 'http://localhost:8801',
+      url: 'http://localhost:8801/local-service/',
       accessKey: 'xxxxx'
     }
   }

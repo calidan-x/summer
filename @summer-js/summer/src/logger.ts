@@ -17,29 +17,29 @@ export const Logger = {
   set logType(enable: LogType) {
     this[sLogType] = enable
   },
-  info(str: string) {
+  info(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Info')) {
-      console.log('\x1b[32m%s\x1b[0m', timePrefix() + '[INFO] ' + str)
+      console.log('\x1b[32m%s\x1b[0m', timePrefix() + '[INFO] ' + message, ...optionalParams)
     }
   },
-  error(str: string) {
+  error(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Error')) {
-      console.log('\x1b[31m%s\x1b[0m', timePrefix() + '[ERROR] ' + str)
+      console.log('\x1b[31m%s\x1b[0m', timePrefix() + '[ERROR] ' + message, ...optionalParams)
     }
   },
-  warning(str: string) {
+  warning(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Warning')) {
-      console.log('\x1b[33m%s\x1b[0m', timePrefix() + '[WARNING] ' + str)
+      console.log('\x1b[33m%s\x1b[0m', timePrefix() + '[WARNING] ' + message, ...optionalParams)
     }
   },
-  log(str: string) {
+  log(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Log')) {
-      console.log(timePrefix() + '[LOG] ' + str)
+      console.log(timePrefix() + '[LOG] ' + message, ...optionalParams)
     }
   },
-  debug(str: string) {
+  debug(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Debug')) {
-      console.log('\x1b[36m%s\x1b[0m', timePrefix() + '[DEBUG] ' + str)
+      console.log('\x1b[36m%s\x1b[0m', timePrefix() + '[DEBUG] ' + message, ...optionalParams)
     }
   }
 }

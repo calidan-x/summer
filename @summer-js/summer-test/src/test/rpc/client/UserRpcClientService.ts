@@ -1,4 +1,4 @@
-import { Rpc } from '@summer-js/summer'
+import { RpcClient } from '@summer-js/summer'
 import { QueryUser } from './QueryUser'
 
 class User {
@@ -6,8 +6,9 @@ class User {
   name: string
 }
 
-@Rpc('LOCAL_RPC', 'UserRpcService')
+@RpcClient('LOCAL_RPC', 'UserRpcService')
 export class UserRpcClientService {
   getUser: (id: number, queryUser: QueryUser) => Promise<User>
   getUsers: () => Promise<User[]>
+  error: () => Promise<User[]>
 }

@@ -208,7 +208,7 @@ const compile = async () => {
     }
   }
 
-  const autoImportDecorators = ['Middleware', 'Controller', 'RpcProvider', 'Rpc']
+  const autoImportDecorators = ['Middleware', 'Controller', 'RpcProvider', 'RpcClient']
   for (const p of pluginIncs) {
     if (p.autoImportDecorators) {
       const aids = p.autoImportDecorators()
@@ -257,7 +257,7 @@ const compile = async () => {
               }
             })
           })
-        } else if (classDecorator.getName() === 'Rpc') {
+        } else if (classDecorator.getName() === 'RpcClient') {
           const pendingProperties = []
           const pendingMethods = []
           cls.getProperties().forEach((p) => {

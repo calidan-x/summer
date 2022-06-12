@@ -15,4 +15,9 @@ export class UserRpcController {
   async getUsers() {
     return await this.userRpcClientService.getUsers()
   }
+
+  @Get('/rpc/error')
+  async error() {
+    return await this.userRpcClientService.error()
+  }
 }

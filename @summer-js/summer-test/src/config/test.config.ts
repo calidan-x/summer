@@ -28,7 +28,7 @@ export const SERVER_CONFIG: ServerConfig = {
 }
 
 export const RPC_CONFIG: RpcConfig = {
-  server: {
+  provider: {
     accessKey: 'xxxxx'
   },
   client: {

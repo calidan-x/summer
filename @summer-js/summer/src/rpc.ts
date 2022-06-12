@@ -33,20 +33,27 @@ export const rpc = {
       if (this.rpcInstance[className][method]) {
         return await this.rpcInstance[className][method](...args)
       } else {
-        throw new Error('Cannot find a method named: ' + className + ' in ' + className)
+        throw new Error(className + '.' + method + ' not exist')
       }
     } else {
-      throw new Error('No prc provider named: ' + className)
+      throw new Error('No PRCProvider named: ' + className)
     }
   },
   async rpcRequest(rpcConfig: RpcServerConfig, postData: any, type, declareType, instance) {
-    let result = (
-      await axios.post(rpcConfig.url, postData, { headers: { 'summer-rpc-access-key': rpcConfig.accessKey } })
-    ).data
+    let result
+    try {
+      result = (
+        await axios.post(rpcConfig.url, postData, { headers: { 'summer-rpc-access-key': rpcConfig.accessKey } })
+      ).data
+    } catch (e) {
+      if (e.response.status === 404) {
+        Logger.error('RPC Fail: Remote url wrong ' + rpcConfig.url)
+      } else {
+        Logger.error('RPC Fail', e.response.data)
+      }
+    }
     const allErrors = []
-
     result = validateAndConvertType(type, declareType, '', result, allErrors, '', -1, instance)
-
     if (allErrors.length) {
       throw new Error(JSON.stringify(allErrors))
     }
@@ -55,6 +62,6 @@ export const rpc = {
 }
 
 export type RpcConfig = {
-  server?: { accessKey: string }
+  provider?: { accessKey: string }
   client?: Record<string, RpcServerConfig>
 }
