@@ -1,29 +1,29 @@
 {
-  "name": "@summer-js/typeorm",
-  "version": "0.0.28",
-  "description": "",
-  "main": "lib/index.js",
-  "files": [
-    "lib"
-  ],
-  "scripts": {
-    "build": "tsc",
-    "release": "npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calidan-x/summer.git"
-  },
-  "keywords": [
-    "typeorm"
-  ],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/calidan-x/summer/issues"
-  },
-  "homepage": "https://summerjs.dev",
-  "dependencies": {
-    "typeorm": "^0.3.6"
-  }
+	"name": "@summer-js/typeorm",
+	"version": "0.0.28",
+	"description": "",
+	"main": "lib/index.js",
+	"files": [
+		"lib"
+	],
+	"scripts": {
+		"build": "tsc",
+		"release": "npm publish --access public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calidan-x/summer.git"
+	},
+	"keywords": [
+		"typeorm"
+	],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/calidan-x/summer/issues"
+	},
+	"homepage": "https://summerjs.dev",
+	"dependencies": {
+		"typeorm": "^0.3.6"
+	}
 }
