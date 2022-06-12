@@ -93,8 +93,7 @@ export const handler = async (...args) => {
         path: event.path,
         queries: event.queryStringParameters,
         headers: event.headers,
-        body: bodyData,
-        files
+        body: bodyData
       },
       response: { statusCode: 200, headers: {}, body: '' }
     }
@@ -137,7 +136,7 @@ export const handler = async (...args) => {
       return
     }
 
-    const { bodyData, files } = await parseBody(req, req.method, req.headers)
+    const bodyData = await parseBody(req, req.method, req.headers)
 
     const context: Context = {
       request: {
@@ -145,8 +144,7 @@ export const handler = async (...args) => {
         path: req.path,
         queries: req.queries,
         headers: req.headers,
-        body: bodyData,
-        files
+        body: bodyData
       },
       response: { statusCode: 200, headers: {}, body: '' }
     }

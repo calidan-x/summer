@@ -89,8 +89,8 @@ export const data = {
         operationId: '上传文件',
         consumes: ['multipart/form-data'],
         parameters: [
-          { name: 'field1', in: 'formData', description: '', required: true, type: 'string' },
-          { name: 'field2', in: 'formData', description: '', type: 'integer' },
+          { name: 'field1', in: 'formData', required: true, type: 'string' },
+          { name: 'field2', in: 'formData', type: 'integer' },
           { name: 'file', in: 'formData', required: true, type: 'file' }
         ],
         responses: { '200': { schema: { type: 'string', example: '' } } }

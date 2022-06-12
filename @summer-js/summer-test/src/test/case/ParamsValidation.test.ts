@@ -130,7 +130,7 @@ describe('Controller Params Test', () => {
   test('test number array type request value', async () => {
     await testErrorRequestParam('hello', 'numberArray', 'error parsing')
     await testErrorRequestParam('{"a":123}', 'numberArray', 'is not an array')
-    await testErrorRequestParam('[0,"2",3]', 'numberArray', 'is not a number')
+    await testErrorRequestParam('[0,"2-",3]', 'numberArray', 'is not a number')
     await testErrorRequestParam('[true,123,"hello"]', 'numberArray', 'is not a number')
     await testRequestParam('[1,2,3,32.23]', 'numberArray', [1, 2, 3, 32.23])
   })
@@ -138,7 +138,7 @@ describe('Controller Params Test', () => {
   test('test int array type request value', async () => {
     await testErrorRequestParam('hello', 'intArray', 'error parsing')
     await testErrorRequestParam('{"a":123}', 'intArray', 'is not an array')
-    await testErrorRequestParam('[0,"2",3]', 'intArray', 'is not an integer')
+    await testErrorRequestParam('[0,"2-",3]', 'intArray', 'is not an integer')
     await testErrorRequestParam('[1,2,3,32.23]', 'intArray', 'is not an integer')
     await testRequestParam('[1,-2,3,32]', 'intArray', [1, -2, 3, 32])
   })

@@ -7,7 +7,7 @@ import {
   _pathParamConvertFunc,
   _bodyConvertFunc,
   _headerConvertFunc,
-  _fileConvertFunc
+  File
 } from '@summer-js/summer'
 import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
@@ -399,7 +399,6 @@ const parmMatchPattern = {
   query: _queryConvertFunc,
   path: _pathParamConvertFunc,
   header: _headerConvertFunc,
-  formData: _fileConvertFunc,
   body: _bodyConvertFunc
 }
 
@@ -421,6 +420,10 @@ const getType = (type: any) => {
 
   if (type === _Int) {
     return 'integer'
+  }
+
+  if (type === File) {
+    return 'file'
   }
 
   if (type === _TimeStamp) {
@@ -469,6 +472,7 @@ const getTypeDesc = (dType: any, isRequest: boolean) => {
 
   const typeInc = new dType()
   const typeDesc = {}
+
   for (const key of Reflect.getOwnMetadataKeys(dType.prototype)) {
     const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
     const designType = Reflect.getMetadata('design:type', typeInc, key)
@@ -490,6 +494,12 @@ const getTypeDesc = (dType: any, isRequest: boolean) => {
         schemeDesc = {
           type: 'string',
           enum: Object.keys(declareType).filter((k) => typeof declareType[k] === 'number')
+        }
+      }
+      // File type
+      else if (declareType === File) {
+        schemeDesc = {
+          type: 'file'
         }
       } else if (declareType === Date) {
         schemeDesc = {
@@ -648,8 +658,14 @@ export class SummerSwaggerUIController {
         let isFormBody = false
         params.forEach((param) => {
           const paramType = getParamType(param.paramMethod.toString())
-          if (paramType === 'formData') {
-            isFormBody = true
+          if (paramType === 'body') {
+            const typeInc = new param.declareType()
+            for (const key of Reflect.getOwnMetadataKeys(param.declareType.prototype)) {
+              const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
+              if (declareType === File) {
+                isFormBody = true
+              }
+            }
           }
         })
 
@@ -658,6 +674,7 @@ export class SummerSwaggerUIController {
           let paramType = getParamType(param.paramMethod.toString())
           if (isFormBody && paramType === 'body') {
             const formProps = getTypeDesc(param.declareType, true).properties
+
             for (const filed in formProps) {
               let isRequired = false
               if (param.declareType && typeof param.declareType === 'function') {
@@ -666,7 +683,6 @@ export class SummerSwaggerUIController {
               parameters.push({
                 name: filed,
                 in: 'formData',
-                description: '',
                 required: isRequired,
                 type: formProps[filed].type
               })
@@ -694,7 +710,7 @@ export class SummerSwaggerUIController {
               required: ['path', 'body', 'formData'].includes(paramType) ? true : false
             }
 
-            const type = (paramType === 'formData' ? 'file' : ptype) || 'string'
+            const type = ptype || 'string'
 
             let schema = null
             if (param.type === Array) {

@@ -33,9 +33,6 @@ export const Header = createParamDecorator(_headerConvertFunc)
 export const Cookie = createParamDecorator((ctx, paramName: string, name: string) => ctx.cookies[name || paramName])
 export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
 
-export const _fileConvertFunc = (ctx, paramName: string, name: string) => ctx.request.files[name || paramName]
-export const File = createParamDecorator(_fileConvertFunc)
-
 // property
 export const Config = createPropertyDecorator(async (config, propertyName, configKey?: string) => {
   return configKey ? config[configKey] : config

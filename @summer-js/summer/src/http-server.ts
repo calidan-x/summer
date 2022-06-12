@@ -3,7 +3,7 @@ import fs from 'fs'
 
 import { Logger } from './logger'
 import { parseBody } from './body-parser'
-import { requestHandler, UploadedFile } from './request-handler'
+import { requestHandler } from './request-handler'
 import { Context } from './'
 import { handleStaticRequest } from './static-server'
 
@@ -28,13 +28,7 @@ export const httpServer = {
     }
     return result
   },
-  async handlerRequest(
-    req: http.IncomingMessage,
-    res: http.ServerResponse,
-    bodyData,
-    files: Record<string, UploadedFile>,
-    serverConfig: ServerConfig
-  ) {
+  async handlerRequest(req: http.IncomingMessage, res: http.ServerResponse, bodyData, serverConfig: ServerConfig) {
     if (serverConfig.basePath) {
       if (req.url.indexOf(serverConfig.basePath) === 0) {
         req.url = req.url.replace(serverConfig.basePath, '')
@@ -69,7 +63,6 @@ export const httpServer = {
         path: requestPath,
         queries: this.paramsToObject(new URLSearchParams(urlParts[1]).entries()),
         headers: req.headers as any,
-        files,
         body: bodyData
       },
       response: { statusCode: 200, headers: {}, body: '' },
@@ -91,8 +84,8 @@ export const httpServer = {
     }
     http
       .createServer(async (req, res) => {
-        const { bodyData, files } = await parseBody(req, req.method, req.headers)
-        this.handlerRequest(req, res, bodyData, files, serverConfig)
+        const bodyData = await parseBody(req, req.method, req.headers)
+        this.handlerRequest(req, res, bodyData, serverConfig)
       })
       .listen(serverConfig.port, '', () => {
         Logger.log(

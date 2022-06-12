@@ -12,7 +12,7 @@ export { getConfig } from './config-handler'
 export { handler } from './serverless'
 export { addPlugin } from './summer'
 export { setCookie, clearCookie } from './cookie'
-export { UploadedFile } from './request-handler'
+export { File } from './validate-types'
 
 export interface SummerPlugin {
   configKey: string

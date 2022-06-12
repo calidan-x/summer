@@ -1,3 +1,10 @@
+export class File {
+  filename: string
+  encoding: string
+  mimeType: string
+  tmpPath: string
+}
+
 interface ValidateError {
   param: string
   message: string
@@ -81,7 +88,7 @@ export const validateAndConvertType = (
     case Number:
     case _Int:
     case BigInt:
-      const numVal = isFirstLevel ? Number(propertyValue) : propertyValue
+      const numVal = Number(propertyValue)
       if (declareType === Number) {
         if (Number.isNaN(numVal) || typeof numVal !== 'number') {
           allErrors.push({
@@ -169,6 +176,10 @@ export const validateAndConvertType = (
           })
         }
       }
+      break
+
+    case File:
+      value = propertyValue
       break
     case Array:
       let arrayValue = []
