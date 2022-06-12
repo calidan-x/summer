@@ -1,3 +1,5 @@
+import os from 'os'
+
 export class File {
   filename: string
   encoding: string
@@ -180,6 +182,19 @@ export const validateAndConvertType = (
 
     case File:
       value = propertyValue
+      if (propertyValue) {
+        if (!propertyValue.tmpPath) {
+          allErrors.push({
+            param: errorParam,
+            message: 'File upload failed'
+          })
+        } else if (!propertyValue.tmpPath.startsWith(os.tmpdir())) {
+          allErrors.push({
+            param: errorParam,
+            message: 'File upload failed'
+          })
+        }
+      }
       break
     case Array:
       let arrayValue = []
