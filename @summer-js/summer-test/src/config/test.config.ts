@@ -50,3 +50,7 @@ export const SWAGGER_CONFIG: SwaggerConfig = {
     }
   }
 }
+
+export const MySQL = {
+  host: 'localhost'
+}

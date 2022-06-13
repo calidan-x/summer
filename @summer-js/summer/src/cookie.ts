@@ -21,7 +21,7 @@ export const parseCookie = (ctx: Context) => {
 }
 
 export const assembleCookie = (ctx: Context) => {
-  ctx.response.headers['set-cookie'] = responseCookies.map((rc) => cookie.serialize(rc.name, rc.value, rc))
+  ctx.response.headers['Set-Cookie'] = responseCookies.map((rc) => cookie.serialize(rc.name, rc.value, rc))
 }
 
 export const setCookie = (cookie: Cookie) => {

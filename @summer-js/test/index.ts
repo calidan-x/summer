@@ -31,7 +31,7 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
       headers: requestParams.headers || {},
       queries: requestParams.queries || {}
     },
-    response: { statusCode: 200, headers: {}, body: '' }
+    response: { statusCode: 200, headers: {}, body: undefined }
   }
   await requestHandler(context)
   return context.response

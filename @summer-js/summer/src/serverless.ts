@@ -95,19 +95,19 @@ export const handler = async (...args) => {
         headers: event.headers,
         body: bodyData
       },
-      response: { statusCode: 0, headers: {}, body: '' }
+      response: { statusCode: 0, headers: {}, body: undefined }
     }
     await requestHandler(context)
-    const setCookies = context.response.headers['set-cookie']
+    const setCookies = context.response.headers['Set-Cookie']
     if (setCookies) {
-      delete context.response.headers['set-cookie']
+      delete context.response.headers['Set-Cookie']
     }
     return {
       statusCode: context.response.statusCode,
       body: context.response.body,
       headers: context.response.headers,
       multiValueHeaders: {
-        'set-cookie': setCookies
+        'Set-Cookie': setCookies
       }
     }
   } else if (serverType === 'AliFC') {
@@ -146,7 +146,7 @@ export const handler = async (...args) => {
         headers: req.headers,
         body: bodyData
       },
-      response: { statusCode: 200, headers: {}, body: '' }
+      response: { statusCode: 200, headers: {}, body: undefined }
     }
 
     await requestHandler(context)

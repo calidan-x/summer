@@ -132,13 +132,12 @@ export const applyResponse = (ctx: Context, responseData: any) => {
     }
   }
 
-  ctx.response.body = isJSON ? JSON.stringify(responseData) : responseData + ''
-  if (!ctx.response.statusCode) {
-    ctx.response.statusCode = 200
+  if (ctx.response.body === undefined) {
+    ctx.response.body = isJSON ? JSON.stringify(responseData) : responseData + ''
   }
-  if (!ctx.response.headers['Content-Type']) {
-    ctx.response.headers['Content-Type'] = isJSON ? 'application/json' : 'text/html'
-  }
+  ctx.response.statusCode = ctx.response.statusCode || 200
+  ctx.response.headers['Content-Type'] =
+    ctx.response.headers['Content-Type'] || (isJSON ? 'application/json' : 'text/html')
 }
 
 const callControllerMethod = async (ctx: Context) => {
@@ -183,18 +182,10 @@ const callControllerMethod = async (ctx: Context) => {
         body: JSON.stringify({ errors: allErrors })
       }
     } else {
-      try {
-        asyncLocalStorage.run(ctx, async () => {
-          let responseData = await controller[callMethod].apply(controller, applyParam)
-          applyResponse(ctx, responseData)
-        })
-      } catch (e) {
-        Logger.error(e)
-        if (e.stack) {
-          console.log(e.stack)
-        }
-        ctx.response = { statusCode: 400, headers: { 'Content-Type': 'text/html' }, body: '400 Bad Request' }
-      }
+      await asyncLocalStorage.run(ctx, async () => {
+        let responseData = await controller[callMethod].apply(controller, applyParam)
+        applyResponse(ctx, responseData)
+      })
     }
   } else {
     ctx.response = { statusCode: 404, headers: { 'Content-Type': 'text/html' }, body: '404 Not Found' }
@@ -250,19 +241,32 @@ const handleRpc = async (ctx: Context) => {
 }
 
 export const requestHandler = async (ctx: Context) => {
-  if (await handleRpc(ctx)) {
-    return
+  try {
+    if (await handleRpc(ctx)) {
+      return
+    }
+
+    if (handleCors(ctx)) {
+      return
+    }
+
+    parseCookie(ctx)
+
+    session.handleSession(ctx)
+
+    await callMiddleware(ctx)
+
+    assembleCookie(ctx)
+  } catch (e) {
+    Logger.error(e)
+    if (e.stack) {
+      console.log(e.stack)
+    }
+
+    ctx.response.statusCode = ctx.response.statusCode || 500
+    ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html'
+    if (ctx.response.body === undefined) {
+      ctx.response.body = 'Server Error'
+    }
   }
-
-  if (handleCors(ctx)) {
-    return
-  }
-
-  parseCookie(ctx)
-
-  session.handleSession(ctx)
-
-  await callMiddleware(ctx)
-
-  assembleCookie(ctx)
 }
