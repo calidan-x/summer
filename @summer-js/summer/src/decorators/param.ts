@@ -1,7 +1,6 @@
 import { Context } from '../request-handler'
 import { requestMappingAssembler } from '../request-mapping'
 import { OmitFirstAndSecondArg } from './utility'
-import fs from 'fs'
 
 const getArgName = (func, argIndex: number) => {
   var args = func.toString().match(/.*?\(([^)]*)\)/)[1]

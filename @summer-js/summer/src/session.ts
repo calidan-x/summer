@@ -2,7 +2,7 @@ import cookie from 'cookie'
 import crypto from 'crypto'
 
 import { Context } from '.'
-import { setCookie } from './cookie'
+import { Cookie, setCookie } from './cookie'
 import { Logger } from './logger'
 
 const md5 = (str: string) => {
@@ -63,9 +63,7 @@ export const session = {
 
     const expireDate = new Date()
     expireDate.setTime(new Date().getTime() + this.expireIn * 1000)
-    const sessionCookie = cookie.serialize(this.cookieName, sessionId, {
-      httpOnly: true
-    })
+    const sessionCookie: Cookie = { name: this.cookieName, value: sessionId, httpOnly: true }
     sessionValues._expireIn = expireDate.getTime()
     setCookie(sessionCookie)
   }

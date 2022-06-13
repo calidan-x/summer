@@ -1,7 +1,7 @@
 import cookie from 'cookie'
 import { Context } from '.'
 
-interface Cookie {
+export interface Cookie {
   name: string
   value: string
   domain?: string

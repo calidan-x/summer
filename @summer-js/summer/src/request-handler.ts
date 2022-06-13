@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { getConfig } from './config-handler'
 import { locContainer } from './loc'
 import { Logger } from './logger'
@@ -30,9 +31,14 @@ export interface Context {
   cookies?: Record<string, string>
   session?: Record<string, string>
   data?: Record<string, string>
+  invocation?: {
+    class: string
+    method: string
+    params: any[]
+  }
 }
 
-export let context: Context = {} as any
+export const asyncLocalStorage = new AsyncLocalStorage<Context>()
 
 const matchPathMethod = (path: string, httpMethod: string) => {
   let routeData = requestMapping[path]
@@ -116,19 +122,22 @@ const serialization = (obj, key, childDeclareType = undefined) => {
 }
 
 export const applyResponse = (ctx: Context, responseData: any) => {
+  if (!responseData) {
+    responseData = ''
+  }
   const isJSON = typeof responseData === 'object'
   if (isJSON && responseData.constructor?.name) {
     for (const key in responseData) {
       serialization(responseData, key)
     }
   }
-  ctx.response = {
-    ...ctx.response,
-    statusCode: 200,
-    headers: {
-      'Content-Type': isJSON ? 'application/json' : 'text/html'
-    },
-    body: isJSON ? JSON.stringify(responseData) : responseData + ''
+
+  ctx.response.body = isJSON ? JSON.stringify(responseData) : responseData + ''
+  if (!ctx.response.statusCode) {
+    ctx.response.statusCode = 200
+  }
+  if (!ctx.response.headers['Content-Type']) {
+    ctx.response.headers['Content-Type'] = isJSON ? 'application/json' : 'text/html'
   }
 }
 
@@ -139,6 +148,11 @@ const callControllerMethod = async (ctx: Context) => {
   if (match !== null) {
     const { controller, callMethod, params, pathParams } = match
     ctx.request.pathParams = pathParams
+    ctx.invocation = {
+      class: controller.constructor.name,
+      method: callMethod,
+      params: []
+    }
     const applyParam = []
     let allErrors = []
     for (let i = 0; i < params.length; i++) {
@@ -170,10 +184,10 @@ const callControllerMethod = async (ctx: Context) => {
       }
     } else {
       try {
-        let responseData = await controller[callMethod].apply(controller, applyParam)
-        if (responseData !== undefined) {
+        asyncLocalStorage.run(ctx, async () => {
+          let responseData = await controller[callMethod].apply(controller, applyParam)
           applyResponse(ctx, responseData)
-        }
+        })
       } catch (e) {
         Logger.error(e)
         if (e.stack) {

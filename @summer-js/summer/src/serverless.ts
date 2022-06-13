@@ -95,7 +95,7 @@ export const handler = async (...args) => {
         headers: event.headers,
         body: bodyData
       },
-      response: { statusCode: 200, headers: {}, body: '' }
+      response: { statusCode: 0, headers: {}, body: '' }
     }
     await requestHandler(context)
     const setCookies = context.response.headers['set-cookie']

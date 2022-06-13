@@ -1,4 +1,4 @@
-import { applyResponse, Context, context } from '../request-handler'
+import { asyncLocalStorage, Context } from '../request-handler'
 import { requestMappingAssembler } from '../request-mapping'
 import { OmitFirstAndSecondArg } from './utility'
 
@@ -26,20 +26,19 @@ const generateMethodDecorator =
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalFunc = descriptor.value
     descriptor.value = async function (...arg) {
-      await paramMethod(
-        context,
-        async () => {
-          const response = await originalFunc.apply(this, arg)
-          if (response !== undefined) {
-            applyResponse(context, response)
-          }
-        },
-        ...args
-      )
+      const context = asyncLocalStorage.getStore() || ({} as Context)
+      context.invocation = {
+        class: target.constructor.name,
+        method: propertyKey,
+        params: arg
+      }
+      const ret = await paramMethod(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)
+      context.invocation = undefined
+      return ret
     }
   }
 
-type DecoratorMethodType<T = any> = (ctx: Context, callMethod: () => T, ...args: any[]) => void
+type DecoratorMethodType<T = any> = (ctx: Context, invokeMethod: (args: any[]) => Promise<T>, ...args: any[]) => void
 
 interface MethodDecoratorType<T extends DecoratorMethodType> {
   (...name: Parameters<OmitFirstAndSecondArg<T>>): MethodDecorator

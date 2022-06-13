@@ -65,7 +65,7 @@ export const httpServer = {
         headers: req.headers as any,
         body: bodyData
       },
-      response: { statusCode: 200, headers: {}, body: '' },
+      response: { statusCode: 0, headers: {}, body: '' },
       cookies: {},
       session: {},
       data: {}
