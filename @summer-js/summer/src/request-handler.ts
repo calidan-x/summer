@@ -151,7 +151,7 @@ const callControllerMethod = async (ctx: Context) => {
     ctx.invocation = {
       class: controller.constructor.name,
       method: callMethod,
-      params: []
+      params: undefined
     }
     const applyParam = []
     let allErrors = []
