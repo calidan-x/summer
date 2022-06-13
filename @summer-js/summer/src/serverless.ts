@@ -146,7 +146,7 @@ export const handler = async (...args) => {
         headers: req.headers,
         body: bodyData
       },
-      response: { statusCode: 200, headers: {}, body: undefined }
+      response: { statusCode: 0, headers: {}, body: undefined }
     }
 
     await requestHandler(context)
