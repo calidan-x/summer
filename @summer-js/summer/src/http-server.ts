@@ -20,6 +20,13 @@ export interface ServerConfig {
   cors?: boolean
 }
 
+export const getInitContextData = () => ({
+  response: { statusCode: 0, headers: {}, body: undefined },
+  cookies: {},
+  session: {},
+  data: {}
+})
+
 export const httpServer = {
   paramsToObject(entries) {
     const result = {}
@@ -65,10 +72,7 @@ export const httpServer = {
         headers: req.headers as any,
         body: bodyData
       },
-      response: { statusCode: 0, headers: {}, body: undefined },
-      cookies: {},
-      session: {},
-      data: {}
+      ...getInitContextData()
     }
 
     await requestHandler(context)

@@ -6,15 +6,15 @@ import { Readable } from 'stream'
 import { Context, requestHandler } from './request-handler'
 import { handleStaticRequest } from './static-server'
 import { getConfig } from './config-handler'
-import { ServerConfig } from './http-server'
+import { getInitContextData, ServerConfig } from './http-server'
 import { parseBody } from './body-parser'
 import { waitForStart } from './summer'
 
 export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
-  if (process.env.AWS_LAMBDA_FUNCTION_VERSION !== undefined) {
+  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     serverType = 'AWSLambda'
-  } else if (process.env.FC_FUNC_CODE_PATH !== undefined) {
+  } else if (process.env.FC_FUNC_CODE_PATH) {
     serverType = 'AliFC'
   }
   return serverType
@@ -38,127 +38,130 @@ export const handler = async (...args) => {
   const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
 
   const serverType = getServerType()
-  if (serverType === 'AWSLambda') {
-    const event = args[0]
+  switch (serverType) {
+    case 'AWSLambda': {
+      const event = args[0]
 
-    if (serverConfig) {
-      if (serverConfig.basePath) {
-        if (event.path.indexOf(serverConfig.basePath) === 0) {
-          event.path = event.path.replace(serverConfig.basePath, '')
-        } else {
-          return {
-            statusCode: 404,
-            body: ''
+      if (serverConfig) {
+        if (serverConfig.basePath) {
+          if (event.path.indexOf(serverConfig.basePath) === 0) {
+            event.path = event.path.replace(serverConfig.basePath, '')
+          } else {
+            return {
+              statusCode: 404,
+              body: ''
+            }
           }
         }
       }
-    }
 
-    const staticHandleResult = handleStaticRequest(event.path)
-    if (staticHandleResult) {
-      const resData = {
-        isBase64Encoded: true,
-        statusCode: staticHandleResult.code,
-        body: '',
-        headers: staticHandleResult.headers
-      }
-
-      if (staticHandleResult.filePath) {
-        if (['.css', '.js', '.txt'].includes(path.extname(staticHandleResult.filePath))) {
-          resData.body = await getGZipData(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }))
-          resData.headers['Content-Encoding'] = 'gzip'
-        } else {
-          resData.body = fs.readFileSync(staticHandleResult.filePath, { encoding: 'base64' })
+      const staticHandleResult = handleStaticRequest(event.path)
+      if (staticHandleResult) {
+        const resData = {
+          isBase64Encoded: true,
+          statusCode: staticHandleResult.code,
+          body: '',
+          headers: staticHandleResult.headers
         }
+
+        if (staticHandleResult.filePath) {
+          if (['.css', '.js', '.txt'].includes(path.extname(staticHandleResult.filePath))) {
+            resData.body = await getGZipData(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }))
+            resData.headers['Content-Encoding'] = 'gzip'
+          } else {
+            resData.body = fs.readFileSync(staticHandleResult.filePath, { encoding: 'base64' })
+          }
+        }
+
+        return resData
       }
 
-      return resData
-    }
-
-    let bodyData = event.body
-    let files = {}
-    if (event.isBase64Encoded) {
-      const parseResult = await parseBody(
-        Readable.from(Buffer.from(event.body as string, 'base64')),
-        event.httpMethod,
-        event.headers
-      )
-      bodyData = parseResult.bodyData
-      files = parseResult.files
-    }
-
-    const context: Context = {
-      request: {
-        method: event.httpMethod,
-        path: event.path,
-        queries: event.queryStringParameters,
-        headers: event.headers,
-        body: bodyData
-      },
-      response: { statusCode: 0, headers: {}, body: undefined }
-    }
-    await requestHandler(context)
-    const setCookies = context.response.headers['Set-Cookie']
-    if (setCookies) {
-      delete context.response.headers['Set-Cookie']
-    }
-    return {
-      statusCode: context.response.statusCode,
-      body: context.response.body,
-      headers: context.response.headers,
-      multiValueHeaders: {
-        'Set-Cookie': setCookies
+      let bodyData = event.body
+      let files = {}
+      if (event.isBase64Encoded) {
+        const parseResult = await parseBody(
+          Readable.from(Buffer.from(event.body as string, 'base64')),
+          event.httpMethod,
+          event.headers
+        )
+        bodyData = parseResult.bodyData
+        files = parseResult.files
       }
-    }
-  } else if (serverType === 'AliFC') {
-    const req = args[0]
-    const resp = args[1]
 
-    if (serverConfig) {
-      if (serverConfig.basePath) {
-        if (req.path.indexOf(serverConfig.basePath) === 0) {
-          req.path = req.path.replace(serverConfig.basePath, '')
-        } else {
-          resp.setStatusCode(404)
-          resp.send('')
-          return
+      const context: Context = {
+        request: {
+          method: event.httpMethod,
+          path: event.path,
+          queries: event.queryStringParameters,
+          headers: event.headers,
+          body: bodyData
+        },
+        ...getInitContextData()
+      }
+      await requestHandler(context)
+      const setCookies = context.response.headers['Set-Cookie']
+      if (setCookies) {
+        delete context.response.headers['Set-Cookie']
+      }
+      return {
+        statusCode: context.response.statusCode,
+        body: context.response.body,
+        headers: context.response.headers,
+        multiValueHeaders: {
+          'Set-Cookie': setCookies
         }
       }
     }
+    case 'AliFC': {
+      const req = args[0]
+      const resp = args[1]
 
-    const staticHandleResult = handleStaticRequest(req.path)
-    if (staticHandleResult) {
-      resp.setStatusCode(staticHandleResult.code)
-      for (var key in staticHandleResult.headers) {
-        resp.setHeader(key, staticHandleResult.headers[key])
+      if (serverConfig) {
+        if (serverConfig.basePath) {
+          if (req.path.indexOf(serverConfig.basePath) === 0) {
+            req.path = req.path.replace(serverConfig.basePath, '')
+          } else {
+            resp.setStatusCode(404)
+            resp.send('')
+            return
+          }
+        }
       }
-      resp.send(staticHandleResult.filePath ? fs.readFileSync(staticHandleResult.filePath) : '')
-      return
-    }
 
-    const bodyData = await parseBody(req, req.method, req.headers)
+      const staticHandleResult = handleStaticRequest(req.path)
+      if (staticHandleResult) {
+        resp.setStatusCode(staticHandleResult.code)
+        for (var key in staticHandleResult.headers) {
+          resp.setHeader(key, staticHandleResult.headers[key])
+        }
+        resp.send(staticHandleResult.filePath ? fs.readFileSync(staticHandleResult.filePath) : '')
+        return
+      }
 
-    const context: Context = {
-      request: {
-        method: req.method,
-        path: req.path,
-        queries: req.queries,
-        headers: req.headers,
-        body: bodyData
-      },
-      response: { statusCode: 0, headers: {}, body: undefined }
-    }
+      const bodyData = await parseBody(req.body, req.method, req.headers)
 
-    await requestHandler(context)
+      const context: Context = {
+        request: {
+          method: req.method,
+          path: req.path,
+          queries: req.queries,
+          headers: req.headers,
+          body: bodyData
+        },
+        ...getInitContextData()
+      }
 
-    for (var key in req.queries) {
-      var value = req.queries[key]
-      resp.setHeader(key, value)
+      await requestHandler(context)
+
+      for (var key in req.queries) {
+        var value = req.queries[key]
+        resp.setHeader(key, value)
+      }
+      resp.setStatusCode(context.response.statusCode)
+      for (var key in context.response.headers) {
+        resp.setHeader(key, context.response.headers[key])
+      }
+      resp.send(context.response.body)
     }
-    resp.setStatusCode(context.response.statusCode)
-    for (var key in context.response.headers) {
-      resp.setHeader(key, context.response.headers[key])
-    }
-    resp.send(context.response.body)
   }
 }

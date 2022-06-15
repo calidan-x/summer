@@ -23,6 +23,9 @@ export const addPlugin = (plugin: any) => {
 
 const startLocks = {}
 export const waitForStart = async (key: string) => {
+  if (startLocks['done']) {
+    return
+  }
   return new Promise((resolve) => {
     if (!startLocks[key]) {
       startLocks[key] = resolve
@@ -54,7 +57,6 @@ export const summerStart = async (options?: SummerStartOptions) => {
   }
 
   options.before && (await options.before(config))
-
   if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
     if (config['SESSION_CONFIG']) {
       session.init(config['SESSION_CONFIG'])
@@ -68,10 +70,10 @@ export const summerStart = async (options?: SummerStartOptions) => {
     locContainer.resolveLoc()
     rpc.resolveRpc()
     options.after && options.after(config)
-    await Promise.resolve()
     for (const k in startLocks) {
       startLocks[k]('')
     }
+    startLocks['done'] = true
   }
 }
 
