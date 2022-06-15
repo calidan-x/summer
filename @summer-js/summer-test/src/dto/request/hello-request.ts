@@ -1,5 +1,5 @@
-import { Max, Min, MaxLen } from '@summer-js/summer';
-import { Pet } from './Pet';
+import { Max, Min, MaxLen } from '@summer-js/summer'
+import { Pet } from './Pet'
 
 export enum Direction {
   Up = 1,
@@ -21,14 +21,14 @@ enum BooleanLikeHeterogeneousEnum {
 }
 
 class Base {
-  id: number;
+  id: number
 }
 
 export class HelloRequest extends Base {
   @MaxLen(5)
-  message: string[];
+  message: string[]
 
-  direction: Direction;
+  direction: Direction
 
-  pet: Pet[];
+  pet: Pet[]
 }

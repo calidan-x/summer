@@ -1,7 +1,7 @@
-import { Service } from '@summer-js/summer';
+import { Service } from '@summer-js/summer'
 
 @Service
 export class ValidateService {
-  sss: Number;
+  sss: Number
   hihi() {}
 }
