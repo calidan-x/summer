@@ -14,8 +14,6 @@ export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
     serverType = 'AWSLambda'
-  } else if (process.env.FC_FUNC_CODE_PATH) {
-    serverType = 'AliFC'
   }
   return serverType
 }
@@ -112,56 +110,56 @@ export const handler = async (...args) => {
         }
       }
     }
-    case 'AliFC': {
-      const req = args[0]
-      const resp = args[1]
+    // case 'AliFC': {
+    //   const req = args[0]
+    //   const resp = args[1]
 
-      if (serverConfig) {
-        if (serverConfig.basePath) {
-          if (req.path.indexOf(serverConfig.basePath) === 0) {
-            req.path = req.path.replace(serverConfig.basePath, '')
-          } else {
-            resp.setStatusCode(404)
-            resp.send('')
-            return
-          }
-        }
-      }
+    //   if (serverConfig) {
+    //     if (serverConfig.basePath) {
+    //       if (req.path.indexOf(serverConfig.basePath) === 0) {
+    //         req.path = req.path.replace(serverConfig.basePath, '')
+    //       } else {
+    //         resp.setStatusCode(404)
+    //         resp.send('')
+    //         return
+    //       }
+    //     }
+    //   }
 
-      const staticHandleResult = handleStaticRequest(req.path)
-      if (staticHandleResult) {
-        resp.setStatusCode(staticHandleResult.code)
-        for (var key in staticHandleResult.headers) {
-          resp.setHeader(key, staticHandleResult.headers[key])
-        }
-        resp.send(staticHandleResult.filePath ? fs.readFileSync(staticHandleResult.filePath) : '')
-        return
-      }
+    //   const staticHandleResult = handleStaticRequest(req.path)
+    //   if (staticHandleResult) {
+    //     resp.setStatusCode(staticHandleResult.code)
+    //     for (var key in staticHandleResult.headers) {
+    //       resp.setHeader(key, staticHandleResult.headers[key])
+    //     }
+    //     resp.send(staticHandleResult.filePath ? fs.readFileSync(staticHandleResult.filePath) : '')
+    //     return
+    //   }
 
-      const bodyData = await parseBody(req.body, req.method, req.headers)
+    //   const bodyData = await parseBody(req.body, req.method, req.headers)
 
-      const context: Context = {
-        request: {
-          method: req.method,
-          path: req.path,
-          queries: req.queries,
-          headers: req.headers,
-          body: bodyData
-        },
-        ...getInitContextData()
-      }
+    //   const context: Context = {
+    //     request: {
+    //       method: req.method,
+    //       path: req.path,
+    //       queries: req.queries,
+    //       headers: req.headers,
+    //       body: bodyData
+    //     },
+    //     ...getInitContextData()
+    //   }
 
-      await requestHandler(context)
+    //   await requestHandler(context)
 
-      for (var key in req.queries) {
-        var value = req.queries[key]
-        resp.setHeader(key, value)
-      }
-      resp.setStatusCode(context.response.statusCode)
-      for (var key in context.response.headers) {
-        resp.setHeader(key, context.response.headers[key])
-      }
-      resp.send(context.response.body)
-    }
+    //   for (var key in req.queries) {
+    //     var value = req.queries[key]
+    //     resp.setHeader(key, value)
+    //   }
+    //   resp.setStatusCode(context.response.statusCode)
+    //   for (var key in context.response.headers) {
+    //     resp.setHeader(key, context.response.headers[key])
+    //   }
+    //   resp.send(context.response.body)
+    // }
   }
 }

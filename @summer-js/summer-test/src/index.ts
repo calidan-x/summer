@@ -11,7 +11,9 @@ const runMigrations = async () => {
 
 summerStart({
   async before(config) {
-    await runMigrations()
+    if (process.env.SUMMER_ENV !== 'prod') {
+      await runMigrations()
+    }
   },
   after(config) {}
 })

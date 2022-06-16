@@ -10,8 +10,7 @@ import { SwaggerConfig } from '@summer-js/swagger'
 // }
 
 export const SERVER_CONFIG: ServerConfig = {
-  port: 9901,
-  basePath: '/hello-service'
+  port: 8801
 }
 
 export const SESSION_CONFIG: SessionConfig = {
