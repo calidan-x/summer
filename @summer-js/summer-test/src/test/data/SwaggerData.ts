@@ -303,10 +303,11 @@ export const data = {
         ],
         responses: {
           '200': { schema: { type: 'string', example: '' }, description: '' },
-          '404': {
-            description: '',
-            schema: { type: 'object', properties: {}, example: { code: 10000, msg: 'not found' } }
-          }
+          '400': {
+            description: 'request error',
+            schema: { type: 'object', properties: {}, example: { code: 10000, msg: 'request error' } }
+          },
+          '500': { description: '', schema: { type: 'string', properties: {}, example: 'server error' } }
         }
       }
     },

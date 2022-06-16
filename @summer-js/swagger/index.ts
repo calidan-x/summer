@@ -338,7 +338,7 @@ interface ControllerApiDoc {
     request?: any
     response?: any
   }
-  errors?: Record<string | number, any>
+  errors?: { statusCode: number | string; description?: string; example: any }[]
   order?: number
 }
 
@@ -735,12 +735,18 @@ export class SummerSwaggerUIController {
         })
 
         const errorResponse = {}
-        for (const key in api.errors) {
-          const resExample = api.errors[key] || ''
-          errorResponse[key] = {
-            description: '',
-            schema: { type: typeof resExample === 'object' ? 'object' : 'string', properties: {}, example: resExample }
-          }
+        if (api.errors) {
+          api.errors.forEach((resError) => {
+            const resExample = resError.example
+            errorResponse[resError.statusCode] = {
+              description: resError.description || '',
+              schema: {
+                type: typeof resExample === 'object' ? 'object' : 'string',
+                properties: {},
+                example: resExample
+              }
+            }
+          })
         }
 
         const successResExample = api.example?.response

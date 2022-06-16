@@ -82,10 +82,16 @@ const matchPathMethod = (path: string, httpMethod: string) => {
 const addZero = (num: number) => (num < 10 ? '0' + num : num + '')
 
 const toDate = (d: Date) => {
+  if (!d) {
+    return null
+  }
   return d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate())
 }
 
 const toDateTime = (d: Date) => {
+  if (!d) {
+    return null
+  }
   return toDate(d) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + ':' + addZero(d.getSeconds())
 }
 

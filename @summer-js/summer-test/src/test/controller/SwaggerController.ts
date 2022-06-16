@@ -145,9 +145,17 @@ export class SwaggerController {
 
   @ApiDoc('Doc Summary', {
     description: 'desc',
-    errors: {
-      404: { code: 10000, msg: 'not found' }
-    }
+    errors: [
+      {
+        statusCode: 400,
+        description: 'request error',
+        example: { code: 10000, msg: 'request error' }
+      },
+      {
+        statusCode: 500,
+        example: 'server error'
+      }
+    ]
   })
   @Post('/swagger-params/:id')
   paramDoc(
