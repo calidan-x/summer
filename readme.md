@@ -6,16 +6,13 @@ Please visit [https://summerjs.dev](https://summerjs.dev) for more detail
 
 ## Prerequisite
 
-- Node 14+
+- Node 16+
 - NPM 8+
 
-You can use [nvm](https://github.com/nvm-sh/nvm) to install node which will install specific nodejs version defined in `.nvmrc`.
-
-- `nvm use`
 
 ### How to develop
 
-This project maintain monorepo by npm v8 workspace
+This project maintains monorepo by npm v8 workspace
 
 run `npm i -ws` to install all dependencies
 
