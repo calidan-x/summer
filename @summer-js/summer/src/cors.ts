@@ -25,14 +25,18 @@ const hasPath = (path) => {
 }
 
 export const handleCors = (ctx: Context) => {
-  if (getConfig().SERVER_CONFIG.cors && ctx.request.method === 'OPTIONS') {
+  if (getConfig().SERVER_CONFIG.cors) {
     if (hasPath(ctx.request.path)) {
-      ctx.response = {
-        statusCode: 200,
-        body: '',
-        headers: corsHeader(ctx.request.headers['origin'])
+      if (ctx.request.method === 'OPTIONS') {
+        ctx.response = {
+          statusCode: 200,
+          body: '',
+          headers: corsHeader(ctx.request.headers['origin'])
+        }
+        return true
+      } else {
+        ctx.response.headers = { ...ctx.response.headers, ...corsHeader(ctx.request.headers['origin']) }
       }
-      return true
     }
   }
   return false
