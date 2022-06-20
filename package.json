@@ -1,30 +1,30 @@
 {
-  "name": "summer-packages",
-  "version": "0.0.30",
-  "description": "",
-  "scripts": {
-    "build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build",
-    "test-all": "npm -w @summer-js/summer-test run test",
-    "pubulish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w create-summer run release",
-    "unpublish-all": "npm unpublish @summer-js/cli@0.0.4 && npm unpublish @summer-js/summer@0.0.4 && npm unpublish @summer-js/test@0.0.4 && npm unpublish @summer-js/swagger@0.0.4 && npm unpublish @summer-js/typeorm@0.0.4 && npm unpublish create-summer@1.0.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calidan-x/summer.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/calidan-x/summer/issues"
-  },
-  "homepage": "https://github.com/calidan-x/summer#readme",
-  "workspaces": [
-    "create-summer",
-    "@summer-js/summer",
-    "@summer-js/typeorm",
-    "@summer-js/summer-test",
-    "@summer-js/cli",
-    "@summer-js/test",
-    "@summer-js/swagger"
-  ]
+	"name": "summer-packages",
+	"version": "0.0.31",
+	"description": "",
+	"scripts": {
+		"build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build",
+		"test-all": "npm -w @summer-js/summer-test run test",
+		"pubulish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w create-summer run release",
+		"unpublish-all": "npm unpublish @summer-js/cli@0.0.4 && npm unpublish @summer-js/summer@0.0.4 && npm unpublish @summer-js/test@0.0.4 && npm unpublish @summer-js/swagger@0.0.4 && npm unpublish @summer-js/typeorm@0.0.4 && npm unpublish create-summer@1.0.3"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calidan-x/summer.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/calidan-x/summer/issues"
+	},
+	"homepage": "https://github.com/calidan-x/summer#readme",
+	"workspaces": [
+		"create-summer",
+		"@summer-js/summer",
+		"@summer-js/typeorm",
+		"@summer-js/summer-test",
+		"@summer-js/cli",
+		"@summer-js/test",
+		"@summer-js/swagger"
+	]
 }
