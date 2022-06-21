@@ -245,13 +245,16 @@ export const data = {
                   required: ['a', 'b']
                 },
                 objArray: {
-                  type: 'object',
-                  properties: {
-                    a: { type: 'string', description: 'A', example: 'A Value' },
-                    b: { type: 'integer', description: 'B', example: 1 }
-                  },
-                  description: '',
-                  required: ['a', 'b']
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      a: { type: 'string', description: 'A', example: 'A Value' },
+                      b: { type: 'integer', description: 'B', example: 1 }
+                    },
+                    description: '',
+                    required: ['a', 'b']
+                  }
                 },
                 num: { type: 'integer', minimum: 10, maximum: 20 },
                 len: { type: 'string', minLength: 10, maxLength: 20 },
@@ -436,12 +439,15 @@ export const data = {
                   description: ''
                 },
                 objArray: {
-                  type: 'object',
-                  properties: {
-                    a: { type: 'string', description: 'A', example: 'A Value' },
-                    b: { type: 'integer', description: 'B', example: 1 }
-                  },
-                  description: ''
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      a: { type: 'string', description: 'A', example: 'A Value' },
+                      b: { type: 'integer', description: 'B', example: 1 }
+                    },
+                    description: ''
+                  }
                 },
                 num: { type: 'integer', minimum: 10, maximum: 20 },
                 len: { type: 'string', minLength: 10, maxLength: 20 },
@@ -522,12 +528,15 @@ export const data = {
                     description: ''
                   },
                   objArray: {
-                    type: 'object',
-                    properties: {
-                      a: { type: 'string', description: 'A', example: 'A Value' },
-                      b: { type: 'integer', description: 'B', example: 1 }
-                    },
-                    description: ''
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        a: { type: 'string', description: 'A', example: 'A Value' },
+                        b: { type: 'integer', description: 'B', example: 1 }
+                      },
+                      description: ''
+                    }
                   },
                   num: { type: 'integer', minimum: 10, maximum: 20 },
                   len: { type: 'string', minLength: 10, maxLength: 20 },

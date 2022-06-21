@@ -478,7 +478,11 @@ const getTypeDesc = (dType: any, isRequest: boolean) => {
     const designType = Reflect.getMetadata('design:type', typeInc, key)
 
     if (getType(declareType) === 'object') {
-      typeDesc[key] = getTypeDesc(declareType, isRequest)
+      if (designType === Array) {
+        typeDesc[key] = { type: 'array', items: getTypeDesc(declareType, isRequest) }
+      } else {
+        typeDesc[key] = getTypeDesc(declareType, isRequest)
+      }
     } else {
       let schemeDesc: any = {}
 

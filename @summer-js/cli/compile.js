@@ -111,6 +111,9 @@ const compile = async () => {
 
     if (!paramType) {
       paramType = parameter.getType()
+      if (!paramType.isStringLiteral()) {
+        paramType = paramType.getApparentType()
+      }
     }
     if (!paramType) {
       return 'undefined'
