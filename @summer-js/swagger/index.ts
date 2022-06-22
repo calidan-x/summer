@@ -1,6 +1,7 @@
 import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
 import path from 'path'
+
 import {
   _queryConvertFunc,
   _queriesConvertFunc,
@@ -13,16 +14,18 @@ import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
 import { ClassDeclaration } from 'ts-morph'
 import fs from 'fs'
-;(global as any)._ApiReturnType =
-  (returnDeclareType: string, returnDesignType: string) => (target: Object, propertyKey: string, descriptor: any) => {
-    Reflect.defineMetadata('Api:ReturnDeclareType', returnDeclareType, target, propertyKey)
-    Reflect.defineMetadata('Api:ReturnDesignType', returnDesignType, target, propertyKey)
-  }
+// ;(global as any)._ApiReturnType =
+//   (returnDeclareType: string, typeParams: any[]) => (target: Object, propertyKey: string, descriptor: any) => {
+//     Reflect.defineMetadata('Api:ReturnDeclareType', returnDeclareType, target, propertyKey)
+//     if (typeParams) {
+//       Reflect.defineMetadata('Api:ReturnTypeParams', typeParams, target, propertyKey)
+//     }
+//   }
 
-declare const _ParamDeclareType: any
-declare global {
-  const _ApiReturnType: any
-}
+// declare const _ParamDeclareType: any
+// declare global {
+//   const _ApiReturnType: any
+// }
 
 interface Schema {
   type: string
@@ -120,6 +123,82 @@ const swaggerJson: SwaggerDoc = {
   paths: {}
 }
 
+const getDeclareType = (type: any, typeString: string, clazz: ClassDeclaration) => {
+  let isArray = false
+
+  if (typeString && typeString.startsWith('import("')) {
+    const importParts = typeString.split('.')
+    const importName = importParts[importParts.length - 1].replace(/\[\]$/, '')
+    const imports = clazz.getSourceFile().getImportDeclarations()
+    let imported = false
+    imports.forEach((ipt) => {
+      ipt.getNamedImports().forEach((ni) => {
+        if (ni.getText() === importName) {
+          imported = true
+        }
+      })
+    })
+
+    if (!imported) {
+      clazz.getSourceFile().addImportDeclaration({
+        namedImports: [],
+        moduleSpecifier:
+          './' +
+          path.relative(
+            path.dirname(clazz.getSourceFile().getFilePath()),
+            JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"') + '\n'
+          )
+      })
+    }
+
+    typeString = type.getText(clazz, 1)
+  }
+
+  if (typeString.endsWith('[]')) {
+    isArray = true
+    type = type.getNumberIndexType()
+    typeString = typeString.replace(/\[\]$/, '')
+  }
+
+  if (typeString.startsWith('Array<')) {
+    isArray = true
+    type = type.getTypeArguments()[0]
+    typeString = typeString.replace(/^Array</, '').replace(/>$/, '')
+  }
+
+  if (['number', 'string', 'boolean', 'int', 'float'].includes(typeString)) {
+    typeString = typeString.replace(/^(.)/, (matched) => matched.toUpperCase())
+  }
+  if (typeString === 'bigint') {
+    typeString = 'BigInt'
+  }
+  if (typeString === 'Date' || typeString === '_DateTime') {
+    typeString = 'String'
+  }
+  if (typeString === '_TimeStamp' || typeString === '_Int') {
+    typeString = 'Number'
+  }
+
+  if (
+    type.isInterface() ||
+    type.isTypeParameter() ||
+    typeString.indexOf('[') >= 0 ||
+    typeString.indexOf('{') >= 0 ||
+    typeString === 'void' ||
+    typeString === 'any'
+  ) {
+    typeString = undefined
+  } else {
+    typeString = typeString.replace(/<.+>/, '')
+  }
+
+  if (isArray) {
+    return '[' + typeString + ']'
+  }
+
+  return typeString
+}
+
 class SwaggerPlugin implements SummerPlugin {
   configKey = 'SWAGGER_CONFIG'
   async init(config: SwaggerConfig) {
@@ -182,79 +261,6 @@ class SwaggerPlugin implements SummerPlugin {
               m.addDecorator({ name: 'ApiDoc', arguments: ["''"] })
               apiDoc = true
             }
-          }
-
-          if (apiDoc) {
-            let retType = m.getReturnType()
-            let returnType = retType.getText(clazz, 1)
-            let isArray = false
-
-            if (returnType.startsWith('Promise<')) {
-              retType = retType.getTypeArguments()[0]
-              returnType = retType.getText(clazz, 1)
-            }
-
-            if (returnType && returnType.startsWith('import("')) {
-              const importParts = returnType.split('.')
-              clazz.getSourceFile().addImportDeclaration({
-                namedImports: [importParts[importParts.length - 1].replace(/\[\]$/, '')],
-                moduleSpecifier:
-                  './' +
-                  path.relative(
-                    path.dirname(clazz.getSourceFile().getFilePath()),
-                    JSON.parse('"' + returnType.substring(8).replace(/"\)\..+$/, '') + '"') + '\n'
-                  )
-              })
-
-              returnType = retType.getText(clazz, 1)
-            }
-
-            if (returnType.endsWith('[]')) {
-              isArray = true
-              retType = retType.getNumberIndexType()
-              returnType = returnType.replace(/\[\]$/, '')
-            }
-
-            if (returnType.startsWith('Array<')) {
-              isArray = true
-              retType = retType.getTypeArguments()[0]
-              returnType = returnType.replace(/^Array</, '').replace(/>$/, '')
-            }
-
-            if (['number', 'string', 'boolean', 'int', 'float'].includes(returnType)) {
-              returnType = returnType.replace(/^(.)/, (matched) => matched.toUpperCase())
-            }
-            if (returnType === 'bigint') {
-              returnType = 'BigInt'
-            }
-            if (returnType === 'Date' || returnType === '_DateTime') {
-              returnType = 'String'
-            }
-            if (returnType === '_TimeStamp' || returnType === '_Int') {
-              returnType = 'Number'
-            }
-
-            if (
-              retType.isInterface() ||
-              retType.isTypeParameter() ||
-              returnType.indexOf('<') >= 0 ||
-              returnType.indexOf('[') >= 0 ||
-              returnType.indexOf('{') >= 0 ||
-              returnType === 'void' ||
-              returnType === 'any'
-            ) {
-              returnType = undefined
-            }
-
-            let designType = 'String'
-            if (isArray) {
-              designType = 'Array'
-            }
-
-            m.addDecorator({
-              name: '_ApiReturnType',
-              arguments: [returnType || 'undefined', designType]
-            })
           }
         })
       }
@@ -465,7 +471,7 @@ const getRequiredKeys = (t: any, isRequest: boolean) => {
   return requireKeys
 }
 
-const getTypeDesc = (dType: any, isRequest: boolean) => {
+const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
   if (getType(dType) !== 'object') {
     return { type: getType(dType) }
   }
@@ -474,55 +480,69 @@ const getTypeDesc = (dType: any, isRequest: boolean) => {
   const typeDesc = {}
 
   for (const key of Reflect.getOwnMetadataKeys(dType.prototype)) {
-    const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
-    const designType = Reflect.getMetadata('design:type', typeInc, key)
+    let [d0, d1] = Reflect.getMetadata('DeclareType', typeInc, key)
 
-    if (getType(declareType) === 'object') {
-      if (designType === Array) {
-        typeDesc[key] = { type: 'array', items: getTypeDesc(declareType, isRequest) }
+    const isArray = d1 === Array
+
+    if (typeof d0 === 'number') {
+      const gDeclareType = typeParams[d0]
+      ;[d0, d1] = gDeclareType
+    }
+
+    if (getType(d0) === 'object') {
+      if (isArray) {
+        typeDesc[key] = { type: 'array', items: getTypeDesc(d0, typeParams, isRequest) }
       } else {
-        typeDesc[key] = getTypeDesc(declareType, isRequest)
+        const typeParams = Reflect.getMetadata('TypeParams', typeInc, key)
+        typeDesc[key] = getTypeDesc(d0, typeParams, isRequest)
       }
     } else {
       let schemeDesc: any = {}
+      let isStringEnum = true
+      for (const k in d0) {
+        if (typeof d0[k] === 'number') {
+          isStringEnum = false
+          break
+        }
+      }
 
       // string enum
-      if (typeof declareType === 'object' && designType === String) {
+      if (typeof d0 === 'object' && isStringEnum) {
         schemeDesc = {
           type: 'string',
-          enum: Object.keys(declareType)
+          enum: Object.keys(d0)
         }
       }
       // number enum
-      else if (typeof declareType === 'object' && designType === Number) {
+      else if (typeof d0 === 'object' && !isStringEnum) {
         schemeDesc = {
           type: 'string',
-          enum: Object.keys(declareType).filter((k) => typeof declareType[k] === 'number')
+          enum: Object.keys(d0).filter((k) => typeof d0[k] === 'number')
         }
       }
       // File type
-      else if (declareType === File) {
+      else if (d0 === File) {
         schemeDesc = {
           type: 'file'
         }
-      } else if (declareType === Date) {
+      } else if (d0 === Date) {
         schemeDesc = {
           type: 'string',
           format: 'date',
           example: '2012-12-12'
         }
-      } else if (declareType === _DateTime) {
+      } else if (d0 === _DateTime) {
         schemeDesc = {
           type: 'string',
           format: 'date-time',
           example: '2012-12-12 12:12:12'
         }
-      } else if (declareType === _TimeStamp) {
+      } else if (d0 === _TimeStamp) {
         schemeDesc = {
           type: 'integer',
           example: 1654030120101
         }
-      } else if (declareType === _Int || declareType === Number || declareType === BigInt) {
+      } else if (d0 === _Int || d0 === Number || d0 === BigInt) {
         schemeDesc = {
           type: 'integer'
         }
@@ -536,7 +556,7 @@ const getTypeDesc = (dType: any, isRequest: boolean) => {
         if (max !== undefined) {
           schemeDesc.maximum = max
         }
-      } else if (declareType === String) {
+      } else if (d0 === String) {
         schemeDesc = {
           type: 'string'
         }
@@ -563,11 +583,11 @@ const getTypeDesc = (dType: any, isRequest: boolean) => {
         }
       } else {
         schemeDesc = {
-          type: intToInteger(declareType.name.toLowerCase())
+          type: intToInteger(d0.name.toLowerCase())
         }
       }
 
-      if (designType === Array) {
+      if (isArray) {
         typeDesc[key] = {
           type: 'array',
           items: schemeDesc
@@ -608,7 +628,7 @@ const getTypeDesc = (dType: any, isRequest: boolean) => {
 @Controller('/swagger-ui')
 export class SummerSwaggerUIController {
   @Get
-  getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType(String) primaryName: string) {
+  getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType([String]) primaryName: string) {
     let allPages = allTags.map((at) => at.category || '')
     allPages = Array.from(new Set(allPages))
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
@@ -632,7 +652,7 @@ export class SummerSwaggerUIController {
   }
 
   @Get('/swagger-docs.json')
-  getSwaggerDocument(@Query @_ParamDeclareType(String) category: string) {
+  getSwaggerDocument(@Query @_ParamDeclareType([String]) category: string) {
     swaggerJson.tags = []
     swaggerJson.paths = {}
     category = category || ''
@@ -663,11 +683,14 @@ export class SummerSwaggerUIController {
         params.forEach((param) => {
           const paramType = getParamType(param.paramMethod.toString())
           if (paramType === 'body') {
-            const typeInc = new param.declareType()
-            for (const key of Reflect.getOwnMetadataKeys(param.declareType.prototype)) {
-              const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
-              if (declareType === File) {
-                isFormBody = true
+            const [d0] = param.declareType
+            if (typeof d0 === 'function') {
+              const typeInc = new d0()
+              for (const key of Reflect.getOwnMetadataKeys(d0.prototype)) {
+                const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
+                if (declareType[0] === File) {
+                  isFormBody = true
+                }
               }
             }
           }
@@ -675,14 +698,15 @@ export class SummerSwaggerUIController {
 
         // request structure
         params.forEach((param) => {
+          const [d0] = param.declareType
           let paramType = getParamType(param.paramMethod.toString())
           if (isFormBody && paramType === 'body') {
-            const formProps = getTypeDesc(param.declareType, true).properties
+            const formProps = getTypeDesc(d0, param.typeParams, true).properties
 
             for (const filed in formProps) {
               let isRequired = false
-              if (param.declareType && typeof param.declareType === 'function') {
-                isRequired = Reflect.getMetadata('required', new param.declareType(), filed)
+              if (d0 && typeof d0 === 'function') {
+                isRequired = Reflect.getMetadata('required', new d0(), filed)
               }
               parameters.push({
                 name: filed,
@@ -692,11 +716,11 @@ export class SummerSwaggerUIController {
               })
             }
           } else if (paramType === 'queries') {
-            const props = getTypeDesc(param.declareType, true).properties
+            const props = getTypeDesc(d0, param.typeParams, true).properties
             for (const filed in props) {
               let isRequired = false
-              if (param.declareType && typeof param.declareType === 'function') {
-                isRequired = Reflect.getMetadata('required', new param.declareType(), filed)
+              if (d0 && typeof d0 === 'function') {
+                isRequired = Reflect.getMetadata('required', new d0(), filed)
               }
               parameters.push({
                 name: filed,
@@ -707,7 +731,7 @@ export class SummerSwaggerUIController {
               })
             }
           } else if (paramType) {
-            const ptype = getType(param.declareType)
+            const ptype = getType(d0)
             const parameter: any = {
               name: param.paramValues[0],
               in: paramType,
@@ -720,11 +744,11 @@ export class SummerSwaggerUIController {
             if (param.type === Array) {
               schema = {
                 type: 'array',
-                items: getTypeDesc(param.declareType, true)
+                items: getTypeDesc(d0, param.typeParams, true)
               }
             } else if (ptype === 'object') {
               schema = {
-                ...getTypeDesc(param.declareType, true)
+                ...getTypeDesc(d0, param.typeParams, true)
               }
             } else if (parameter.in !== 'body') {
               parameter.type = type
@@ -755,8 +779,15 @@ export class SummerSwaggerUIController {
 
         const successResExample = api.example?.response
 
-        const returnDeclareType = Reflect.getMetadata('Api:ReturnDeclareType', api.controller, api.callMethod)
-        const returnDesignType = Reflect.getMetadata('Api:ReturnDesignType', api.controller, api.callMethod)
+        let returnDeclareType = Reflect.getMetadata('ReturnDeclareType', api.controller, api.callMethod) || []
+        const returnTypeParams = Reflect.getMetadata('ReturnTypeParams', api.controller, api.callMethod) || []
+
+        let [d0, d1, d2] = returnDeclareType
+
+        const isArray = d1 === Array
+        if (typeof d0 === 'number') {
+          d0 = returnTypeParams[d0]
+        }
 
         const consumes = []
         if (parameters.find((p) => p.type === 'file')) {
@@ -767,16 +798,16 @@ export class SummerSwaggerUIController {
 
         // response structure
         let schema: any = {}
-        if (!returnDeclareType) {
+        if (!d0) {
           schema.type = 'string'
           schema.example = ''
-        } else if (returnDesignType === Array) {
+        } else if (isArray) {
           schema.type = 'array'
-          schema.items = getTypeDesc(returnDeclareType, false)
-        } else if (getType(returnDeclareType) === 'object') {
-          schema = { ...schema, ...getTypeDesc(returnDeclareType, false) }
+          schema.items = getTypeDesc(d0, returnTypeParams, false)
+        } else if (getType(d0) === 'object') {
+          schema = { ...schema, ...getTypeDesc(d0, returnTypeParams, false) }
         } else {
-          schema = { type: getType(returnDeclareType) }
+          schema = { type: getType(d0) }
         }
 
         if (successResExample) {

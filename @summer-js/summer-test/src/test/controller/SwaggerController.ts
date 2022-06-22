@@ -25,11 +25,11 @@ class Obj {
   b: int
 }
 
-// class Paging<T> {
-//   data: T[]
-//   pageNumber: number
-//   pageSize: number
-// }
+class Paging<T> {
+  data: T[]
+  pageNumber: number
+  pageSize: number
+}
 
 class Request {
   string: string
@@ -149,24 +149,24 @@ export class SwaggerController {
     return 'Hello Swagger Doc!'
   }
 
-  // @Get('/paging')
-  // async paging() {
-  //   const paging = new Paging<Obj>()
-  //   paging.pageNumber = 1
-  //   paging.pageSize = 10
-  //   const objs: Obj[] = [
-  //     {
-  //       a: 'string',
-  //       b: 100
-  //     },
-  //     {
-  //       a: 'string2',
-  //       b: 200
-  //     }
-  //   ]
-  //   paging.data = objs
-  //   return paging
-  // }
+  @Get('/paging')
+  async paging() {
+    const paging = new Paging<Obj>()
+    paging.pageNumber = 1
+    paging.pageSize = 10
+    const objs: Obj[] = [
+      {
+        a: 'string',
+        b: 100
+      },
+      {
+        a: 'string2',
+        b: 200
+      }
+    ]
+    paging.data = objs
+    return paging
+  }
 
   @ApiDoc('Doc Summary', {
     description: 'desc',

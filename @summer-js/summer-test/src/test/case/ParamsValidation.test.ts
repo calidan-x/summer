@@ -98,15 +98,15 @@ describe('Controller Params Test', () => {
   })
 
   test('test number enum type request value', async () => {
-    await testErrorRequestParam('hello', 'numberEnum', "is not in ['E1','E2']")
-    await testErrorRequestParam('1', 'numberEnum', "is not in ['E1','E2']")
+    await testErrorRequestParam('hello', 'numberEnum', 'is not in [\\"E1\\",\\"E2\\"]')
+    await testErrorRequestParam('1', 'numberEnum', 'is not in [\\"E1\\",\\"E2\\"]')
     await testRequestParam('E1', 'numberEnum', 1)
     await testRequestParam('E2', 'numberEnum', 2)
   })
 
   test('test string enum type request value', async () => {
-    await testErrorRequestParam('hello', 'stringEnum', "is not in ['E1','E2']")
-    await testErrorRequestParam('1', 'stringEnum', "is not in ['E1','E2']")
+    await testErrorRequestParam('hello', 'stringEnum', 'is not in [\\"E1\\",\\"E2\\"]')
+    await testErrorRequestParam('1', 'stringEnum', 'is not in [\\"E1\\",\\"E2\\"]')
     await testRequestParam('E1', 'stringEnum', 'E1')
     await testRequestParam('E2', 'stringEnum', 'E2')
   })
@@ -152,25 +152,25 @@ describe('Controller Params Test', () => {
 
   test('test number enum array type request value', async () => {
     await testErrorRequestParam('hello', 'numberEnumArray', 'error parsing')
-    await testErrorRequestParam('["hello","E1"]', 'numberEnumArray', "is not in ['E1','E2']")
-    await testErrorRequestParam('["1","E1"]', 'numberEnumArray', "is not in ['E1','E2']")
+    await testErrorRequestParam('["hello","E1"]', 'numberEnumArray', 'is not in [\\"E1\\",\\"E2\\"]')
+    await testErrorRequestParam('["1","E1"]', 'numberEnumArray', 'is not in [\\"E1\\",\\"E2\\"]')
     await testRequestParam('["E1","E2"]', 'numberEnumArray', [1, 2])
   })
 
   test('test string enum array type request value', async () => {
     await testErrorRequestParam('hello', 'stringEnumArray', 'error parsing')
-    await testErrorRequestParam('["hello","E1"]', 'stringEnumArray', "is not in ['E1','E2']")
+    await testErrorRequestParam('["hello","E1"]', 'stringEnumArray', 'is not in [\\"E1\\",\\"E2\\"]')
     await testRequestParam('["E1","E2"]', 'stringEnumArray', ['E1', 'E2'])
   })
 
   test('test string union type request value', async () => {
-    await testErrorRequestParam('SU4', 'stringUnion', "is not in ['SU1','SU2','SU:3']")
+    await testErrorRequestParam('SU4', 'stringUnion', 'is not in [\\"SU1\\",\\"SU2\\",\\"SU:3\\"]')
     await testRequestParam('SU1', 'stringUnion', 'SU1')
   })
 
   test('test fixed string type request value', async () => {
     await testRequestParam('str:ing', 'fixedString', 'str:ing')
-    await testErrorRequestParam('str', 'fixedString', "is not in ['str:ing']")
+    await testErrorRequestParam('str', 'fixedString', 'is not in [\\"str:ing\\"]')
   })
 
   test('test optional key', async () => {

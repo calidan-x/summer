@@ -1,7 +1,7 @@
 import { RpcClient } from '@summer-js/summer'
 import { QueryUser } from './QueryUser'
 
-class User {
+export class User {
   id: number
   name: string
 }

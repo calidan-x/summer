@@ -13,8 +13,8 @@ interface ValidateError {
 }
 
 export const validateAndConvertType = (
-  designType: any,
-  declareType: any,
+  declareType: any[],
+  typeParams: any[],
   propertyName: string,
   propertyValue: any,
   allErrors: ValidateError[],
@@ -24,10 +24,34 @@ export const validateAndConvertType = (
   propertyNamePath = ''
 ) => {
   const isFirstLevel = paramIndex >= 0
-  if (declareType === undefined && designType !== Array) {
+
+  if (declareType === undefined) {
     return propertyValue
   }
-  designType = [_TimeStamp, _DateTime, Date].includes(declareType) && designType !== Array ? declareType : designType
+
+  let [d0, d1] = declareType
+  if (d0 === undefined && d1 !== Array) {
+    return propertyValue
+  }
+
+  if (typeof d0 === 'number') {
+    ;[d0, d1] = typeParams[d0]
+  }
+
+  let checkType = d1 || d0
+
+  if (Array.isArray(d0)) {
+    checkType = 'Union'
+  } else if (typeof d0 === 'object' && d1 !== Array) {
+    let isStringEnum = true
+    for (const k in d0) {
+      if (typeof d0[k] === 'number') {
+        isStringEnum = false
+        break
+      }
+    }
+    checkType = isStringEnum ? String : Number
+  }
 
   let value: any = undefined
   let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
@@ -38,7 +62,7 @@ export const validateAndConvertType = (
 
   customValidate(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors, isFirstLevel)
 
-  switch (designType) {
+  switch (checkType) {
     case String:
       value = isFirstLevel ? propertyValue + '' : propertyValue
       if (typeof value !== 'string') {
@@ -50,17 +74,15 @@ export const validateAndConvertType = (
       }
 
       // string enum
-      if (declareType !== String && typeof declareType === 'object') {
-        value = declareType[propertyValue]
+      if (typeof d0 === 'object') {
+        value = d0[propertyValue]
         if (value === undefined) {
           allErrors.push({
             param: errorParam,
             message:
               typeDisplayText(propertyValue, isFirstLevel) +
               ' is not in ' +
-              JSON.stringify(
-                Object.keys(declareType).filter((key) => typeof declareType[declareType[key]] !== 'number')
-              ).replace(/"/g, "'")
+              JSON.stringify(Object.keys(d0).filter((key) => typeof d0[d0[key]] !== 'number'))
           })
         }
       }
@@ -90,8 +112,13 @@ export const validateAndConvertType = (
     case Number:
     case _Int:
     case BigInt:
-      const numVal = Number(propertyValue)
-      if (declareType === Number) {
+      const numVal = isFirstLevel ? Number(propertyValue) : propertyValue
+      if (typeof propertyValue === 'boolean') {
+        allErrors.push({
+          param: errorParam,
+          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a number'
+        })
+      } else if (d0 === Number) {
         if (Number.isNaN(numVal) || typeof numVal !== 'number') {
           allErrors.push({
             param: errorParam,
@@ -99,7 +126,7 @@ export const validateAndConvertType = (
           })
         }
         value = numVal
-      } else if (declareType === _Int || declareType === BigInt) {
+      } else if (d0 === _Int || d0 === BigInt) {
         if (!Number.isInteger(numVal)) {
           allErrors.push({
             param: errorParam,
@@ -109,17 +136,15 @@ export const validateAndConvertType = (
         value = numVal
       }
       // number enum
-      else if (typeof declareType === 'object') {
-        value = declareType[propertyValue]
+      else if (typeof d0 === 'object') {
+        value = d0[propertyValue]
         if (value === undefined || typeof value === 'string') {
           allErrors.push({
             param: errorParam,
             message:
               typeDisplayText(propertyValue, isFirstLevel) +
               ' is not in ' +
-              JSON.stringify(
-                Object.keys(declareType).filter((key) => typeof declareType[declareType[key]] !== 'number')
-              ).replace(/"/g, "'")
+              JSON.stringify(Object.keys(d0).filter((key) => typeof d0[d0[key]] !== 'number'))
           })
         }
       }
@@ -179,7 +204,6 @@ export const validateAndConvertType = (
         }
       }
       break
-
     case File:
       value = propertyValue
       if (propertyValue) {
@@ -196,6 +220,16 @@ export const validateAndConvertType = (
         }
       }
       break
+
+    case 'Union':
+      value = propertyValue
+      if (!d0.includes(value)) {
+        allErrors.push({
+          param: errorParam,
+          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not in ' + JSON.stringify(d0)
+        })
+      }
+      break
     case Array:
       let arrayValue = []
       try {
@@ -204,11 +238,7 @@ export const validateAndConvertType = (
         allErrors.push({
           param: errorParam,
           message:
-            'error parsing ' +
-            typeDisplayText(propertyValue, isFirstLevel) +
-            ' to ' +
-            (declareType?.name || 'any') +
-            '[]'
+            'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to ' + (d0?.name || 'array') + '[]'
         })
         break
       }
@@ -228,20 +258,13 @@ export const validateAndConvertType = (
           allErrors,
           isFirstLevel
         )
+
         for (let i = 0; i < arrayValue.length; i++) {
-          let arrValueType: any = declareType
-          if (typeof declareType === 'object') {
-            arrValueType = String
-            for (const v in declareType) {
-              if (typeof declareType[v] === 'number') {
-                arrValueType = Number
-                break
-              }
-            }
-          }
+          let arrValueType: any = [d0, undefined]
+
           arrayValue[i] = validateAndConvertType(
             arrValueType,
-            declareType,
+            typeParams,
             '[' + i + ']',
             arrayValue[i],
             allErrors,
@@ -255,7 +278,7 @@ export const validateAndConvertType = (
       }
       break
     default:
-      let classInstance = new designType()
+      let classInstance = new d0()
       let objectValue = {}
 
       try {
@@ -263,8 +286,7 @@ export const validateAndConvertType = (
       } catch (e) {
         allErrors.push({
           param: errorParam,
-          message:
-            'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to ' + (declareType?.name || 'object')
+          message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to ' + (d0?.name || 'object')
         })
         break
       }
@@ -286,23 +308,28 @@ export const validateAndConvertType = (
           if (!allProperties.includes(k)) {
             allErrors.push({
               param: errorParam,
-              message: typeDisplayText(k, isFirstLevel) + ' is not a valid key for ' + designType.name
+              message: typeDisplayText(k, isFirstLevel) + ' is not a valid key of ' + d0.name
             })
           }
         }
 
+        const tp = isFirstLevel ? typeParams : Reflect.getMetadata('TypeParams', instance, propertyName)
         for (const k of allProperties) {
-          let propType = Reflect.getMetadata('design:type', classInstance, k)
           let declareType = Reflect.getMetadata('DeclareType', classInstance, k)
 
-          if (propType === undefined) {
+          if (declareType === undefined) {
+            classInstance[k] = objectValue[k]
+            continue
+          }
+
+          if (declareType[0] === undefined) {
             classInstance[k] = objectValue[k]
             continue
           }
 
           const validateValue = validateAndConvertType(
-            propType,
             declareType,
+            tp,
             k,
             objectValue[k],
             allErrors,

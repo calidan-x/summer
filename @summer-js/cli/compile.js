@@ -18,6 +18,29 @@ const project = new Project({
   tsConfigFilePath: './tsconfig.json'
 })
 
+const TypeMapping = {
+  number: '[Number]',
+  string: '[String]',
+  boolean: '[Boolean]',
+  int: '[_Int]',
+  bigint: '[BigInt]',
+  Date: '[Date]',
+  DateTime: '[_DateTime]',
+  TimeStamp: '[_TimeStamp]',
+  any: '[]',
+  'number[]': '[Number,Array]',
+  'string[]': '[String,Array]',
+  'boolean[]': '[Boolean,Array]',
+  'int[]': '[_Int,Array]',
+  'bigint[]': '[BigInt,Array]',
+  'Date[]': '[Date,Array]',
+  'DateTime[]': '[_DateTime,Array]',
+  'TimeStamp[]': '[_TimeStamp,Array]',
+  'any[]': '[undefined,Array]',
+  undefined: '[]',
+  null: '[]'
+}
+
 const getAllReferencingSourceFiles = (sf, allRefFiles) => {
   if (!sf) {
     return
@@ -30,6 +53,105 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
     }
     getAllReferencingSourceFiles(refFile, allRefFiles)
   }
+}
+
+// [0, Array,[]]
+// [String, Array,[]]
+// [{e1:12,e2:33}, undefined,[]]
+// [["val1","val2"], undefined,[]]
+
+// class A<T>{
+//   a:T[]
+//   b:GG<gg>
+// }
+
+const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
+  const parts = declareLine.split(/:([^:]*)$/s)
+  let type = '[]'
+  if (parts.length > 1) {
+    type = parts[1]
+      .replace(';', '')
+      .replace(/[^=]=.+$/, '')
+      .trim()
+    // Basic Type
+    if (TypeMapping[type]) {
+      return TypeMapping[type]
+    }
+  } else {
+    return '[]'
+  }
+
+  if (type.indexOf('{')) {
+    return '[]'
+  }
+
+  // Generic
+  if (typeParams && typeParams.length > 0) {
+    const typeWithoutArray = type.replace('[]', '')
+    const tpInx = typeParams.findIndex((tp) => tp === typeWithoutArray)
+    if (tpInx >= 0) {
+      if (type.endsWith('[]')) {
+        return '[' + tpInx + ',Array]'
+      }
+      return '[' + tpInx + ']'
+    }
+  }
+
+  if (!paramType) {
+    paramType = parameter.getType()
+    if (paramType.isInterface()) {
+      return '[]'
+    }
+    if (!paramType.isStringLiteral()) {
+      paramType = paramType.getApparentType()
+    }
+  }
+  if (!paramType) {
+    return '[]'
+  }
+
+  if (declareLine.indexOf('<') > 0) {
+    const baseType = paramType.getText(parameter).replace(/<.+>/, '').replace('[]', '')
+
+    if (paramType.isArray()) {
+      return `[${baseType},Array]`
+    } else {
+      return `[${baseType}]`
+    }
+  }
+
+  if (paramType.isArray()) {
+    type = type.replace('[]', '')
+    const pType = paramType.getArrayElementTypeOrThrow()
+    if (pType.isClass() || pType.isEnum()) {
+      return `[${type},Array]`
+    } else {
+      type = TypeMapping[type]
+    }
+  } else if (paramType.isUnion() && !paramType.isEnum() && !paramType.isBoolean()) {
+    const unionTypes = paramType.getUnionTypes()
+    const unionArr = []
+    for (const ut of unionTypes) {
+      if (ut.isStringLiteral()) {
+        const suv = ut.getText()
+        unionArr.push(suv.replace(/['"]/g, ''))
+      } else if (ut.isNumberLiteral()) {
+        const suv = ut.getText()
+        unionArr.push(Number(suv))
+      } else {
+        return '[]'
+      }
+    }
+    return `[${JSON.stringify(unionArr)}]`
+  } else if (paramType.isStringLiteral() || paramType.isNumberLiteral()) {
+    return `[[${paramType.getText()}]]`
+  } else if (paramType.isClass() || paramType.isEnum()) {
+    return `[${type}]`
+  } else {
+    type = TypeMapping[type]
+  }
+
+  return type
 }
 
 let firstCompile = true
@@ -59,103 +181,14 @@ const compile = async () => {
 
   const sourceFiles = project.getSourceFiles()
 
-  const TypeMapping = {
-    number: 'Number',
-    string: 'String',
-    boolean: 'Boolean',
-    int: '_Int',
-    bigint: 'BigInt',
-    Date: 'Date',
-    DateTime: '_DateTime',
-    TimeStamp: '_TimeStamp',
-    any: 'undefined',
-    'number[]': 'Number',
-    'string[]': 'String',
-    'boolean[]': 'Boolean',
-    'int[]': '_Int',
-    'bigint[]': 'BigInt',
-    'Date[]': 'Date',
-    'DateTime[]': '_DateTime',
-    'TimeStamp[]': '_TimeStamp',
-    'any[]': 'undefined',
-    undefined: 'undefined',
-    null: 'undefined'
-  }
-
-  const getCompileType = (type, p) => {
-    if (!type) {
-      return 'undefined'
-    }
-    if (type.isArray()) {
-      return 'Array'
-    } else if (type.isClass()) {
-      return type.getText(p)
-    }
-
-    return TypeMapping[type.getText(p)] || 'undefined'
-  }
-
-  const getDeclareType = (declareLine, parameter, paramType) => {
-    const parts = declareLine.split(/:([^:]*)$/s)
-    let type = 'undefined'
-    if (parts.length > 1) {
-      type = parts[1]
-        .replace(';', '')
-        .replace(/[^=]=.+$/, '')
-        .trim()
-    }
-
-    if (TypeMapping[type]) {
-      return TypeMapping[type]
-    }
-
-    if (!paramType) {
-      paramType = parameter.getType()
-      if (!paramType.isStringLiteral()) {
-        paramType = paramType.getApparentType()
-      }
-    }
-    if (!paramType) {
-      return 'undefined'
-    }
-
-    if (paramType.isUnion() && !paramType.isEnum() && !paramType.isBoolean()) {
-      const unionTypes = paramType.getUnionTypes()
-      const enumJSON = {}
-      for (const ut of unionTypes) {
-        if (ut.isStringLiteral()) {
-          const suv = ut.getText().replace(/^['"]/, '').replace(/['"]$/, '')
-          enumJSON[suv] = suv
-        } else {
-          return undefined
-        }
-      }
-      return JSON.stringify(enumJSON)
-    } else if (paramType.isArray()) {
-      type = type.replace('[]', '')
-      const pType = paramType.getArrayElementTypeOrThrow()
-      if (pType.isClass() || pType.isEnum()) {
-      } else {
-        type = TypeMapping[type]
-      }
-    } else if (paramType.isStringLiteral()) {
-      let stringText = paramType.getText(parameter).trim()
-      stringText = stringText.substring(1, stringText.length - 1)
-      return JSON.stringify({ [stringText]: stringText })
-    } else if (paramType.isClass() || paramType.isEnum()) {
-    } else {
-      type = TypeMapping[type]
-    }
-
-    return type
-  }
-
   const addPropDecorator = (cls) => {
     if (!cls) {
       return
     }
+
+    const typeParameters = cls.getTypeParameters().map((tp) => tp.getText(cls))
     cls.getProperties().forEach((p) => {
-      let type = getDeclareType(p.getText(), p)
+      let type = getDeclareType(p.getText(), p, undefined, typeParameters)
       if (type === undefined || type === null) {
         return
       }
@@ -168,7 +201,16 @@ const compile = async () => {
       }
 
       if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
-        pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
+        const args = [type]
+        if (p.getText(p).indexOf('<') >= 0) {
+          const propTypeParams = p
+            .getType()
+            .getTypeArguments()
+            .map((tp) => getDeclareType(':' + tp.getText(p), tp))
+            .join(',')
+          args.push(`[${propTypeParams}]`)
+        }
+        pendingDecorators.push({ name: '_PropDeclareType', arguments: args })
       }
 
       if (pendingDecorators.length) {
@@ -177,6 +219,34 @@ const compile = async () => {
     })
     if (cls.getExtends()) {
       addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0])
+    }
+  }
+
+  const addFileImport = (typeString, clazz) => {
+    if (typeString && typeString.startsWith('import("')) {
+      const importParts = typeString.split('.')
+      const importName = importParts[importParts.length - 1].replace(/\[\]$/, '')
+      const imports = clazz.getSourceFile().getImportDeclarations()
+      let imported = false
+      imports.forEach((ipt) => {
+        ipt.getNamedImports().forEach((ni) => {
+          if (ni.getText() === importName) {
+            imported = true
+          }
+        })
+      })
+
+      if (!imported) {
+        clazz.getSourceFile().addImportDeclaration({
+          namedImports: [importName],
+          moduleSpecifier:
+            './' +
+            path.relative(
+              path.dirname(clazz.getSourceFile().getFilePath()),
+              JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"') + '\n'
+            )
+        })
+      }
     }
   }
 
@@ -251,14 +321,55 @@ const compile = async () => {
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller') {
           cls.getMethods().forEach((cMethod) => {
-            cMethod.getParameters().forEach((param) => {
-              if (param.getDecorators().length > 0) {
-                param.addDecorator({
-                  name: '_ParamDeclareType',
-                  arguments: [getDeclareType(param.getText(), param)]
-                })
+            if (cMethod.getDecorators().length > 0) {
+              cMethod.getParameters().forEach((param) => {
+                if (param.getDecorators().length > 0) {
+                  let typeParams = '[]'
+                  if (param.getText().indexOf('<') > 0) {
+                    typeParams =
+                      '[' +
+                      param
+                        .getType()
+                        .getTypeArguments()
+                        .map((tp) => getDeclareType(':' + tp.getText(), param, tp))
+                        .join(',') +
+                      ']'
+                  }
+                  param.addDecorator({
+                    name: '_ParamDeclareType',
+                    arguments: [getDeclareType(param.getText(), param), typeParams]
+                  })
+                }
+              })
+
+              /// return type
+              let returnType = cMethod.getReturnType()
+              let returnTypeStr = returnType.getText(cls)
+
+              if (returnTypeStr.startsWith('Promise<')) {
+                returnType = returnType.getTypeArguments()[0]
+                returnTypeStr = returnType.getText(cls)
               }
-            })
+
+              addFileImport(returnTypeStr, cls)
+              returnTypeStr = returnType.getText(cls)
+              const args = [getDeclareType(':' + returnTypeStr, cls, returnType)]
+              if (returnTypeStr.indexOf('<') > 0) {
+                const typeParams = returnType
+                  .getTypeArguments()
+                  .map((tArg) => {
+                    addFileImport(tArg.getText(cls), cls)
+                    return getDeclareType(':' + tArg.getText(cls), cls, tArg)
+                  })
+                  .join(',')
+                args.push(`[${typeParams}]`)
+              }
+
+              cMethod.addDecorator({
+                name: '_ReturnDeclareType',
+                arguments: args
+              })
+            }
           })
         } else if (classDecorator.getName() === 'RpcClient') {
           const pendingProperties = []
@@ -282,8 +393,11 @@ const compile = async () => {
                   {
                     name: '_ReturnDeclareType',
                     arguments: [
-                      getCompileType(returnPromiseType, p),
-                      getDeclareType(':' + (returnPromiseType ? returnPromiseType.getText() : ''), p, returnPromiseType)
+                      getDeclareType(
+                        ':' + (returnPromiseType ? returnPromiseType.getText(cls) : ''),
+                        p,
+                        returnPromiseType
+                      )
                     ]
                   }
                 ]
@@ -297,6 +411,7 @@ const compile = async () => {
         }
       }
 
+      // RPC
       if (cls.getDecorators().length > 0) {
         for (const classProperty of cls.getMethods()) {
           for (const cpd of classProperty.getDecorators()) {
@@ -307,9 +422,8 @@ const compile = async () => {
                 {
                   name: '_ReturnDeclareType',
                   arguments: [
-                    getCompileType(returnPromiseType, classProperty),
                     getDeclareType(
-                      ':' + (returnPromiseType ? returnPromiseType.getText() : ''),
+                      ':' + (returnPromiseType ? returnPromiseType.getText(cls) : ''),
                       classProperty,
                       returnPromiseType
                     )

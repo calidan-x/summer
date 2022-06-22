@@ -39,16 +39,30 @@ declare global {
 ;(global as any)._Int = class _Int {}
 ;(global as any)._TimeStamp = class _TimeStamp {}
 ;(global as any)._DateTime = class _DateTime {}
-;(global as any)._PropDeclareType = (type: any) => (target: Object, propertyKey: string | symbol) => {
-  Reflect.defineMetadata(propertyKey, propertyKey, target)
-  Reflect.defineMetadata('DeclareType', type, target, propertyKey)
-}
-;(global as any)._ParamDeclareType = (type: any) => (target: Object, propertyKey: string | symbol, index: number) => {
-  let existingParameterTypes: number[] = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey) || []
-  existingParameterTypes[index] = type
-  Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey)
-}
+;(global as any)._PropDeclareType =
+  (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol) => {
+    Reflect.defineMetadata(propertyKey, propertyKey, target)
+    Reflect.defineMetadata('DeclareType', declareType, target, propertyKey)
+    if (typeParams) {
+      Reflect.defineMetadata('TypeParams', typeParams, target, propertyKey)
+    }
+  }
+;(global as any)._ParamDeclareType =
+  (type: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol, index: number) => {
+    let existingParameterTypes: any[] = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey) || []
+    existingParameterTypes[index] = type
+    Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey)
+
+    if (typeParams) {
+      let existingTypeParams: any[] = Reflect.getOwnMetadata('TypeParams', target, propertyKey) || []
+      existingTypeParams[index] = typeParams
+      Reflect.defineMetadata('TypeParams', existingTypeParams, target, propertyKey)
+    }
+  }
 ;(global as any)._ReturnDeclareType =
-  (type: any, declareType: any) => (target: Object, propertyKey: string | symbol) => {
-    Reflect.defineMetadata('ReturnDeclareType', [type, declareType], target, propertyKey)
+  (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol) => {
+    Reflect.defineMetadata('ReturnDeclareType', declareType, target, propertyKey)
+    if (typeParams) {
+      Reflect.defineMetadata('ReturnTypeParams', typeParams, target, propertyKey)
+    }
   }

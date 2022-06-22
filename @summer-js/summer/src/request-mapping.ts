@@ -9,12 +9,20 @@ export const requestMappingAssembler = {
   nextController() {
     this.controllerMethodDescriptors = []
   },
-  addParam(paramMethod: (ctx: any) => any, paramValues: any[], type: any, declareType: any, index: number) {
+  addParam(
+    paramMethod: (ctx: any) => any,
+    paramValues: any[],
+    type: any,
+    declareType: any,
+    typeParams: any[],
+    index: number
+  ) {
     this.params[index] = {
       paramValues,
       paramMethod,
       type,
       declareType,
+      typeParams,
       index
     }
   },

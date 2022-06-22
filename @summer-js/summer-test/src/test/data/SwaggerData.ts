@@ -4,6 +4,7 @@ export const data = {
   tags: [
     { name: 'Person相关服务', description: '' },
     { name: '上传相关接口', description: '' },
+    { name: 'Generic', description: '' },
     { name: 'Movie Apis', description: '' },
     { name: 'Swagger Apis', description: '' }
   ],
@@ -96,6 +97,66 @@ export const data = {
           { name: 'file', in: 'formData', required: true, type: 'file' }
         ],
         responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
+      }
+    },
+    '/generic-type': {
+      post: {
+        tags: ['Generic'],
+        summary: '',
+        security: [],
+        operationId: 'genericRequest',
+        consumes: [],
+        parameters: [
+          {
+            name: 'req',
+            in: 'body',
+            required: true,
+            schema: {
+              type: 'object',
+              properties: {
+                int: { type: 'integer' },
+                dir: { type: 'array', items: { type: 'string', enum: ['Up', 'Down'] } },
+                intArr: { type: 'array', items: { type: 'integer' } },
+                field1: { type: 'string' },
+                field2: { type: 'integer' },
+                obj: {
+                  type: 'object',
+                  properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                  description: '',
+                  required: ['a', 'b']
+                },
+                date: { type: 'string', format: 'date', example: '2012-12-12' },
+                ggg: {
+                  type: 'object',
+                  properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                  description: '',
+                  required: ['a', 'b']
+                }
+              },
+              description: '',
+              required: ['int', 'dir', 'intArr', 'field1', 'field2', 'obj', 'date', 'ggg']
+            }
+          }
+        ],
+        responses: {
+          '200': {
+            schema: {
+              type: 'object',
+              properties: {
+                int: { type: 'integer' },
+                dir: { type: 'array', items: { type: 'string', enum: ['Up', 'Down'] } },
+                intArr: { type: 'array', items: { type: 'integer' } },
+                field1: { type: 'string' },
+                field2: { type: 'integer' },
+                obj: { type: 'object', properties: { a: { type: 'integer' }, b: { type: 'string' } }, description: '' },
+                date: { type: 'string', format: 'date', example: '2012-12-12' },
+                ggg: { type: 'object', properties: { a: { type: 'integer' }, b: { type: 'string' } }, description: '' }
+              },
+              description: ''
+            },
+            description: ''
+          }
+        }
       }
     },
     '/movies': {
@@ -193,6 +254,40 @@ export const data = {
         consumes: [],
         parameters: [],
         responses: { '200': { schema: { type: 'string' }, description: '' } }
+      }
+    },
+    '/swagger-test/paging': {
+      get: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'paging',
+        consumes: [],
+        parameters: [],
+        responses: {
+          '200': {
+            schema: {
+              type: 'object',
+              properties: {
+                data: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      a: { type: 'string', description: 'A', example: 'A Value' },
+                      b: { type: 'integer', description: 'B', example: 1 }
+                    },
+                    description: ''
+                  }
+                },
+                pageNumber: { type: 'integer' },
+                pageSize: { type: 'integer' }
+              },
+              description: ''
+            },
+            description: ''
+          }
+        }
       }
     },
     '/swagger-test/swagger-params/{id}': {

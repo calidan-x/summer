@@ -27,16 +27,25 @@ const getArgDeclareType = (target: Object, propertyKey: string, parameterIndex: 
   return types[parameterIndex]
 }
 
+const getArgTypeParams = (target: Object, propertyKey: string, parameterIndex: number) => {
+  const typeParams = Reflect.getOwnMetadata('TypeParams', target, propertyKey)
+  if (!typeParams) {
+    return []
+  }
+  return typeParams[parameterIndex]
+}
+
 const generateParamDecorator =
   (paramMethod: any, ...args: any[]) =>
   (target: Object, propertyKey: string, parameterIndex: number) => {
     const type = getArgType(target, propertyKey, parameterIndex)
     const declareType = getArgDeclareType(target, propertyKey, parameterIndex)
+    const typeParams = getArgTypeParams(target, propertyKey, parameterIndex)
     if (!args) {
       args = []
     }
     args.splice(0, 0, getArgName(target[propertyKey], parameterIndex))
-    requestMappingAssembler.addParam(paramMethod, args, type, declareType, parameterIndex)
+    requestMappingAssembler.addParam(paramMethod, args, type, declareType, typeParams, parameterIndex)
   }
 
 type DecoratorMethodType = (ctx: Context, ...args: any[]) => any
