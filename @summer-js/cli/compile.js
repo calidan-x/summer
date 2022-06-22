@@ -196,9 +196,9 @@ const compile = async () => {
       }
 
       const pendingDecorators = []
-      if (!p.hasQuestionToken()) {
-        if (!p.getDecorators().find((d) => d.getName() === '_Required')) {
-          pendingDecorators.push({ name: '_Required', arguments: [] })
+      if (p.hasQuestionToken()) {
+        if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
+          pendingDecorators.push({ name: '_Optional', arguments: [] })
         }
       }
 

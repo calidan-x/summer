@@ -463,7 +463,7 @@ const getRequiredKeys = (t: any, isRequest: boolean) => {
   const requireKeys = []
   const typeInc = new t()
   for (const key of Reflect.getOwnMetadataKeys(t.prototype)) {
-    const required = Reflect.getMetadata('required', typeInc, key)
+    const required = !Reflect.getMetadata('optional', typeInc, key)
     if (required) {
       requireKeys.push(key)
     }
@@ -706,7 +706,7 @@ export class SummerSwaggerUIController {
             for (const filed in formProps) {
               let isRequired = false
               if (d0 && typeof d0 === 'function') {
-                isRequired = Reflect.getMetadata('required', new d0(), filed)
+                isRequired = !Reflect.getMetadata('optional', new d0(), filed)
               }
               parameters.push({
                 name: filed,
@@ -720,7 +720,7 @@ export class SummerSwaggerUIController {
             for (const filed in props) {
               let isRequired = false
               if (d0 && typeof d0 === 'function') {
-                isRequired = Reflect.getMetadata('required', new d0(), filed)
+                isRequired = !Reflect.getMetadata('optional', new d0(), filed)
               }
               parameters.push({
                 name: filed,

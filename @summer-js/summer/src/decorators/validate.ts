@@ -38,14 +38,14 @@ export const MinLen =
   (...arg) =>
     defineMetaValue(arg, 'minLen', minLength)
 
-const Required: ValidateDecoratorType = (...args) => {
+const Optional: ValidateDecoratorType = (...args) => {
   if (args.length === 0) {
-    return (...arg) => defineMetaValue(arg, 'required', true)
+    return (...arg) => defineMetaValue(arg, 'optional', true)
   } else {
-    defineMetaValue(args, 'required', true)
+    defineMetaValue(args, 'optional', true)
   }
 }
-;(global as any)._Required = Required
+;(global as any)._Optional = Optional
 
 export const Pattern =
   (regExp: RegExp) =>

@@ -33,7 +33,7 @@ declare global {
   const _PropDeclareType: any
   const _ParamDeclareType: any
   const _ReturnDeclareType: any
-  const _Required: any
+  const _Optional: any
 }
 
 ;(global as any)._Int = class _Int {}

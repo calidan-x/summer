@@ -57,7 +57,9 @@ export const validateAndConvertType = (
   let value: any = undefined
   let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
   if (propertyValue === undefined) {
-    validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
+    if (!isFirstLevel) {
+      validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
+    }
     return undefined
   }
 
@@ -379,8 +381,8 @@ const validateRequired = (
   propValue: string,
   errors: ValidateError[]
 ) => {
-  let required: boolean = getMetaData('required', instance, methodName, paramIndex, propName)
-  if (required && propValue === undefined) {
+  let optional: boolean = getMetaData('optional', instance, methodName, paramIndex, propName)
+  if (!optional && propValue === undefined) {
     errors.push({
       param: errorParam,
       message: `'${propName}' is required`
