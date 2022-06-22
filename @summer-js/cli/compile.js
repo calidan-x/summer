@@ -82,6 +82,11 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     return '[]'
   }
 
+  // interface
+  if (type.startsWith('{')) {
+    return '[]'
+  }
+
   // Generic
   if (typeParams && typeParams.length > 0) {
     const typeWithoutArray = type.replace('[]', '')
