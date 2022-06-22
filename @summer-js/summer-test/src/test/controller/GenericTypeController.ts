@@ -33,7 +33,6 @@ class Request<T, K, L, P> {
 export class GenericTypeController {
   @Post
   async genericRequest(@Body req: Request<string, int, Obj, Date>) {
-    console.log('body', req)
     return req
   }
 
@@ -44,5 +43,17 @@ export class GenericTypeController {
     g.b = 'sss'
     g.d = new Date()
     return { hello: 'World', data: new Date(), g }
+  }
+
+  @Get('/a')
+  async object2() {
+    const a: int[] = [2, 4, 5]
+    return a
+  }
+
+  @Get('/b')
+  async object3() {
+    const a: { a: string; e: number }[] = []
+    return a
   }
 }

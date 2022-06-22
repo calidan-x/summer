@@ -30,6 +30,7 @@ export const validateAndConvertType = (
   }
 
   let [d0, d1] = declareType
+
   if (d0 === undefined && d1 !== Array) {
     return propertyValue
   }

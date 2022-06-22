@@ -38,7 +38,8 @@ const TypeMapping = {
   'TimeStamp[]': '[_TimeStamp,Array]',
   'any[]': '[undefined,Array]',
   undefined: '[]',
-  null: '[]'
+  null: '[]',
+  void: '[]'
 }
 
 const getAllReferencingSourceFiles = (sf, allRefFiles) => {
@@ -78,10 +79,6 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
       return TypeMapping[type]
     }
   } else {
-    return '[]'
-  }
-
-  if (type.indexOf('{')) {
     return '[]'
   }
 
@@ -353,16 +350,19 @@ const compile = async () => {
 
               addFileImport(returnTypeStr, cls)
               returnTypeStr = returnType.getText(cls)
-              const args = [getDeclareType(':' + returnTypeStr, cls, returnType)]
-              if (returnTypeStr.indexOf('<') > 0) {
-                const typeParams = returnType
-                  .getTypeArguments()
-                  .map((tArg) => {
-                    addFileImport(tArg.getText(cls), cls)
-                    return getDeclareType(':' + tArg.getText(cls), cls, tArg)
-                  })
-                  .join(',')
-                args.push(`[${typeParams}]`)
+              let args = []
+              if (!returnTypeStr.startsWith('{')) {
+                args = [getDeclareType(':' + returnTypeStr, cls, returnType)]
+                if (returnTypeStr.indexOf('<') > 0) {
+                  const typeParams = returnType
+                    .getTypeArguments()
+                    .map((tArg) => {
+                      addFileImport(tArg.getText(cls), cls)
+                      return getDeclareType(':' + tArg.getText(cls), cls, tArg)
+                    })
+                    .join(',')
+                  args.push(`[${typeParams}]`)
+                }
               }
 
               cMethod.addDecorator({
