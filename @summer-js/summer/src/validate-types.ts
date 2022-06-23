@@ -14,7 +14,6 @@ interface ValidateError {
 
 export const validateAndConvertType = (
   declareType: any[],
-  typeParams: any[],
   propertyName: string,
   propertyValue: any,
   allErrors: ValidateError[],
@@ -29,14 +28,10 @@ export const validateAndConvertType = (
     return propertyValue
   }
 
-  let [d0, d1] = declareType || []
+  let [d0, d1, d2] = declareType || []
 
   if (d0 === undefined && d1 !== Array) {
     return propertyValue
-  }
-
-  if (typeof d0 === 'number') {
-    ;[d0, d1] = typeParams[d0] || []
   }
 
   let checkType = d1 || d0
@@ -262,12 +257,10 @@ export const validateAndConvertType = (
         )
         validateNotEmpty(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
 
+        let arrValueType: any = [d0, undefined, d2]
         for (let i = 0; i < arrayValue.length; i++) {
-          let arrValueType: any = [d0, undefined]
-
           arrayValue[i] = validateAndConvertType(
             arrValueType,
-            typeParams,
             '[' + i + ']',
             arrayValue[i],
             allErrors,
@@ -316,23 +309,20 @@ export const validateAndConvertType = (
           }
         }
 
-        const tp = isFirstLevel ? typeParams : Reflect.getMetadata('TypeParams', instance, propertyName)
         for (const k of allProperties) {
           let declareType = Reflect.getMetadata('DeclareType', classInstance, k)
-
-          if (declareType === undefined) {
-            classInstance[k] = objectValue[k]
-            continue
-          }
 
           if (declareType[0] === undefined) {
             classInstance[k] = objectValue[k]
             continue
           }
 
+          if (typeof declareType[0] === 'number') {
+            declareType = d2[declareType[0]]
+          }
+
           const validateValue = validateAndConvertType(
             declareType,
-            tp,
             k,
             objectValue[k],
             allErrors,

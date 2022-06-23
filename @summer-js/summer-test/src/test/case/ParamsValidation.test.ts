@@ -399,7 +399,7 @@ describe('Controller Params Test', () => {
     {
       const result = await request.get('/generic-type/return')
       expect(result.statusCode).toBe(200)
-      expect(result.body).toBe('{"a":"xxxx","b":"sss","d":"2022-02-01"}')
+      expect(result.body).toBe('{"a":"2022-02-01","b":"sss","d":"2022-02-01"}')
     }
 
     {

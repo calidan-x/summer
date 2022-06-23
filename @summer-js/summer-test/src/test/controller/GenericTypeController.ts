@@ -47,8 +47,8 @@ export class GenericTypeController {
 
   @Get('/return')
   async genericReturn() {
-    const g = new G<string>()
-    g.a = 'xxxx'
+    const g = new G<Date>()
+    g.a = new Date(2022, 1, 1)
     g.b = 'sss'
     g.d = new Date(2022, 1, 1)
     return g

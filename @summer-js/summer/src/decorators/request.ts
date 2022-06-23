@@ -86,7 +86,7 @@ export const Send =
 
       const allErrors = []
       const [type, declareType] = Reflect.getMetadata('ReturnDeclareType', this, propertyKey)
-      responseData = validateAndConvertType(declareType, [], '', responseData, allErrors, '', -1, this)
+      responseData = validateAndConvertType(declareType, '', responseData, allErrors, '', -1, this)
       if (allErrors.length) {
         throw new Error(JSON.stringify(allErrors))
       }

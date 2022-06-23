@@ -195,7 +195,7 @@ export const data = {
             schema: {
               type: 'object',
               properties: {
-                a: { type: 'string' },
+                a: { type: 'string', format: 'date', example: '2012-12-12' },
                 b: { type: 'string' },
                 d: { type: 'string', format: 'date', example: '2012-12-12' }
               },

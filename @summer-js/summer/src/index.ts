@@ -43,27 +43,21 @@ declare global {
 ;(global as any)._PropDeclareType =
   (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol) => {
     Reflect.defineMetadata(propertyKey, propertyKey, target)
+    declareType = declareType || []
+    declareType[2] = typeParams || []
     Reflect.defineMetadata('DeclareType', declareType, target, propertyKey)
-    if (typeParams) {
-      Reflect.defineMetadata('TypeParams', typeParams, target, propertyKey)
-    }
   }
 ;(global as any)._ParamDeclareType =
-  (type: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol, index: number) => {
+  (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol, index: number) => {
     let existingParameterTypes: any[] = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey) || []
-    existingParameterTypes[index] = type
+    declareType = declareType || []
+    declareType[2] = typeParams || []
+    existingParameterTypes[index] = declareType
     Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey)
-
-    if (typeParams) {
-      let existingTypeParams: any[] = Reflect.getOwnMetadata('TypeParams', target, propertyKey) || []
-      existingTypeParams[index] = typeParams
-      Reflect.defineMetadata('TypeParams', existingTypeParams, target, propertyKey)
-    }
   }
 ;(global as any)._ReturnDeclareType =
   (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol) => {
+    declareType = declareType || []
+    declareType[2] = typeParams || []
     Reflect.defineMetadata('ReturnDeclareType', declareType, target, propertyKey)
-    if (typeParams) {
-      Reflect.defineMetadata('ReturnTypeParams', typeParams, target, propertyKey)
-    }
   }

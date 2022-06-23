@@ -95,52 +95,56 @@ const toDateTime = (d: Date) => {
   return toDate(d) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + ':' + addZero(d.getSeconds())
 }
 
-const serialization = (obj, key, typeParams, childDeclareType = undefined) => {
-  let declareType = Reflect.getMetadata('DeclareType', obj, key) || childDeclareType || []
-
-  let [d0, d1] = declareType || []
+const serialization = (obj, declareType: any[]) => {
+  let [d0, d1, d2] = declareType || []
   const isArray = d1 === Array
-  if (typeof d0 === 'number') {
-    ;[d0, d1] = typeParams[d0] || []
-  }
 
-  if (isArray || (typeof obj[key] === 'object' && ![Date, _DateTime, _TimeStamp].includes(d0))) {
-    const propTypeParams = Reflect.getMetadata('TypeParams', obj, key) || []
-    for (const childKey in obj[key]) {
-      serialization(obj[key], childKey, isArray ? typeParams : propTypeParams, isArray ? [d0, undefined] : undefined)
+  if (isArray) {
+    for (const key in obj) {
+      obj[key] = serialization(obj[key], [d0, undefined, d2])
+    }
+  } else if (typeof obj === 'object' && ![Date, _DateTime, _TimeStamp].includes(d0)) {
+    for (const key in obj) {
+      let declareType = Reflect.getMetadata('DeclareType', obj, key) || []
+      if (typeof declareType[0] === 'number') {
+        if (d2) {
+          declareType = d2[declareType[0]] || []
+        } else {
+          declareType = []
+        }
+      }
+      obj[key] = serialization(obj[key], declareType)
     }
   } else {
     if (typeof d0 === 'object') {
-      if (d0[obj[key]]) {
-        obj[key] = d0[obj[key]]
+      if (d0[obj]) {
+        obj = d0[obj]
       } else {
         for (const enumKey in d0) {
-          if (d0[enumKey] === obj[key]) {
-            obj[key] = enumKey
+          if (d0[enumKey] === obj) {
+            obj = enumKey
           }
         }
       }
     } else if (d0 === Date) {
-      obj[key] = toDate(obj[key])
+      obj = toDate(obj)
     } else if (d0 === _DateTime) {
-      obj[key] = toDateTime(obj[key])
+      obj = toDateTime(obj)
     } else if (d0 === _TimeStamp) {
-      obj[key] = obj[key].getTime()
+      obj = obj.getTime()
     }
   }
 
   return obj
 }
 
-export const applyResponse = (ctx: Context, responseData: any, typeParams: any[]) => {
+export const applyResponse = (ctx: Context, responseData: any, returnDeclareType: any[]) => {
   if (!responseData) {
     responseData = ''
   }
   const isJSON = typeof responseData === 'object'
   if (isJSON) {
-    for (const key in responseData) {
-      serialization(responseData, key, typeParams, undefined)
-    }
+    responseData = serialization(responseData, returnDeclareType)
   }
 
   if (ctx.response.body === undefined) {
@@ -172,7 +176,6 @@ const callControllerMethod = async (ctx: Context) => {
         let paramValue = param.paramMethod(ctx, ...param.paramValues)
         convertedValue = await validateAndConvertType(
           param.declareType,
-          param.typeParams,
           param.paramValues[0],
           paramValue,
           allErrors,
@@ -195,8 +198,8 @@ const callControllerMethod = async (ctx: Context) => {
     } else {
       await asyncLocalStorage.run(ctx, async () => {
         let responseData = await controller[callMethod].apply(controller, applyParam)
-        const typeParams = Reflect.getMetadata('ReturnTypeParams', controller, callMethod)
-        applyResponse(ctx, responseData, typeParams)
+        const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
+        applyResponse(ctx, responseData, returnDeclareType)
       })
     }
   } else {

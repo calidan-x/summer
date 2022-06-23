@@ -53,7 +53,7 @@ export const rpc = {
       }
     }
     const allErrors = []
-    result = validateAndConvertType(declareType, [], '', result, allErrors, '', -1, instance)
+    result = validateAndConvertType(declareType, '', result, allErrors, '', -1, instance)
     if (allErrors.length) {
       throw new Error(JSON.stringify(allErrors))
     }

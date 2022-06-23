@@ -468,20 +468,20 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
   const typeDesc = {}
 
   for (const key of Reflect.getOwnMetadataKeys(dType.prototype)) {
-    let [d0, d1] = Reflect.getMetadata('DeclareType', typeInc, key) || []
+    let [d0, d1, d2] = Reflect.getMetadata('DeclareType', typeInc, key) || []
 
     const isArray = d1 === Array
 
     if (typeof d0 === 'number') {
       const gDeclareType = typeParams[d0]
-      ;[d0, d1] = gDeclareType || []
+      ;[d0, d1, d2] = gDeclareType || []
     }
 
     if (getType(d0) === 'object') {
       if (isArray) {
         typeDesc[key] = { type: 'array', items: getTypeDesc(d0, typeParams, isRequest) }
       } else {
-        const typeParams = Reflect.getMetadata('TypeParams', typeInc, key)
+        const typeParams = d2
         typeDesc[key] = getTypeDesc(d0, typeParams, isRequest)
       }
     } else {
@@ -686,10 +686,10 @@ export class SummerSwaggerUIController {
 
         // request structure
         params.forEach((param) => {
-          const [d0] = param.declareType
+          const [d0, d1, d2] = param.declareType
           let paramType = getParamType(param.paramMethod.toString())
           if (isFormBody && paramType === 'body') {
-            const formProps = getTypeDesc(d0, param.typeParams, true).properties
+            const formProps = getTypeDesc(d0, d2, true).properties
 
             for (const filed in formProps) {
               let isRequired = false
@@ -704,7 +704,7 @@ export class SummerSwaggerUIController {
               })
             }
           } else if (paramType === 'queries') {
-            const props = getTypeDesc(d0, param.typeParams, true).properties
+            const props = getTypeDesc(d0, d2, true).properties
             for (const filed in props) {
               let isRequired = false
               if (d0 && typeof d0 === 'function') {
@@ -729,14 +729,14 @@ export class SummerSwaggerUIController {
             const type = ptype || 'string'
 
             let schema = null
-            if (param.type === Array) {
+            if (d1 === Array) {
               schema = {
                 type: 'array',
-                items: getTypeDesc(d0, param.typeParams, true)
+                items: getTypeDesc(d0, d2, true)
               }
             } else if (ptype === 'object') {
               schema = {
-                ...getTypeDesc(d0, param.typeParams, true)
+                ...getTypeDesc(d0, d2, true)
               }
             } else if (parameter.in !== 'body') {
               parameter.type = type
@@ -768,14 +768,11 @@ export class SummerSwaggerUIController {
         const successResExample = api.example?.response
 
         let returnDeclareType = Reflect.getMetadata('ReturnDeclareType', api.controller, api.callMethod) || []
-        const returnTypeParams = Reflect.getMetadata('ReturnTypeParams', api.controller, api.callMethod) || []
+        const returnTypeParams = returnDeclareType[2] || []
 
-        let [d0, d1, d2] = returnDeclareType
+        let [d0, d1] = returnDeclareType
 
         const isArray = d1 === Array
-        if (typeof d0 === 'number') {
-          d0 = returnTypeParams[d0]
-        }
 
         const consumes = []
         if (parameters.find((p) => p.type === 'file')) {
