@@ -57,9 +57,7 @@ export const validateAndConvertType = (
   let value: any = undefined
   let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
   if (propertyValue === undefined) {
-    if (!isFirstLevel) {
-      validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
-    }
+    validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
     return undefined
   }
 
@@ -111,6 +109,7 @@ export const validateAndConvertType = (
         allErrors,
         isFirstLevel
       )
+      validateNotEmpty(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
       break
     case Number:
     case _Int:
@@ -261,6 +260,7 @@ export const validateAndConvertType = (
           allErrors,
           isFirstLevel
         )
+        validateNotEmpty(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
 
         for (let i = 0; i < arrayValue.length; i++) {
           let arrValueType: any = [d0, undefined]
@@ -386,6 +386,25 @@ const validateRequired = (
     errors.push({
       param: errorParam,
       message: `'${propName}' is required`
+    })
+  }
+}
+
+const validateNotEmpty = (
+  instance: any,
+  methodName,
+  paramIndex: number,
+  propName: string,
+  errorParam: string,
+  propValue: string,
+  errors: ValidateError[]
+) => {
+  let notEmpty: boolean = getMetaData('notEmpty', instance, methodName, paramIndex, propName)
+
+  if (notEmpty && propValue.length === 0) {
+    errors.push({
+      param: errorParam,
+      message: `'${propName}' cannot be empty`
     })
   }
 }

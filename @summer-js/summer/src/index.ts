@@ -34,6 +34,7 @@ declare global {
   const _ParamDeclareType: any
   const _ReturnDeclareType: any
   const _Optional: any
+  const _NotEmpty: any
 }
 
 ;(global as any)._Int = class _Int {}

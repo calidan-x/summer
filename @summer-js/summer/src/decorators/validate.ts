@@ -47,6 +47,15 @@ const Optional: ValidateDecoratorType = (...args) => {
 }
 ;(global as any)._Optional = Optional
 
+const NotEmpty: ValidateDecoratorType = (...args) => {
+  if (args.length === 0) {
+    return (...arg) => defineMetaValue(arg, 'notEmpty', true)
+  } else {
+    defineMetaValue(args, 'notEmpty', true)
+  }
+}
+;(global as any)._NotEmpty = NotEmpty
+
 export const Pattern =
   (regExp: RegExp) =>
   (...arg) =>

@@ -200,6 +200,10 @@ const compile = async () => {
         if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
           pendingDecorators.push({ name: '_Optional', arguments: [] })
         }
+      } else if (p.hasExclamationToken()) {
+        if (!p.getDecorators().find((d) => d.getName() === '_NotEmpty')) {
+          pendingDecorators.push({ name: '_NotEmpty', arguments: [] })
+        }
       }
 
       if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
@@ -337,22 +341,29 @@ const compile = async () => {
                         .join(',') +
                       ']'
                   }
-                  param.addDecorator({
-                    name: '_ParamDeclareType',
-                    arguments: [getDeclareType(param.getText(), param), typeParams]
-                  })
+                  const decorators = [
+                    {
+                      name: '_ParamDeclareType',
+                      arguments: [getDeclareType(param.getText(), param), typeParams]
+                    }
+                  ]
+                  if (param.hasQuestionToken()) {
+                    decorators.push({
+                      name: '_Optional',
+                      arguments: []
+                    })
+                  }
+                  param.addDecorators(decorators)
                 }
               })
 
               /// return type
               let returnType = cMethod.getReturnType()
               let returnTypeStr = returnType.getText(cls)
-
               if (returnTypeStr.startsWith('Promise<')) {
                 returnType = returnType.getTypeArguments()[0]
                 returnTypeStr = returnType.getText(cls)
               }
-
               addFileImport(returnTypeStr, cls)
               returnTypeStr = returnType.getText(cls)
               let args = []

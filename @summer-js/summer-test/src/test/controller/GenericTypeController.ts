@@ -19,7 +19,7 @@ class G<T> {
 
 class Request<T, K, L, P> {
   int: int
-  dir: Direction[]
+  dir!: Direction[]
   intArr: int[]
   field1: T
   field2: K

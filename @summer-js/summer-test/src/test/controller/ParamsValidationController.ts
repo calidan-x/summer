@@ -105,26 +105,26 @@ class DateValidateRequest {
 export class ParamsValidationController {
   @Get('/request-basic-type-value')
   async requestBasicTypeValue(
-    @Query notypeValue,
-    @Query anyValue: any,
-    @Query stringValue: string,
-    @Query intValue: int,
-    @Query bigintValue: bigint,
-    @Query numberValue: number,
-    @Query booleanValue: boolean,
-    @Query numberEnumValue: NumberEnum,
-    @Query stringEnumValue: StringEnum,
-    @Query objValue: Obj,
-    @Query anyArrayValue: any[],
-    @Query stringArrayValue: string[],
-    @Query intArrayValue: int[],
-    @Query numberArrayValue: number[],
-    @Query booleanArrayValue: boolean[],
-    @Query numberEnumArrayValue: NumberEnum[],
-    @Query stringEnumArrayValue: StringEnum[],
-    @Query objArrayValue: Obj[],
-    @Query stringUnionValue: 'SU1' | 'SU2' | 'SU:3',
-    @Query fixedStringValue: 'str:ing'
+    @Query notypeValue?,
+    @Query anyValue?: any,
+    @Query stringValue?: string,
+    @Query intValue?: int,
+    @Query bigintValue?: bigint,
+    @Query numberValue?: number,
+    @Query booleanValue?: boolean,
+    @Query numberEnumValue?: NumberEnum,
+    @Query stringEnumValue?: StringEnum,
+    @Query objValue?: Obj,
+    @Query anyArrayValue?: any[],
+    @Query stringArrayValue?: string[],
+    @Query intArrayValue?: int[],
+    @Query numberArrayValue?: number[],
+    @Query booleanArrayValue?: boolean[],
+    @Query numberEnumArrayValue?: NumberEnum[],
+    @Query stringEnumArrayValue?: StringEnum[],
+    @Query objArrayValue?: Obj[],
+    @Query stringUnionValue?: 'SU1' | 'SU2' | 'SU:3',
+    @Query fixedStringValue?: 'str:ing'
   ) {
     let value =
       notypeValue ||
