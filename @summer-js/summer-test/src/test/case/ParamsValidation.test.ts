@@ -173,7 +173,7 @@ describe('Controller Params Test', () => {
     await testErrorRequestParam('str', 'fixedString', 'is not in [\\"str:ing\\"]')
   })
 
-  test('test optional key', async () => {
+  test('test optional and required and empty key', async () => {
     let result = await request.post('/request-key-validate/optional', {
       body: { optionalKey: 'optionalKey', requiredKey: 'requiredKey' }
     })
@@ -191,6 +191,34 @@ describe('Controller Params Test', () => {
     })
     expect(result.statusCode).toBe(400)
     expect(result.body).toContain("'requiredKey' is required")
+
+    result = await request.post('/request-key-validate/param-optional')
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe('')
+
+    result = await request.post('/request-key-validate/param-required')
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("'keyword' is required")
+
+    result = await request.post('/request-key-validate/param-empty', {
+      body: {
+        normal: '',
+        notEmptyString: '',
+        notEmptyArray: []
+      }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("'notEmptyString' cannot be empty")
+    expect(result.body).toContain("'notEmptyArray' cannot be empty")
+
+    result = await request.post('/request-key-validate/param-empty', {
+      body: {
+        normal: '',
+        notEmptyString: 'xxxx',
+        notEmptyArray: [1, 2, 3]
+      }
+    })
+    expect(result.statusCode).toBe(200)
   })
 
   test('test @Min', async () => {
@@ -340,5 +368,44 @@ describe('Controller Params Test', () => {
       body: postBody
     })
     expect(result.body).toBe(JSON.stringify(postBody))
+  })
+
+  test('test generic', async () => {
+    {
+      const postBody = {
+        int: 123,
+        dir: ['Up', 'Down'],
+        intArr: [1, 2, 3],
+        field1: ['aaa', 'bbb'],
+        field2: 123,
+        obj: {
+          a: 23,
+          b: 'sdf'
+        },
+        date: '2012-12-12',
+        g: {
+          a: 123,
+          b: '123',
+          d: '2022-12-12'
+        }
+      }
+      const result = await request.post('/generic-type', {
+        body: postBody
+      })
+      expect(result.statusCode).toBe(200)
+      expect(result.body).toBe(JSON.stringify(postBody))
+    }
+
+    {
+      const result = await request.get('/generic-type/return')
+      expect(result.statusCode).toBe(200)
+      expect(result.body).toBe('{"a":"xxxx","b":"sss","d":"2022-02-01"}')
+    }
+
+    {
+      const result = await request.get('/generic-type/mixed-object-return')
+      expect(result.statusCode).toBe(200)
+      expect(result.body).toBe('{"hello":"World","g":{"a":123,"b":"sss","d":"2023-01-12"}}')
+    }
   })
 })

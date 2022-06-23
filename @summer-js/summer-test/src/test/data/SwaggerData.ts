@@ -93,7 +93,7 @@ export const data = {
         consumes: ['multipart/form-data'],
         parameters: [
           { name: 'field1', in: 'formData', required: true, type: 'string' },
-          { name: 'field2', in: 'formData', type: 'integer' },
+          { name: 'field2', in: 'formData', required: false, type: 'integer' },
           { name: 'file', in: 'formData', required: true, type: 'file' }
         ],
         responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
@@ -126,15 +126,19 @@ export const data = {
                   required: ['a', 'b']
                 },
                 date: { type: 'string', format: 'date', example: '2012-12-12' },
-                ggg: {
+                g: {
                   type: 'object',
-                  properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                  properties: {
+                    a: { type: 'integer' },
+                    b: { type: 'string' },
+                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                  },
                   description: '',
-                  required: ['a', 'b']
+                  required: ['a', 'b', 'd']
                 }
               },
               description: '',
-              required: ['int', 'dir', 'intArr', 'field1', 'field2', 'obj', 'date', 'ggg']
+              required: ['int', 'dir', 'intArr', 'field1', 'field2', 'obj', 'date', 'g']
             }
           }
         ],
@@ -150,7 +154,50 @@ export const data = {
                 field2: { type: 'integer' },
                 obj: { type: 'object', properties: { a: { type: 'integer' }, b: { type: 'string' } }, description: '' },
                 date: { type: 'string', format: 'date', example: '2012-12-12' },
-                ggg: { type: 'object', properties: { a: { type: 'integer' }, b: { type: 'string' } }, description: '' }
+                g: {
+                  type: 'object',
+                  properties: {
+                    a: { type: 'integer' },
+                    b: { type: 'string' },
+                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                  },
+                  description: ''
+                }
+              },
+              description: ''
+            },
+            description: ''
+          }
+        }
+      }
+    },
+    '/generic-type/mixed-object-return': {
+      get: {
+        tags: ['Generic'],
+        summary: '',
+        security: [],
+        operationId: 'mixedObjectReturn',
+        consumes: [],
+        parameters: [],
+        responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
+      }
+    },
+    '/generic-type/return': {
+      get: {
+        tags: ['Generic'],
+        summary: '',
+        security: [],
+        operationId: 'genericReturn',
+        consumes: [],
+        parameters: [],
+        responses: {
+          '200': {
+            schema: {
+              type: 'object',
+              properties: {
+                a: { type: 'string' },
+                b: { type: 'string' },
+                d: { type: 'string', format: 'date', example: '2012-12-12' }
               },
               description: ''
             },

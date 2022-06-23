@@ -29,14 +29,14 @@ export const validateAndConvertType = (
     return propertyValue
   }
 
-  let [d0, d1] = declareType
+  let [d0, d1] = declareType || []
 
   if (d0 === undefined && d1 !== Array) {
     return propertyValue
   }
 
   if (typeof d0 === 'number') {
-    ;[d0, d1] = typeParams[d0]
+    ;[d0, d1] = typeParams[d0] || []
   }
 
   let checkType = d1 || d0

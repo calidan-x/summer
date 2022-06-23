@@ -468,13 +468,13 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
   const typeDesc = {}
 
   for (const key of Reflect.getOwnMetadataKeys(dType.prototype)) {
-    let [d0, d1] = Reflect.getMetadata('DeclareType', typeInc, key)
+    let [d0, d1] = Reflect.getMetadata('DeclareType', typeInc, key) || []
 
     const isArray = d1 === Array
 
     if (typeof d0 === 'number') {
       const gDeclareType = typeParams[d0]
-      ;[d0, d1] = gDeclareType
+      ;[d0, d1] = gDeclareType || []
     }
 
     if (getType(d0) === 'object') {

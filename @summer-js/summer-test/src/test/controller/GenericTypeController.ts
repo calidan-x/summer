@@ -25,35 +25,32 @@ class Request<T, K, L, P> {
   field2: K
   obj: L
   date: P
-  ggg: G<int>
+  g: G<int>
 }
 
 @ApiDocGroup('Generic')
 @Controller('/generic-type')
 export class GenericTypeController {
   @Post
-  async genericRequest(@Body req: Request<string, int, Obj, Date>) {
+  async genericRequest(@Body req: Request<string[], int, Obj, Date>) {
     return req
   }
 
-  @Get
-  async object() {
-    const g = new G()
+  @Get('/mixed-object-return')
+  async mixedObjectReturn() {
+    const g = new G<int>()
     g.a = 123
     g.b = 'sss'
-    g.d = new Date()
-    return { hello: 'World', data: new Date(), g }
+    g.d = new Date(2022, 12, 12)
+    return { hello: 'World', g }
   }
 
-  @Get('/a')
-  async object2() {
-    const a: int[] = [2, 4, 5]
-    return a
-  }
-
-  @Get('/b')
-  async object3() {
-    const a: { a: string; e: number }[] = []
-    return a
+  @Get('/return')
+  async genericReturn() {
+    const g = new G<string>()
+    g.a = 'xxxx'
+    g.b = 'sss'
+    g.d = new Date(2022, 1, 1)
+    return g
   }
 }

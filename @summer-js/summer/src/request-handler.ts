@@ -98,10 +98,10 @@ const toDateTime = (d: Date) => {
 const serialization = (obj, key, typeParams, childDeclareType = undefined) => {
   let declareType = Reflect.getMetadata('DeclareType', obj, key) || childDeclareType || []
 
-  let [d0, d1] = declareType
+  let [d0, d1] = declareType || []
   const isArray = d1 === Array
   if (typeof d0 === 'number') {
-    ;[d0, d1] = typeParams[d0]
+    ;[d0, d1] = typeParams[d0] || []
   }
 
   if (isArray || (typeof obj[key] === 'object' && ![Date, _DateTime, _TimeStamp].includes(d0))) {

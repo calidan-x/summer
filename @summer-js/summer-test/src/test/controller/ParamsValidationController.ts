@@ -101,6 +101,12 @@ class DateValidateRequest {
   timeStamps: TimeStamp[]
 }
 
+class EmptyRequest {
+  normal: string
+  notEmptyString!: string
+  notEmptyArray!: int[]
+}
+
 @Controller
 export class ParamsValidationController {
   @Get('/request-basic-type-value')
@@ -164,6 +170,21 @@ export class ParamsValidationController {
   @Post('/request-key-validate/optional')
   optionalKey(@Body request: OptionalRequest) {
     return request
+  }
+
+  @Post('/request-key-validate/param-optional')
+  paramOptional(@Query keyword?: string) {
+    return keyword
+  }
+
+  @Post('/request-key-validate/param-required')
+  paramRequired(@Query keyword: string) {
+    return keyword
+  }
+
+  @Post('/request-key-validate/param-empty')
+  paramEmpty(@Body emptyRequest: EmptyRequest) {
+    return emptyRequest
   }
 
   @Post('/request-key-validate/min')
