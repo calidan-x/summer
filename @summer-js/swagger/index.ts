@@ -14,18 +14,6 @@ import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
 import { ClassDeclaration } from 'ts-morph'
 import fs from 'fs'
-// ;(global as any)._ApiReturnType =
-//   (returnDeclareType: string, typeParams: any[]) => (target: Object, propertyKey: string, descriptor: any) => {
-//     Reflect.defineMetadata('Api:ReturnDeclareType', returnDeclareType, target, propertyKey)
-//     if (typeParams) {
-//       Reflect.defineMetadata('Api:ReturnTypeParams', typeParams, target, propertyKey)
-//     }
-//   }
-
-// declare const _ParamDeclareType: any
-// declare global {
-//   const _ApiReturnType: any
-// }
 
 interface Schema {
   type: string
@@ -628,7 +616,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
 @Controller('/swagger-ui')
 export class SummerSwaggerUIController {
   @Get
-  getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType([String]) primaryName: string) {
+  getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType([String]) @_Optional primaryName?: string) {
     let allPages = allTags.map((at) => at.category || '')
     allPages = Array.from(new Set(allPages))
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
@@ -652,7 +640,7 @@ export class SummerSwaggerUIController {
   }
 
   @Get('/swagger-docs.json')
-  getSwaggerDocument(@Query @_ParamDeclareType([String]) category: string) {
+  getSwaggerDocument(@Query @_ParamDeclareType([String]) @_Optional category?: string) {
     swaggerJson.tags = []
     swaggerJson.paths = {}
     category = category || ''
