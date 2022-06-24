@@ -95,25 +95,36 @@ const toDateTime = (d: Date) => {
   return toDate(d) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + ':' + addZero(d.getSeconds())
 }
 
-const serialization = (obj, declareType: any[]) => {
+const serialize = (obj, declareType: any[]) => {
   let [d0, d1, d2] = declareType || []
   const isArray = d1 === Array
 
   if (isArray) {
     for (const key in obj) {
-      obj[key] = serialization(obj[key], [d0, undefined, d2])
+      obj[key] = serialize(obj[key], [d0, undefined, d2])
     }
   } else if (typeof obj === 'object' && ![Date, _DateTime, _TimeStamp].includes(d0)) {
     for (const key in obj) {
       let declareType = Reflect.getMetadata('DeclareType', obj, key) || []
       if (typeof declareType[0] === 'number') {
         if (d2) {
+          const d1Type = declareType[1]
           declareType = d2[declareType[0]] || []
+          if (d1Type) {
+            declareType[1] = d1Type
+          }
         } else {
           declareType = []
         }
       }
-      obj[key] = serialization(obj[key], declareType)
+      if (declareType[2]) {
+        declareType[2].forEach((d, inx) => {
+          if (typeof d[0] === 'number') {
+            declareType[2][inx] = d2[d[0]]
+          }
+        })
+      }
+      obj[key] = serialize(obj[key], declareType)
     }
   } else {
     if (typeof d0 === 'object') {
@@ -144,7 +155,7 @@ export const applyResponse = (ctx: Context, responseData: any, returnDeclareType
   }
   const isJSON = typeof responseData === 'object'
   if (isJSON) {
-    responseData = serialization(responseData, returnDeclareType)
+    responseData = serialize(responseData, returnDeclareType)
   }
 
   if (ctx.response.body === undefined) {

@@ -318,7 +318,19 @@ export const validateAndConvertType = (
           }
 
           if (typeof declareType[0] === 'number') {
+            const d1Type = declareType[1]
             declareType = d2[declareType[0]]
+            if (d1Type) {
+              declareType[1] = d1Type
+            }
+          }
+
+          if (declareType[2]) {
+            declareType[2].forEach((d, inx) => {
+              if (typeof d[0] === 'number') {
+                declareType[2][inx] = d2[d[0]]
+              }
+            })
           }
 
           const validateValue = validateAndConvertType(

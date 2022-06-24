@@ -374,7 +374,7 @@ describe('Controller Params Test', () => {
     {
       const postBody = {
         int: 123,
-        dir: ['Up', 'Down'],
+        dir: ['Up'],
         intArr: [1, 2, 3],
         field1: ['aaa', 'bbb'],
         field2: 123,
@@ -386,14 +386,51 @@ describe('Controller Params Test', () => {
         g: {
           a: 123,
           b: '123',
-          d: '2022-12-12'
-        }
+          d: '2020-01-01'
+        },
+        z: { a: true, b: 'b', d: '2022-12-12' },
+        x: { a: 123, b: 'b', d: '2022-12-12' },
+        w: [{ a: 123, b: 'b' }],
+        o: ['hhh', 'wwww']
       }
+
       const result = await request.post('/generic-type', {
         body: postBody
       })
       expect(result.statusCode).toBe(200)
       expect(result.body).toBe(JSON.stringify(postBody))
+    }
+
+    {
+      const postBody = {
+        int: 123,
+        dir: ['Up'],
+        intArr: [1, 2, 3],
+        field1: ['aaa', 'bbb'],
+        field2: 123,
+        obj: {
+          a: 23,
+          b: 'sdf'
+        },
+        date: '2012-12-12',
+        g: {
+          a: 'www',
+          b: '123',
+          d: '2020-01-01'
+        },
+        z: { a: true, b: 'b', d: '2022-12-12' },
+        x: { a: '123', b: 'b', d: '2022-12-12' },
+        w: [{ a: 'ooo', b: 'b' }],
+        o: ['hhh', 'wwww']
+      }
+
+      const result = await request.post('/generic-type', {
+        body: postBody
+      })
+      expect(result.statusCode).toBe(400)
+      expect(result.body).toContain("'www' is not a number")
+      expect(result.body).toContain("'123' is not a number")
+      expect(result.body).toContain("'ooo' is not a number")
     }
 
     {

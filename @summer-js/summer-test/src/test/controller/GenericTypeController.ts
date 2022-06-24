@@ -17,7 +17,7 @@ class G<T> {
   d: Date
 }
 
-class Request<T, K, L, P> {
+class Request<T, K, L, P, Z, X, W, O> {
   int: int
   dir!: Direction[]
   intArr: int[]
@@ -26,13 +26,17 @@ class Request<T, K, L, P> {
   obj: L
   date: P
   g: G<int>
+  z: Z
+  x: G<X>
+  w: W[]
+  o: O[]
 }
 
 @ApiDocGroup('Generic')
 @Controller('/generic-type')
 export class GenericTypeController {
   @Post
-  async genericRequest(@Body req: Request<string[], int, Obj, Date>) {
+  async genericRequest(@Body req: Request<string[], int, Obj, Date, G<boolean>, number, Obj, string>) {
     return req
   }
 

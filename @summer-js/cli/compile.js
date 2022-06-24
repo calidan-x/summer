@@ -136,6 +136,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
       paramType = paramType.getApparentType()
     }
   }
+
   if (!paramType) {
     return '[]'
   }
@@ -146,7 +147,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
       .getTypeArguments()
       .map((tArg) => {
         addFileImport(tArg.getText(parameter), parameter)
-        return getDeclareType(':' + tArg.getText(parameter), parameter, tArg)
+        return getDeclareType(':' + tArg.getText(parameter), parameter, tArg, typeParams)
       })
       .join(',')
 

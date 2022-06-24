@@ -117,7 +117,7 @@ export const data = {
                 int: { type: 'integer' },
                 dir: { type: 'array', items: { type: 'string', enum: ['Up', 'Down'] } },
                 intArr: { type: 'array', items: { type: 'integer' } },
-                field1: { type: 'string' },
+                field1: { type: 'array', items: { type: 'string' } },
                 field2: { type: 'integer' },
                 obj: {
                   type: 'object',
@@ -135,10 +135,40 @@ export const data = {
                   },
                   description: '',
                   required: ['a', 'b', 'd']
-                }
+                },
+                z: {
+                  type: 'object',
+                  properties: {
+                    a: { type: 'boolean' },
+                    b: { type: 'string' },
+                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                  },
+                  description: '',
+                  required: ['a', 'b', 'd']
+                },
+                x: {
+                  type: 'object',
+                  properties: {
+                    a: { type: 'integer' },
+                    b: { type: 'string' },
+                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                  },
+                  description: '',
+                  required: ['a', 'b', 'd']
+                },
+                w: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                    description: '',
+                    required: ['a', 'b']
+                  }
+                },
+                o: { type: 'array', items: { type: 'string' } }
               },
               description: '',
-              required: ['int', 'dir', 'intArr', 'field1', 'field2', 'obj', 'date', 'g']
+              required: ['int', 'dir', 'intArr', 'field1', 'field2', 'obj', 'date', 'g', 'z', 'x', 'w', 'o']
             }
           }
         ],
@@ -150,7 +180,7 @@ export const data = {
                 int: { type: 'integer' },
                 dir: { type: 'array', items: { type: 'string', enum: ['Up', 'Down'] } },
                 intArr: { type: 'array', items: { type: 'integer' } },
-                field1: { type: 'string' },
+                field1: { type: 'array', items: { type: 'string' } },
                 field2: { type: 'integer' },
                 obj: { type: 'object', properties: { a: { type: 'integer' }, b: { type: 'string' } }, description: '' },
                 date: { type: 'string', format: 'date', example: '2012-12-12' },
@@ -162,7 +192,34 @@ export const data = {
                     d: { type: 'string', format: 'date', example: '2012-12-12' }
                   },
                   description: ''
-                }
+                },
+                z: {
+                  type: 'object',
+                  properties: {
+                    a: { type: 'boolean' },
+                    b: { type: 'string' },
+                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                  },
+                  description: ''
+                },
+                x: {
+                  type: 'object',
+                  properties: {
+                    a: { type: 'integer' },
+                    b: { type: 'string' },
+                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                  },
+                  description: ''
+                },
+                w: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                    description: ''
+                  }
+                },
+                o: { type: 'array', items: { type: 'string' } }
               },
               description: ''
             },
