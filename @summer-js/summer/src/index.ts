@@ -40,24 +40,22 @@ declare global {
 ;(global as any)._Int = class _Int {}
 ;(global as any)._TimeStamp = class _TimeStamp {}
 ;(global as any)._DateTime = class _DateTime {}
-;(global as any)._PropDeclareType =
-  (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol) => {
-    Reflect.defineMetadata(propertyKey, propertyKey, target)
-    declareType = declareType || []
-    declareType[2] = typeParams || []
-    Reflect.defineMetadata('DeclareType', declareType, target, propertyKey)
-  }
+;(global as any)._PropDeclareType = (declareType: any) => (target: Object, propertyKey: string | symbol) => {
+  Reflect.defineMetadata(propertyKey, propertyKey, target)
+  declareType = declareType || []
+  declareType[2] = declareType[2] || []
+  Reflect.defineMetadata('DeclareType', declareType, target, propertyKey)
+}
 ;(global as any)._ParamDeclareType =
-  (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol, index: number) => {
+  (declareType: any) => (target: Object, propertyKey: string | symbol, index: number) => {
     let existingParameterTypes: any[] = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey) || []
     declareType = declareType || []
-    declareType[2] = typeParams || []
+    declareType[2] = declareType[2] || []
     existingParameterTypes[index] = declareType
     Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey)
   }
-;(global as any)._ReturnDeclareType =
-  (declareType: any, typeParams: any[]) => (target: Object, propertyKey: string | symbol) => {
-    declareType = declareType || []
-    declareType[2] = typeParams || []
-    Reflect.defineMetadata('ReturnDeclareType', declareType, target, propertyKey)
-  }
+;(global as any)._ReturnDeclareType = (declareType: any) => (target: Object, propertyKey: string | symbol) => {
+  declareType = declareType || []
+  declareType[2] = declareType[2] || []
+  Reflect.defineMetadata('ReturnDeclareType', declareType, target, propertyKey)
+}

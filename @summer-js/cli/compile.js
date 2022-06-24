@@ -56,6 +56,34 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
   }
 }
 
+const addFileImport = (typeString, clazz) => {
+  if (typeString && typeString.startsWith('import("')) {
+    const importParts = typeString.split('.')
+    const importName = importParts[importParts.length - 1].replace(/\[\]$/, '')
+    const imports = clazz.getSourceFile().getImportDeclarations()
+    let imported = false
+    imports.forEach((ipt) => {
+      ipt.getNamedImports().forEach((ni) => {
+        if (ni.getText() === importName) {
+          imported = true
+        }
+      })
+    })
+
+    if (!imported) {
+      clazz.getSourceFile().addImportDeclaration({
+        namedImports: [importName],
+        moduleSpecifier:
+          './' +
+          path.relative(
+            path.dirname(clazz.getSourceFile().getFilePath()),
+            JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"') + '\n'
+          )
+      })
+    }
+  }
+}
+
 // [0, Array,[]]
 // [String, Array,[]]
 // [{e1:12,e2:33}, undefined,[]]
@@ -67,6 +95,11 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
 // }
 
 const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
+  // interface
+  if (declareLine.startsWith(':{')) {
+    return '[]'
+  }
+
   const parts = declareLine.split(/:([^:]*)$/s)
   let type = '[]'
   if (parts.length > 1) {
@@ -79,11 +112,6 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
       return TypeMapping[type]
     }
   } else {
-    return '[]'
-  }
-
-  // interface
-  if (type.startsWith('{')) {
     return '[]'
   }
 
@@ -114,11 +142,18 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
   if (declareLine.indexOf('<') > 0) {
     const baseType = paramType.getText(parameter).replace(/<.+>/, '').replace('[]', '')
+    const typeArgs = paramType
+      .getTypeArguments()
+      .map((tArg) => {
+        addFileImport(tArg.getText(parameter), parameter)
+        return getDeclareType(':' + tArg.getText(parameter), parameter, tArg)
+      })
+      .join(',')
 
     if (paramType.isArray()) {
-      return `[${baseType},Array]`
+      return `[${baseType},Array,[${typeArgs}]]`
     } else {
-      return `[${baseType}]`
+      return `[${baseType},undefined,[${typeArgs}]]`
     }
   }
 
@@ -207,16 +242,7 @@ const compile = async () => {
       }
 
       if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
-        const args = [type]
-        if (p.getText(p).indexOf('<') >= 0) {
-          const propTypeParams = p
-            .getType()
-            .getTypeArguments()
-            .map((tp) => getDeclareType(':' + tp.getText(p), tp))
-            .join(',')
-          args.push(`[${propTypeParams}]`)
-        }
-        pendingDecorators.push({ name: '_PropDeclareType', arguments: args })
+        pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
       }
 
       if (pendingDecorators.length) {
@@ -225,34 +251,6 @@ const compile = async () => {
     })
     if (cls.getExtends()) {
       addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0])
-    }
-  }
-
-  const addFileImport = (typeString, clazz) => {
-    if (typeString && typeString.startsWith('import("')) {
-      const importParts = typeString.split('.')
-      const importName = importParts[importParts.length - 1].replace(/\[\]$/, '')
-      const imports = clazz.getSourceFile().getImportDeclarations()
-      let imported = false
-      imports.forEach((ipt) => {
-        ipt.getNamedImports().forEach((ni) => {
-          if (ni.getText() === importName) {
-            imported = true
-          }
-        })
-      })
-
-      if (!imported) {
-        clazz.getSourceFile().addImportDeclaration({
-          namedImports: [importName],
-          moduleSpecifier:
-            './' +
-            path.relative(
-              path.dirname(clazz.getSourceFile().getFilePath()),
-              JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"') + '\n'
-            )
-        })
-      }
     }
   }
 
@@ -330,21 +328,10 @@ const compile = async () => {
             if (cMethod.getDecorators().length > 0) {
               cMethod.getParameters().forEach((param) => {
                 if (param.getDecorators().length > 0) {
-                  let typeParams = '[]'
-                  if (param.getText().indexOf('<') > 0) {
-                    typeParams =
-                      '[' +
-                      param
-                        .getType()
-                        .getTypeArguments()
-                        .map((tp) => getDeclareType(':' + tp.getText(), param, tp))
-                        .join(',') +
-                      ']'
-                  }
                   const decorators = [
                     {
                       name: '_ParamDeclareType',
-                      arguments: [getDeclareType(param.getText(), param), typeParams]
+                      arguments: [getDeclareType(param.getText(), param)]
                     }
                   ]
                   if (param.hasQuestionToken()) {
@@ -366,24 +353,10 @@ const compile = async () => {
               }
               addFileImport(returnTypeStr, cls)
               returnTypeStr = returnType.getText(cls)
-              let args = []
-              if (!returnTypeStr.startsWith('{')) {
-                args = [getDeclareType(':' + returnTypeStr, cls, returnType)]
-                if (returnTypeStr.indexOf('<') > 0) {
-                  const typeParams = returnType
-                    .getTypeArguments()
-                    .map((tArg) => {
-                      addFileImport(tArg.getText(cls), cls)
-                      return getDeclareType(':' + tArg.getText(cls), cls, tArg)
-                    })
-                    .join(',')
-                  args.push(`[${typeParams}]`)
-                }
-              }
 
               cMethod.addDecorator({
                 name: '_ReturnDeclareType',
-                arguments: args
+                arguments: [getDeclareType(':' + returnTypeStr, cls, returnType)]
               })
             }
           })
