@@ -138,6 +138,13 @@ if (options.serve) {
     if (fs.existsSync('./compile/index.js')) {
       const testProcess = exec('jest --colors ' + (options.maxWorkers ? '--maxWorkers=' + options.maxWorkers : ''))
       printProcessData(testProcess)
+      testProcess.on('exit', (signal) => {
+        if (signal === 1) {
+          process.exit(signal)
+        }
+      })
+    } else {
+      process.exit(1)
     }
   })
 } else if (options.build) {
@@ -155,9 +162,16 @@ if (options.serve) {
         copyRecursiveSync('./resource', './build/resource')
       }
       const buildProcess = exec(
-        'npx esbuild ./compile/index.js --bundle --sourcemap  --minify-whitespace  --platform=node --outfile=./build/index.js'
+        'npx esbuild ./compile/index.js --bundle --sourcemap --minify-whitespace  --platform=node --outfile=./build/index.js'
       )
       printProcessData(buildProcess)
+      buildProcess.on('exit', (signal) => {
+        if (signal === 1) {
+          process.exit(signal)
+        }
+      })
+    } else {
+      process.exit(1)
     }
     spinner.stop()
   })

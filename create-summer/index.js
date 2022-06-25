@@ -5,13 +5,12 @@ const fs = require('fs')
 const path = require('path')
 const prompts = require('prompts')
 
-var copyRecursiveSync = function (src, dest) {
-  var exists = fs.existsSync(src)
-  var stats = exists && fs.statSync(src)
-  var isDirectory = exists && stats.isDirectory()
+const copyRecursiveSync = function (src, dest) {
+  const exists = fs.existsSync(src)
+  const isDirectory = exists && fs.statSync(src).isDirectory()
   if (isDirectory) {
     fs.mkdirSync(dest)
-    fs.readdirSync(src).forEach(function (childItemName) {
+    fs.readdirSync(src).forEach((childItemName) => {
       copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName))
     })
   } else {
