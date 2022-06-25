@@ -84,6 +84,42 @@ const addFileImport = (typeString, clazz) => {
   }
 }
 
+const addPropDecorator = (cls) => {
+  if (!cls) {
+    return
+  }
+
+  const typeParameters = cls.getTypeParameters().map((tp) => tp.getText(cls))
+  cls.getProperties().forEach((p) => {
+    let type = getDeclareType(p.getText(), p, undefined, typeParameters)
+    if (type === undefined || type === null) {
+      return
+    }
+
+    const pendingDecorators = []
+    if (p.hasQuestionToken()) {
+      if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
+        pendingDecorators.push({ name: '_Optional', arguments: [] })
+      }
+    } else if (p.hasExclamationToken()) {
+      if (!p.getDecorators().find((d) => d.getName() === '_NotEmpty')) {
+        pendingDecorators.push({ name: '_NotEmpty', arguments: [] })
+      }
+    }
+
+    if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
+      pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
+    }
+
+    if (pendingDecorators.length) {
+      p.addDecorators(pendingDecorators)
+    }
+  })
+  if (cls.getExtends()) {
+    addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0])
+  }
+}
+
 // [0, Array,[]]
 // [String, Array,[]]
 // [{e1:12,e2:33}, undefined,[]]
@@ -192,6 +228,18 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
   return type
 }
 
+const checkError = () => {
+  const diagnostics = project.getPreEmitDiagnostics()
+  if (diagnostics.length > 0) {
+    console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:')
+    console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
+    compiling = false
+    firstCompile = false
+    return true
+  }
+  return false
+}
+
 let firstCompile = true
 let compiling = false
 const updateFileList = []
@@ -217,43 +265,15 @@ const compile = async () => {
     }
   }
 
-  const sourceFiles = project.getSourceFiles()
+  dirtyFiles.forEach((df) => {
+    df.refreshFromFileSystemSync()
+  })
 
-  const addPropDecorator = (cls) => {
-    if (!cls) {
-      return
-    }
-
-    const typeParameters = cls.getTypeParameters().map((tp) => tp.getText(cls))
-    cls.getProperties().forEach((p) => {
-      let type = getDeclareType(p.getText(), p, undefined, typeParameters)
-      if (type === undefined || type === null) {
-        return
-      }
-
-      const pendingDecorators = []
-      if (p.hasQuestionToken()) {
-        if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
-          pendingDecorators.push({ name: '_Optional', arguments: [] })
-        }
-      } else if (p.hasExclamationToken()) {
-        if (!p.getDecorators().find((d) => d.getName() === '_NotEmpty')) {
-          pendingDecorators.push({ name: '_NotEmpty', arguments: [] })
-        }
-      }
-
-      if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
-        pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
-      }
-
-      if (pendingDecorators.length) {
-        p.addDecorators(pendingDecorators)
-      }
-    })
-    if (cls.getExtends()) {
-      addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0])
-    }
+  if (checkError()) {
+    return
   }
+
+  const sourceFiles = project.getSourceFiles()
 
   let importFilesList = []
 
@@ -320,7 +340,6 @@ const compile = async () => {
       continue
     }
 
-    sf.refreshFromFileSystemSync()
     for (const cls of sf.getClasses()) {
       addPropDecorator(cls)
       for (const classDecorator of cls.getDecorators()) {
@@ -477,12 +496,7 @@ const compile = async () => {
 
   project.resolveSourceFileDependencies()
 
-  const diagnostics = project.getPreEmitDiagnostics()
-  if (diagnostics.length > 0) {
-    console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:')
-    console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
-    compiling = false
-    firstCompile = false
+  if (checkError()) {
     return
   }
 
