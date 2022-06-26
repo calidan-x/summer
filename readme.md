@@ -1,5 +1,5 @@
 
-![](https://raw.githubusercontent.com/calidan-x/summer/main/assets/logo.png)
+![](https://raw.githubusercontent.com/calidan-x/summer/main/assets/summer-logo.png)
 
 
 Efficient NodeJs Backend Framework
