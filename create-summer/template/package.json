@@ -1,19 +1,19 @@
 {
-  "name": "summer-project",
-  "version": "1.0.0",
-  "description": "",
-  "keywords": [],
-  "scripts": {
-    "serve": "summer serve --env local",
-    "test": "summer test --env test -- --maxWorkers 5 --colors",
-    "build": "summer build --env prod",
-    "start": "node --enable-source-maps ./build/index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@summer-js/summer": "0.0.33",
-    "@summer-js/test": "0.0.33",
-    "@summer-js/cli": "0.0.33"
-  }
+	"name": "summer-project",
+	"version": "1.0.0",
+	"description": "",
+	"keywords": [],
+	"scripts": {
+		"serve": "summer serve --env local",
+		"test": "summer test --env test -- --maxWorkers 5 --colors",
+		"build": "summer build --env prod",
+		"start": "node --enable-source-maps ./build/index.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@summer-js/summer": "0.0.34",
+		"@summer-js/test": "0.0.34",
+		"@summer-js/cli": "0.0.34"
+	}
 }
