@@ -47,6 +47,6 @@ const copyRecursiveSync = function (src, dest) {
   console.log('')
   console.log(`$ cd ${projectName}`)
   console.log(`$ npm install`)
-  console.log(`$ npm run dev`)
+  console.log(`$ npm run serve`)
   console.log('')
 })()

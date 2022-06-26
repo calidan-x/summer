@@ -7,16 +7,6 @@ import path from 'path'
 import { program } from 'commander'
 import ora from 'ora'
 
-program
-  .option('-t, --test')
-  .option('--maxWorkers [char]', '', '')
-  .option('-s, --serve')
-  .option('-b, --build')
-  .option('--env [char]', '', '')
-program.parse()
-
-const options = program.opts()
-
 const clearScreen = () => process.stdout.write(process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H')
 
 let spinner
@@ -38,15 +28,20 @@ var copyRecursiveSync = function (src, dest) {
 const printProcessData = (p) => {
   p.stdout.on('data', (dataLines) => {
     if (typeof dataLines === 'string') {
+      let isProgressCommand = false
       dataLines.split('\n').forEach((data) => {
         if (['COMPILE_START', 'COMPILE_DONE'].includes(data.toString().trim())) {
+          isProgressCommand = true
           return
         } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
           spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
-        } else {
-          process.stdout.write(data)
+          isProgressCommand = true
+          return
         }
       })
+      if (!isProgressCommand) {
+        process.stdout.write(dataLines)
+      }
     } else {
       spinner.stop()
       process.stdout.write(dataLines)
@@ -65,114 +60,146 @@ const printProcessData = (p) => {
   })
 }
 
-if (options.serve) {
-  let childProcess = null
-  let childProcess2 = null
-  spinner = ora('Compiling...')
+// name & version
+const packageInfo = JSON.parse(fs.readFileSync('./package.json'))
+program.version(packageInfo.version)
 
-  const serve = () => {
-    try {
-      if (childProcess) {
-        kill(childProcess.pid)
-        childProcess = null
-      }
+// SERVE
+program
+  .command('serve')
+  .description('start dev server')
+  .option('-e, --env [ENV_NAME]', '')
+  .action((options) => {
+    let compileProcess = null
+    let serveProcess = null
+    spinner = ora('Compiling...')
 
-      childProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile watch`)
-      childProcess.stdout.on('data', (dataLines) => {
-        dataLines.split('\n').forEach((data) => {
-          if (data.trim().startsWith('COMPILE_START')) {
-            clearScreen()
-            spinner.text = 'Compiling...'
-            spinner.start()
-            if (childProcess2) {
-              kill(childProcess2.pid)
-              childProcess2 = null
-            }
-          } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
-            spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
-          } else if (data.trim().startsWith('COMPILE_DONE')) {
-            spinner.text = 'Starting...'
-            if (fs.existsSync('./compile/index.js')) {
-              childProcess2 = spawn('node', ['--enable-source-maps', './compile/index.js'])
-              printProcessData(childProcess2)
+    const serve = () => {
+      try {
+        if (compileProcess) {
+          kill(compileProcess.pid)
+          compileProcess = null
+        }
+
+        compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile watch`)
+        compileProcess.stdout.on('data', (dataLines) => {
+          dataLines.split('\n').forEach((data) => {
+            if (data.trim().startsWith('COMPILE_START')) {
+              clearScreen()
+              spinner.text = 'Compiling...'
+              spinner.start()
+              if (serveProcess) {
+                kill(serveProcess.pid)
+                serveProcess = null
+              }
+            } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
+              spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
+            } else if (data.trim().startsWith('COMPILE_DONE')) {
+              spinner.text = 'Starting...'
+              if (fs.existsSync('./compile/index.js')) {
+                serveProcess = spawn('node', ['--enable-source-maps', './compile/index.js'])
+                printProcessData(serveProcess)
+              } else {
+                console.error('Error starting server')
+              }
             } else {
-              console.error('Error starting server')
+              process.stdout.write(data)
             }
-          } else {
-            process.stdout.write(data)
+          })
+        })
+
+        compileProcess.stderr.on('data', (data) => {
+          if (serveProcess) {
+            kill(serveProcess.pid)
+            serveProcess = null
+          }
+          spinner.stop()
+          process.stdout.write(data)
+        })
+
+        compileProcess.on('error', (data) => {
+          if (serveProcess) {
+            kill(serveProcess.pid)
+            serveProcess = null
+          }
+          spinner.stop()
+          //@ts-ignore
+          process.stdout.write(data)
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    serve()
+  })
+
+// TEST
+program
+  .command('test')
+  .description('run test cases')
+  .option('-e, --env [ENV_NAME]', '')
+  .option('-- [JEST_OPTIONS]', '')
+  .action((options) => {
+    spinner = ora('Compiling...')
+    spinner.start()
+    const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
+    printProcessData(compileProcess)
+
+    compileProcess.on('exit', () => {
+      spinner.text = 'Starting...'
+      if (fs.existsSync('./compile/index.js')) {
+        const jestOptInx = program.args.findIndex((arg) => arg === '--')
+        const jestOpts = jestOptInx > 0 ? program.args.splice(jestOptInx + 1).join(' ') : ''
+        const testProcess = exec('jest ' + jestOpts)
+        printProcessData(testProcess)
+        testProcess.on('exit', (signal) => {
+          if (signal === 1) {
+            process.exit(signal)
           }
         })
-      })
-
-      childProcess.stderr.on('data', (data) => {
-        if (childProcess2) {
-          kill(childProcess2.pid)
-          childProcess2 = null
-        }
-        spinner.stop()
-        process.stdout.write(data)
-      })
-
-      childProcess.on('error', (data) => {
-        if (childProcess2) {
-          kill(childProcess2.pid)
-          childProcess2 = null
-        }
-        spinner.stop()
-        //@ts-ignore
-        process.stdout.write(data)
-      })
-    } catch (e) {
-      console.log(e)
-    }
-  }
-  serve()
-} else if (options.test) {
-  spinner = ora('Compiling...')
-  spinner.start()
-  const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
-  printProcessData(compileProcess)
-
-  compileProcess.on('exit', () => {
-    spinner.text = 'Starting...'
-    if (fs.existsSync('./compile/index.js')) {
-      const testProcess = exec('jest --colors ' + (options.maxWorkers ? '--maxWorkers=' + options.maxWorkers : ''))
-      printProcessData(testProcess)
-      testProcess.on('exit', (signal) => {
-        if (signal === 1) {
-          process.exit(signal)
-        }
-      })
-    } else {
-      process.exit(1)
-    }
-  })
-} else if (options.build) {
-  spinner = ora('Compiling...')
-  spinner.start()
-  const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
-  printProcessData(compileProcess)
-  compileProcess.on('exit', (code) => {
-    if (fs.existsSync('./compile/index.js')) {
-      if (fs.existsSync('./resource')) {
-        if (fs.existsSync('./build')) {
-          fs.rmSync('./build', { recursive: true, force: true })
-        }
-        fs.mkdirSync('./build')
-        copyRecursiveSync('./resource', './build/resource')
+      } else {
+        process.exit(1)
       }
-      const buildProcess = exec(
-        'npx esbuild ./compile/index.js --bundle --sourcemap --minify-whitespace  --platform=node --outfile=./build/index.js'
-      )
-      printProcessData(buildProcess)
-      buildProcess.on('exit', (signal) => {
-        if (signal === 1) {
-          process.exit(signal)
-        }
-      })
-    } else {
-      process.exit(1)
-    }
-    spinner.stop()
+    })
   })
-}
+
+// BUILD
+program
+  .command('build')
+  .description('build production')
+  .option('-e, --env [ENV_NAME]', '')
+  .option('-- [ESBUILD_OPTIONS]', '')
+  .action((options) => {
+    spinner = ora('Compiling...')
+    spinner.start()
+    const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
+    printProcessData(compileProcess)
+    compileProcess.on('exit', (code) => {
+      if (fs.existsSync('./compile/index.js')) {
+        if (fs.existsSync('./resource')) {
+          if (fs.existsSync('./build')) {
+            fs.rmSync('./build', { recursive: true, force: true })
+          }
+          fs.mkdirSync('./build')
+          copyRecursiveSync('./resource', './build/resource')
+        }
+        const esbuildOptInx = program.args.findIndex((arg) => arg === '--')
+        const esbuildOpts = esbuildOptInx > 0 ? program.args.splice(esbuildOptInx + 1).join(' ') : ''
+        const buildProcess = exec(
+          'npx esbuild ./compile/index.js --bundle --sourcemap --minify-whitespace  --platform=node --outfile=./build/index.js ' +
+            esbuildOpts
+        )
+        printProcessData(buildProcess)
+        buildProcess.on('exit', (signal) => {
+          if (signal === 1) {
+            process.exit(signal)
+          }
+        })
+      } else {
+        process.exit(1)
+      }
+      spinner.stop()
+    })
+  })
+
+program.parse()
