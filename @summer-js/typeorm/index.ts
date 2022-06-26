@@ -32,6 +32,9 @@ declare global {
 
 const DataSources: Record<string, DataSource> = {}
 export const getDataSource = (dataSourceName: string) => {
+  if (!DataSources[dataSourceName]) {
+    Logger.error('Fail connect to datasource: ' + dataSourceName)
+  }
   return DataSources[dataSourceName]
 }
 
