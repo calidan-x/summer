@@ -18,6 +18,16 @@ export const requestMappingAssembler = {
     }
   },
   addMethodRoute(path: string, httpMethod: string, callMethod: string, controllerName: string) {
+    if (this.controllerRequestMapping[path] && this.controllerRequestMapping[path][httpMethod]) {
+      Logger.error(
+        `Duplicate request routes: ${httpMethod} ${
+          path || '/'
+        } in ${controllerName}.${callMethod}() and ${controllerName}.${
+          this.controllerRequestMapping[path][httpMethod]['callMethod']
+        }()`
+      )
+      process.exit()
+    }
     this.controllerRequestMapping[path] = {
       ...this.controllerRequestMapping[path],
       [httpMethod]: {

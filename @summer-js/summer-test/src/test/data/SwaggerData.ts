@@ -13,7 +13,6 @@ export const data = {
       get: {
         tags: ['Person相关服务'],
         summary: '获取用户列表',
-        description: '描述描述描述描述描述',
         security: [],
         operationId: '获取用户列表',
         consumes: [],

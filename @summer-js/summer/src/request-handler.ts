@@ -222,9 +222,9 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
   const mw = middlewares[deep]
   const next = async () => await callMiddleware(ctx, deep + 1)
   if (mw) {
-    return await mw.process(ctx, next)
+    await mw.process(ctx, next)
   } else {
-    return await callControllerMethod(ctx)
+    await callControllerMethod(ctx)
   }
 }
 

@@ -143,6 +143,12 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
       .replace(';', '')
       .replace(/[^=]=.+$/, '')
       .trim()
+
+    if (/^Array<.+>$/.test(type)) {
+      type = type.replace(/^Array</, '').replace(/>$/, '') + '[]'
+      declareLine = type
+    }
+
     // Basic Type
     if (TypeMapping[type]) {
       return TypeMapping[type]
@@ -195,7 +201,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
   }
 
   if (paramType.isArray()) {
-    type = type.replace('[]', '')
+    type = type.replace(/\[\]$/, '')
     const pType = paramType.getArrayElementTypeOrThrow()
     if (pType.isClass() || pType.isEnum()) {
       return `[${type},Array]`
@@ -265,9 +271,20 @@ const compile = async () => {
     }
   }
 
+  let hasError = false
   dirtyFiles.forEach((df) => {
-    df.refreshFromFileSystemSync()
+    try {
+      df.refreshFromFileSystemSync()
+    } catch (e) {
+      hasError = true
+    }
   })
+
+  if (hasError) {
+    firstCompile = false
+    compiling = false
+    return
+  }
 
   if (checkError()) {
     return

@@ -40,7 +40,7 @@ export const httpServer = {
       if (req.url.indexOf(serverConfig.basePath) === 0) {
         req.url = req.url.replace(serverConfig.basePath, '')
       } else {
-        res.writeHead(404)
+        res.writeHead(404, { 'content-type': 'text/html' })
         res.write('404 Not Found')
         res.end()
         return

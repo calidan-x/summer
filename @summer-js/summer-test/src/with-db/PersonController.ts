@@ -11,8 +11,8 @@ export class PersonController {
   personService: PersonService
 
   @Get
-  @ApiDoc('获取用户列表', { description: '描述描述描述描述描述' })
-  async personList(@Query pageIndex: string) {
+  @ApiDoc('获取用户列表')
+  async personList(@Query pageIndex?: string) {
     const persons = await this.personService.getPersons()
     return persons
   }

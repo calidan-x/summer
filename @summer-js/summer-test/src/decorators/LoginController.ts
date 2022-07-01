@@ -13,7 +13,6 @@ export const RequireLogin = createClassAndMethodDecorator(async (ctx, invokeMeth
 })
 
 @Controller
-// highlight-next-line
 @RequireLogin
 export class LoginController {
   @Get('/me')
