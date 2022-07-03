@@ -1,0 +1,1 @@
+class AppError extends Error {}

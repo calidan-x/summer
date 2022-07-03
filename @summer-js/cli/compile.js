@@ -115,8 +115,12 @@ const addPropDecorator = (cls) => {
       p.addDecorators(pendingDecorators)
     }
   })
+
   if (cls.getExtends()) {
-    addPropDecorator(cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0])
+    const extendClass = cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0]
+    if (!extendClass.getSourceFile().getFilePath().endsWith('.d.ts')) {
+      addPropDecorator(extendClass)
+    }
   }
 }
 
