@@ -7,8 +7,6 @@ import { rpc } from './rpc'
 import { session } from './session'
 import { getConfig } from './config-handler'
 
-const version = '$$SUMMER_VERSION'
-
 interface SummerStartOptions {
   before?: (config: any) => void
   after?: (config: any) => void
@@ -40,13 +38,6 @@ export const summerStart = async (options?: SummerStartOptions) => {
 
   const isNormalServer = getServerType() === 'Normal'
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
-
-  if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
-    console.log(`
-🔆SUMMER Ver ${version}    \n
-===========================\n`)
-    process.env.SUMMER_ENV && console.log(`ENV: ${process.env.SUMMER_ENV}\n`)
-  }
 
   for (const Plugin of plugins) {
     const plugin: SummerPlugin = new Plugin()

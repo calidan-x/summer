@@ -22,7 +22,8 @@ export const SERVER_CONFIG: ServerConfig = {
       destPathRoot: 'resource',
       indexFiles: ['1.txt']
     }
-  ]
+  ],
+  clusterMode: true
 }
 
 export const SESSION_CONFIG: SessionConfig = {

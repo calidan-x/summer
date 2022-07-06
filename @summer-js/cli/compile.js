@@ -5,7 +5,9 @@ import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
-import { Project, VariableDeclarationKind } from 'ts-morph'
+import { Project } from 'ts-morph'
+
+const summerPackage = JSON.parse(fs.readFileSync('../summer/package.json', { encoding: 'utf-8' }))
 
 const watch = process.argv[2] === 'watch'
 
@@ -534,6 +536,7 @@ const compile = async () => {
   console.log('COMPILE_PROGRESS(' + sourceFiles.length + '/' + sourceFiles.length + ')')
 
   const statements = []
+  statements.push(`process.env.SUMMER_VERSION = "${summerPackage.version}";`)
   statements.push(`process.env.SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
 
   if (fs.existsSync('./src/config/default.config.ts')) {

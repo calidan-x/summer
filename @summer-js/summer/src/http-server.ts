@@ -1,4 +1,6 @@
-import http = require('http')
+import http from 'http'
+import cluster from 'node:cluster'
+import os from 'node:os'
 import fs from 'fs'
 
 import { Logger } from './logger'
@@ -18,6 +20,8 @@ export interface ServerConfig {
   static?: StaticConfig[]
   basePath?: string
   cors?: boolean
+  clusterMode?: boolean
+  workerNumber?: number
 }
 
 export const getInitContextData = () => ({
@@ -81,23 +85,57 @@ export const httpServer = {
     res.write(context.response.body)
     res.end()
   },
+  printSummerInfo() {
+    const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+    if (!isSummerTesting) {
+      console.log(`
+🔆SUMMER Ver ${process.env.SUMMER_VERSION}    \n
+===========================\n`)
+      process.env.SUMMER_ENV && console.log(`ENV: ${process.env.SUMMER_ENV}\n`)
+    }
+  },
   createServer(serverConfig: ServerConfig, serverStated?: () => void) {
     if (!serverConfig.port) {
       Logger.error('Server port not set in ServerConfig')
       return
     }
-    http
-      .createServer(async (req, res) => {
-        const bodyData = await parseBody(req, req.method, req.headers)
-        this.handlerRequest(req, res, bodyData, serverConfig)
+
+    if (cluster.isPrimary) {
+      this.printSummerInfo()
+    }
+
+    if (cluster.isPrimary && serverConfig.clusterMode) {
+      const workerNumber = serverConfig.workerNumber || os.cpus().length
+      for (let i = 0; i < workerNumber; i++) {
+        cluster.fork()
+      }
+
+      cluster.on('exit', (worker, code, signal) => {
+        cluster.fork()
       })
-      .listen(serverConfig.port, '', () => {
-        Logger.log(
-          'Server running at: http://127.0.0.1:' +
-            serverConfig.port +
-            (serverConfig.basePath ? serverConfig.basePath + '/' : '')
-        )
-        serverStated && serverStated()
-      })
+
+      Logger.log(
+        `Cluster Server (${workerNumber} workers) running at: http://127.0.0.1:` +
+          serverConfig.port +
+          (serverConfig.basePath ? serverConfig.basePath + '/' : '')
+      )
+    } else {
+      http
+        .createServer(async (req, res) => {
+          const bodyData = await parseBody(req, req.method, req.headers)
+          this.handlerRequest(req, res, bodyData, serverConfig)
+        })
+        .listen(serverConfig.port, '', () => {
+          //@ts-ignore
+          if (cluster.isPrimary) {
+            Logger.log(
+              'Server running at: http://127.0.0.1:' +
+                serverConfig.port +
+                (serverConfig.basePath ? serverConfig.basePath + '/' : '')
+            )
+          }
+          serverStated && serverStated()
+        })
+    }
   }
 }
