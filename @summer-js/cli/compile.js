@@ -80,15 +80,41 @@ const addFileImport = (typeString, clazz) => {
     })
 
     if (!imported) {
-      clazz.getSourceFile().addImportDeclaration({
-        namedImports: [importName],
-        moduleSpecifier:
-          './' +
-          slash(path.relative(
+      const importPath =
+        './' +
+        slash(
+          path.relative(
             path.dirname(slash(clazz.getSourceFile().getFilePath())),
             JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"')
-          ))
-      })
+          )
+        )
+
+      // clazz.getSourceFile().addImportDeclaration({
+      //   namedImports: [importName],
+      //   moduleSpecifier:
+      //     './' +
+      //     slash(
+      //       path.relative(
+      //         path.dirname(slash(clazz.getSourceFile().getFilePath())),
+      //         JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"')
+      //       )
+      //     )
+      // })
+
+      const importFilePath =
+        './' +
+        slash(
+          path.relative(
+            path.dirname(slash(clazz.getSourceFile().getFilePath())),
+            JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"')
+          )
+        )
+      const statement = `import { ${importName} } from '${importFilePath}';`
+
+      clazz
+        .getSourceFile()
+        .getImportDeclarations()[0]
+        .replaceWithText(statement + clazz.getSourceFile().getImportDeclarations()[0].getText())
     }
   }
 }
@@ -122,6 +148,13 @@ const addPropDecorator = (cls) => {
 
     if (pendingDecorators.length) {
       p.addDecorators(pendingDecorators)
+      p.replaceWithText(
+        p
+          .getText()
+          .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
+          .replace(/(@_NotEmpty[^\n]+)\n/g, '$1 ')
+          .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
+      )
     }
   })
 
@@ -356,7 +389,7 @@ const compile = async () => {
     for (const cls of sf.getClasses()) {
       for (const classDecorator of cls.getDecorators()) {
         if (autoImportDecorators.includes(classDecorator.getName())) {
-          importFilesList.push("./"+slash(path.relative(path.resolve()+"/src",cls.getSourceFile().getFilePath())))
+          importFilesList.push('./' + slash(path.relative(path.resolve() + '/src', cls.getSourceFile().getFilePath())))
         }
       }
     }
@@ -403,6 +436,13 @@ const compile = async () => {
                 name: '_ReturnDeclareType',
                 arguments: [getDeclareType(':' + returnTypeStr, cls, returnType)]
               })
+
+              cMethod.getChildren()[0].replaceWithText(
+                cMethod
+                  .getChildren()[0]
+                  .getText()
+                  .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
+              )
             }
           })
         } else if (classDecorator.getName() === 'RpcClient') {
@@ -464,6 +504,13 @@ const compile = async () => {
                   ]
                 }
               ])
+
+              classProperty.getChildren()[0].replaceWithText(
+                classProperty
+                  .getChildren()[0]
+                  .getText()
+                  .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
+              )
             }
           }
         }
@@ -473,7 +520,9 @@ const compile = async () => {
         p.compile && (await p.compile(cls))
         for (const classDecorator of cls.getDecorators()) {
           if (autoImportDecorators.includes(classDecorator.getName())) {
-            importFilesList.push("./"+slash(path.relative(path.resolve()+"/src",cls.getSourceFile().getFilePath())))
+            importFilesList.push(
+              './' + slash(path.relative(path.resolve() + '/src', cls.getSourceFile().getFilePath()))
+            )
           }
         }
       }
@@ -485,7 +534,7 @@ const compile = async () => {
   console.log('COMPILE_PROGRESS(' + sourceFiles.length + '/' + sourceFiles.length + ')')
 
   const statements = []
-  statements.push('process.env.SUMMER_ENV = "' + (process.env.SUMMER_ENV || '') + '"\n')
+  statements.push(`process.env.SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
 
   if (fs.existsSync('./src/config/default.config.ts')) {
     if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {
@@ -493,7 +542,7 @@ const compile = async () => {
       defaultConfigSourceFile.refreshFromFileSystem()
       defaultConfigSourceFile.addStatements('global["$$_DEFAULT_CONFIG"] = exports')
 
-      statements.push('import "./config/default.config"\n')
+      statements.push('import "./config/default.config";')
     }
   }
   if (fs.existsSync(`./src/config/${process.env.SUMMER_ENV}.config.ts`)) {
@@ -502,18 +551,17 @@ const compile = async () => {
       envConfigSourceFile.refreshFromFileSystem()
       envConfigSourceFile.addStatements('global["$$_ENV_CONFIG"] = exports')
 
-      statements.push(`import "./config/${process.env.SUMMER_ENV}.config";\n`)
+      statements.push(`import "./config/${process.env.SUMMER_ENV}.config";`)
     }
   }
 
   Array.from(new Set(importFilesList)).forEach((path) => {
-    statements.push('import "' + path.replace(/\.ts$/, '') + '"')
+    statements.push('import "' + path.replace(/\.ts$/, '') + '";')
   })
 
   const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
   indexSourceFile.refreshFromFileSystem()
-  indexSourceFile.insertStatements(0, statements)
-
+  indexSourceFile.getChildAtIndex(0).replaceWithText(statements.join('') + indexSourceFile.getChildAtIndex(0).getText())
   project.resolveSourceFileDependencies()
 
   if (checkError()) {

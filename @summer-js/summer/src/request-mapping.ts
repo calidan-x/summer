@@ -1,4 +1,5 @@
 import { pathToRegexp } from 'path-to-regexp'
+import { Class } from './loc'
 import { Logger } from './logger'
 
 export const requestMapping = {}
@@ -17,14 +18,12 @@ export const requestMappingAssembler = {
       index
     }
   },
-  addMethodRoute(path: string, httpMethod: string, callMethod: string, controllerName: string) {
+  addMethodRoute(path: string, httpMethod: string, callMethod: string, controllerClass: Class<any>) {
     if (this.controllerRequestMapping[path] && this.controllerRequestMapping[path][httpMethod]) {
       Logger.error(
-        `Duplicate request routes: ${httpMethod} ${
-          path || '/'
-        } in ${controllerName}.${callMethod}() and ${controllerName}.${
-          this.controllerRequestMapping[path][httpMethod]['callMethod']
-        }()`
+        `Duplicate request routes: ${httpMethod} ${path || '/'} in ${controllerClass.name}.${callMethod}() and ${
+          this.controllerRequestMapping[path][httpMethod]['controllerName']
+        }.${this.controllerRequestMapping[path][httpMethod]['callMethod']}()`
       )
       process.exit()
     }
@@ -33,7 +32,8 @@ export const requestMappingAssembler = {
       [httpMethod]: {
         callMethod,
         params: this.params,
-        controllerName
+        controllerClass,
+        controllerName: controllerClass.name
       }
     }
     this.params = []

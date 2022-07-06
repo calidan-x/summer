@@ -7,26 +7,24 @@ export interface Class<T> extends Function {
 
 export const locContainer = {
   locClass: [],
-  locInstance: {},
+  locInstanceMap: new WeakMap(),
+  locInstance: [],
   resolveLoc() {
     this.instanceLocClasses()
     this.resolveInject()
     this.resolveAssign()
   },
-  addInstance(instance: object) {
-    const className = instance.constructor.name
-    if (this.locInstance[className]) {
-      Logger.error('Duplicate ClassName: ' + className)
+  addInstance(clazz: Class<any>, instance: object) {
+    const className = clazz.name
+    if (this.locInstanceMap.has(clazz)) {
+      Logger.error('Duplicate Class: ' + className)
       process.exit()
     }
-    this.locInstance[className] = instance
+    this.locInstanceMap.set(clazz, instance)
+    this.locInstance.push(instance)
   },
-  getInstance<T>(clazz: string | Class<T>): T {
-    const className: string = typeof clazz === 'string' ? clazz : clazz.name
-    if (!this.locInstance[className]) {
-      return undefined
-    }
-    return this.locInstance[className]
+  getInstance<T>(clazz: Class<T>): T {
+    return this.locInstanceMap.get(clazz)
   },
   paddingLocClass(clazz: any) {
     if (!this.locClass.includes(clazz)) {
@@ -36,7 +34,7 @@ export const locContainer = {
   instanceLocClasses() {
     this.locClass.forEach((clazz: any) => {
       const instance = new clazz()
-      this.addInstance(instance)
+      this.addInstance(clazz, instance)
     })
   },
   paddingInject(target: any, propertyKey: string, auto = false) {
@@ -47,7 +45,7 @@ export const locContainer = {
     }
     if (!target.$_paddingInject[propertyKey]) {
       if (typeof t === 'function' && /^\s*class\s+/.test(t.toString())) {
-        target.$_paddingInject[propertyKey] = t.name
+        target.$_paddingInject[propertyKey] = t
         if (auto) {
           target.$_autoInjectKeys.push(propertyKey)
         }
@@ -55,8 +53,7 @@ export const locContainer = {
     }
   },
   resolveInject() {
-    for (const locKey in this.locInstance) {
-      const obj = this.locInstance[locKey]
+    for (const obj of this.locInstance) {
       if (obj.$_paddingInject) {
         for (const injectKey in obj.$_paddingInject) {
           obj[injectKey] = this.getInstance(obj.$_paddingInject[injectKey])
@@ -87,8 +84,7 @@ export const locContainer = {
   },
   async resolveAssign() {
     const config = getConfig()
-    for (const locKey in this.locInstance) {
-      const obj = this.locInstance[locKey]
+    for (const obj of this.locInstance) {
       if (obj._paddingAssign) {
         for (const assignKey in obj._paddingAssign) {
           obj[assignKey] = await obj._paddingAssign[assignKey].decoratorFunc(
@@ -106,10 +102,16 @@ export const locContainer = {
   },
   clear() {
     this.locClass = []
-    this.locInstance = {}
+    this.locInstance = []
   }
 }
 
 export const getInjectable = <T>(clazz: Class<T>): T => {
   return locContainer.getInstance(clazz)
+}
+
+export const addInjectable = <T>(clazz: Class<T>): T => {
+  const inc = new clazz() as any
+  locContainer.addInstance(clazz, inc)
+  return inc
 }

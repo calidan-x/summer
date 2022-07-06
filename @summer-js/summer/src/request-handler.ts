@@ -48,7 +48,7 @@ const matchPathMethod = (path: string, httpMethod: string) => {
     const methodData = routeData[httpMethod] || routeData['REQUEST']
     if (methodData) {
       return {
-        controller: locContainer.getInstance(methodData.controllerName),
+        controller: locContainer.getInstance(methodData.controllerClass),
         ...methodData
       }
     }
@@ -68,7 +68,7 @@ const matchPathMethod = (path: string, httpMethod: string) => {
             pathParams[pk] = pathParamArray[inx + 1]
           })
           return {
-            controller: locContainer.getInstance(methodData.controllerName),
+            controller: locContainer.getInstance(methodData.controllerClass),
             pathParams,
             ...methodData
           }

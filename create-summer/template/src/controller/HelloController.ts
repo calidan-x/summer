@@ -1,4 +1,4 @@
-import { Controller, Get } from '@summer-js/summer'
+import { Controller, createPropertyDecorator, Get } from '@summer-js/summer'
 
 @Controller
 export class HelloController {
