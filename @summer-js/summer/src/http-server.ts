@@ -21,7 +21,7 @@ export interface ServerConfig {
   basePath?: string
   cors?: boolean
   clusterMode?: boolean
-  workerNumber?: number
+  workersNumber?: number
 }
 
 export const getInitContextData = () => ({
@@ -105,8 +105,8 @@ export const httpServer = {
     }
 
     if (cluster.isPrimary && serverConfig.clusterMode) {
-      const workerNumber = serverConfig.workerNumber || os.cpus().length
-      for (let i = 0; i < workerNumber; i++) {
+      const workersNumber = serverConfig.workersNumber || os.cpus().length
+      for (let i = 0; i < workersNumber; i++) {
         cluster.fork()
       }
 
@@ -115,7 +115,7 @@ export const httpServer = {
       })
 
       Logger.log(
-        `Cluster Server (${workerNumber} workers) running at: http://127.0.0.1:` +
+        `Cluster Server (${workersNumber} workers) running at: http://127.0.0.1:` +
           serverConfig.port +
           (serverConfig.basePath ? serverConfig.basePath + '/' : '')
       )

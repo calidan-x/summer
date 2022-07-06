@@ -6,8 +6,12 @@ import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
 import { Project } from 'ts-morph'
+import { fileURLToPath } from 'url'
 
-const summerPackage = JSON.parse(fs.readFileSync('../summer/package.json', { encoding: 'utf-8' }))
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const summerPackage = JSON.parse(fs.readFileSync(__dirname + '/../summer/package.json', { encoding: 'utf-8' }))
 
 const watch = process.argv[2] === 'watch'
 
