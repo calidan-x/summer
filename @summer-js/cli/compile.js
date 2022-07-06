@@ -18,6 +18,15 @@ const project = new Project({
   tsConfigFilePath: './tsconfig.json'
 })
 
+const slash = (path) => {
+  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
+  const hasNonAscii = /[^\u0000-\u0080]+/.test(path)
+  if (isExtendedLengthPath || hasNonAscii) {
+    return path
+  }
+  return path.replace(/\\/g, '/')
+}
+
 const TypeMapping = {
   number: '[Number]',
   string: '[String]',
@@ -75,10 +84,10 @@ const addFileImport = (typeString, clazz) => {
         namedImports: [importName],
         moduleSpecifier:
           './' +
-          path.relative(
-            path.dirname(clazz.getSourceFile().getFilePath()),
-            JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"') + '\n'
-          )
+          slash(path.relative(
+            path.dirname(slash(clazz.getSourceFile().getFilePath())),
+            JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"')
+          ))
       })
     }
   }
@@ -304,7 +313,7 @@ const compile = async () => {
         const refSourceFiles = sf.getReferencedSourceFiles()
         refSourceFiles.forEach((refSourceFile) => {
           if (refSourceFile.getText().indexOf('SummerPlugin') > 0) {
-            const found = refSourceFile.getFilePath().match(/@summer-js\/[^/]+/)
+            const found = slash(refSourceFile.getFilePath()).match(/@summer-js\/[^/]+/)
             if (found) {
               if (found[0] !== '@summer-js/summer') {
                 PLUGINS.push(found[0])
@@ -347,12 +356,7 @@ const compile = async () => {
     for (const cls of sf.getClasses()) {
       for (const classDecorator of cls.getDecorators()) {
         if (autoImportDecorators.includes(classDecorator.getName())) {
-          importFilesList.push(
-            cls
-              .getSourceFile()
-              .getFilePath()
-              .replace(path.resolve() + '/src', '.')
-          )
+          importFilesList.push("./"+slash(path.relative(path.resolve()+"/src",cls.getSourceFile().getFilePath())))
         }
       }
     }
@@ -469,12 +473,7 @@ const compile = async () => {
         p.compile && (await p.compile(cls))
         for (const classDecorator of cls.getDecorators()) {
           if (autoImportDecorators.includes(classDecorator.getName())) {
-            importFilesList.push(
-              cls
-                .getSourceFile()
-                .getFilePath()
-                .replace(path.resolve() + '/src', '.')
-            )
+            importFilesList.push("./"+slash(path.relative(path.resolve()+"/src",cls.getSourceFile().getFilePath())))
           }
         }
       }
