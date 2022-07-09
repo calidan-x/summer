@@ -97,6 +97,9 @@ const toDateTime = (d: Date) => {
 
 const serialize = (obj, declareType: any[]) => {
   let [d0, d1, d2] = declareType || []
+  if (typeof d0 === 'function' && d0.name === '') {
+    d0 = d0()
+  }
   const isArray = d1 === Array
 
   if (isArray) {

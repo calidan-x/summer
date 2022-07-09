@@ -30,6 +30,10 @@ export const validateAndConvertType = (
 
   let [d0, d1, d2] = declareType || []
 
+  if (typeof d0 === 'function' && d0.name === '') {
+    d0 = d0()
+  }
+
   if (d0 === undefined && d1 !== Array) {
     return propertyValue
   }

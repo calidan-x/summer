@@ -256,7 +256,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     type = type.replace(/\[\]$/, '')
     const pType = paramType.getArrayElementTypeOrThrow()
     if (pType.isClass() || pType.isEnum()) {
-      return `[${type},Array]`
+      return `[()=>${type},Array]`
     } else {
       type = TypeMapping[type]
     }
@@ -278,7 +278,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
   } else if (paramType.isStringLiteral() || paramType.isNumberLiteral()) {
     return `[[${paramType.getText()}]]`
   } else if (paramType.isClass() || paramType.isEnum()) {
-    return `[${type}]`
+    return `[()=>${type}]`
   } else {
     type = TypeMapping[type]
   }

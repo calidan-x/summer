@@ -1,5 +1,5 @@
-import { AutoInject, Inject, Service } from '@summer-js/summer'
-import { InjectService } from './InjectService'
+import { AutoInject, Service } from '@summer-js/summer'
+import { InjectService } from './'
 
 @Service
 @AutoInject
@@ -10,7 +10,7 @@ export class HelloService {
     console.log('Hello')
   }
 
-  printInjection() {
-    console.log(this.injectService)
+  getInfo() {
+    return this.injectService.getInfo()
   }
 }

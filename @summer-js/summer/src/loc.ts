@@ -42,7 +42,10 @@ export const locContainer = {
     })
   },
   paddingInject(target: any, propertyKey: string, auto = false) {
-    const t = Reflect.getMetadata('design:type', target, propertyKey)
+    let t = Reflect.getMetadata('DeclareType', target, propertyKey)[0]
+    if (typeof t === 'function' && t.name === '') {
+      t = t()
+    }
     if (!target.$_paddingInject) {
       target.$_paddingInject = {}
       target.$_autoInjectKeys = []

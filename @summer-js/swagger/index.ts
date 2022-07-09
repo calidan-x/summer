@@ -239,6 +239,13 @@ export const ApiDocGroup = (name: string, apiDocGroupOptions: ApiDocGroupOption 
   }
 }
 
+const convertType = (d0) => {
+  if (typeof d0 === 'function' && d0.name === '') {
+    return d0()
+  }
+  return d0
+}
+
 export const PropDoc = (description: string, example: any) => {
   return (target: any, propertyKey: string) => {
     Reflect.defineMetadata('Api:PropDescription', description, target, propertyKey)
@@ -393,10 +400,12 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
 
   for (const key of Reflect.getOwnMetadataKeys(dType.prototype)) {
     let [d0, d1, d2] = Reflect.getMetadata('DeclareType', typeInc, key) || []
+    d0 = convertType(d0)
 
     if (typeof d0 === 'number') {
       const gDeclareType = typeParams[d0]
       d0 = gDeclareType[0]
+      d0 = convertType(d0)
       d1 = d1 || gDeclareType[1]
       d2 = gDeclareType[2]
     }
@@ -605,12 +614,13 @@ export class SummerSwaggerUIController {
         params.forEach((param) => {
           const paramType = getParamType(param.paramMethod.toString())
           if (paramType === 'body') {
-            const [d0] = param.declareType
+            let [d0] = param.declareType
+            d0 = convertType(d0)
             if (typeof d0 === 'function') {
               const typeInc = new d0()
               for (const key of Reflect.getOwnMetadataKeys(d0.prototype)) {
                 const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
-                if (declareType[0] === File) {
+                if (convertType(declareType[0]) === File) {
                   isFormBody = true
                 }
               }
@@ -620,7 +630,8 @@ export class SummerSwaggerUIController {
 
         // request structure
         params.forEach((param) => {
-          const [d0, d1, d2] = param.declareType
+          let [d0, d1, d2] = param.declareType
+          d0 = convertType(d0)
           let paramType = getParamType(param.paramMethod.toString())
           if (isFormBody && paramType === 'body') {
             const formProps = getTypeDesc(d0, d2, true).properties
@@ -705,6 +716,7 @@ export class SummerSwaggerUIController {
         const returnTypeParams = returnDeclareType[2] || []
 
         let [d0, d1] = returnDeclareType
+        d0 = convertType(d0)
 
         const isArray = d1 === Array
 

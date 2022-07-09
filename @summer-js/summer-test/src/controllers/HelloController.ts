@@ -11,9 +11,9 @@ export class HelloController {
     return this.helloService.sayHello()
   }
 
-  @Get('/inject-test')
+  @Get('/import-inject-test')
   testInjectFromHelloService() {
-    return this.helloService.printInjection()
+    return this.helloService.getInfo()
   }
 
   @Get
