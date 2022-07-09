@@ -1,31 +1,31 @@
 {
-  "name": "@summer-js/test",
-  "version": "0.0.35",
-  "description": "",
-  "main": "lib/index.js",
-  "module": "lib/index.js",
-  "files": [
-    "lib"
-  ],
-  "dependencies": {
-    "query-string": "^7.1.1",
-    "@types/jest": "^27.4.1",
-    "ts-jest": "^28.0.3",
-    "jest": "^28.0.3"
-  },
-  "scripts": {
-    "build": "tsc",
-    "release": "npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calidan-x/summer.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/calidan-x/summer/issues"
-  },
-  "homepage": "https://github.com/calidan-x/summer#readme"
+	"name": "@summer-js/test",
+	"version": "0.0.39",
+	"description": "",
+	"main": "lib/index.js",
+	"module": "lib/index.js",
+	"files": [
+		"lib"
+	],
+	"dependencies": {
+		"query-string": "^7.1.1",
+		"@types/jest": "^27.4.1",
+		"ts-jest": "^28.0.3",
+		"jest": "^28.0.3"
+	},
+	"scripts": {
+		"build": "tsc",
+		"release": "npm publish --access public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calidan-x/summer.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/calidan-x/summer/issues"
+	},
+	"homepage": "https://github.com/calidan-x/summer#readme"
 }

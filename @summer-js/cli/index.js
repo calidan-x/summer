@@ -9,6 +9,7 @@ import ora from 'ora'
 
 const clearScreen = () => process.stdout.write(process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H')
 
+const isTerminal = process.env.TERM !== undefined
 let spinner
 
 var copyRecursiveSync = function (src, dest) {
@@ -150,7 +151,8 @@ program
       if (fs.existsSync('./compile/index.js')) {
         const jestOptInx = program.args.findIndex((arg) => arg === '--')
         const jestOpts = jestOptInx > 0 ? program.args.splice(jestOptInx + 1).join(' ') : ''
-        const testProcess = exec('jest ' + jestOpts)
+        const withColor = isTerminal ? '--colors' : ''
+        const testProcess = exec('jest ' + withColor + ' ' + jestOpts)
         printProcessData(testProcess)
         testProcess.on('exit', (signal) => {
           if (signal === 1) {

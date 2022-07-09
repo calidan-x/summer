@@ -266,6 +266,14 @@ const handleRpc = async (ctx: Context) => {
   return false
 }
 
+const makeServerError = (ctx: Context) => {
+  ctx.response.statusCode = ctx.response.statusCode || 500
+  ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html'
+  if (ctx.response.body === undefined) {
+    ctx.response.body = 'Server Error'
+  }
+}
+
 export const requestHandler = async (ctx: Context) => {
   try {
     if (await handleRpc(ctx)) {
@@ -288,11 +296,11 @@ export const requestHandler = async (ctx: Context) => {
     if (e.stack) {
       console.log(e.stack)
     }
+    makeServerError(ctx)
+  }
 
-    ctx.response.statusCode = ctx.response.statusCode || 500
-    ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html'
-    if (ctx.response.body === undefined) {
-      ctx.response.body = 'Server Error'
-    }
+  if (ctx.response.statusCode === 0) {
+    Logger.error('Unhandled request response, this error may cause by middleware missing await for next()')
+    makeServerError(ctx)
   }
 }

@@ -22,6 +22,10 @@ export const locContainer = {
     }
     this.locInstanceMap.set(clazz, instance)
     this.locInstance.push(instance)
+    if (instance['$_postConstruct']) {
+      instance[instance['$_postConstruct']]()
+      delete instance['$_postConstruct']
+    }
   },
   getInstance<T>(clazz: Class<T>): T {
     return this.locInstanceMap.get(clazz)

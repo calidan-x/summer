@@ -6,6 +6,7 @@ import { locContainer } from './loc'
 import { rpc } from './rpc'
 import { session } from './session'
 import { getConfig } from './config-handler'
+import { Logger } from './logger'
 
 interface SummerStartOptions {
   before?: (config: any) => void
@@ -73,3 +74,7 @@ export const summerDestroy = async () => {
     plugin.destroy && (await plugin.destroy())
   }
 }
+
+process.on('unhandledRejection', function onError(err) {
+  Logger.error('Unhandled Rejection', err)
+})
