@@ -160,8 +160,8 @@ export const applyResponse = (ctx: Context, responseData: any, returnDeclareType
 
   if (ctx.response.body === undefined) {
     ctx.response.body = isJSON ? JSON.stringify(responseData) : responseData + ''
-  } else {
   }
+
   ctx.response.statusCode = ctx.response.statusCode || 200
   ctx.response.headers['Content-Type'] =
     ctx.response.headers['Content-Type'] || (isJSON ? 'application/json' : 'text/html')
