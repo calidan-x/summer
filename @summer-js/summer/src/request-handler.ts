@@ -292,10 +292,10 @@ export const requestHandler = async (ctx: Context) => {
     await callMiddleware(ctx)
 
     assembleCookie(ctx)
-  } catch (e) {
-    Logger.error(e)
-    if (e.stack) {
-      console.log(e.stack)
+  } catch (err) {
+    Logger.error(err)
+    if (err.stack) {
+      console.log(err.stack)
     }
     makeServerError(ctx)
   }
