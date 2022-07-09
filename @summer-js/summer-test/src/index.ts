@@ -17,5 +17,3 @@ summerStart({
   },
   after(config) {}
 })
-
-Logger.error('Error')

@@ -22,7 +22,7 @@ interface RequestContext {
 export interface ResponseContext {
   statusCode: number
   headers: Record<string, string | string[]>
-  body: string
+  body: any
 }
 
 export interface Context {
@@ -160,6 +160,7 @@ export const applyResponse = (ctx: Context, responseData: any, returnDeclareType
 
   if (ctx.response.body === undefined) {
     ctx.response.body = isJSON ? JSON.stringify(responseData) : responseData + ''
+  } else {
   }
   ctx.response.statusCode = ctx.response.statusCode || 200
   ctx.response.headers['Content-Type'] =
@@ -297,6 +298,10 @@ export const requestHandler = async (ctx: Context) => {
       console.log(e.stack)
     }
     makeServerError(ctx)
+  }
+
+  if (typeof ctx.response.body !== 'string') {
+    ctx.response.body = ctx.response.body === undefined ? '' : JSON.stringify(ctx.response.body)
   }
 
   if (ctx.response.statusCode === 0) {
