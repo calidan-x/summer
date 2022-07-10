@@ -188,6 +188,28 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     return '[]'
   }
 
+  const ALLTypeMapping = { ...TypeMapping }
+
+  // add enum
+  parameter
+    .getSourceFile()
+    .getEnums()
+    .forEach((sfEnum) => {
+      const enumName = sfEnum.getName()
+      ALLTypeMapping[enumName] = `[()=>${enumName}]`
+      ALLTypeMapping[enumName + '[]'] = `[()=>${enumName},Array]`
+    })
+
+  // add class
+  parameter
+    .getSourceFile()
+    .getClasses()
+    .forEach((clz) => {
+      const className = clz.getName()
+      ALLTypeMapping[className] = `[()=>${className}]`
+      ALLTypeMapping[className + '[]'] = `[()=>${className},Array]`
+    })
+
   const parts = declareLine.split(/:([^:]*)$/s)
   let type = '[]'
   if (parts.length > 1) {
@@ -202,8 +224,8 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     }
 
     // Basic Type
-    if (TypeMapping[type]) {
-      return TypeMapping[type]
+    if (ALLTypeMapping[type]) {
+      return ALLTypeMapping[type]
     }
   } else {
     return '[]'
@@ -280,7 +302,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
   } else if (paramType.isClass() || paramType.isEnum()) {
     return `[()=>${type}]`
   } else {
-    type = TypeMapping[type]
+    type = ALLTypeMapping[type]
   }
 
   return type
