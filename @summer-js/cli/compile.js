@@ -172,6 +172,22 @@ const addPropDecorator = (cls) => {
   }
 }
 
+const addClassAndEnum = (sf, allTypeMapping) => {
+  // add enum
+  sf.getEnums().forEach((sfEnum) => {
+    const enumName = sfEnum.getName()
+    allTypeMapping[enumName] = `[()=>${enumName}]`
+    allTypeMapping[enumName + '[]'] = `[()=>${enumName},Array]`
+  })
+
+  // add class
+  sf.getClasses().forEach((clz) => {
+    const className = clz.getName()
+    allTypeMapping[className] = `[()=>${className}]`
+    allTypeMapping[className + '[]'] = `[()=>${className},Array]`
+  })
+}
+
 // [0, Array,[]]
 // [String, Array,[]]
 // [{e1:12,e2:33}, undefined,[]]
@@ -190,25 +206,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
   const ALLTypeMapping = { ...TypeMapping }
 
-  // add enum
-  parameter
-    .getSourceFile()
-    .getEnums()
-    .forEach((sfEnum) => {
-      const enumName = sfEnum.getName()
-      ALLTypeMapping[enumName] = `[()=>${enumName}]`
-      ALLTypeMapping[enumName + '[]'] = `[()=>${enumName},Array]`
-    })
-
-  // add class
-  parameter
-    .getSourceFile()
-    .getClasses()
-    .forEach((clz) => {
-      const className = clz.getName()
-      ALLTypeMapping[className] = `[()=>${className}]`
-      ALLTypeMapping[className + '[]'] = `[()=>${className},Array]`
-    })
+  addClassAndEnum(parameter.getSourceFile(), ALLTypeMapping)
 
   const parts = declareLine.split(/:([^:]*)$/s)
   let type = '[]'
