@@ -113,7 +113,7 @@ export const validateAndConvertType = (
     case Number:
     case _Int:
     case BigInt:
-      const numVal = isFirstLevel ? Number(propertyValue) : propertyValue
+      const numVal = Number(propertyValue)
       if (typeof propertyValue === 'boolean') {
         allErrors.push({
           param: errorParam,

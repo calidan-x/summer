@@ -429,7 +429,6 @@ describe('Controller Params Test', () => {
       })
       expect(result.statusCode).toBe(400)
       expect(result.body).toContain("'www' is not a number")
-      expect(result.body).toContain("'123' is not a number")
       expect(result.body).toContain("'ooo' is not a number")
     }
 
