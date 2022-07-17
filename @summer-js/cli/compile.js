@@ -562,6 +562,7 @@ const compile = async () => {
   const statements = []
   statements.push(`process.env.SUMMER_VERSION = "${summerPackage.version}";`)
   statements.push(`process.env.SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
+  statements.push(`process.env.SUMMER_BUILD_TIME = "${Date.now()}";`)
 
   if (fs.existsSync('./src/config/default.config.ts')) {
     if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {

@@ -75,7 +75,6 @@ export const handler = async (...args) => {
       }
 
       let bodyData = event.body
-      let files = {}
       if (event.isBase64Encoded) {
         const parseResult = await parseBody(
           Readable.from(Buffer.from(event.body as string, 'base64')),
@@ -83,7 +82,6 @@ export const handler = async (...args) => {
           event.headers
         )
         bodyData = parseResult.bodyData
-        files = parseResult.files
       }
 
       const context: Context = {

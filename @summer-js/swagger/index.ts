@@ -1,6 +1,5 @@
 import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
-import path from 'path'
 
 import {
   _queryConvertFunc,
@@ -42,6 +41,7 @@ interface SecurityDefinitionOAuth2 {
 
 export interface SwaggerConfig {
   docPath: string
+  readTypeORMComment?: boolean
   info: {
     title: string
     description?: string
@@ -58,6 +58,7 @@ export interface SwaggerConfig {
 interface SwaggerDoc {
   swagger: string
   docPath: string
+  readTypeORMComment?: boolean
   basePath?: string
   info: {
     title: string
@@ -246,6 +247,16 @@ const convertType = (d0) => {
   return d0
 }
 
+const getAllProps = (classInstance) => {
+  const allProperties = []
+  let proto = classInstance.__proto__
+  while (proto.constructor.name !== 'Object') {
+    allProperties.splice(0, 0, ...Reflect.getOwnMetadataKeys(proto.constructor.prototype))
+    proto = proto.__proto__
+  }
+  return allProperties
+}
+
 export const PropDoc = (description: string, example: any) => {
   return (target: any, propertyKey: string) => {
     Reflect.defineMetadata('Api:PropDescription', description, target, propertyKey)
@@ -381,7 +392,7 @@ const getRequiredKeys = (t: any, isRequest: boolean) => {
   }
   const requireKeys = []
   const typeInc = new t()
-  for (const key of Reflect.getOwnMetadataKeys(t.prototype)) {
+  for (const key of getAllProps(typeInc)) {
     const required = !Reflect.getMetadata('optional', typeInc, key)
     if (required) {
       requireKeys.push(key)
@@ -398,7 +409,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
   const typeInc = new dType()
   const typeDesc = {}
 
-  for (const key of Reflect.getOwnMetadataKeys(dType.prototype)) {
+  for (const key of getAllProps(typeInc)) {
     let [d0, d1, d2] = Reflect.getMetadata('DeclareType', typeInc, key) || []
     d0 = convertType(d0)
 
@@ -496,7 +507,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
         }
         const pattern = Reflect.getMetadata('pattern', typeInc, key)
         if (pattern) {
-          schemeDesc.pattern = pattern.toString()
+          schemeDesc.pattern = pattern.toString().substring(1, pattern.toString().length - 1)
         }
 
         if (key.toLowerCase().indexOf('password') >= 0) {
@@ -513,8 +524,14 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
           schemeDesc.maxLength = maxLen
         }
       } else {
-        schemeDesc = {
-          type: intToInteger(d0.name.toLowerCase())
+        if (d0 === undefined) {
+          schemeDesc = {
+            type: 'string'
+          }
+        } else {
+          schemeDesc = {
+            type: intToInteger(d0.name.toLowerCase())
+          }
         }
       }
 
@@ -536,8 +553,29 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
         typeDesc[key] = schemeDesc
       }
 
-      const propDescription = Reflect.getMetadata('Api:PropDescription', typeInc, key)
-      const propExample = Reflect.getMetadata('Api:PropExample', typeInc, key)
+      let propDescription = Reflect.getMetadata('Api:PropDescription', typeInc, key)
+      let propExample = Reflect.getMetadata('Api:PropExample', typeInc, key)
+
+      if (swaggerJson.readTypeORMComment && !propDescription && global.typeormMetadataArgsStorage) {
+        propDescription = global.typeormMetadataArgsStorage.columns.find((c) => {
+          if (c.propertyName === key) {
+            let proto = typeInc.__proto__
+            while (proto.constructor.name !== 'Object') {
+              if (c.target === proto.constructor) {
+                return true
+              }
+              proto = proto.__proto__
+            }
+          }
+          return false
+        })?.options.comment
+      }
+
+      // if (!propExample) {
+      //   if (typeDesc[key].type === 'string' && propDescription) {
+      //     propExample = propDescription
+      //   }
+      // }
 
       if (propDescription) {
         typeDesc[key].description = propDescription
@@ -618,7 +656,7 @@ export class SummerSwaggerUIController {
             d0 = convertType(d0)
             if (typeof d0 === 'function') {
               const typeInc = new d0()
-              for (const key of Reflect.getOwnMetadataKeys(d0.prototype)) {
+              for (const key of getAllProps(typeInc)) {
                 const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
                 if (convertType(declareType[0]) === File) {
                   isFormBody = true
@@ -769,6 +807,7 @@ export class SummerSwaggerUIController {
     swaggerJson.basePath = basePath
     const outPutJSON = { ...swaggerJson }
     delete outPutJSON.docPath
+    delete outPutJSON.readTypeORMComment
     return outPutJSON
   }
 }

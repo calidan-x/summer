@@ -5,7 +5,7 @@ export class Todo {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @Column({ comment: '内容' })
   content: string
 
   @Column()

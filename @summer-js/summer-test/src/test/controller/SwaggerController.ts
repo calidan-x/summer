@@ -25,6 +25,11 @@ class Obj {
   b: int
 }
 
+class ExtendObj extends Obj {
+  c: string
+  d: number
+}
+
 class Paging<T> {
   data: T[]
   pageNumber: number
@@ -231,5 +236,11 @@ export class SwaggerController {
   @ApiDoc('security', { security: [{ AppAuth: [] }] })
   async security() {
     return ''
+  }
+
+  @Post('/swagger-extends-class')
+  @ApiDoc('extends class')
+  async extendClass(@Body extendObj: ExtendObj) {
+    return new ExtendObj()
   }
 }

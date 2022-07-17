@@ -1,4 +1,4 @@
-import { AutoInject, Controller, createPropertyDecorator, Get } from '@summer-js/summer'
+import { AutoInject, Controller, createPropertyDecorator, Get, Queries } from '@summer-js/summer'
 import { HelloService } from './../service'
 
 @Controller

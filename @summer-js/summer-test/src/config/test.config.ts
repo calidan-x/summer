@@ -41,6 +41,7 @@ export const RPC_CONFIG: RpcConfig = {
 
 export const SWAGGER_CONFIG: SwaggerConfig = {
   docPath: '/swagger-ui',
+  readTypeORMComment: true,
   info: { title: 'Summer', version: '1.0.0' },
   securityDefinitions: {
     AppAuth: {

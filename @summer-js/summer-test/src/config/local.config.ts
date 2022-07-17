@@ -33,7 +33,12 @@ export const SESSION_CONFIG: SessionConfig = {
 
 export const SWAGGER_CONFIG: SwaggerConfig = {
   docPath: '/swagger-ui',
-  info: { title: 'Summer', version: '1.0.0' },
+  readTypeORMComment: true,
+  info: {
+    title: 'Summer',
+    // description: 'Last build at: ' + new Date(Number(process.env.SUMMER_BUILD_TIME)),
+    version: '1.0.0'
+  },
   securityDefinitions: {
     AppAuth: {
       type: 'apiKey',

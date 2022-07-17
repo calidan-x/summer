@@ -3,6 +3,7 @@ export const data = {
   info: { title: 'Summer', version: '1.0.0' },
   tags: [
     { name: 'Person相关服务', description: '' },
+    { name: 'Todo Apis', description: '' },
     { name: '上传相关接口', description: '' },
     { name: 'Generic', description: '' },
     { name: 'Movie Apis', description: '' },
@@ -77,6 +78,33 @@ export const data = {
                 isActive: { type: 'boolean' }
               },
               description: ''
+            },
+            description: ''
+          }
+        }
+      }
+    },
+    '/todos': {
+      get: {
+        tags: ['Todo Apis'],
+        summary: '',
+        security: [],
+        operationId: 'list',
+        consumes: [],
+        parameters: [],
+        responses: {
+          '200': {
+            schema: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer' },
+                  content: { type: 'string', description: '内容' },
+                  isDone: { type: 'boolean' }
+                },
+                description: ''
+              }
             },
             description: ''
           }
@@ -462,7 +490,7 @@ export const data = {
                   minItems: 10,
                   maxItems: 20
                 },
-                regExp: { type: 'string', pattern: '/regExp/' },
+                regExp: { type: 'string', pattern: 'regExp' },
                 email: { type: 'string', format: 'email' },
                 password: { type: 'string', format: 'password' },
                 desc: { type: 'string', description: 'Desc', example: 'Example' }
@@ -655,7 +683,7 @@ export const data = {
                   minItems: 10,
                   maxItems: 20
                 },
-                regExp: { type: 'string', pattern: '/regExp/' },
+                regExp: { type: 'string', pattern: 'regExp' },
                 email: { type: 'string', format: 'email' },
                 password: { type: 'string', format: 'password' },
                 desc: { type: 'string', description: 'Desc', example: 'Example' }
@@ -744,7 +772,7 @@ export const data = {
                     minItems: 10,
                     maxItems: 20
                   },
-                  regExp: { type: 'string', pattern: '/regExp/' },
+                  regExp: { type: 'string', pattern: 'regExp' },
                   email: { type: 'string', format: 'email' },
                   password: { type: 'string', format: 'password' },
                   desc: { type: 'string', description: 'Desc', example: 'Example' }
@@ -766,6 +794,48 @@ export const data = {
         consumes: [],
         parameters: [],
         responses: { '200': { schema: { type: 'string' }, description: '' } }
+      }
+    },
+    '/swagger-test/swagger-extends-class': {
+      post: {
+        tags: ['Swagger Apis'],
+        summary: 'extends class',
+        security: [],
+        operationId: 'extends class',
+        consumes: [],
+        parameters: [
+          {
+            name: 'extendObj',
+            in: 'body',
+            required: true,
+            schema: {
+              type: 'object',
+              properties: {
+                a: { type: 'string', description: 'A', example: 'A Value' },
+                b: { type: 'integer', description: 'B', example: 1 },
+                c: { type: 'string' },
+                d: { type: 'integer' }
+              },
+              description: '',
+              required: ['a', 'b', 'c', 'd']
+            }
+          }
+        ],
+        responses: {
+          '200': {
+            schema: {
+              type: 'object',
+              properties: {
+                a: { type: 'string', description: 'A', example: 'A Value' },
+                b: { type: 'integer', description: 'B', example: 1 },
+                c: { type: 'string' },
+                d: { type: 'integer' }
+              },
+              description: ''
+            },
+            description: ''
+          }
+        }
       }
     }
   },

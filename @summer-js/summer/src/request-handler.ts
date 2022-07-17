@@ -30,7 +30,7 @@ export interface Context {
   response: ResponseContext
   cookies?: Record<string, string>
   session?: Record<string, string>
-  data?: Record<string, string>
+  data?: Record<string, any>
   invocation?: {
     class: string
     method: string
@@ -278,8 +278,16 @@ const makeServerError = (ctx: Context) => {
   }
 }
 
+const decodeQuery = (ctx: Context) => {
+  for (const key in ctx.request.queries) {
+    ctx.request.queries[key] = decodeURIComponent(ctx.request.queries[key])
+  }
+}
+
 export const requestHandler = async (ctx: Context) => {
   try {
+    decodeQuery(ctx)
+
     if (await handleRpc(ctx)) {
       return
     }
