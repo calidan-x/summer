@@ -30,10 +30,17 @@ class ExtendObj extends Obj {
   d: number
 }
 
-class Paging<T> {
+export class Paging<T> {
+  constructor(data: T[], { pageNumber, pageSize, total }: { pageNumber: number; pageSize: number; total: number }) {
+    this.data = data
+    this.pageNumber = pageNumber
+    this.pageSize = pageSize
+    this.total = total
+  }
   data: T[]
   pageNumber: number
   pageSize: number
+  total: number
 }
 
 class Request {
@@ -156,9 +163,6 @@ export class SwaggerController {
 
   @Get('/paging')
   async paging() {
-    const paging = new Paging<Obj>()
-    paging.pageNumber = 1
-    paging.pageSize = 10
     const objs: Obj[] = [
       {
         a: 'string',
@@ -169,8 +173,7 @@ export class SwaggerController {
         b: 200
       }
     ]
-    paging.data = objs
-    return paging
+    return new Paging(objs, { pageNumber: 1, pageSize: 10, total: 100 })
   }
 
   @ApiDoc('Doc Summary', {

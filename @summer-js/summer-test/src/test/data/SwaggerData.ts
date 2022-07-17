@@ -412,7 +412,8 @@ export const data = {
                   }
                 },
                 pageNumber: { type: 'integer' },
-                pageSize: { type: 'integer' }
+                pageSize: { type: 'integer' },
+                total: { type: 'integer' }
               },
               description: ''
             },
