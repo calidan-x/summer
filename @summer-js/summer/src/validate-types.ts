@@ -298,9 +298,9 @@ export const validateAndConvertType = (
         })
       } else {
         const allProperties = []
-        let proto = classInstance.__proto__
-        while (proto.constructor.name !== 'Object') {
-          allProperties.push(...Reflect.getOwnMetadataKeys(proto.constructor.prototype))
+        let proto = d0
+        while (proto.name) {
+          allProperties.push(...Reflect.getOwnMetadataKeys(proto.prototype))
           proto = proto.__proto__
         }
 
@@ -314,7 +314,7 @@ export const validateAndConvertType = (
         }
 
         for (const k of allProperties) {
-          let declareType = Reflect.getMetadata('DeclareType', classInstance, k)
+          let declareType = Reflect.getMetadata('DeclareType', d0.prototype, k)
 
           if (declareType[0] === undefined) {
             classInstance[k] = objectValue[k]

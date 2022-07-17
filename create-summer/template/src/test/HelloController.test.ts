@@ -13,14 +13,4 @@ describe('Test HelloController', () => {
     const response = await request.get('/')
     expect(response.body).toBe('Hello Summer!')
   })
-
-  test('should response hello from service', async () => {
-    const response = await request.get('/service-inject')
-    expect(response.body).toBe('Hello')
-  })
-
-  test('should response hello from import service', async () => {
-    const response = await request.get('/import-inject-test')
-    expect(response.body).toBe('info')
-  })
 })

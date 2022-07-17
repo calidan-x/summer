@@ -247,12 +247,11 @@ const convertType = (d0) => {
   return d0
 }
 
-const getAllProps = (classInstance) => {
+const getAllProps = (clazz) => {
   const allProperties = []
-  let proto = classInstance.__proto__
-  while (proto.constructor.name !== 'Object') {
-    allProperties.splice(0, 0, ...Reflect.getOwnMetadataKeys(proto.constructor.prototype))
-    proto = proto.__proto__
+  while (clazz.name) {
+    allProperties.splice(0, 0, ...Reflect.getOwnMetadataKeys(clazz.prototype))
+    clazz = clazz.__proto__
   }
   return allProperties
 }
@@ -391,9 +390,8 @@ const getRequiredKeys = (t: any, isRequest: boolean) => {
     return []
   }
   const requireKeys = []
-  const typeInc = new t()
-  for (const key of getAllProps(typeInc)) {
-    const required = !Reflect.getMetadata('optional', typeInc, key)
+  for (const key of getAllProps(t)) {
+    const required = !Reflect.getMetadata('optional', t.prototype, key)
     if (required) {
       requireKeys.push(key)
     }
@@ -406,11 +404,10 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
     return { type: getType(dType) }
   }
 
-  const typeInc = new dType()
   const typeDesc = {}
 
-  for (const key of getAllProps(typeInc)) {
-    let [d0, d1, d2] = Reflect.getMetadata('DeclareType', typeInc, key) || []
+  for (const key of getAllProps(dType)) {
+    let [d0, d1, d2] = Reflect.getMetadata('DeclareType', dType.prototype, key) || []
     d0 = convertType(d0)
 
     if (typeof d0 === 'number') {
@@ -489,12 +486,12 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
           type: 'integer'
         }
 
-        const min = Reflect.getMetadata('min', typeInc, key)
+        const min = Reflect.getMetadata('min', dType.prototype, key)
         if (min !== undefined) {
           schemeDesc.minimum = min
         }
 
-        const max = Reflect.getMetadata('max', typeInc, key)
+        const max = Reflect.getMetadata('max', dType.prototype, key)
         if (max !== undefined) {
           schemeDesc.maximum = max
         }
@@ -502,10 +499,10 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
         schemeDesc = {
           type: 'string'
         }
-        if (Reflect.getMetadata('email', typeInc, key)) {
+        if (Reflect.getMetadata('email', dType.prototype, key)) {
           schemeDesc.format = 'email'
         }
-        const pattern = Reflect.getMetadata('pattern', typeInc, key)
+        const pattern = Reflect.getMetadata('pattern', dType.prototype, key)
         if (pattern) {
           schemeDesc.pattern = pattern.toString().substring(1, pattern.toString().length - 1)
         }
@@ -514,12 +511,12 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
           schemeDesc.format = 'password'
         }
 
-        const minLen = Reflect.getMetadata('minLen', typeInc, key)
+        const minLen = Reflect.getMetadata('minLen', dType.prototype, key)
         if (minLen !== undefined) {
           schemeDesc.minLength = minLen
         }
 
-        const maxLen = Reflect.getMetadata('maxLen', typeInc, key)
+        const maxLen = Reflect.getMetadata('maxLen', dType.prototype, key)
         if (maxLen !== undefined) {
           schemeDesc.maxLength = maxLen
         }
@@ -540,12 +537,12 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
           type: 'array',
           items: schemeDesc
         }
-        const minLen = Reflect.getMetadata('minLen', typeInc, key)
+        const minLen = Reflect.getMetadata('minLen', dType.prototype, key)
         if (minLen !== undefined) {
           typeDesc[key].minItems = minLen
         }
 
-        const maxLen = Reflect.getMetadata('maxLen', typeInc, key)
+        const maxLen = Reflect.getMetadata('maxLen', dType.prototype, key)
         if (maxLen !== undefined) {
           typeDesc[key].maxItems = maxLen
         }
@@ -553,15 +550,15 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
         typeDesc[key] = schemeDesc
       }
 
-      let propDescription = Reflect.getMetadata('Api:PropDescription', typeInc, key)
-      let propExample = Reflect.getMetadata('Api:PropExample', typeInc, key)
+      let propDescription = Reflect.getMetadata('Api:PropDescription', dType.prototype, key)
+      let propExample = Reflect.getMetadata('Api:PropExample', dType.prototype, key)
 
       if (swaggerJson.readTypeORMComment && !propDescription && global.typeormMetadataArgsStorage) {
         propDescription = global.typeormMetadataArgsStorage.columns.find((c) => {
           if (c.propertyName === key) {
-            let proto = typeInc.__proto__
-            while (proto.constructor.name !== 'Object') {
-              if (c.target === proto.constructor) {
+            let proto = dType
+            while (proto.name) {
+              if (c.target === proto) {
                 return true
               }
               proto = proto.__proto__
@@ -655,9 +652,8 @@ export class SummerSwaggerUIController {
             let [d0] = param.declareType
             d0 = convertType(d0)
             if (typeof d0 === 'function') {
-              const typeInc = new d0()
-              for (const key of getAllProps(typeInc)) {
-                const declareType = Reflect.getMetadata('DeclareType', typeInc, key)
+              for (const key of getAllProps(d0)) {
+                const declareType = Reflect.getMetadata('DeclareType', d0.prototype, key)
                 if (convertType(declareType[0]) === File) {
                   isFormBody = true
                 }
@@ -677,7 +673,7 @@ export class SummerSwaggerUIController {
             for (const filed in formProps) {
               let isRequired = false
               if (d0 && typeof d0 === 'function') {
-                isRequired = !Reflect.getMetadata('optional', new d0(), filed)
+                isRequired = !Reflect.getMetadata('optional', d0.prototype, filed)
               }
               parameters.push({
                 name: filed,
@@ -691,7 +687,7 @@ export class SummerSwaggerUIController {
             for (const filed in props) {
               let isRequired = false
               if (d0 && typeof d0 === 'function') {
-                isRequired = !Reflect.getMetadata('optional', new d0(), filed)
+                isRequired = !Reflect.getMetadata('optional', d0.prototype, filed)
               }
               parameters.push({
                 name: filed,
