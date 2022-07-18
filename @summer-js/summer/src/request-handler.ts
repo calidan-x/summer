@@ -108,7 +108,10 @@ const serialize = (obj, declareType: any[]) => {
     }
   } else if (typeof obj === 'object' && ![Date, _DateTime, _TimeStamp].includes(d0)) {
     for (const key in obj) {
-      let declareType = Reflect.getMetadata('DeclareType', obj, key) || []
+      let declareType =
+        Reflect.getMetadata('DeclareType', obj, key) ||
+        (d0 ? Reflect.getMetadata('DeclareType', d0.prototype, key) : []) ||
+        []
       if (typeof declareType[0] === 'number') {
         if (d2) {
           const d1Type = declareType[1]

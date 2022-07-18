@@ -19,6 +19,13 @@ interface RequestParams {
   headers?: any
 }
 
+type TestResponse = {
+  statusCode: number
+  headers: Record<string, string | string[]>
+  body: string
+  jsonBody: string
+}
+
 const sendRequest = async (method: any, path: string, requestParams: RequestParams) => {
   if (typeof requestParams.body === 'object') {
     requestParams.body = JSON.stringify(requestParams.body)
@@ -27,14 +34,18 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
     request: {
       method,
       path,
-      body: requestParams.body || '',
+      body: requestParams.body ?? '',
       headers: requestParams.headers || {},
       queries: requestParams.queries || {}
     },
     response: { statusCode: 200, headers: {}, body: undefined }
   }
   await requestHandler(context)
-  return context.response
+  let jsonBody = null
+  try {
+    jsonBody = JSON.parse(context.response.body)
+  } catch (e) {}
+  return { ...context.response, jsonBody } as TestResponse
 }
 
 const parseUrl = (requestPath: string) => {

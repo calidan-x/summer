@@ -176,15 +176,15 @@ const addClassAndEnum = (sf, allTypeMapping) => {
   // add enum
   sf.getEnums().forEach((sfEnum) => {
     const enumName = sfEnum.getName()
-    allTypeMapping[enumName] = `[()=>${enumName}]`
-    allTypeMapping[enumName + '[]'] = `[()=>${enumName},Array]`
+    allTypeMapping[enumName] = `[${enumName}]`
+    allTypeMapping[enumName + '[]'] = `[${enumName},Array]`
   })
 
   // add class
   sf.getClasses().forEach((clz) => {
     const className = clz.getName()
-    allTypeMapping[className] = `[()=>${className}]`
-    allTypeMapping[className + '[]'] = `[()=>${className},Array]`
+    allTypeMapping[className] = `[${className}]`
+    allTypeMapping[className + '[]'] = `[${className},Array]`
   })
 }
 

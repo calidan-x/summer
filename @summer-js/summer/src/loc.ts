@@ -39,19 +39,15 @@ export const locContainer = {
   },
   paddingInject(target: any, propertyKey: string, auto = false) {
     let t = Reflect.getMetadata('DeclareType', target, propertyKey)[0]
-    if (typeof t === 'function' && t.name === '') {
-      t = t()
-    }
+
     if (!target.$_paddingInject) {
       target.$_paddingInject = {}
       target.$_autoInjectKeys = []
     }
     if (!target.$_paddingInject[propertyKey]) {
-      if (typeof t === 'function' && /^\s*class\s+/.test(t.toString())) {
-        target.$_paddingInject[propertyKey] = t
-        if (auto) {
-          target.$_autoInjectKeys.push(propertyKey)
-        }
+      target.$_paddingInject[propertyKey] = t
+      if (auto) {
+        target.$_autoInjectKeys.push(propertyKey)
       }
     }
   },
@@ -59,12 +55,16 @@ export const locContainer = {
     for (const obj of this.locInstance) {
       if (obj.$_paddingInject) {
         for (const injectKey in obj.$_paddingInject) {
-          obj[injectKey] = this.getInstance(obj.$_paddingInject[injectKey])
-          if (!obj[injectKey]) {
-            if (!obj.$_autoInjectKeys.includes(injectKey)) {
-              Logger.error(
-                injectKey + ':' + obj.$_paddingInject[injectKey] + ' is not injectable in ' + obj.constructor.name
-              )
+          let injectClass = obj.$_paddingInject[injectKey]
+          if (typeof injectClass === 'function' && injectClass.name === '') {
+            injectClass = injectClass()
+          }
+          if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
+            obj[injectKey] = this.getInstance(injectClass)
+            if (!obj[injectKey]) {
+              if (!obj.$_autoInjectKeys.includes(injectKey)) {
+                Logger.error(injectKey + ':' + injectClass + ' is not injectable in ' + obj.constructor.name)
+              }
             }
           }
         }
@@ -77,7 +77,6 @@ export const locContainer = {
       if (obj.constructor.prototype.$_autoInjectKeys) {
         delete obj.constructor.prototype.$_autoInjectKeys
       }
-
     }
   },
   paddingAssign(target: any, propertyKey: string, decoratorFunc: any, args: any) {
@@ -99,7 +98,7 @@ export const locContainer = {
         }
         delete obj._paddingAssign
       }
-      
+
       if (obj.constructor.prototype._paddingAssign) {
         delete obj.constructor.prototype._paddingAssign
       }
