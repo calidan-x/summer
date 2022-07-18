@@ -13,7 +13,7 @@ export { handler } from './serverless'
 export { addPlugin } from './summer'
 export { setCookie, clearCookie } from './cookie'
 export { File } from './validate-types'
-export { sync } from './thread'
+ 
 
 export interface SummerPlugin {
   configKey: string

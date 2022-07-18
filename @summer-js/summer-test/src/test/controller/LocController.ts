@@ -1,12 +1,15 @@
-import { Controller, Get, PostConstruct } from '@summer-js/summer'
+import { Config, Controller, Get, PostConstruct } from '@summer-js/summer'
 
 @Controller('/loc')
 export class LocController {
-  str = ''
+  @Config('POST_CONSTRUCT_CONFIG')
+  config
 
-  @PostConstruct()
+  str: string
+
+  @PostConstruct
   init() {
-    this.str = 'init called'
+    this.str = this.config.value
   }
 
   @Get

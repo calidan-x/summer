@@ -22,10 +22,6 @@ export const locContainer = {
     }
     this.locInstanceMap.set(clazz, instance)
     this.locInstance.push(instance)
-    if (instance['$_postConstruct']) {
-      instance[instance['$_postConstruct']]()
-      delete instance['$_postConstruct']
-    }
   },
   getInstance<T>(clazz: Class<T>): T {
     return this.locInstanceMap.get(clazz)
@@ -81,6 +77,7 @@ export const locContainer = {
       if (obj.constructor.prototype.$_autoInjectKeys) {
         delete obj.constructor.prototype.$_autoInjectKeys
       }
+
     }
   },
   paddingAssign(target: any, propertyKey: string, decoratorFunc: any, args: any) {
@@ -102,8 +99,14 @@ export const locContainer = {
         }
         delete obj._paddingAssign
       }
+      
       if (obj.constructor.prototype._paddingAssign) {
         delete obj.constructor.prototype._paddingAssign
+      }
+
+      if (obj['$_postConstruct']) {
+        obj[obj['$_postConstruct']]()
+        delete obj['$_postConstruct']
       }
     }
   },

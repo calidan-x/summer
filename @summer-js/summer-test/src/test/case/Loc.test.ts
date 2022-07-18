@@ -11,6 +11,6 @@ describe('Test Loc', () => {
 
   test('should @PostConstruct works', async () => {
     const res = await request.get('/loc')
-    expect(res.body).toBe('init called')
+    expect(res.body).toBe("init post construct")
   })
 })
