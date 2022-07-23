@@ -1,24 +1,24 @@
-import { Text, TinyInt, Boolean, Primary, Int, VarChar, Entity, SmallInt, Float } from '@summer-js/typeorm'
+// import { Text, TinyInt, Boolean, PrimaryKey, Int, VarChar, Entity, SmallInt, Float, Index } from '@summer-js/typeorm'
 
-@Entity()
-export class Student {
-  // Id
-  @Primary({ autoIncrement: true })
-  id: Int
+// @Entity()
+// export class Student {
+//   // Id
+//   @PrimaryKey({ autoIncrement: true })
+//   id: Int
 
-  /* 姓名
-   姓名     */
-  name: VarChar<255> = 'Tom'
+//   /* 姓名
+//    姓名     */
+//   name: VarChar<255> = 'Tom'
 
-  // 年龄
-  age: SmallInt
+//   // 年龄
+//   age: SmallInt
 
-  // 班级
-  class?: VarChar<22>
+//   // 班级
+//   class?: VarChar<22>
 
-  // 身高
-  height: Float<10, 5>
+//   // 身高
+//   height: Float<10, 5>
 
-  // 是会员
-  isMember: Boolean
-}
+//   // 是会员
+//   isMember: Boolean
+// }

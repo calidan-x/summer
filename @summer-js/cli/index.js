@@ -104,7 +104,9 @@ program
                 console.error('Error starting server')
               }
             } else {
-              process.stdout.write(data)
+              if (data) {
+                process.stdout.write(data + '\n')
+              }
             }
           })
         })

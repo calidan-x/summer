@@ -62,18 +62,30 @@ class TypeORMPlugin implements SummerPlugin {
         imports.forEach((impt) => {
           if (impt.getModuleSpecifier().getText() === "'@summer-js/typeorm'") {
             isSummerTypeOrmDeclare = true
-            if (!impt.getNamedImports().find((ni) => ni.getText() === 'TypeOrmColumn')) {
-              impt.insertNamedImport(0, 'TypeOrmColumn')
+            if (!impt.getNamedImports().find((ni) => ni.getText() === '_TypeOrmColumn')) {
+              impt.insertNamedImport(0, '_TypeOrmColumn')
             }
           }
         })
         clazz.addDecorator({ name: '_TypeORMEntity' })
+        clazz.getChildren()[0].replaceWithText(
+          clazz
+            .getChildren()[0]
+            .getText()
+            .replace(/\n[^\n]*@_TypeORMEntity/g, ' @_TypeORMEntity')
+        )
       }
     }
 
     const imps = clazz.getImplements()
     if (imps.length > 0 && imps[0].getText() === 'MigrationInterface') {
       clazz.addDecorator({ name: '_TypeORMMigration' })
+      clazz.getChildren()[0].replaceWithText(
+        clazz
+          .getChildren()[0]
+          .getText()
+          .replace(/\n[^\n]*@_TypeORMMigration/g, ' @_TypeORMMigration')
+      )
     }
 
     if (!isSummerTypeOrmDeclare) {
@@ -158,22 +170,41 @@ class TypeORMPlugin implements SummerPlugin {
       const columnTypeStr = columnType.endsWith('[]')
         ? '[' + columnType.replace('[]', '') + ',Array]'
         : '[' + columnType + ']'
+      const typeStr = `type:"${columnDBType}"`
       const newDecorators = [{ name: '_PropDeclareType', arguments: [`${columnTypeStr}`] }]
-      if (!p.getDecorators().find((d) => d.getName().indexOf('Column') >= 0 || d.getName() === 'Primary')) {
-        const lengthStr = length ? `,length:${length}` : ''
-        const precisionStr = precision ? `,precision:${precision}` : ''
-        const scaleStr = scale ? `,scale:${scale}` : ''
-        const nullableStr = nullable ? ',nullable:true' : ',nullable:false'
-        const defaultStr = defaultValue ? `,default:${defaultValue}` : ''
-        const enumTypeStr = enumType ? `,enum:${enumType}` : ''
+      const lengthStr = length ? `,length:${length}` : ''
+      const precisionStr = precision ? `,precision:${precision}` : ''
+      const scaleStr = scale ? `,scale:${scale}` : ''
+      const nullableStr = nullable ? ',nullable:true' : ',nullable:false'
+      const defaultStr = defaultValue ? `,default:${defaultValue}` : ''
+      const enumTypeStr = enumType ? `,enum:${enumType}` : ''
+
+      if (!p.getDecorators().find((d) => d.getName().indexOf('Column') >= 0 || d.getName() === 'PrimaryKey')) {
         newDecorators.push({
-          name: 'TypeOrmColumn',
+          name: '_TypeOrmColumn',
           arguments: [
-            `{type:"${columnDBType}"${enumTypeStr}${defaultStr}${nullableStr}${precisionStr}${scaleStr}${lengthStr}${commentDeclare}}`
+            `{${typeStr}${enumTypeStr}${defaultStr}${nullableStr}${precisionStr}${scaleStr}${lengthStr}${commentDeclare}}`
           ]
         })
       }
+
+      const primaryKey = p.getDecorators().find((d) => d.getName() === 'PrimaryKey')
+      if (primaryKey) {
+        if (primaryKey.getArguments().length === 0) {
+          primaryKey.addArgument(`{}`)
+        }
+        primaryKey.addArgument(
+          `{${typeStr}${enumTypeStr}${defaultStr}${nullableStr}${precisionStr}${scaleStr}${lengthStr}${commentDeclare}}`
+        )
+      }
+
       p.addDecorators(newDecorators)
+      p.replaceWithText(
+        p
+          .getText()
+          .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
+          .replace(/(@_TypeOrmColumn[^\n]+)\n/g, '$1 ')
+      )
     })
   }
 
@@ -274,16 +305,16 @@ export {
   Decimal
 }
 
-const Primary = (options: { autoIncrement?: boolean } = {}) => {
+const PrimaryKey = ((options: { autoIncrement?: boolean } = {}, config) => {
   if (options.autoIncrement) {
-    return PrimaryGeneratedColumn()
+    return PrimaryGeneratedColumn(config)
   } else {
-    return PrimaryColumn()
+    return PrimaryColumn(config)
   }
-}
+}) as (options: { autoIncrement?: boolean }) => PropertyDecorator
 
-const TypeOrmColumn = Column
-export { Primary, Entity, TypeOrmColumn, Index, ManyToMany, JoinColumn, ManyToOne }
+const _TypeOrmColumn = Column
+// export { PrimaryKey, Entity, _TypeOrmColumn, Index, ManyToMany, JoinColumn, ManyToOne }
 
 /*
 

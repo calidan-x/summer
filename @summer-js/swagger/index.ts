@@ -195,10 +195,9 @@ class SwaggerPlugin implements SummerPlugin {
       fs.mkdirSync('./resource')
     }
 
-    if (fs.existsSync('./resource/swagger-res')) {
-      fs.rmSync('./resource/swagger-res', { recursive: true, force: true })
+    if (!fs.existsSync('./resource/swagger-res')) {
+      fs.mkdirSync('./resource/swagger-res')
     }
-    fs.mkdirSync('./resource/swagger-res')
 
     const files = [
       'swagger-ui.css',
@@ -208,9 +207,13 @@ class SwaggerPlugin implements SummerPlugin {
       'favicon-32x32.png'
     ]
     files.forEach((f) => {
-      fs.copyFileSync(swaggerUIPath + '/' + f, './resource/swagger-res/' + f)
+      if (!fs.existsSync('./resource/swagger-res/' + f)) {
+        fs.copyFileSync(swaggerUIPath + '/' + f, './resource/swagger-res/' + f)
+      }
     })
-    fs.copyFileSync(swaggerPluginPath + '/index.html', './resource/swagger-res/index.html')
+    if (!fs.existsSync('./resource/swagger-res/index.html')) {
+      fs.copyFileSync(swaggerPluginPath + '/index.html', './resource/swagger-res/index.html')
+    }
   }
 }
 

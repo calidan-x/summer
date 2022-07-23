@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/summer-test",
-	"version": "0.0.46",
+	"version": "0.0.47",
 	"description": "",
 	"scripts": {
 		"serve": "summer serve --env local",
@@ -15,7 +15,7 @@
 	"dependencies": {
 		"md5": "^2.3.0",
 		"cross-env": "^7.0.3",
-		"mysql": "^2.2.5",
+		"mysql2": "^2.3.3",
 		"ts-node": "^10.7.0",
 		"ts-jest": "^28.0.3",
 		"jest": "^28.0.3",

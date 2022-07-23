@@ -838,6 +838,114 @@ export const data = {
           }
         }
       }
+    },
+    '/swagger-test/interface-return': {
+      put: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'getInterface',
+        consumes: [],
+        parameters: [],
+        responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
+      }
+    },
+    '/swagger-test/wrong-return': {
+      put: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'getWringReturn',
+        consumes: [],
+        parameters: [],
+        responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
+      }
+    },
+    '/swagger-test/wrong-return2': {
+      put: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'getWringReturn2',
+        consumes: [],
+        parameters: [],
+        responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
+      }
+    },
+    '/swagger-test/service-object-convert-type': {
+      put: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'getServiceData',
+        consumes: [],
+        parameters: [],
+        responses: {
+          '200': {
+            schema: {
+              type: 'object',
+              properties: {
+                data: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: { field1: { type: 'string' }, field2: { type: 'integer' } },
+                    description: ''
+                  }
+                },
+                pageNumber: { type: 'integer' },
+                pageSize: { type: 'integer' },
+                total: { type: 'integer' }
+              },
+              description: ''
+            },
+            description: ''
+          }
+        }
+      }
+    },
+    '/swagger-test/service-mixed-type-return': {
+      put: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'serviceMixTypeClass',
+        consumes: [],
+        parameters: [],
+        responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
+      }
+    },
+    '/swagger-test/service-paging-return': {
+      put: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'getServicePagingData',
+        consumes: [],
+        parameters: [],
+        responses: {
+          '200': {
+            schema: {
+              type: 'object',
+              properties: {
+                data: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: { field1: { type: 'string' }, field2: { type: 'integer' } },
+                    description: ''
+                  }
+                },
+                pageNumber: { type: 'integer' },
+                pageSize: { type: 'integer' },
+                total: { type: 'integer' }
+              },
+              description: ''
+            },
+            description: ''
+          }
+        }
+      }
     }
   },
   securityDefinitions: { AppAuth: { type: 'apiKey', in: 'header', name: 'Authorization' } },

@@ -170,7 +170,7 @@ export const applyResponse = (ctx: Context, responseData: any, returnDeclareType
 
   ctx.response.statusCode = ctx.response.statusCode || 200
   ctx.response.headers['Content-Type'] =
-    ctx.response.headers['Content-Type'] || (isJSON ? 'application/json' : 'text/html')
+    ctx.response.headers['Content-Type'] || (isJSON ? 'application/json' : 'text/html; charset=utf-8')
 }
 
 const callControllerMethod = async (ctx: Context) => {
@@ -210,7 +210,7 @@ const callControllerMethod = async (ctx: Context) => {
     if (allErrors.length > 0) {
       ctx.response = {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify({ errors: allErrors })
       }
     } else {
@@ -221,7 +221,7 @@ const callControllerMethod = async (ctx: Context) => {
       })
     }
   } else {
-    ctx.response = { statusCode: 404, headers: { 'Content-Type': 'text/html' }, body: '404 Not Found' }
+    ctx.response = { statusCode: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' }, body: '404 Not Found' }
   }
 }
 
@@ -275,7 +275,7 @@ const handleRpc = async (ctx: Context) => {
 
 const makeServerError = (ctx: Context) => {
   ctx.response.statusCode = ctx.response.statusCode || 500
-  ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html'
+  ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html; charset=utf-8'
   if (ctx.response.body === undefined) {
     ctx.response.body = 'Server Error'
   }

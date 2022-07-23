@@ -61,7 +61,9 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
   if (!sf) {
     return
   }
-  allRefFiles.push(sf)
+  if (!allRefFiles.includes(sf)) {
+    allRefFiles.push(sf)
+  }
   const refFiles = sf.getReferencingSourceFiles()
   for (const refFile of refFiles) {
     if (allRefFiles.includes(refFile)) {
@@ -73,62 +75,52 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
 
 const addFileImport = (typeString, clazz) => {
   if (typeString && typeString.startsWith('import("')) {
-    const importParts = typeString.split('.')
-    const importName = importParts[importParts.length - 1].replace(/\[\]$/, '')
-    const imports = clazz.getSourceFile().getImportDeclarations()
-    let imported = false
-    imports.forEach((ipt) => {
-      ipt.getNamedImports().forEach((ni) => {
-        if (ni.getText() === importName) {
-          imported = true
-        }
+    let statement = ''
+    while (true) {
+      const importReg = /import\("([^"]+)"\)\.([^<^>^\[^\]]+)/
+      const result = importReg.exec(typeString)
+      if (!result) {
+        break
+      }
+
+      typeString = typeString.replace(importReg, '')
+
+      const importName = result[2]
+      const imports = clazz.getSourceFile().getImportDeclarations()
+      let imported = false
+      imports.forEach((ipt) => {
+        ipt.getNamedImports().forEach((ni) => {
+          if (ni.getText() === importName) {
+            imported = true
+          }
+        })
       })
-    })
 
-    if (!imported) {
-      const importPath =
-        './' +
-        slash(
-          path.relative(
-            path.dirname(slash(clazz.getSourceFile().getFilePath())),
-            JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"')
+      if (!imported) {
+        const importFilePath =
+          './' +
+          slash(
+            path.relative(path.dirname(slash(clazz.getSourceFile().getFilePath())), JSON.parse('"' + result[1] + '"'))
           )
-        )
-
-      // clazz.getSourceFile().addImportDeclaration({
-      //   namedImports: [importName],
-      //   moduleSpecifier:
-      //     './' +
-      //     slash(
-      //       path.relative(
-      //         path.dirname(slash(clazz.getSourceFile().getFilePath())),
-      //         JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"')
-      //       )
-      //     )
-      // })
-
-      const importFilePath =
-        './' +
-        slash(
-          path.relative(
-            path.dirname(slash(clazz.getSourceFile().getFilePath())),
-            JSON.parse('"' + typeString.substring(8).replace(/"\)\..+$/, '') + '"')
-          )
-        )
-      const statement = `import { ${importName} } from '${importFilePath}';`
-
-      clazz
-        .getSourceFile()
-        .getImportDeclarations()[0]
-        .replaceWithText(statement + clazz.getSourceFile().getImportDeclarations()[0].getText())
+        statement += `import { ${importName} } from '${importFilePath}';`
+      }
     }
+
+    clazz
+      .getSourceFile()
+      .getImportDeclarations()[0]
+      .replaceWithText(statement + clazz.getSourceFile().getImportDeclarations()[0].getText())
   }
 }
 
+let ALLTypeMapping = {}
 const addPropDecorator = (cls) => {
   if (!cls) {
     return
   }
+
+  ALLTypeMapping = { ...TypeMapping }
+  addClassAndEnum(cls.getSourceFile(), ALLTypeMapping)
 
   const typeParameters = cls.getTypeParameters().map((tp) => tp.getText(cls))
   cls.getProperties().forEach((p) => {
@@ -172,20 +164,30 @@ const addPropDecorator = (cls) => {
   }
 }
 
-const addClassAndEnum = (sf, allTypeMapping) => {
+const addClassAndEnum = (sf, allTypeMapping, deep = 0) => {
   // add enum
   sf.getEnums().forEach((sfEnum) => {
-    const enumName = sfEnum.getName()
-    allTypeMapping[enumName] = `[${enumName}]`
-    allTypeMapping[enumName + '[]'] = `[${enumName},Array]`
+    if (deep === 0 || sfEnum.isExported()) {
+      const enumName = sfEnum.getName()
+      allTypeMapping[enumName] = `[${enumName}]`
+      allTypeMapping[enumName + '[]'] = `[${enumName},Array]`
+    }
   })
 
   // add class
   sf.getClasses().forEach((clz) => {
-    const className = clz.getName()
-    allTypeMapping[className] = `[${className}]`
-    allTypeMapping[className + '[]'] = `[${className},Array]`
+    if (deep === 0 || clz.isExported()) {
+      const className = clz.getName()
+      allTypeMapping[className] = `[${className}]`
+      allTypeMapping[className + '[]'] = `[${className},Array]`
+    }
   })
+
+  // sf.getReferencedSourceFiles().forEach((rsf) => {
+  //   if (!rsf.getFilePath().endsWith('.d.ts') && !RefSourceFiles.includes(rsf)) {
+  //     addClassAndEnum(rsf, allTypeMapping, deep + 1)
+  //   }
+  // })
 }
 
 // [0, Array,[]]
@@ -193,20 +195,11 @@ const addClassAndEnum = (sf, allTypeMapping) => {
 // [{e1:12,e2:33}, undefined,[]]
 // [["val1","val2"], undefined,[]]
 
-// class A<T>{
-//   a:T[]
-//   b:GG<gg>
-// }
-
 const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
   // interface
   if (declareLine.startsWith(':{')) {
     return '[]'
   }
-
-  const ALLTypeMapping = { ...TypeMapping }
-
-  addClassAndEnum(parameter.getSourceFile(), ALLTypeMapping)
 
   const parts = declareLine.split(/:([^:]*)$/s)
   let type = '[]'
@@ -251,7 +244,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     }
   }
 
-  if (!paramType) {
+  if (!paramType || paramType.isAnonymous()) {
     return '[]'
   }
 
@@ -265,10 +258,20 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
       })
       .join(',')
 
-    if (paramType.isArray()) {
-      return `[${baseType},Array,[${typeArgs}]]`
-    } else {
-      return `[${baseType},undefined,[${typeArgs}]]`
+    try {
+      const targetTarget = paramType.getTargetType()
+      if (targetTarget.isClass()) {
+        return `[${baseType},undefined,[${typeArgs}]]`
+      } else if (paramType.isArray()) {
+        const pType = paramType.getArrayElementTypeOrThrow()
+        if (pType.isClass()) {
+          return `[${baseType},Array,[${typeArgs}]]`
+        } else {
+          return '[]'
+        }
+      }
+    } catch (e) {
+      return '[]'
     }
   }
 
@@ -312,7 +315,6 @@ const checkError = () => {
     console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:')
     console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
     compiling = false
-    firstCompile = false
     return true
   }
   return false
@@ -567,7 +569,7 @@ const compile = async () => {
   if (fs.existsSync('./src/config/default.config.ts')) {
     if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {
       const defaultConfigSourceFile = project.getSourceFileOrThrow('./src/config/default.config.ts')
-      defaultConfigSourceFile.refreshFromFileSystem()
+      defaultConfigSourceFile.refreshFromFileSystemSync()
       defaultConfigSourceFile.addStatements('global["$$_DEFAULT_CONFIG"] = exports')
 
       statements.push('import "./config/default.config";')
@@ -576,7 +578,7 @@ const compile = async () => {
   if (fs.existsSync(`./src/config/${process.env.SUMMER_ENV}.config.ts`)) {
     if (fs.readFileSync(`./src/config/${process.env.SUMMER_ENV}.config.ts`, { encoding: 'utf-8' }).trim().length > 0) {
       const envConfigSourceFile = project.getSourceFileOrThrow(`./src/config/${process.env.SUMMER_ENV}.config.ts`)
-      envConfigSourceFile.refreshFromFileSystem()
+      envConfigSourceFile.refreshFromFileSystemSync()
       envConfigSourceFile.addStatements('global["$$_ENV_CONFIG"] = exports')
 
       statements.push(`import "./config/${process.env.SUMMER_ENV}.config";`)
@@ -588,15 +590,23 @@ const compile = async () => {
   })
 
   const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
-  indexSourceFile.refreshFromFileSystem()
+  indexSourceFile.refreshFromFileSystemSync()
   indexSourceFile.getChildAtIndex(0).replaceWithText(statements.join('') + indexSourceFile.getChildAtIndex(0).getText())
   project.resolveSourceFileDependencies()
 
-  if (checkError()) {
-    return
-  }
+  // if (checkError()) {
+  //   firstCompile = false
+  //   return
+  // }
 
-  project.emitSync()
+  if (firstCompile) {
+    project.emitSync()
+  } else {
+    dirtyFiles.forEach((df) => {
+      project.emitSync({ targetSourceFile: df })
+    })
+    project.emitSync({ targetSourceFile: indexSourceFile })
+  }
 
   for (const p of pluginIncs) {
     p.postCompile && (await p.postCompile())
@@ -628,16 +638,16 @@ if (watch) {
           return
         }
 
-        // if (currentMD5 === fileHashes[path]) {
-        //   return
-        // }
+        if (currentMD5 === fileHashes[path]) {
+          return
+        }
 
         fileHashes[path] = currentMD5
       } else {
         delete fileHashes[path]
       }
       updateFileList.push({ event, updatePath: path })
-      if (compiling || firstCompile) {
+      if (compiling) {
         return
       }
       await compile()

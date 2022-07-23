@@ -14,32 +14,21 @@ import {
   Email,
   Delete,
   Patch,
-  Queries
+  Queries,
+  Put,
+  Inject
 } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup, PropDoc } from '@summer-js/swagger'
+import { Paging, Obj, ExtendObj } from '../../dto/resource/Paging'
+import { SwaggerService } from '../service/SwaggerService'
 
-class Obj {
-  @PropDoc('A', 'A Value')
-  a: string
-  @PropDoc('B', 1)
-  b: int
+interface InterfaceGenericRes<T> {
+  a: T
 }
 
-class ExtendObj extends Obj {
-  c: string
-  d: number
-}
-
-export class Paging<T> {
-  constructor(props: { data: T[]; pageNumber: number; pageSize: number; total: number }) {
-    for (const k in props) {
-      this[k] = props[k]
-    }
-  }
-  data: T[]
-  pageNumber: number
-  pageSize: number
-  total: number
+interface InterfaceRes {
+  a: number
+  b: string
 }
 
 class Request {
@@ -154,6 +143,9 @@ class AllQueries {
 @Controller('/swagger-test')
 @ApiDocGroup('Swagger Apis')
 export class SwaggerController {
+  @Inject
+  swaggerService: SwaggerService
+
   @Get
   @ApiDoc('Get Hello', { description: 'desc' })
   async hello() {
@@ -244,5 +236,38 @@ export class SwaggerController {
   @ApiDoc('extends class')
   async extendClass(@Body extendObj: ExtendObj) {
     return new ExtendObj()
+  }
+
+  @Put('/interface-return')
+  async getInterface() {
+    const a: InterfaceRes = { a: 123, b: 'Str' }
+    return a
+  }
+
+  @Put('/wrong-return')
+  async getWringReturn() {
+    const a: InterfaceGenericRes<InterfaceRes> = { a: { a: 123, b: 'str' } }
+    return a
+  }
+
+  @Put('/wrong-return2')
+  async getWringReturn2() {
+    const a: Partial<InterfaceRes> = { a: 123, b: 'str' }
+    return a
+  }
+
+  @Put('/service-object-convert-type')
+  async getServiceData() {
+    return this.swaggerService.getData()
+  }
+
+  @Put('/service-mixed-type-return')
+  async serviceMixTypeClass() {
+    return this.swaggerService.getMixType()
+  }
+
+  @Put('/service-paging-return')
+  async getServicePagingData() {
+    return this.swaggerService.getPagingData()
   }
 }
