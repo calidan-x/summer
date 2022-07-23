@@ -56,25 +56,31 @@ class TypeORMPlugin implements SummerPlugin {
 
   compile(clazz: ClassDeclaration) {
     let isSummerTypeOrmDeclare = false
+    let isEntity = false
     for (const classDecorator of clazz.getDecorators()) {
       if (classDecorator.getName() === 'Entity') {
-        const imports = classDecorator.getSourceFile().getImportDeclarations()
-        imports.forEach((impt) => {
-          if (impt.getModuleSpecifier().getText() === "'@summer-js/typeorm'") {
-            isSummerTypeOrmDeclare = true
-            if (!impt.getNamedImports().find((ni) => ni.getText() === '_TypeOrmColumn')) {
-              impt.insertNamedImport(0, '_TypeOrmColumn')
-            }
-          }
-        })
-        clazz.addDecorator({ name: '_TypeORMEntity' })
-        clazz.getChildren()[0].replaceWithText(
-          clazz
-            .getChildren()[0]
-            .getText()
-            .replace(/\n[^\n]*@_TypeORMEntity/g, ' @_TypeORMEntity')
-        )
+        isEntity = true
+        break
       }
+    }
+
+    if (isEntity) {
+      const imports = clazz.getSourceFile().getImportDeclarations()
+      imports.forEach((impt) => {
+        if (impt.getModuleSpecifier().getText() === "'@summer-js/typeorm'") {
+          isSummerTypeOrmDeclare = true
+          if (!impt.getNamedImports().find((ni) => ni.getText() === '_TypeOrmColumn')) {
+            impt.insertNamedImport(0, '_TypeOrmColumn')
+          }
+        }
+      })
+      clazz.addDecorator({ name: '_TypeORMEntity' })
+      clazz.getChildren()[0].replaceWithText(
+        clazz
+          .getChildren()[0]
+          .getText()
+          .replace(/\n[^\n]*@_TypeORMEntity/g, ' @_TypeORMEntity')
+      )
     }
 
     const imps = clazz.getImplements()

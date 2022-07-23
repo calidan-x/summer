@@ -82,17 +82,17 @@ const matchPathMethod = (path: string, httpMethod: string) => {
 const addZero = (num: number) => (num < 10 ? '0' + num : num + '')
 
 const toDate = (d: Date) => {
-  if (!d) {
-    return null
+  if (d instanceof Date) {
+    return d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate())
   }
-  return d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate())
+  return d || null
 }
 
 const toDateTime = (d: Date) => {
-  if (!d) {
-    return null
+  if (d instanceof Date) {
+    return toDate(d) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + ':' + addZero(d.getSeconds())
   }
-  return toDate(d) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + ':' + addZero(d.getSeconds())
+  return d || null
 }
 
 const serialize = (obj, declareType: any[]) => {
