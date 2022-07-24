@@ -192,6 +192,18 @@ describe('Controller Params Test', () => {
     expect(result.statusCode).toBe(400)
     expect(result.body).toContain("'requiredKey' is required")
 
+    result = await request.post('/request-key-validate/optional-no-type', {})
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("'headerKey' is required")
+
+    result = await request.post('/request-key-validate/optional-no-type', { headers: { headerKey: '' } })
+    expect(result.statusCode).toBe(400)
+    expect(result.body).toContain("'headerKey' cannot be empty")
+
+    result = await request.post('/request-key-validate/optional-no-type', { headers: { headerKey: 'value' } })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBe('value')
+
     result = await request.post('/request-key-validate/param-optional')
     expect(result.statusCode).toBe(200)
     expect(result.body).toBe('')

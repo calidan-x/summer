@@ -30,12 +30,19 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
   if (typeof requestParams.body === 'object') {
     requestParams.body = JSON.stringify(requestParams.body)
   }
+  const lowerCaseHeader = requestParams.headers || {}
+  Object.keys(lowerCaseHeader).forEach((key) => {
+    if (key.toLocaleLowerCase() !== key) {
+      lowerCaseHeader[key.toLocaleLowerCase()] = lowerCaseHeader[key]
+      delete lowerCaseHeader[key]
+    }
+  })
   const context: Context = {
     request: {
       method,
       path,
       body: requestParams.body ?? '',
-      headers: requestParams.headers || {},
+      headers: lowerCaseHeader,
       queries: requestParams.queries || {}
     },
     response: { statusCode: 200, headers: {}, body: undefined }

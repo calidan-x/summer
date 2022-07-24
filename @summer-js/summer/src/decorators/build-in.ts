@@ -27,8 +27,12 @@ export const PathParam = createParamDecorator(_pathParamConvertFunc)
 
 export const Session = createParamDecorator((ctx) => ctx.session)
 
-export const _headerConvertFunc = (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
+export const _headerConvertFunc = (ctx, paramName: string, name: string) =>
+  ctx.request.headers[(name || paramName).toLowerCase()]
 export const Header = createParamDecorator(_headerConvertFunc)
+
+// export const _headersConvertFunc = (ctx) => ctx.request.headers
+// export const Headers = createParamDecorator(_headerConvertFunc)
 
 export const Cookie = createParamDecorator((ctx, paramName: string, name: string) => ctx.cookies[name || paramName])
 export const RequestPath = createParamDecorator((ctx) => ctx.request.path)

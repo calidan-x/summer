@@ -35,6 +35,13 @@ export const validateAndConvertType = (
   }
 
   if (d0 === undefined && d1 !== Array) {
+    if (propertyValue === undefined) {
+      let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
+      validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
+      if (propertyValue === '') {
+        validateNotEmpty(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
+      }
+    }
     return propertyValue
   }
 

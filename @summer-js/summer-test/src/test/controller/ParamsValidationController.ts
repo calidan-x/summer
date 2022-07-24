@@ -10,7 +10,8 @@ import {
   MaxLen,
   Email,
   Pattern,
-  Validate
+  Validate,
+  Header
 } from '@summer-js/summer'
 import { Dog } from '../../dto/request/Dog'
 
@@ -164,6 +165,11 @@ export class ParamsValidationController {
   @Post('/request-key-validate/optional')
   optionalKey(@Body request: OptionalRequest) {
     return request
+  }
+
+  @Post('/request-key-validate/optional-no-type')
+  optionalNoType(@Header headerKey: string) {
+    return headerKey
   }
 
   @Post('/request-key-validate/param-optional')

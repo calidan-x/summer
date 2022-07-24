@@ -5,7 +5,7 @@ import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
-import { Project } from 'ts-morph'
+import { Project, ClassDeclaration, EnumDeclaration } from 'ts-morph'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -155,30 +155,32 @@ const addPropDecorator = (cls) => {
   }
 }
 
-const addClassAndEnum = (sf, allTypeMapping, deep = 0) => {
+const addClassAndEnum = (sf, allTypeMapping) => {
   // add enum
   sf.getEnums().forEach((sfEnum) => {
-    if (deep === 0 || sfEnum.isExported()) {
-      const enumName = sfEnum.getName()
-      allTypeMapping[enumName] = `[${enumName}]`
-      allTypeMapping[enumName + '[]'] = `[${enumName},Array]`
-    }
+    const enumName = sfEnum.getName()
+    allTypeMapping[enumName] = `[${enumName}]`
+    allTypeMapping[enumName + '[]'] = `[${enumName},Array]`
   })
 
   // add class
   sf.getClasses().forEach((clz) => {
-    if (deep === 0 || clz.isExported()) {
-      const className = clz.getName()
-      allTypeMapping[className] = `[${className}]`
-      allTypeMapping[className + '[]'] = `[${className},Array]`
-    }
+    const className = clz.getName()
+    allTypeMapping[className] = `[${className}]`
+    allTypeMapping[className + '[]'] = `[${className},Array]`
   })
 
-  // sf.getReferencedSourceFiles().forEach((rsf) => {
-  //   if (!rsf.getFilePath().endsWith('.d.ts') && !RefSourceFiles.includes(rsf)) {
-  //     addClassAndEnum(rsf, allTypeMapping, deep + 1)
-  //   }
-  // })
+  // add import class
+  sf.getReferencedSourceFiles().forEach((rsf) => {
+    if (!rsf.getFilePath().endsWith('.d.ts')) {
+      for (const [name, declarations] of rsf.getExportedDeclarations()) {
+        if (declarations[0] instanceof ClassDeclaration || declarations[0] instanceof EnumDeclaration) {
+          allTypeMapping[name] = `[${name}]`
+          allTypeMapping[name + '[]'] = `[${name},Array]`
+        }
+      }
+    }
+  })
 }
 
 // [0, Array,[]]
@@ -442,14 +444,19 @@ const compile = async () => {
               })
 
               /// return type
-              let returnType = cMethod.getReturnType()
-              let returnTypeStr = returnType.getText(cls)
-              if (returnTypeStr.startsWith('Promise<')) {
-                returnType = returnType.getTypeArguments()[0]
+              let returnType = null
+              let returnTypeStr = 'void'
+              if (cMethod.getText().indexOf('return ') > 0) {
+                returnType = cMethod.getReturnType()
+                returnTypeStr = returnType.getText(cls)
+
+                if (returnTypeStr.startsWith('Promise<')) {
+                  returnType = returnType.getTypeArguments()[0]
+                  returnTypeStr = returnType.getText(cls)
+                }
+                addFileImport(returnTypeStr, cls)
                 returnTypeStr = returnType.getText(cls)
               }
-              addFileImport(returnTypeStr, cls)
-              returnTypeStr = returnType.getText(cls)
 
               cMethod.addDecorator({
                 name: '_ReturnDeclareType',
@@ -609,40 +616,44 @@ const compile = async () => {
   compiling = false
 }
 
+let compileTimer = null
 if (watch) {
   const fileHashes = {}
   const watchDir = './src/'
-  const watcher = chokidar
-    .watch(watchDir, {
-      awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 100 }
-    })
-    .on('all', async (event, path) => {
-      if (fs.existsSync('./' + path)) {
-        if (fs.lstatSync('./' + path).isDirectory()) {
-          return
-        }
-        const md5 = crypto.createHash('md5')
-        const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
-
-        if (!fileHashes[path] && firstCompile) {
-          fileHashes[path] = currentMD5
-          return
-        }
-
-        if (currentMD5 === fileHashes[path]) {
-          return
-        }
-
-        fileHashes[path] = currentMD5
-      } else {
-        delete fileHashes[path]
-      }
-      updateFileList.push({ event, updatePath: path })
-      if (compiling) {
+  const watcher = chokidar.watch(watchDir).on('all', async (event, path) => {
+    if (fs.existsSync('./' + path)) {
+      if (fs.lstatSync('./' + path).isDirectory()) {
         return
       }
-      await compile()
-    })
+      const md5 = crypto.createHash('md5')
+      const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
+
+      if (!fileHashes[path] && firstCompile) {
+        fileHashes[path] = currentMD5
+        return
+      }
+
+      if (currentMD5 === fileHashes[path]) {
+        return
+      }
+
+      fileHashes[path] = currentMD5
+    } else {
+      delete fileHashes[path]
+    }
+    updateFileList.push({ event, updatePath: path })
+    if (compiling) {
+      return
+    }
+
+    if (compileTimer) {
+      clearTimeout(compileTimer)
+    }
+    compileTimer = setTimeout(() => {
+      compileTimer = null
+      compile()
+    }, 40)
+  })
 
   watcher.on('ready', async () => {
     await compile()

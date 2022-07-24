@@ -11,7 +11,7 @@ describe('Config Test', () => {
   })
 
   test('test createParamDecorator', async () => {
-    const result = await request.get('/app/version', { headers: { AppVersion: '1.0.0' } })
+    const result = await request.get('/app/version', { headers: { 'app-version': '1.0.0' } })
     expect(result.statusCode).toBe(200)
     expect(result.body).toBe('1.0.0')
   })
