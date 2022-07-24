@@ -152,7 +152,6 @@ export const validateAndConvertType = (
       validateMinMax(instance, methodName, paramIndex, propertyName, errorParam, value, allErrors, isFirstLevel)
       break
     case Date:
-    case _DateTime:
       const timeStamp = Date.parse(propertyValue)
       if (!timeStamp || isNaN(timeStamp)) {
         allErrors.push({
@@ -161,26 +160,6 @@ export const validateAndConvertType = (
         })
       } else {
         value = new Date(timeStamp)
-      }
-      break
-    case _TimeStamp:
-      let numTimeStamp = parseInt(propertyValue)
-      if (!numTimeStamp || isNaN(numTimeStamp)) {
-        allErrors.push({
-          param: errorParam,
-          message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to Date'
-        })
-      } else {
-        if (numTimeStamp < 10000000000) {
-          numTimeStamp *= 1000
-        }
-        value = new Date(numTimeStamp)
-        if (value.getTime() !== numTimeStamp) {
-          allErrors.push({
-            param: errorParam,
-            message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to Date'
-          })
-        }
       }
       break
     case Boolean:
@@ -259,7 +238,6 @@ export const validateAndConvertType = (
           allErrors,
           isFirstLevel
         )
-        validateNotEmpty(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
 
         let arrValueType: any = [d0, undefined, d2]
         for (let i = 0; i < arrayValue.length; i++) {
@@ -405,9 +383,9 @@ const validateNotEmpty = (
   propValue: string,
   errors: ValidateError[]
 ) => {
-  let notEmpty: boolean = getMetaData('notEmpty', instance, methodName, paramIndex, propName)
+  let optional: boolean = getMetaData('optional', instance, methodName, paramIndex, propName)
 
-  if (notEmpty && propValue.length === 0) {
+  if (!optional && propValue.length === 0) {
     errors.push({
       param: errorParam,
       message: `'${propName}' cannot be empty`

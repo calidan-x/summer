@@ -152,13 +152,13 @@ export const data = {
                   description: '',
                   required: ['a', 'b']
                 },
-                date: { type: 'string', format: 'date', example: '2012-12-12' },
+                date: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                 g: {
                   type: 'object',
                   properties: {
                     a: { type: 'integer' },
                     b: { type: 'string' },
-                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                    d: { type: 'string', example: '2022-07-23T14:12:38.898Z' }
                   },
                   description: '',
                   required: ['a', 'b', 'd']
@@ -168,7 +168,7 @@ export const data = {
                   properties: {
                     a: { type: 'boolean' },
                     b: { type: 'string' },
-                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                    d: { type: 'string', example: '2022-07-23T14:12:38.898Z' }
                   },
                   description: '',
                   required: ['a', 'b', 'd']
@@ -178,7 +178,7 @@ export const data = {
                   properties: {
                     a: { type: 'integer' },
                     b: { type: 'string' },
-                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                    d: { type: 'string', example: '2022-07-23T14:12:38.898Z' }
                   },
                   description: '',
                   required: ['a', 'b', 'd']
@@ -210,13 +210,13 @@ export const data = {
                 field1: { type: 'array', items: { type: 'string' } },
                 field2: { type: 'integer' },
                 obj: { type: 'object', properties: { a: { type: 'integer' }, b: { type: 'string' } }, description: '' },
-                date: { type: 'string', format: 'date', example: '2012-12-12' },
+                date: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                 g: {
                   type: 'object',
                   properties: {
                     a: { type: 'integer' },
                     b: { type: 'string' },
-                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                    d: { type: 'string', example: '2022-07-23T14:12:38.898Z' }
                   },
                   description: ''
                 },
@@ -225,7 +225,7 @@ export const data = {
                   properties: {
                     a: { type: 'boolean' },
                     b: { type: 'string' },
-                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                    d: { type: 'string', example: '2022-07-23T14:12:38.898Z' }
                   },
                   description: ''
                 },
@@ -234,7 +234,7 @@ export const data = {
                   properties: {
                     a: { type: 'integer' },
                     b: { type: 'string' },
-                    d: { type: 'string', format: 'date', example: '2012-12-12' }
+                    d: { type: 'string', example: '2022-07-23T14:12:38.898Z' }
                   },
                   description: ''
                 },
@@ -264,30 +264,6 @@ export const data = {
         consumes: [],
         parameters: [],
         responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
-      }
-    },
-    '/generic-type/return': {
-      get: {
-        tags: ['Generic'],
-        summary: '',
-        security: [],
-        operationId: 'genericReturn',
-        consumes: [],
-        parameters: [],
-        responses: {
-          '200': {
-            schema: {
-              type: 'object',
-              properties: {
-                a: { type: 'string', format: 'date', example: '2012-12-12' },
-                b: { type: 'string' },
-                d: { type: 'string', format: 'date', example: '2012-12-12' }
-              },
-              description: ''
-            },
-            description: ''
-          }
-        }
       }
     },
     '/movies': {
@@ -442,26 +418,17 @@ export const data = {
                 number: { type: 'integer' },
                 int: { type: 'integer' },
                 boolean: { type: 'boolean' },
-                Date: { type: 'string', format: 'date', example: '2012-12-12' },
-                DateTime: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' },
-                TimeStamp: { type: 'integer', example: 1654030120101 },
+                Date: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                 stringArray: { type: 'array', items: { type: 'string' } },
                 intArray: { type: 'array', items: { type: 'integer' } },
                 numberArray: { type: 'array', items: { type: 'integer' } },
                 booleanArray: { type: 'array', items: { type: 'boolean' } },
-                DateArray: { type: 'array', items: { type: 'string', format: 'date', example: '2012-12-12' } },
-                DateTimeArray: {
-                  type: 'array',
-                  items: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' }
-                },
-                TimeStampArray: { type: 'array', items: { type: 'integer', example: 1654030120101 } },
+                DateArray: { type: 'array', items: { type: 'string', example: '2022-07-23T14:12:38.898Z' } },
                 stringOptional: { type: 'string' },
                 numberOptional: { type: 'integer' },
                 intOptional: { type: 'integer' },
                 booleanOptional: { type: 'boolean' },
-                DateOptional: { type: 'string', format: 'date', example: '2012-12-12' },
-                DateTimeOptional: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' },
-                TimeStampOptional: { type: 'integer', example: 1654030120101 },
+                DateOptional: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                 obj: {
                   type: 'object',
                   properties: {
@@ -503,15 +470,11 @@ export const data = {
                 'int',
                 'boolean',
                 'Date',
-                'DateTime',
-                'TimeStamp',
                 'stringArray',
                 'intArray',
                 'numberArray',
                 'booleanArray',
                 'DateArray',
-                'DateTimeArray',
-                'TimeStampArray',
                 'obj',
                 'objArray',
                 'num',
@@ -637,26 +600,17 @@ export const data = {
                 number: { type: 'integer' },
                 int: { type: 'integer' },
                 boolean: { type: 'boolean' },
-                Date: { type: 'string', format: 'date', example: '2012-12-12' },
-                DateTime: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' },
-                TimeStamp: { type: 'integer', example: 1654030120101 },
+                Date: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                 stringArray: { type: 'array', items: { type: 'string' } },
                 intArray: { type: 'array', items: { type: 'integer' } },
                 numberArray: { type: 'array', items: { type: 'integer' } },
                 booleanArray: { type: 'array', items: { type: 'boolean' } },
-                DateArray: { type: 'array', items: { type: 'string', format: 'date', example: '2012-12-12' } },
-                DateTimeArray: {
-                  type: 'array',
-                  items: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' }
-                },
-                TimeStampArray: { type: 'array', items: { type: 'integer', example: 1654030120101 } },
+                DateArray: { type: 'array', items: { type: 'string', example: '2022-07-23T14:12:38.898Z' } },
                 stringOptional: { type: 'string' },
                 numberOptional: { type: 'integer' },
                 intOptional: { type: 'integer' },
                 booleanOptional: { type: 'boolean' },
-                DateOptional: { type: 'string', format: 'date', example: '2012-12-12' },
-                DateTimeOptional: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' },
-                TimeStampOptional: { type: 'integer', example: 1654030120101 },
+                DateOptional: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                 obj: {
                   type: 'object',
                   properties: {
@@ -726,26 +680,17 @@ export const data = {
                   number: { type: 'integer' },
                   int: { type: 'integer' },
                   boolean: { type: 'boolean' },
-                  Date: { type: 'string', format: 'date', example: '2012-12-12' },
-                  DateTime: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' },
-                  TimeStamp: { type: 'integer', example: 1654030120101 },
+                  Date: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                   stringArray: { type: 'array', items: { type: 'string' } },
                   intArray: { type: 'array', items: { type: 'integer' } },
                   numberArray: { type: 'array', items: { type: 'integer' } },
                   booleanArray: { type: 'array', items: { type: 'boolean' } },
-                  DateArray: { type: 'array', items: { type: 'string', format: 'date', example: '2012-12-12' } },
-                  DateTimeArray: {
-                    type: 'array',
-                    items: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' }
-                  },
-                  TimeStampArray: { type: 'array', items: { type: 'integer', example: 1654030120101 } },
+                  DateArray: { type: 'array', items: { type: 'string', example: '2022-07-23T14:12:38.898Z' } },
                   stringOptional: { type: 'string' },
                   numberOptional: { type: 'integer' },
                   intOptional: { type: 'integer' },
                   booleanOptional: { type: 'boolean' },
-                  DateOptional: { type: 'string', format: 'date', example: '2012-12-12' },
-                  DateTimeOptional: { type: 'string', format: 'date-time', example: '2012-12-12 12:12:12' },
-                  TimeStampOptional: { type: 'integer', example: 1654030120101 },
+                  DateOptional: { type: 'string', example: '2022-07-23T14:12:38.898Z' },
                   obj: {
                     type: 'object',
                     properties: {

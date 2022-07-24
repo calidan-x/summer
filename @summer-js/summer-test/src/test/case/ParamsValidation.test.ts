@@ -203,19 +203,15 @@ describe('Controller Params Test', () => {
     result = await request.post('/request-key-validate/param-empty', {
       body: {
         normal: '',
-        notEmptyString: '',
-        notEmptyArray: []
+        notEmptyString: ''
       }
     })
     expect(result.statusCode).toBe(400)
     expect(result.body).toContain("'notEmptyString' cannot be empty")
-    expect(result.body).toContain("'notEmptyArray' cannot be empty")
 
     result = await request.post('/request-key-validate/param-empty', {
       body: {
-        normal: '',
-        notEmptyString: 'xxxx',
-        notEmptyArray: [1, 2, 3]
+        notEmptyString: 'xxxx'
       }
     })
     expect(result.statusCode).toBe(200)
@@ -355,14 +351,9 @@ describe('Controller Params Test', () => {
     expect(result.body).toBe(JSON.stringify(postBody))
   })
 
-  test('test Date/DateTime/TimeStamp', async () => {
+  test('test Date', async () => {
     const postBody = {
-      date: '2012-12-12',
-      dateTime: '2012-12-12 12:12:12',
-      timeStamp: 165387799000,
-      dates: ['2012-12-12', '2012-12-12'],
-      dateTimes: ['2012-12-12 12:12:12', '2012-12-12 12:12:12'],
-      timeStamps: [165387799000, 165387799000]
+      date: '2012-12-12T00:00:00.000Z'
     }
     const result = await request.post('/request-key-validate/date', {
       body: postBody
@@ -386,10 +377,32 @@ describe('Controller Params Test', () => {
         g: {
           a: 123,
           b: '123',
-          d: '2020-01-01'
+          d: '2020-01-01 00:00:00'
         },
         z: { a: true, b: 'b', d: '2022-12-12' },
         x: { a: 123, b: 'b', d: '2022-12-12' },
+        w: [{ a: 123, b: 'b' }],
+        o: ['hhh', 'wwww']
+      }
+
+      const resBody = {
+        int: 123,
+        dir: ['Up'],
+        intArr: [1, 2, 3],
+        field1: ['aaa', 'bbb'],
+        field2: 123,
+        obj: {
+          a: 23,
+          b: 'sdf'
+        },
+        date: '2012-12-12T00:00:00.000Z',
+        g: {
+          a: 123,
+          b: '123',
+          d: '2019-12-31T16:00:00.000Z'
+        },
+        z: { a: true, b: 'b', d: '2022-12-12T00:00:00.000Z' },
+        x: { a: 123, b: 'b', d: '2022-12-12T00:00:00.000Z' },
         w: [{ a: 123, b: 'b' }],
         o: ['hhh', 'wwww']
       }
@@ -398,7 +411,7 @@ describe('Controller Params Test', () => {
         body: postBody
       })
       expect(result.statusCode).toBe(200)
-      expect(result.body).toBe(JSON.stringify(postBody))
+      expect(result.body).toBe(JSON.stringify(resBody))
     }
 
     {
@@ -433,15 +446,9 @@ describe('Controller Params Test', () => {
     }
 
     {
-      const result = await request.get('/generic-type/return')
-      expect(result.statusCode).toBe(200)
-      expect(result.body).toBe('{"a":"2022-02-01","b":"sss","d":"2022-02-01"}')
-    }
-
-    {
       const result = await request.get('/generic-type/mixed-object-return')
       expect(result.statusCode).toBe(200)
-      expect(result.body).toBe('{"hello":"World","g":{"a":123,"b":"sss","d":"2023-01-12"}}')
+      expect(result.body).toContain('{"hello":"World","g":{"a":123,"b":"sss","d":')
     }
   })
 })

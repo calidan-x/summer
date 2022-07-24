@@ -352,7 +352,7 @@ const getType = (type: any) => {
     return intToInteger(type.name.toLowerCase())
   }
 
-  if (type === Date || type === _DateTime) {
+  if (type === Date) {
     return 'string'
   }
 
@@ -362,10 +362,6 @@ const getType = (type: any) => {
 
   if (type === File) {
     return 'file'
-  }
-
-  if (type === _TimeStamp) {
-    return 'integer'
   }
 
   return 'object'
@@ -470,19 +466,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
       } else if (d0 === Date) {
         schemeDesc = {
           type: 'string',
-          format: 'date',
-          example: '2012-12-12'
-        }
-      } else if (d0 === _DateTime) {
-        schemeDesc = {
-          type: 'string',
-          format: 'date-time',
-          example: '2012-12-12 12:12:12'
-        }
-      } else if (d0 === _TimeStamp) {
-        schemeDesc = {
-          type: 'integer',
-          example: 1654030120101
+          example: '2022-07-23T14:12:38.898Z'
         }
       } else if (d0 === _Int || d0 === Number || d0 === BigInt) {
         schemeDesc = {
@@ -611,7 +595,7 @@ export class SummerSwaggerUIController {
       )
     } else {
       const urls = allPages.map((ap) => ({
-        name: ap,
+        name: ap || 'Default',
         url: `${basePath + swaggerJson.docPath}/swagger-docs.json?category=${encodeURIComponent(ap)}`
       }))
       indexHTML = indexHTML.replace('//{{URLS}}', `urls:${JSON.stringify(urls)},\n'urls.primaryName':'${primaryName}',`)

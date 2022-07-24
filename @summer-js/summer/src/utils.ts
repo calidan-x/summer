@@ -1,11 +1,10 @@
-export const fillData = <T>(instance: T, fillData: Partial<T> & Omit<Record<string, any>, keyof T>): T => {
+export const fillData = <T>(instance: T, fillData: Partial<T> & Omit<Record<string, any>, keyof T>) => {
   for (const k in fillData) {
     let propType = Reflect.getMetadata('DeclareType', instance, k)
     if (propType) {
       instance[k] = fillData[k]
     }
   }
-  return instance
 }
 
 interface Type<T> extends Function {

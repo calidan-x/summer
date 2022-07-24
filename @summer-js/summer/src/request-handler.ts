@@ -85,14 +85,14 @@ const toDate = (d: Date) => {
   if (d instanceof Date) {
     return d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate())
   }
-  return d || null
+  return d ?? null
 }
 
 const toDateTime = (d: Date) => {
   if (d instanceof Date) {
     return toDate(d) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + ':' + addZero(d.getSeconds())
   }
-  return d || null
+  return d ?? null
 }
 
 const serialize = (obj, declareType: any[]) => {
@@ -106,7 +106,7 @@ const serialize = (obj, declareType: any[]) => {
     for (const key in obj) {
       obj[key] = serialize(obj[key], [d0, undefined, d2])
     }
-  } else if (typeof obj === 'object' && ![Date, _DateTime, _TimeStamp].includes(d0)) {
+  } else if (typeof obj === 'object') {
     for (const key in obj) {
       let declareType =
         Reflect.getMetadata('DeclareType', obj, key) ||
@@ -143,12 +143,6 @@ const serialize = (obj, declareType: any[]) => {
           }
         }
       }
-    } else if (d0 === Date) {
-      obj = toDate(obj)
-    } else if (d0 === _DateTime) {
-      obj = toDateTime(obj)
-    } else if (d0 === _TimeStamp) {
-      obj = obj.getTime()
     }
   }
 

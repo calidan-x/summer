@@ -12,18 +12,12 @@ describe('Test Serialization', () => {
   test('test serialization', async () => {
     let res = await request.get('/serialize')
     expect(res.jsonBody).toStrictEqual({
-      date: '2022-07-18',
-      dateTime: '2022-07-18 23:52:40',
-      direction: 'LEFT',
-      timeStamp: 1658159560321
+      direction: 'LEFT'
     })
 
     res = await request.get('/class-extends-serialize')
     expect(res.jsonBody).toStrictEqual({
-      date: '2022-07-18',
-      dateTime: '2022-07-18 23:52:40',
       direction: 'LEFT',
-      timeStamp: 1658159560321,
       count: 123
     })
 
@@ -31,6 +25,11 @@ describe('Test Serialization', () => {
     expect(res.jsonBody).toStrictEqual({
       str: 'str',
       direction: 'LEFT'
+    })
+
+    res = await request.get('/not-date')
+    expect(res.jsonBody).toStrictEqual({
+      d: 'not date'
     })
   })
 })

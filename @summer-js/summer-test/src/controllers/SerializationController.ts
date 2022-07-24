@@ -8,10 +8,6 @@ enum Direction {
 }
 
 class Resource {
-  date: Date
-  dateTime: DateTime
-  timeStamp: TimeStamp
-
   direction: Direction
 }
 
@@ -24,14 +20,15 @@ class ObjectClass {
   direction: Direction
 }
 
+class D {
+  d: Date
+}
+
 @Controller
 export class SerializationController {
   @Get('/serialize')
   async serialize() {
     const r = new Resource()
-    r.date = new Date(1658159560321)
-    r.dateTime = new Date(1658159560321)
-    r.timeStamp = new Date(1658159560321)
     r.direction = Direction.LEFT
 
     return r
@@ -40,9 +37,6 @@ export class SerializationController {
   @Get('/class-extends-serialize')
   async extendsSerialize() {
     const r = new ExtendResource()
-    r.date = new Date(1658159560321)
-    r.dateTime = new Date(1658159560321)
-    r.timeStamp = new Date(1658159560321)
     r.direction = Direction.LEFT
     r.count = 123
     return r
@@ -51,5 +45,10 @@ export class SerializationController {
   @Get('/object-serialize')
   async objectSerialize() {
     return { str: 'str', direction: 2 } as ObjectClass
+  }
+
+  @Get('/not-date')
+  async dateSerialize() {
+    return { d: 'not date' } as any as D
   }
 }

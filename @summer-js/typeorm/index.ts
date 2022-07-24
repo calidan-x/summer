@@ -284,32 +284,32 @@ type SimpleArray<T = any> = T
 type Set = string[]
 type Enum<T> = T
 
-export {
-  Text,
-  Int,
-  SmallInt,
-  MediumInt,
-  TinyInt,
-  BigInt,
-  VarChar,
-  Char,
-  SmallText,
-  Float,
-  Double,
-  Real,
-  Boolean,
-  Time,
-  DateTime,
-  Year,
-  TimeStamp,
-  LongText,
-  TinyText,
-  SimpleJson,
-  SimpleArray,
-  Set,
-  Enum,
-  Decimal
-}
+// export {
+//   Text,
+//   Int,
+//   SmallInt,
+//   MediumInt,
+//   TinyInt,
+//   BigInt,
+//   VarChar,
+//   Char,
+//   SmallText,
+//   Float,
+//   Double,
+//   Real,
+//   Boolean,
+//   Time,
+//   DateTime,
+//   Year,
+//   TimeStamp,
+//   LongText,
+//   TinyText,
+//   SimpleJson,
+//   SimpleArray,
+//   Set,
+//   Enum,
+//   Decimal
+// }
 
 const PrimaryKey = ((options: { autoIncrement?: boolean } = {}, config) => {
   if (options.autoIncrement) {

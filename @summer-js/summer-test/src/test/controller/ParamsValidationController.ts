@@ -94,17 +94,11 @@ class EnumRequest {
 
 class DateValidateRequest {
   date: Date
-  dateTime: DateTime
-  timeStamp: TimeStamp
-  dates: Date[]
-  dateTimes: DateTime[]
-  timeStamps: TimeStamp[]
 }
 
 class EmptyRequest {
-  normal: string
-  notEmptyString!: string
-  notEmptyArray!: int[]
+  normal?: string
+  notEmptyString: string
 }
 
 @Controller

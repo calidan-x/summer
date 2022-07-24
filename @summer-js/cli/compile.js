@@ -40,8 +40,6 @@ const TypeMapping = {
   int: '[_Int]',
   bigint: '[BigInt]',
   Date: '[Date]',
-  DateTime: '[_DateTime]',
-  TimeStamp: '[_TimeStamp]',
   any: '[]',
   'number[]': '[Number,Array]',
   'string[]': '[String,Array]',
@@ -49,8 +47,6 @@ const TypeMapping = {
   'int[]': '[_Int,Array]',
   'bigint[]': '[BigInt,Array]',
   'Date[]': '[Date,Array]',
-  'DateTime[]': '[_DateTime,Array]',
-  'TimeStamp[]': '[_TimeStamp,Array]',
   'any[]': '[undefined,Array]',
   undefined: '[]',
   null: '[]',
@@ -134,10 +130,6 @@ const addPropDecorator = (cls) => {
       if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
         pendingDecorators.push({ name: '_Optional', arguments: [] })
       }
-    } else if (p.hasExclamationToken()) {
-      if (!p.getDecorators().find((d) => d.getName() === '_NotEmpty')) {
-        pendingDecorators.push({ name: '_NotEmpty', arguments: [] })
-      }
     }
 
     if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
@@ -150,7 +142,6 @@ const addPropDecorator = (cls) => {
         p
           .getText()
           .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
-          .replace(/(@_NotEmpty[^\n]+)\n/g, '$1 ')
           .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
       )
     }

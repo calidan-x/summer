@@ -37,24 +37,18 @@ class Request {
   int: int
   boolean: boolean
   Date: Date
-  DateTime: DateTime
-  TimeStamp: TimeStamp
 
   stringArray: string[]
   intArray: int[]
   numberArray: number[]
   booleanArray: boolean[]
   DateArray: Date[]
-  DateTimeArray: DateTime[]
-  TimeStampArray: TimeStamp[]
 
   stringOptional?: string
   numberOptional?: number
   intOptional?: int
   booleanOptional?: boolean
   DateOptional?: Date
-  DateTimeOptional?: DateTime
-  TimeStampOptional?: TimeStamp
 
   obj: Obj
   objArray: Obj[]
@@ -89,24 +83,18 @@ class Resource {
   int: int
   boolean: boolean
   Date: Date
-  DateTime: DateTime
-  TimeStamp: TimeStamp
 
   stringArray: string[]
   intArray: int[]
   numberArray: number[]
   booleanArray: boolean[]
   DateArray: Date[]
-  DateTimeArray: DateTime[]
-  TimeStampArray: TimeStamp[]
 
   stringOptional?: string
   numberOptional?: number
   intOptional?: int
   booleanOptional?: boolean
   DateOptional?: Date
-  DateTimeOptional?: DateTime
-  TimeStampOptional?: TimeStamp
 
   obj: Obj
   objArray: Obj[]
