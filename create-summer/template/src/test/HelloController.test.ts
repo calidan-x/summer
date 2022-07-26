@@ -11,6 +11,6 @@ describe('Test HelloController', () => {
 
   test('should response hello', async () => {
     const response = await request.get('/')
-    expect(response.body).toBe('Hello Summer!')
+    expect(response.rawBody).toBe('Hello Summer!')
   })
 })

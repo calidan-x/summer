@@ -466,7 +466,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
       } else if (d0 === Date) {
         schemeDesc = {
           type: 'string',
-          example: '2022-07-23T14:12:38.898Z'
+          example: new Date(2000, 0, 1).toJSON()
         }
       } else if (d0 === _Int || d0 === Number || d0 === BigInt) {
         schemeDesc = {
@@ -650,7 +650,7 @@ export class SummerSwaggerUIController {
         })
 
         // request structure
-        params.forEach((param) => {
+        params.forEach((param, inx) => {
           let [d0, d1, d2] = param.declareType
           d0 = convertType(d0)
           let paramType = getParamType(param.paramMethod.toString())
@@ -658,7 +658,7 @@ export class SummerSwaggerUIController {
             const formProps = getTypeDesc(d0, d2, true).properties
 
             for (const filed in formProps) {
-              let isRequired = false
+              let isRequired = true
               if (d0 && typeof d0 === 'function') {
                 isRequired = !Reflect.getMetadata('optional', d0.prototype, filed)
               }
@@ -672,7 +672,7 @@ export class SummerSwaggerUIController {
           } else if (paramType === 'queries') {
             const props = getTypeDesc(d0, d2, true).properties
             for (const filed in props) {
-              let isRequired = false
+              let isRequired = true
               if (d0 && typeof d0 === 'function') {
                 isRequired = !Reflect.getMetadata('optional', d0.prototype, filed)
               }
@@ -686,10 +686,12 @@ export class SummerSwaggerUIController {
             }
           } else if (paramType) {
             const ptype = getType(d0)
+            let isRequired = !(Reflect.getMetadata('optional', api.controller, api.callMethod) || [])[inx]
+
             const parameter: any = {
               name: param.paramValues[0],
               in: paramType,
-              required: ['path', 'body', 'formData'].includes(paramType) ? true : false
+              required: isRequired
             }
 
             const type = ptype || 'string'

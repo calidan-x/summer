@@ -284,17 +284,29 @@ export const validateAndConvertType = (
       } else {
         const allProperties = []
         let proto = d0
+        let ignoreUnknownProperties = false
         while (proto.name) {
+          if (Reflect.getMetadata('ignoreUnknownProperties', proto)) {
+            ignoreUnknownProperties = true
+          }
           allProperties.push(...Reflect.getOwnMetadataKeys(proto.prototype))
           proto = proto.__proto__
         }
 
-        for (const k in objectValue) {
-          if (!allProperties.includes(k)) {
-            allErrors.push({
-              param: errorParam,
-              message: typeDisplayText(k, isFirstLevel) + ' is not a valid key of ' + d0.name
-            })
+        if (!ignoreUnknownProperties) {
+          for (const k in objectValue) {
+            if (!allProperties.includes(k)) {
+              allErrors.push({
+                param: errorParam,
+                message: typeDisplayText(k, isFirstLevel) + ' is not a valid key of ' + d0.name
+              })
+            }
+          }
+        } else {
+          for (const k of Object.keys(objectValue)) {
+            if (!allProperties.includes(k)) {
+              delete objectValue[k]
+            }
           }
         }
 
@@ -346,7 +358,7 @@ export const validateAndConvertType = (
 const typeDisplayText = (val: any, isFirstLevel: boolean) => {
   if (typeof val === 'string') {
     if (isFirstLevel) {
-      return val || "''"
+      return val ? `'${val}'` : "''"
     }
     return "'" + val + "'"
   } else if (typeof val === 'object') {

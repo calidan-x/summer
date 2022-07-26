@@ -12,12 +12,10 @@ describe('Config Test', () => {
 
   test('test getConfig', async () => {
     const config = getConfig()['TEST_CONFIG']
-    expect(JSON.stringify(config)).toEqual(
-      JSON.stringify({
-        var1: 'VAR1Change',
-        var2: ['A1', 'B2'],
-        var3: 'VAR3'
-      })
-    )
+    expect(config).toStrictEqual({
+      var1: 'VAR1Change',
+      var2: ['A1', 'B2'],
+      var3: 'VAR3'
+    })
   })
 })

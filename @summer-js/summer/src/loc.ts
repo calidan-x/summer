@@ -9,10 +9,10 @@ export const locContainer = {
   locClass: [],
   locInstanceMap: new WeakMap(),
   locInstance: [],
-  resolveLoc() {
+  async resolveLoc() {
     this.instanceLocClasses()
     this.resolveInject()
-    this.resolveAssign()
+    await this.resolveAssign()
   },
   addInstance(clazz: Class<any>, instance: object) {
     const className = clazz.name

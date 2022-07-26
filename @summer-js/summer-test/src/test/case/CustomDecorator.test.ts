@@ -32,7 +32,7 @@ describe('Config Test', () => {
 
   test('test createPropertyDecorator', async () => {
     let result = await request.get('/cities')
-    expect(result.body).toBe(JSON.stringify(['Shanghai', 'Tokyo', 'New York City']))
+    expect(result.body).toStrictEqual(['Shanghai', 'Tokyo', 'New York City'])
 
     result = await request.get('/mysql-host')
     expect(result.body).toBe('localhost')

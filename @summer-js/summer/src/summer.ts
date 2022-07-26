@@ -53,13 +53,13 @@ export const summerStart = async (options?: SummerStartOptions) => {
     if (config['SESSION_CONFIG']) {
       session.init(config['SESSION_CONFIG'])
     }
-    await httpServer.createServer(config['SERVER_CONFIG'], () => {
-      locContainer.resolveLoc()
+    await httpServer.createServer(config['SERVER_CONFIG'], async () => {
+      await locContainer.resolveLoc()
       rpc.resolveRpc()
       options.after && options.after(config)
     })
   } else {
-    locContainer.resolveLoc()
+    await locContainer.resolveLoc()
     rpc.resolveRpc()
     options.after && options.after(config)
     for (const k in startLocks) {

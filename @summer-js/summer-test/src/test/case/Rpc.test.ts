@@ -33,7 +33,7 @@ describe('Test Rpc', () => {
       headers: { 'summer-rpc-access-key': 'xxxxx' },
       body: { class: 'UserRpcService', method: 'getUser', data: [99] }
     })
-    const user = JSON.parse(result.body)
+    const user = result.body
     expect(user.id).toBe(99)
     expect(user.name).toBe('John')
   })

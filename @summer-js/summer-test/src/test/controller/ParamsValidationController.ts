@@ -11,7 +11,8 @@ import {
   Email,
   Pattern,
   Validate,
-  Header
+  Header,
+  IgnoreUnknownProperties
 } from '@summer-js/summer'
 import { Dog } from '../../dto/request/Dog'
 
@@ -32,6 +33,17 @@ enum StringEnum {
 class OptionalRequest {
   optionalKey?: string
   requiredKey: string
+}
+
+@IgnoreUnknownProperties
+class IgnoreUnknownProps {
+  a: number
+  b: string
+}
+
+class ValidateUnknownProps {
+  a: number
+  b: string
 }
 
 class MinRequest {
@@ -164,6 +176,16 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/optional')
   optionalKey(@Body request: OptionalRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/ignore-unknown-props')
+  ignoreUnknownProp(@Body request: IgnoreUnknownProps) {
+    return request
+  }
+
+  @Post('/request-key-validate/validate-unknown-props')
+  validateUnknownProp(@Body request: ValidateUnknownProps) {
     return request
   }
 

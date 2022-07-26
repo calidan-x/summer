@@ -22,8 +22,8 @@ interface RequestParams {
 type TestResponse = {
   statusCode: number
   headers: Record<string, string | string[]>
-  body: string
-  jsonBody: string
+  body: any
+  rawBody: string
 }
 
 const sendRequest = async (method: any, path: string, requestParams: RequestParams) => {
@@ -48,11 +48,15 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
     response: { statusCode: 200, headers: {}, body: undefined }
   }
   await requestHandler(context)
-  let jsonBody = null
+  const rawBody = context.response.body
   try {
-    jsonBody = JSON.parse(context.response.body)
-  } catch (e) {}
-  return { ...context.response, jsonBody } as TestResponse
+    if (context.response.body.trim().startsWith('{') || context.response.body.trim().startsWith('[')) {
+      context.response.body = JSON.parse(context.response.body)
+    }
+  } catch (e) {
+    context.response.body = rawBody
+  }
+  return { ...context.response, rawBody } as TestResponse
 }
 
 const parseUrl = (requestPath: string) => {

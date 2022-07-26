@@ -18,7 +18,7 @@ describe('Test AWB Lambda', () => {
         }, 200)
       })
 
-      const result = await module.handler({
+      let result = await module.handler({
         path: '/serverless/hello',
         httpMethod: 'GET',
         headers: {},
@@ -27,10 +27,30 @@ describe('Test AWB Lambda', () => {
       })
 
       expect(result.body).toBe('Hello Serverless')
+
+      result = await module.handler({
+        path: '/serverless/inject',
+        httpMethod: 'GET',
+        headers: {},
+        queryStringParameters: {},
+        body: ''
+      })
+
+      expect(result.body).toBe('Test Injection')
     })
 
     await import('../../index').then(async (module) => {
-      const result = await module.handler({
+      let result = await module.handler({
+        path: '/serverless/inject',
+        httpMethod: 'GET',
+        headers: {},
+        queryStringParameters: {},
+        body: ''
+      })
+
+      expect(result.body).toBe('Test Injection')
+
+      result = await module.handler({
         path: '/serverless/hello',
         httpMethod: 'GET',
         headers: {},

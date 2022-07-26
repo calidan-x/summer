@@ -22,7 +22,7 @@ describe('Config Test', () => {
 
     result = handleStaticRequest('/static')
     expect(result.code).toEqual(301)
-    expect(JSON.stringify(result.headers)).toEqual('{"Location":"/static/","Cache-Control":"no-store"}')
+    expect(result.headers).toStrictEqual({ Location: '/static/', 'Cache-Control': 'no-store' })
 
     result = handleStaticRequest('/static/')
     expect(result.code).toEqual(200)
