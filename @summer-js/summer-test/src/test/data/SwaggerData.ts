@@ -45,7 +45,7 @@ export const data = {
         consumes: [],
         parameters: [
           {
-            name: 'personRequest',
+            name: 'body',
             in: 'body',
             required: true,
             schema: {
@@ -135,7 +135,7 @@ export const data = {
         consumes: [],
         parameters: [
           {
-            name: 'req',
+            name: 'body',
             in: 'body',
             required: true,
             schema: {
@@ -512,7 +512,7 @@ export const data = {
         operationId: 'stringArrayRequest',
         consumes: [],
         parameters: [
-          { name: 'array', in: 'body', required: true, schema: { type: 'array', items: { type: 'string' } } }
+          { name: 'body', in: 'body', required: true, schema: { type: 'array', items: { type: 'string' } } }
         ],
         responses: { '200': { schema: { type: 'array', items: { type: 'string' } }, description: '' } }
       }
@@ -526,7 +526,7 @@ export const data = {
         consumes: [],
         parameters: [
           {
-            name: 'objArray',
+            name: 'body',
             in: 'body',
             required: true,
             schema: {
@@ -751,7 +751,7 @@ export const data = {
         consumes: [],
         parameters: [
           {
-            name: 'extendObj',
+            name: 'body',
             in: 'body',
             required: true,
             schema: {

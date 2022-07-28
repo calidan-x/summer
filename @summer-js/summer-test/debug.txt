@@ -1,0 +1,42 @@
+g: Gint number
+x: GX X
+@Body req: Requeststring[] string[]
+ int number
+ Obj Obj
+ Date Date
+ G<int> G<number>
+:Gnumber number
+ number number
+ Obj Obj
+ string string
+:Requeststring[] string[]
+ number number
+ Obj Obj
+ Date Date
+ G<number> G<number>
+:Gnumber number
+ number number
+ Obj Obj
+ string string
+@Body req: Requeststring[] string[]
+ int number
+ Obj Obj
+ Date Date
+ G<boolean> G<boolean>
+:Gboolean boolean
+ number number
+ Obj Obj
+ string string
+:Requeststring[] string[]
+ number number
+ Obj Obj
+ Date Date
+ G<boolean> G<boolean>
+:Gboolean boolean
+ number number
+ Obj Obj
+ string string
+:PagingObj Obj
+:InterfaceGenericResInterfaceRes InterfaceRes
+:Pagingimport("/Users/calidan/Desktop/\u6280\u672F\u7814\u7A76/summer/@summer-js/summer-test/src/dto/resource/Paging").AnotherObj import("/Users/calidan/Desktop/\u6280\u672F\u7814\u7A76/summer/@summer-js/summer-test/src/dto/resource/Paging").AnotherObj
+:PagingAnotherObj AnotherObj

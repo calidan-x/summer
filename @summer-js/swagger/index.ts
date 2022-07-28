@@ -465,7 +465,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
         }
       } else if (d0 === Date) {
         schemeDesc = {
-          type: 'string',
+          type: typeof new Date(2000, 0, 1).toJSON() === 'number' ? 'integer' : 'string',
           example: new Date(2000, 0, 1).toJSON()
         }
       } else if (d0 === _Int || d0 === Number || d0 === BigInt) {
@@ -689,7 +689,7 @@ export class SummerSwaggerUIController {
             let isRequired = !(Reflect.getMetadata('optional', api.controller, api.callMethod) || [])[inx]
 
             const parameter: any = {
-              name: param.paramValues[0],
+              name: paramType === 'body' ? 'body' : param.paramValues[0],
               in: paramType,
               required: isRequired
             }

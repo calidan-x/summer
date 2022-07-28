@@ -309,7 +309,12 @@ export const requestHandler = async (ctx: Context) => {
   }
 
   if (typeof ctx.response.body !== 'string') {
-    ctx.response.body = ctx.response.body === undefined ? '' : JSON.stringify(ctx.response.body)
+    if (ctx.response.body !== undefined) {
+      ctx.response.headers['Content-Type'] = 'application/json; charset=utf-8'
+      ctx.response.body = JSON.stringify(ctx.response.body)
+    } else {
+      ctx.response.body = ''
+    }
   }
 
   if (ctx.response.statusCode === 0) {

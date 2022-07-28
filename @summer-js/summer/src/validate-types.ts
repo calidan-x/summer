@@ -119,7 +119,6 @@ export const validateAndConvertType = (
       break
     case Number:
     case _Int:
-    case BigInt:
       const numVal = Number(propertyValue)
       if (typeof propertyValue === 'boolean') {
         allErrors.push({
@@ -157,6 +156,17 @@ export const validateAndConvertType = (
         }
       }
       validateMinMax(instance, methodName, paramIndex, propertyName, errorParam, value, allErrors, isFirstLevel)
+      break
+    case BigInt:
+      try {
+        const bigIntVal = BigInt(propertyValue)
+        value = bigIntVal
+      } catch (e) {
+        allErrors.push({
+          param: errorParam,
+          message: typeDisplayText(propertyValue, isFirstLevel) + ' cannot convert to a BigInt'
+        })
+      }
       break
     case Date:
       const timeStamp = Date.parse(propertyValue)

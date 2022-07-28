@@ -243,9 +243,15 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
   if (declareLine.indexOf('<') > 0) {
     const baseType = paramType.getText(parameter).replace(/<.+>/, '').replace('[]', '')
+    // const genericArgs = declareLine.replace(/<(.+)>/, '$1').split(',')
     const typeArgs = paramType
       .getTypeArguments()
-      .map((tArg) => {
+      .map((tArg, inx) => {
+        // fs.appendFileSync('debug.txt', genericArgs[inx] + ' ' + tArg.getText(parameter) + '\n')
+        // let tArgText = tArg.getText(parameter)
+        // if (genericArgs[inx].trim().replace('int', 'number') === tArg.getText(parameter)) {
+        //   tArgText = tArgText.replace('number', 'int')
+        // }
         addFileImport(tArg.getText(parameter), parameter)
         return getDeclareType(':' + tArg.getText(parameter), parameter, tArg, typeParams)
       })
@@ -325,11 +331,15 @@ const compile = async () => {
   const dirtyFiles = []
   for (const { event, updatePath } of updateFileList) {
     if (['add', 'change'].includes(event)) {
-      getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles)
-      project.resolveSourceFileDependencies()
+      if (updatePath.endsWith('.ts')) {
+        getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles)
+        project.resolveSourceFileDependencies()
+      }
     }
     if (['add'].includes(event)) {
-      project.addSourceFilesAtPaths(updatePath)
+      if (updatePath.endsWith('.ts')) {
+        project.addSourceFilesAtPaths(updatePath)
+      }
     }
     if (['unlink'].includes(event)) {
       try {
