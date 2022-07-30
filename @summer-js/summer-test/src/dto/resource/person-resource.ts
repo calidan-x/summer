@@ -1,4 +1,4 @@
-import { Person } from '../../entity/person'
+import { Person } from '../../entity/Person'
 
 export class PersonResource {
   id: number

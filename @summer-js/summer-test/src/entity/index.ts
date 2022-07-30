@@ -1,1 +1,2 @@
-export { Person } from './person'
+export { Person } from './Person'
+export { Todo } from './Todo'

@@ -310,11 +310,13 @@ export const requestHandler = async (ctx: Context) => {
 
   if (typeof ctx.response.body !== 'string') {
     if (ctx.response.body !== undefined) {
-      ctx.response.headers['Content-Type'] = 'application/json; charset=utf-8'
+      ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'application/json; charset=utf-8'
       ctx.response.body = JSON.stringify(ctx.response.body)
     } else {
       ctx.response.body = ''
     }
+  } else {
+    ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html; charset=utf-8'
   }
 
   if (ctx.response.statusCode === 0) {

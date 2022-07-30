@@ -12,8 +12,8 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@summer-js/summer": "0.0.53",
-		"@summer-js/test": "0.0.53",
-		"@summer-js/cli": "0.0.53"
+		"@summer-js/summer": "0.0.54",
+		"@summer-js/test": "0.0.54",
+		"@summer-js/cli": "0.0.54"
 	}
 }

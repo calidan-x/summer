@@ -1,13 +1,13 @@
 import { Service } from '@summer-js/summer'
 import { getRepository } from './DataSource'
 
-import { Todo } from '../entity/todo'
+import { Todo } from '../entity/Todo'
 
 @Service
 export class TodoService {
   todoRepository = getRepository(Todo)
 
-  async getTodos() { 
+  async getTodos() {
     return await this.todoRepository.find()
   }
 

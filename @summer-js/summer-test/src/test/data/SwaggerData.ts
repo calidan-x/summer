@@ -363,6 +363,42 @@ export const data = {
         responses: { '200': { schema: { type: 'string' }, description: '' } }
       }
     },
+    '/swagger-test/unknown': {
+      get: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'unknown',
+        consumes: [],
+        parameters: [],
+        responses: { '200': { schema: { type: 'string', example: '' }, description: '' } }
+      }
+    },
+    '/swagger-test/multi-return': {
+      get: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: 'promiseUnknown',
+        consumes: [],
+        parameters: [],
+        responses: {
+          '200': {
+            schema: {
+              type: 'object',
+              properties: {
+                data: { example: '<UNKNOWN>' },
+                pageNumber: { type: 'integer' },
+                pageSize: { type: 'integer' },
+                total: { type: 'integer' }
+              },
+              description: ''
+            },
+            description: ''
+          }
+        }
+      }
+    },
     '/swagger-test/paging': {
       get: {
         tags: ['Swagger Apis'],
