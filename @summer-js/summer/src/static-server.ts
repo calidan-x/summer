@@ -15,7 +15,7 @@ export const handleStaticRequest = (requestPath: string): StaticResult | null =>
   const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
   if (serverConfig.static) {
     for (const staticConfig of serverConfig.static) {
-      let { requestPathRoot, destPathRoot, indexFiles } = staticConfig
+      let { requestPath: requestPathRoot, destPath: destPathRoot, indexFiles } = staticConfig
       requestPathRoot = requestPathRoot.replace(/\/$/, '')
       let requestFile = '.' + requestPath
       const targetPath = destPathRoot

@@ -608,7 +608,6 @@ const compile = async () => {
   //   firstCompile = false
   //   return
   // }
-  fs.appendFileSync('debug.txt', JSON.stringify(updateFileList) + '\n')
 
   if (updateFileList.length > 0) {
     compile()

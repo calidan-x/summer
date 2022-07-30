@@ -18,8 +18,8 @@ export const SERVER_CONFIG: ServerConfig = {
   basePath: '/local-service',
   static: [
     {
-      requestPathRoot: '/static',
-      destPathRoot: 'resource',
+      requestPath: '/static',
+      destPath: 'resource',
       indexFiles: ['1.txt']
     }
   ]

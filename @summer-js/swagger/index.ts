@@ -124,7 +124,7 @@ class SwaggerPlugin implements SummerPlugin {
       if (!serverConfig.static) {
         serverConfig.static = []
       }
-      serverConfig.static.push({ requestPathRoot: '/swagger-res', destPathRoot: 'resource/swagger-res' })
+      serverConfig.static.push({ requestPath: '/swagger-res', destPath: 'resource/swagger-res' })
       if (config.docPath && config.docPath !== '/swagger-ui') {
         // change path
         requestMapping[`${config.docPath}`] = requestMapping['/swagger-ui']

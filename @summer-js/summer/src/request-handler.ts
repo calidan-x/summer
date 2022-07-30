@@ -164,7 +164,7 @@ export const applyResponse = (ctx: Context, responseData: any, returnDeclareType
 
   ctx.response.statusCode = ctx.response.statusCode || 200
   ctx.response.headers['Content-Type'] =
-    ctx.response.headers['Content-Type'] || (isJSON ? 'application/json' : 'text/html; charset=utf-8')
+    ctx.response.headers['Content-Type'] || (isJSON ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8')
 }
 
 const callControllerMethod = async (ctx: Context) => {

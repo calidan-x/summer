@@ -10,8 +10,8 @@ import { Context } from './'
 import { handleStaticRequest } from './static-server'
 
 interface StaticConfig {
-  requestPathRoot: string
-  destPathRoot: string
+  requestPath: string
+  destPath: string
   indexFiles?: string[]
 }
 
@@ -25,7 +25,7 @@ export interface ServerConfig {
 }
 
 export const getInitContextData = () => ({
-  response: { statusCode: 0, headers: { 'Content-Type': 'text/html; charset=utf-8' }, body: undefined },
+  response: { statusCode: 0, headers: {}, body: undefined },
   cookies: {},
   session: {},
   data: {}
