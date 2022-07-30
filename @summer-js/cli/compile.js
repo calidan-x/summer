@@ -348,6 +348,8 @@ const compile = async () => {
     }
   }
 
+  updateFileList.splice(0, updateFileList.length)
+
   let hasError = false
   dirtyFiles.forEach((df) => {
     try {
@@ -606,6 +608,12 @@ const compile = async () => {
   //   firstCompile = false
   //   return
   // }
+  fs.appendFileSync('debug.txt', JSON.stringify(updateFileList) + '\n')
+
+  if (updateFileList.length > 0) {
+    compile()
+    return
+  }
 
   if (firstCompile) {
     project.emitSync()
@@ -621,7 +629,6 @@ const compile = async () => {
   }
 
   firstCompile = false
-  updateFileList.splice(0, updateFileList.length)
   console.log('COMPILE_DONE')
   compiling = false
 }
@@ -630,40 +637,42 @@ let compileTimer = null
 if (watch) {
   const fileHashes = {}
   const watchDir = './src/'
-  const watcher = chokidar.watch(watchDir).on('all', async (event, path) => {
-    if (fs.existsSync('./' + path)) {
-      if (fs.lstatSync('./' + path).isDirectory()) {
-        return
-      }
-      const md5 = crypto.createHash('md5')
-      const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
+  const watcher = chokidar
+    .watch(watchDir, { awaitWriteFinish: { stabilityThreshold: 39, pollInterval: 100 } })
+    .on('all', async (event, path) => {
+      if (fs.existsSync('./' + path)) {
+        if (fs.lstatSync('./' + path).isDirectory()) {
+          return
+        }
+        const md5 = crypto.createHash('md5')
+        const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
 
-      if (!fileHashes[path] && firstCompile) {
+        if (!fileHashes[path] && firstCompile) {
+          fileHashes[path] = currentMD5
+          return
+        }
+
+        if (currentMD5 === fileHashes[path]) {
+          return
+        }
+
         fileHashes[path] = currentMD5
+      } else {
+        delete fileHashes[path]
+      }
+      updateFileList.push({ event, updatePath: path })
+      if (compiling) {
         return
       }
 
-      if (currentMD5 === fileHashes[path]) {
-        return
+      if (compileTimer) {
+        clearTimeout(compileTimer)
       }
-
-      fileHashes[path] = currentMD5
-    } else {
-      delete fileHashes[path]
-    }
-    updateFileList.push({ event, updatePath: path })
-    if (compiling) {
-      return
-    }
-
-    if (compileTimer) {
-      clearTimeout(compileTimer)
-    }
-    compileTimer = setTimeout(() => {
-      compileTimer = null
-      compile()
-    }, 40)
-  })
+      compileTimer = setTimeout(() => {
+        compileTimer = null
+        compile()
+      }, 40)
+    })
 
   watcher.on('ready', async () => {
     await compile()

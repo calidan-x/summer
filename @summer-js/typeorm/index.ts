@@ -1,4 +1,4 @@
-import { Logger, SummerPlugin, addPlugin } from '@summer-js/summer'
+import { Logger, SummerPlugin, addPlugin, pluginCollection } from '@summer-js/summer'
 import { ClassDeclaration } from 'ts-morph'
 import {
   DefaultNamingStrategy,
@@ -26,22 +26,6 @@ export class DBNamingStrategy extends DefaultNamingStrategy {
 }
 
 export type TypeORMConfig = Record<string, DataSourceOptions>
-
-const AllEntities = []
-;(global as any)._TypeORMEntity = (target: Object) => {
-  AllEntities.push(target)
-}
-declare global {
-  const _TypeORMEntity: any
-}
-
-const AllMigrations = []
-declare global {
-  const _TypeORMMigration: any
-}
-;(global as any)._TypeORMMigration = (target: Object) => {
-  AllMigrations.push(target)
-}
 
 const DataSources: Record<string, DataSource> = {}
 export const getDataSource = (dataSourceName: string) => {
@@ -74,23 +58,23 @@ class TypeORMPlugin implements SummerPlugin {
           }
         }
       })
-      clazz.addDecorator({ name: '_TypeORMEntity' })
+      clazz.addDecorator({ name: '_Collect', arguments: ["'AllEntities'"] })
       clazz.getChildren()[0].replaceWithText(
         clazz
           .getChildren()[0]
           .getText()
-          .replace(/\n[^\n]*@_TypeORMEntity/g, ' @_TypeORMEntity')
+          .replace(/\n[^\n]*@_Collect/g, ' @_Collect')
       )
     }
 
     const imps = clazz.getImplements()
     if (imps.length > 0 && imps[0].getText() === 'MigrationInterface') {
-      clazz.addDecorator({ name: '_TypeORMMigration' })
+      clazz.addDecorator({ name: '_Collect', arguments: ["'AllMigrations'"] })
       clazz.getChildren()[0].replaceWithText(
         clazz
           .getChildren()[0]
           .getText()
-          .replace(/\n[^\n]*@_TypeORMMigration/g, ' @_TypeORMMigration')
+          .replace(/\n[^\n]*@_Collect/g, ' @_Collect')
       )
     }
 
@@ -228,8 +212,8 @@ class TypeORMPlugin implements SummerPlugin {
         const options = typeOrmOptions[dataSourceName]
         const dataSource = new DataSource({
           namingStrategy: new DBNamingStrategy(),
-          entities: AllEntities,
-          migrations: AllMigrations,
+          entities: pluginCollection['AllEntities'],
+          migrations: pluginCollection['AllMigrations'],
           ...options
         })
         try {

@@ -411,6 +411,10 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
 
     if (typeof d0 === 'number') {
       const gDeclareType = typeParams[d0]
+      if (gDeclareType === undefined) {
+        typeDesc[key] = { example: '<UNKNOWN>' }
+        continue
+      }
       d0 = gDeclareType[0]
       d0 = convertType(d0)
       d1 = d1 || gDeclareType[1]

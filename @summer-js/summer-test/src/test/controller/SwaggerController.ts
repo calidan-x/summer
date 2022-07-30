@@ -140,6 +140,23 @@ export class SwaggerController {
     return 'Hello Swagger Doc!'
   }
 
+  @Get('/unknown')
+  unknown(): unknown {
+    return
+  }
+
+  unknownData(a: boolean) {
+    if (a) {
+      return ''
+    }
+    return [1, 2]
+  }
+
+  @Get('/multi-return')
+  async promiseUnknown(): Promise<Paging<unknown>> {
+    return new Paging({ data: this.unknownData(true) as any, pageNumber: 134, pageSize: 12, total: 12 })
+  }
+
   @Get('/paging')
   async paging() {
     const objs: Obj[] = [

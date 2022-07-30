@@ -20,6 +20,16 @@ export const addPlugin = (plugin: any) => {
   plugins.push(plugin)
 }
 
+export const pluginCollection = {}
+;(global as any)._Collect = (collectionName: string) => {
+  return (target: any) => {
+    if (!pluginCollection[collectionName]) {
+      pluginCollection[collectionName] = []
+    }
+    pluginCollection[collectionName].push(target)
+  }
+}
+
 const startLocks = {}
 export const waitForStart = async (key: string) => {
   if (startLocks['done']) {

@@ -1,5 +1,5 @@
 import { ClassDeclaration } from 'ts-morph'
-export { summerStart, summerDestroy, waitForStart } from './summer'
+export { summerStart, summerDestroy, waitForStart, addPlugin, pluginCollection } from './summer'
 export * from './decorators'
 export * from './utils'
 export { requestHandler, Context } from './request-handler'
@@ -10,7 +10,6 @@ export { RpcConfig } from './rpc'
 export { ServerConfig } from './http-server'
 export { getConfig } from './config-handler'
 export { handler } from './serverless'
-export { addPlugin } from './summer'
 export { setCookie, clearCookie } from './cookie'
 export { File } from './validate-types'
 
@@ -30,6 +29,7 @@ declare global {
   const _ParamDeclareType: any
   const _ReturnDeclareType: any
   const _Optional: any
+  const _Collect: any
 }
 
 ;(global as any)._Int = class _Int {}
