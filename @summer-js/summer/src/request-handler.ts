@@ -30,7 +30,7 @@ export interface Context {
   response: ResponseContext
   cookies?: Record<string, string>
   session?: Record<string, string>
-  data?: Record<string, any>
+  data: Record<string, any>
   invocation?: {
     class: string
     method: string
@@ -320,7 +320,9 @@ export const requestHandler = async (ctx: Context) => {
   }
 
   if (ctx.response.statusCode === 0) {
-    Logger.error('Unhandled request response, this error may cause by middleware missing await for next()')
+    if (ctx.response.body === undefined) {
+      Logger.error('Unhandled request response, this error may cause by middleware missing await for next()')
+    }
     makeServerError(ctx)
   }
 }

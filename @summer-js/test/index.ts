@@ -1,4 +1,5 @@
 import { Context, requestHandler, waitForStart, summerDestroy } from '@summer-js/summer'
+import { getInitContextData } from '@summer-js/summer/lib/http-server'
 import queryString from 'query-string'
 import merge from 'deepmerge'
 import path from 'path'
@@ -45,7 +46,7 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
       headers: lowerCaseHeader,
       queries: requestParams.queries || {}
     },
-    response: { statusCode: 200, headers: {}, body: undefined }
+    ...getInitContextData()
   }
   await requestHandler(context)
   const rawBody = context.response.body
