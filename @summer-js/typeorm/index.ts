@@ -198,10 +198,6 @@ class TypeORMPlugin implements SummerPlugin {
     })
   }
 
-  autoImportDecorators() {
-    return ['Entity', '_TypeORMMigration']
-  }
-
   async init(config) {
     await this.connect(config)
   }
@@ -216,6 +212,7 @@ class TypeORMPlugin implements SummerPlugin {
           migrations: pluginCollection['AllMigrations'],
           ...options
         })
+
         try {
           await dataSource.initialize()
           DataSources[dataSourceName] = dataSource

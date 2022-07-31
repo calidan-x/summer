@@ -402,7 +402,7 @@ const compile = async () => {
     }
   }
 
-  const autoImportDecorators = ['Middleware', 'Controller', 'RpcProvider', 'RpcClient']
+  const autoImportDecorators = ['Middleware', 'Controller', 'RpcProvider', 'RpcClient', '_Collect']
   for (const p of pluginIncs) {
     if (p.autoImportDecorators) {
       const aids = p.autoImportDecorators()
