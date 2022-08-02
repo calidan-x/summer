@@ -11,6 +11,16 @@ describe('Test Loc', () => {
 
   test('should @PostConstruct works', async () => {
     const res = await request.get('/loc')
-    expect(res.body).toBe("init post construct")
+    expect(res.body).toBe('init post construct')
+  })
+
+  test('should service injection works', async () => {
+    const res = await request.get('/loc/service-injection')
+    expect(res.body).toBe('Hi from TestService')
+  })
+
+  test('should middleware injection works', async () => {
+    const res = await request.get('/middleware-injection')
+    expect(res.body).toBe('Hi from TestService')
   })
 })

@@ -159,15 +159,15 @@ const addClassAndEnum = (sf, allTypeMapping) => {
   // add enum
   sf.getEnums().forEach((sfEnum) => {
     const enumName = sfEnum.getName()
-    allTypeMapping[enumName] = `[${enumName}]`
-    allTypeMapping[enumName + '[]'] = `[${enumName},Array]`
+    allTypeMapping[enumName] = `[()=>${enumName}]`
+    allTypeMapping[enumName + '[]'] = `[()=>${enumName},Array]`
   })
 
   // add class
   sf.getClasses().forEach((clz) => {
     const className = clz.getName()
-    allTypeMapping[className] = `[${className}]`
-    allTypeMapping[className + '[]'] = `[${className},Array]`
+    allTypeMapping[className] = `[()=>${className}]`
+    allTypeMapping[className + '[]'] = `[()=>${className},Array]`
   })
 
   // add import class
@@ -175,8 +175,8 @@ const addClassAndEnum = (sf, allTypeMapping) => {
     if (!rsf.getFilePath().endsWith('.d.ts')) {
       for (const [name, declarations] of rsf.getExportedDeclarations()) {
         if (declarations[0] instanceof ClassDeclaration || declarations[0] instanceof EnumDeclaration) {
-          allTypeMapping[name] = `[${name}]`
-          allTypeMapping[name + '[]'] = `[${name},Array]`
+          allTypeMapping[name] = `[()=>${name}]`
+          allTypeMapping[name + '[]'] = `[()=>${name},Array]`
         }
       }
     }
@@ -402,7 +402,15 @@ const compile = async () => {
     }
   }
 
-  const autoImportDecorators = ['Middleware', 'Controller', 'RpcProvider', 'RpcClient', '_Collect']
+  const autoImportDecorators = [
+    'Middleware',
+    'Service',
+    'Injectable',
+    'Controller',
+    'RpcProvider',
+    'RpcClient',
+    '_Collect'
+  ]
   for (const p of pluginIncs) {
     if (p.autoImportDecorators) {
       const aids = p.autoImportDecorators()

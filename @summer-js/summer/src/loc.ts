@@ -1,5 +1,6 @@
 import { getConfig } from './config-handler'
 import { Logger } from './logger'
+import { middlewareAssembler } from './middleware'
 
 export interface Class<T> extends Function {
   new (...args: any[]): T
@@ -36,6 +37,7 @@ export const locContainer = {
       const instance = new clazz()
       this.addInstance(clazz, instance)
     })
+    middlewareAssembler.init()
   },
   paddingInject(target: any, propertyKey: string, auto = false) {
     let t = Reflect.getMetadata('DeclareType', target, propertyKey)[0]
