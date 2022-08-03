@@ -1,6 +1,4 @@
-
 ![](https://raw.githubusercontent.com/calidan-x/summer/main/assets/summer-logo.png)
-
 
 Efficient NodeJs Backend Framework
 
@@ -10,7 +8,6 @@ Please visit [https://summerjs.dev](https://summerjs.dev) for more detail
 
 - Node 16+
 - NPM 8+
-
 
 ### How to develop
 
@@ -87,10 +84,7 @@ class PluginName implements SummerPlugin {
     postCompile() {
        // code implement after compile
     }
-    autoImportDecorators() {
-       // auto-import Decorator
-       return ["DecoratorName"]
-    };
+
     init(config: any) {
        // code implement when server start
     };

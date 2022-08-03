@@ -58,23 +58,23 @@ class TypeORMPlugin implements SummerPlugin {
           }
         }
       })
-      clazz.addDecorator({ name: '_Collect', arguments: ["'AllEntities'"] })
+      clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllEntities'"] })
       clazz.getChildren()[0].replaceWithText(
         clazz
           .getChildren()[0]
           .getText()
-          .replace(/\n[^\n]*@_Collect/g, ' @_Collect')
+          .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
       )
     }
 
     const imps = clazz.getImplements()
     if (imps.length > 0 && imps[0].getText() === 'MigrationInterface') {
-      clazz.addDecorator({ name: '_Collect', arguments: ["'AllMigrations'"] })
+      clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllMigrations'"] })
       clazz.getChildren()[0].replaceWithText(
         clazz
           .getChildren()[0]
           .getText()
-          .replace(/\n[^\n]*@_Collect/g, ' @_Collect')
+          .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
       )
     }
 

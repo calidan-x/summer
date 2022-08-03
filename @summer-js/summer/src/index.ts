@@ -17,7 +17,6 @@ export interface SummerPlugin {
   configKey: string
   compile?: (clazz: ClassDeclaration) => void
   postCompile?: () => void
-  autoImportDecorators?: () => string[]
   init: (config: any) => void
   destroy?: () => void
 }
@@ -29,7 +28,7 @@ declare global {
   const _ParamDeclareType: any
   const _ReturnDeclareType: any
   const _Optional: any
-  const _Collect: any
+  const ClassCollect: any
 }
 
 ;(global as any)._Int = class _Int {}

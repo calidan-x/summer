@@ -201,6 +201,12 @@ describe('Controller Params Test', () => {
     expect(result.body).toStrictEqual({ requiredKey: 'requiredKey' })
 
     result = await request.post('/request-key-validate/optional', {
+      body: { optionalKey: null, requiredKey: 'requiredKey' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('null is not a string')
+
+    result = await request.post('/request-key-validate/optional', {
       body: { optionalKey: 'optionalKey' }
     })
     expect(result.statusCode).toBe(400)

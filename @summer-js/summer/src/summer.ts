@@ -21,7 +21,7 @@ export const addPlugin = (plugin: any) => {
 }
 
 export const pluginCollection = {}
-;(global as any)._Collect = (collectionName: string) => {
+;(global as any).ClassCollect = (collectionName: string) => {
   return (target: any) => {
     if (!pluginCollection[collectionName]) {
       pluginCollection[collectionName] = []

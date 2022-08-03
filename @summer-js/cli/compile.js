@@ -403,20 +403,14 @@ const compile = async () => {
   }
 
   const autoImportDecorators = [
-    'Middleware',
+    'ClassCollect',
     'Service',
     'Injectable',
-    'Controller',
     'RpcProvider',
     'RpcClient',
-    '_Collect'
+    'Middleware',
+    'Controller'
   ]
-  for (const p of pluginIncs) {
-    if (p.autoImportDecorators) {
-      const aids = p.autoImportDecorators()
-      autoImportDecorators.push(...aids)
-    }
-  }
 
   let compileCounter = 0
   for (const sf of sourceFiles) {
