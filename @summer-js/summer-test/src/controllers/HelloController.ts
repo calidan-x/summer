@@ -7,7 +7,7 @@ export class HelloController {
   helloService: HelloService
 
   @Get
-  hello(@Query q: string) {
+  hello() {
     return 'Hello Summer!'
   }
 

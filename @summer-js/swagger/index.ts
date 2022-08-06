@@ -1,5 +1,6 @@
-import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin } from '@summer-js/summer'
+import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin, Logger } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
+import path from 'path'
 
 import {
   _queryConvertFunc,
@@ -124,7 +125,10 @@ class SwaggerPlugin implements SummerPlugin {
       if (!serverConfig.static) {
         serverConfig.static = []
       }
-      serverConfig.static.push({ requestPath: '/swagger-res', destPath: 'resource/swagger-res' })
+      serverConfig.static.push({
+        requestPath: (path.dirname(config.docPath) + '/swagger-res').replace(/\/{2}/g, '/'),
+        destPath: 'resource/swagger-res'
+      })
       if (config.docPath && config.docPath !== '/swagger-ui') {
         // change path
         requestMapping[`${config.docPath}`] = requestMapping['/swagger-ui']
@@ -138,6 +142,12 @@ class SwaggerPlugin implements SummerPlugin {
         delete requestMapping['/swagger-ui/swagger-docs.json']
       }
     }
+    Logger.info(
+      'Swagger url: http://127.0.0.1:' +
+        serverConfig.port +
+        (serverConfig.basePath ? serverConfig.basePath : '') +
+        config.docPath
+    )
   }
 
   compile(clazz: ClassDeclaration) {
@@ -591,7 +601,7 @@ export class SummerSwaggerUIController {
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
     const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
     const basePath = serverConfig.basePath || ''
-    indexHTML = indexHTML.replace(/\{\{BASE_PATH\}\}/g, basePath).replace('{{TITLE}}', swaggerJson.info.title)
+    indexHTML = indexHTML.replace('{{TITLE}}', swaggerJson.info.title)
     if (allPages.length === 1) {
       indexHTML = indexHTML.replace(
         '//{{URLS}}',

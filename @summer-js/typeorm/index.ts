@@ -30,7 +30,7 @@ export type TypeORMConfig = Record<string, DataSourceOptions>
 const DataSources: Record<string, DataSource> = {}
 export const getDataSource = (dataSourceName: string) => {
   if (!DataSources[dataSourceName]) {
-    Logger.error('datasource: ' + dataSourceName + ' not exists')
+    Logger.error('data source: ' + dataSourceName + ' not exists')
   }
   return DataSources[dataSourceName]
 }
@@ -203,6 +203,8 @@ class TypeORMPlugin implements SummerPlugin {
   }
 
   async connect(typeOrmOptions: TypeORMConfig) {
+    const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+
     if (typeOrmOptions) {
       for (const dataSourceName in typeOrmOptions) {
         const options = typeOrmOptions[dataSourceName]
@@ -216,6 +218,9 @@ class TypeORMPlugin implements SummerPlugin {
         try {
           await dataSource.initialize()
           DataSources[dataSourceName] = dataSource
+          if (!isSummerTesting) {
+            Logger.info('Data Source: ' + dataSourceName + ' connected')
+          }
         } catch (e) {
           Logger.error('Failed to connect data source: ' + dataSourceName)
           Logger.error(e)

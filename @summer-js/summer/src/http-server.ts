@@ -46,7 +46,7 @@ export const httpServer = {
         req.url = req.url.replace(serverConfig.basePath, '')
       } else {
         res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
-        res.write('404 Not Found')
+        res.write('')
         res.end()
         return
       }
@@ -86,24 +86,14 @@ export const httpServer = {
     res.write(context.response.body)
     res.end()
   },
-  printSummerInfo() {
-    const isSummerTesting = process.env.SUMMER_TESTING !== undefined
-    if (!isSummerTesting) {
-      console.log(`
-🔆SUMMER Ver ${process.env.SUMMER_VERSION}    \n
-===========================\n`)
-      process.env.SUMMER_ENV && console.log(`ENV: ${process.env.SUMMER_ENV}\n`)
-    }
-  },
+
   createServer(serverConfig: ServerConfig, serverStated?: () => void) {
     if (!serverConfig.port) {
       Logger.error('Server port not set in ServerConfig')
       return
     }
 
-    if (cluster.isPrimary) {
-      this.printSummerInfo()
-    }
+    const isSummerTesting = process.env.SUMMER_TESTING !== undefined
 
     if (cluster.isPrimary && serverConfig.clusterMode) {
       const workersNumber = serverConfig.workersNumber || os.cpus().length
@@ -115,11 +105,13 @@ export const httpServer = {
         cluster.fork()
       })
 
-      Logger.log(
-        `Cluster Server (${workersNumber} workers) running at: http://127.0.0.1:` +
-          serverConfig.port +
-          (serverConfig.basePath ? serverConfig.basePath + '/' : '')
-      )
+      if (!isSummerTesting) {
+        Logger.info(
+          `Cluster Server (${workersNumber} workers) running at: http://127.0.0.1:` +
+            serverConfig.port +
+            (serverConfig.basePath ? serverConfig.basePath + '/' : '')
+        )
+      }
     } else {
       http
         .createServer(async (req, res) => {
@@ -127,13 +119,14 @@ export const httpServer = {
           this.handlerRequest(req, res, bodyData, serverConfig)
         })
         .listen(serverConfig.port, '', () => {
-          //@ts-ignore
-          if (cluster.isPrimary) {
-            Logger.log(
-              'Server running at: http://127.0.0.1:' +
-                serverConfig.port +
-                (serverConfig.basePath ? serverConfig.basePath + '/' : '')
-            )
+          if (!isSummerTesting) {
+            if (cluster.isPrimary) {
+              Logger.info(
+                'Server running at: http://127.0.0.1:' +
+                  serverConfig.port +
+                  (serverConfig.basePath ? serverConfig.basePath + '/' : '')
+              )
+            }
           }
           serverStated && serverStated()
         })

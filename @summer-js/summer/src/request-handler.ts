@@ -9,7 +9,7 @@ import { session } from './session'
 import { parseCookie, assembleCookie } from './cookie'
 import { handleCors } from './cors'
 import { rpc } from './rpc'
-import { ResponseError, ValidationError } from './error'
+import { NotFoundError, ResponseError, ValidationError } from './error'
 
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
@@ -203,7 +203,7 @@ const callControllerMethod = async (ctx: Context) => {
     }
 
     if (allErrors.length > 0) {
-      throw new ValidationError(400, { errors: allErrors })
+      throw new ValidationError(400, { message: 'Validation Failed', errors: allErrors })
     } else {
       await asyncLocalStorage.run(ctx, async () => {
         let responseData = await controller[callMethod].apply(controller, applyParam)
@@ -212,7 +212,7 @@ const callControllerMethod = async (ctx: Context) => {
       })
     }
   } else {
-    throw new ResponseError(404, '404 Not Found')
+    throw new NotFoundError(404, { message: '404 Not Found' })
   }
 }
 

@@ -8,9 +8,9 @@ export class ErrorMiddleware {
     try {
       await next()
     } catch (err) {
-      if (err instanceof ValidationError) {
-        err.body = { code: 10000, message: 'Validation Errors', errors: err.body.errors }
-      }
+      // if (err instanceof ValidationError) {
+      //   err.body = { code: 10000, message: 'Validation Errors', errors: err.body.errors }
+      // }
       throw err
     }
   }

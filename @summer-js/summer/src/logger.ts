@@ -14,7 +14,8 @@ const colorPrint = (color: string, type: string, message?: any, ...optionalParam
   if (!isTerminal) {
     console.log(timePrefix(), type, message, ...optionalParams)
   } else {
-    console.log(`\x1b[${color}`, timePrefix(), type, message, ...optionalParams, '\x1b[0m')
+    process.stdout.write(`\x1b[${color}`)
+    console.log(timePrefix(), type, message, ...optionalParams, '\x1b[0m')
   }
 }
 

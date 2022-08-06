@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import cluster from 'node:cluster'
 import { getServerType } from './serverless'
 import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
@@ -7,6 +8,16 @@ import { rpc } from './rpc'
 import { session } from './session'
 import { getConfig } from './config-handler'
 import { Logger } from './logger'
+
+const printSummerInfo = () => {
+  const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+  if (!isSummerTesting) {
+    console.log(`
+🔆SUMMER Ver ${process.env.SUMMER_VERSION}    \n
+===========================\n`)
+    process.env.SUMMER_ENV && console.log(`ENV: ${process.env.SUMMER_ENV}\n`)
+  }
+}
 
 interface SummerStartOptions {
   before?: (config: any) => void
@@ -49,6 +60,10 @@ export const summerStart = async (options?: SummerStartOptions) => {
 
   const isNormalServer = getServerType() === 'Normal'
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+
+  if (cluster.isPrimary && !isSummerTesting) {
+    printSummerInfo()
+  }
 
   for (const Plugin of plugins) {
     const plugin: SummerPlugin = new Plugin()
