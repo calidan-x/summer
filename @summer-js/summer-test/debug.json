@@ -1,0 +1,806 @@
+{
+  "/dogs": {
+    "POST": {
+      "callMethod": "add",
+      "params": [{ "paramValues": ["dog"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "AnimalController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/app-get-books-id": {
+    "GET": { "callMethod": "getBookById", "params": [], "controllerName": "AppController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/app-get-books": {
+    "GET": { "callMethod": "getBook", "params": [], "controllerName": "AppController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/books/:id": {
+    "GET": {
+      "callMethod": "list",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BookController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/config": {
+    "GET": { "callMethod": "add", "params": [], "controllerName": "ConfigController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/cookie": {
+    "POST": { "callMethod": "add", "params": [], "controllerName": "CookieController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "": {
+    "GET": { "callMethod": "hello", "params": [], "controllerName": "HelloController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/service-inject": {
+    "GET": { "callMethod": "helloFromService", "params": [], "controllerName": "HelloController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/import-inject-test": {
+    "GET": { "callMethod": "testInjectFromHelloService", "params": [], "controllerName": "HelloController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/log": {
+    "GET": { "callMethod": "add", "params": [], "controllerName": "LoggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/send-email": {
+    "GET": { "callMethod": "send", "params": [], "controllerName": "SendGridController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/serialize": {
+    "GET": { "callMethod": "serialize", "params": [], "controllerName": "SerializationController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/class-extends-serialize": {
+    "GET": { "callMethod": "extendsSerialize", "params": [], "controllerName": "SerializationController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/object-serialize": {
+    "GET": { "callMethod": "objectSerialize", "params": [], "controllerName": "SerializationController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/not-date": {
+    "GET": { "callMethod": "dateSerialize", "params": [], "controllerName": "SerializationController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/session": {
+    "GET": {
+      "callMethod": "session",
+      "params": [{ "paramValues": ["session"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "SessionController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/app/version": {
+    "GET": {
+      "callMethod": "version",
+      "params": [{ "paramValues": ["version"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "AppVersionController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/cache/:id": {
+    "GET": {
+      "callMethod": "api",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "CacheController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/cache2/:id": {
+    "GET": {
+      "callMethod": "api2",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "CacheController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/cities": {
+    "GET": { "callMethod": "list", "params": [], "controllerName": "CityListController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/mysql-host": {
+    "GET": { "callMethod": "host", "params": [], "controllerName": "ConfigInjectController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/download": {
+    "GET": { "callMethod": "download", "params": [], "controllerName": "DownloadController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/userinfo": {
+    "GET": {
+      "callMethod": "userinfo",
+      "params": [{ "paramValues": ["uid"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "JWTController"
+    },
+    "pathRegExp": {},
+    "pathKeys": [],
+    "PUT": { "callMethod": "update", "params": [], "controllerName": "LoginController2" }
+  },
+  "/me": {
+    "GET": { "callMethod": "info", "params": [], "controllerName": "LoginController" },
+    "PUT": { "callMethod": "update", "params": [], "controllerName": "LoginController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/users/:id": {
+    "GET": { "callMethod": "userInfo", "params": [], "controllerName": "LoginController2" },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/dog": {
+    "GET": { "callMethod": "userInfo", "params": [], "controllerName": "ResponseCodeController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/persons": {
+    "GET": {
+      "callMethod": "personList",
+      "params": [{ "paramValues": ["pageIndex"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "PersonController"
+    },
+    "POST": {
+      "callMethod": "addPerson",
+      "params": [{ "paramValues": ["personRequest"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "PersonController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/persons/:id": {
+    "GET": {
+      "callMethod": "personInfo",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "PersonController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/todos": {
+    "GET": { "callMethod": "list", "params": [], "controllerName": "TodoController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/base-path/": {
+    "GET": { "callMethod": "get", "params": [], "controllerName": "BasePathController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/get": {
+    "GET": { "callMethod": "get", "params": [], "controllerName": "BuildInDecoratorTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/post": {
+    "POST": { "callMethod": "post", "params": [], "controllerName": "BuildInDecoratorTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/put": {
+    "PUT": { "callMethod": "put", "params": [], "controllerName": "BuildInDecoratorTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/patch": {
+    "PATCH": { "callMethod": "patch", "params": [], "controllerName": "BuildInDecoratorTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/delete": {
+    "DELETE": { "callMethod": "delete", "params": [], "controllerName": "BuildInDecoratorTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/request": {
+    "REQUEST": { "callMethod": "request", "params": [], "controllerName": "BuildInDecoratorTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/path-param/:id": {
+    "GET": {
+      "callMethod": "pathParam",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/build-in-decorator/path-param2/:Id": {
+    "GET": {
+      "callMethod": "pathParam2",
+      "params": [{ "paramValues": ["id", "Id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["Id"]
+  },
+  "/build-in-decorator/query": {
+    "GET": {
+      "callMethod": "query",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/query2": {
+    "GET": {
+      "callMethod": "query2",
+      "params": [{ "paramValues": ["id", "Id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/queries": {
+    "GET": {
+      "callMethod": "queries",
+      "params": [{ "paramValues": ["queries"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/header": {
+    "GET": {
+      "callMethod": "header",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/header2": {
+    "GET": {
+      "callMethod": "header2",
+      "params": [{ "paramValues": ["id", "Id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/ctx": {
+    "GET": {
+      "callMethod": "ctx",
+      "params": [{ "paramValues": ["context"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/body": {
+    "POST": {
+      "callMethod": "body",
+      "params": [{ "paramValues": ["body"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/request-path": {
+    "GET": {
+      "callMethod": "requestPath",
+      "params": [{ "paramValues": ["requestPath"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/cookie": {
+    "GET": {
+      "callMethod": "cookie",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/cookie2": {
+    "GET": {
+      "callMethod": "cookie2",
+      "params": [{ "paramValues": ["id", "Id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/build-in-decorator/session": {
+    "POST": {
+      "callMethod": "addSession",
+      "params": [{ "paramValues": ["session"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "GET": {
+      "callMethod": "session",
+      "params": [{ "paramValues": ["session"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "BuildInDecoratorTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/cookie/set": {
+    "GET": { "callMethod": "set", "params": [], "controllerName": "CookieTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/cookie/clear": {
+    "GET": { "callMethod": "clear", "params": [], "controllerName": "CookieTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/cors": {
+    "GET": { "callMethod": "cors", "params": [], "controllerName": "CorsTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/upload": {
+    "POST": {
+      "callMethod": "uploadFile",
+      "params": [{ "paramValues": ["req"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "FileUploadController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/generic-type": {
+    "POST": {
+      "callMethod": "genericRequest",
+      "params": [
+        {
+          "paramValues": ["req"],
+          "declareType": [
+            null,
+            null,
+            [[null, null], [null], [null], [null], [null, null, [[null]]], [null], [null], [null]]
+          ],
+          "index": 0
+        }
+      ],
+      "controllerName": "GenericTypeController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/generic-type/mixed-object-return": {
+    "GET": { "callMethod": "mixedObjectReturn", "params": [], "controllerName": "GenericTypeController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/loc": {
+    "GET": { "callMethod": "testStr", "params": [], "controllerName": "LocController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/loc/service-injection": {
+    "GET": { "callMethod": "testServiceInjection", "params": [], "controllerName": "LocController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/movies": {
+    "GET": {
+      "callMethod": "list",
+      "params": [{ "paramValues": ["search"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "MovieController"
+    },
+    "POST": {
+      "callMethod": "add",
+      "params": [{ "paramValues": ["body"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "MovieController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/movies/:id": {
+    "GET": {
+      "callMethod": "detail",
+      "params": [{ "paramValues": ["id"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "MovieController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/request-basic-type-value": {
+    "GET": {
+      "callMethod": "requestBasicTypeValue",
+      "params": [
+        { "paramValues": ["notypeValue"], "declareType": [null, null, []], "index": 0 },
+        { "paramValues": ["anyValue"], "declareType": [null, null, []], "index": 1 },
+        { "paramValues": ["stringValue"], "declareType": [null, null, []], "index": 2 },
+        { "paramValues": ["intValue"], "declareType": [null, null, []], "index": 3 },
+        { "paramValues": ["bigintValue"], "declareType": [null, null, []], "index": 4 },
+        { "paramValues": ["numberValue"], "declareType": [null, null, []], "index": 5 },
+        { "paramValues": ["booleanValue"], "declareType": [null, null, []], "index": 6 },
+        { "paramValues": ["numberEnumValue"], "declareType": [null, null, []], "index": 7 },
+        { "paramValues": ["stringEnumValue"], "declareType": [null, null, []], "index": 8 },
+        { "paramValues": ["objValue"], "declareType": [null, null, []], "index": 9 },
+        { "paramValues": ["anyArrayValue"], "declareType": [null, null, []], "index": 10 },
+        { "paramValues": ["stringArrayValue"], "declareType": [null, null, []], "index": 11 },
+        { "paramValues": ["intArrayValue"], "declareType": [null, null, []], "index": 12 },
+        { "paramValues": ["numberArrayValue"], "declareType": [null, null, []], "index": 13 },
+        { "paramValues": ["booleanArrayValue"], "declareType": [null, null, []], "index": 14 },
+        { "paramValues": ["numberEnumArrayValue"], "declareType": [null, null, []], "index": 15 },
+        { "paramValues": ["stringEnumArrayValue"], "declareType": [null, null, []], "index": 16 },
+        { "paramValues": ["objArrayValue"], "declareType": [null, null, []], "index": 17 },
+        { "paramValues": ["stringUnionValue"], "declareType": [["SU1", "SU2", "SU:3"], null, []], "index": 18 },
+        { "paramValues": ["fixedStringValue"], "declareType": [["str:ing"], null, []], "index": 19 }
+      ],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-body-value": {
+    "POST": {
+      "callMethod": "requestBodyValue",
+      "params": [{ "paramValues": ["dog"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/optional": {
+    "POST": {
+      "callMethod": "optionalKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/ignore-unknown-props": {
+    "POST": {
+      "callMethod": "ignoreUnknownProp",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/validate-unknown-props": {
+    "POST": {
+      "callMethod": "validateUnknownProp",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/optional-no-type": {
+    "POST": {
+      "callMethod": "optionalNoType",
+      "params": [{ "paramValues": ["headerKey"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/param-optional": {
+    "POST": {
+      "callMethod": "paramOptional",
+      "params": [{ "paramValues": ["keyword"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/param-required": {
+    "POST": {
+      "callMethod": "paramRequired",
+      "params": [{ "paramValues": ["keyword"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/param-empty": {
+    "POST": {
+      "callMethod": "paramEmpty",
+      "params": [{ "paramValues": ["emptyRequest"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/min": {
+    "POST": {
+      "callMethod": "minKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/max": {
+    "POST": {
+      "callMethod": "maxKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/min-len": {
+    "POST": {
+      "callMethod": "minLenKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/max-len": {
+    "POST": {
+      "callMethod": "maxLenKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/email": {
+    "POST": {
+      "callMethod": "emailKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/pattern": {
+    "POST": {
+      "callMethod": "patternKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/custom-validate": {
+    "POST": {
+      "callMethod": "customValidateKey",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/enum": {
+    "POST": {
+      "callMethod": "enum",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/request-key-validate/date": {
+    "POST": {
+      "callMethod": "date",
+      "params": [{ "paramValues": ["request"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "ParamsValidationController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/res-headers/string-return": {
+    "GET": { "callMethod": "stringReturn", "params": [], "controllerName": "CorsTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/res-headers/object-return": {
+    "GET": { "callMethod": "objectReturn", "params": [], "controllerName": "CorsTestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/res-headers/modify-return": {
+    "GET": {
+      "callMethod": "headerModifyReturn",
+      "params": [{ "paramValues": ["context"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "CorsTestController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/serverless/hello": {
+    "GET": { "callMethod": "serverless", "params": [], "controllerName": "ServerlessController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/serverless/inject": {
+    "GET": { "callMethod": "inject", "params": [], "controllerName": "ServerlessController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test": {
+    "GET": { "callMethod": "hello", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/unknown": {
+    "GET": { "callMethod": "unknown", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/multi-return": {
+    "GET": { "callMethod": "promiseUnknown", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/paging": {
+    "GET": { "callMethod": "paging", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-params/:id": {
+    "POST": {
+      "callMethod": "paramDoc",
+      "params": [
+        { "paramValues": ["body"], "declareType": [null, null, []], "index": 0 },
+        { "paramValues": ["query"], "declareType": [null, null, []], "index": 1 },
+        { "paramValues": ["boolQuery"], "declareType": [null, null, []], "index": 2 },
+        { "paramValues": ["queries"], "declareType": [null, null, []], "index": 3 },
+        { "paramValues": ["id"], "declareType": [null, null, []], "index": 4 },
+        { "paramValues": ["header"], "declareType": [null, null, []], "index": 5 }
+      ],
+      "controllerName": "SwaggerController"
+    },
+    "pathRegExp": {},
+    "pathKeys": ["id"]
+  },
+  "/swagger-test/swagger-string-array-request": {
+    "POST": {
+      "callMethod": "stringArrayRequest",
+      "params": [{ "paramValues": ["array"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "SwaggerController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-obj-array-request": {
+    "POST": {
+      "callMethod": "objArrayRequest",
+      "params": [{ "paramValues": ["objArray"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "SwaggerController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-return-string-async": {
+    "GET": { "callMethod": "returnString", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-return-int-async": {
+    "POST": { "callMethod": "returnNumber", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-return-object-async": {
+    "DELETE": { "callMethod": "returnObject", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-return-string-array-async": {
+    "DELETE": { "callMethod": "returnArray", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-return-obj-array-async": {
+    "PATCH": { "callMethod": "returnObjectArray", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-security": {
+    "GET": { "callMethod": "security", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/swagger-extends-class": {
+    "POST": {
+      "callMethod": "extendClass",
+      "params": [{ "paramValues": ["extendObj"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "SwaggerController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/interface-return": {
+    "PUT": { "callMethod": "getInterface", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/wrong-return": {
+    "PUT": { "callMethod": "getWringReturn", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/wrong-return2": {
+    "PUT": { "callMethod": "getWringReturn2", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/service-object-convert-type": {
+    "PUT": { "callMethod": "getServiceData", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/service-mixed-type-return": {
+    "PUT": { "callMethod": "serviceMixTypeClass", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-test/service-paging-return": {
+    "PUT": { "callMethod": "getServicePagingData", "params": [], "controllerName": "SwaggerController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/rpc/user": {
+    "GET": { "callMethod": "getUser", "params": [], "controllerName": "UserRpcController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/rpc/users": {
+    "GET": { "callMethod": "getUsers", "params": [], "controllerName": "UserRpcController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/rpc/error": {
+    "GET": { "callMethod": "error", "params": [], "controllerName": "UserRpcController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/send-request": {
+    "GET": { "callMethod": "getUser", "params": [], "controllerName": "SendRequestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/summer-request": {
+    "GET": { "callMethod": "getSummerSite", "params": [], "controllerName": "SendRequestController" },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-ui/": {
+    "GET": {
+      "callMethod": "getSwaggerUIPage",
+      "params": [{ "paramValues": ["primaryName", "urls.primaryName"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "SummerSwaggerUIController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  },
+  "/swagger-ui/swagger-docs.json": {
+    "GET": {
+      "callMethod": "getSwaggerDocument",
+      "params": [{ "paramValues": ["category"], "declareType": [null, null, []], "index": 0 }],
+      "controllerName": "SummerSwaggerUIController"
+    },
+    "pathRegExp": {},
+    "pathKeys": []
+  }
+}

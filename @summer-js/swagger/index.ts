@@ -1,6 +1,16 @@
-import { SummerPlugin, getConfig, Controller, Get, Query, ServerConfig, addPlugin, Logger } from '@summer-js/summer'
+import {
+  SummerPlugin,
+  getConfig,
+  Controller,
+  Get,
+  Query,
+  ServerConfig,
+  addPlugin,
+  Logger,
+  Ctx,
+  Context
+} from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
-import path from 'path'
 
 import {
   _queryConvertFunc,
@@ -119,6 +129,9 @@ class SwaggerPlugin implements SummerPlugin {
     if (!config) {
       return
     }
+    if (!config.docPath.endsWith('/')) {
+      config.docPath = config.docPath + '/'
+    }
     Object.assign(swaggerJson, config)
     const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
     if (serverConfig) {
@@ -126,22 +139,27 @@ class SwaggerPlugin implements SummerPlugin {
         serverConfig.static = []
       }
       serverConfig.static.push({
-        requestPath: (path.dirname(config.docPath) + '/swagger-res').replace(/\/{2}/g, '/'),
+        requestPath: config.docPath + 'swagger-res',
         destPath: 'resource/swagger-res'
       })
-      if (config.docPath && config.docPath !== '/swagger-ui') {
+      if (config.docPath) {
         // change path
-        requestMapping[`${config.docPath}`] = requestMapping['/swagger-ui']
-        requestMapping[`${config.docPath}`].pathRegExp = pathToRegexp(`${config.docPath}`)
-        delete requestMapping['/swagger-ui']
+        requestMapping[config.docPath.replace(/\/$/, '')] = requestMapping['/-summer-swagger-ui']
+        requestMapping[config.docPath.replace(/\/$/, '')].pathRegExp = pathToRegexp(config.docPath)
+        delete requestMapping['/-summer-swagger-ui']
 
-        requestMapping[`${config.docPath}/swagger-docs.json`] = requestMapping['/swagger-ui/swagger-docs.json']
-        requestMapping[`${config.docPath}/swagger-docs.json`].pathRegExp = pathToRegexp(
-          `${config.docPath}/swagger-docs.json`
+        requestMapping[config.docPath] = requestMapping['/-summer-swagger-ui/index']
+        requestMapping[config.docPath].pathRegExp = pathToRegexp(config.docPath)
+        delete requestMapping['/-summer-swagger-ui/index']
+
+        requestMapping[`${config.docPath}swagger-docs.json`] = requestMapping['/-summer-swagger-ui/swagger-docs.json']
+        requestMapping[`${config.docPath}swagger-docs.json`].pathRegExp = pathToRegexp(
+          `${config.docPath}swagger-docs.json`
         )
-        delete requestMapping['/swagger-ui/swagger-docs.json']
+        delete requestMapping['/-summer-swagger-ui/swagger-docs.json']
       }
     }
+
     const isSummerTesting = process.env.SUMMER_TESTING !== undefined
     if (!isSummerTesting) {
       Logger.info(
@@ -595,25 +613,30 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
   return desc
 }
 
-@Controller('/swagger-ui')
+@Controller('/-summer-swagger-ui')
 export class SummerSwaggerUIController {
   @Get
+  redirect(@Ctx ctx: Context) {
+    const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
+    ctx.response.statusCode = 301
+    ctx.response.headers = {
+      Location: (serverConfig.basePath || '') + ctx.request.path + '/',
+      'Cache-Control': 'no-store'
+    }
+  }
+
+  @Get('/index')
   getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType([String]) @_Optional primaryName?: string) {
     let allPages = allTags.map((at) => at.category || '')
     allPages = Array.from(new Set(allPages))
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
-    const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
-    const basePath = serverConfig.basePath || ''
     indexHTML = indexHTML.replace('{{TITLE}}', swaggerJson.info.title)
     if (allPages.length === 1) {
-      indexHTML = indexHTML.replace(
-        '//{{URLS}}',
-        `urls:[{url:"${basePath + swaggerJson.docPath}/swagger-docs.json",name:"All"}],`
-      )
+      indexHTML = indexHTML.replace('//{{URLS}}', `urls:[{url:"swagger-docs.json",name:"All"}],`)
     } else {
       const urls = allPages.map((ap) => ({
         name: ap || 'Default',
-        url: `${basePath + swaggerJson.docPath}/swagger-docs.json?category=${encodeURIComponent(ap)}`
+        url: `swagger-docs.json?category=${encodeURIComponent(ap)}`
       }))
       indexHTML = indexHTML.replace('//{{URLS}}', `urls:${JSON.stringify(urls)},\n'urls.primaryName':'${primaryName}',`)
     }
@@ -804,7 +827,7 @@ export class SummerSwaggerUIController {
       }
     })
 
-    const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
+    const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
     const basePath = serverConfig.basePath || ''
     swaggerJson.basePath = basePath
     const outPutJSON = { ...swaggerJson }

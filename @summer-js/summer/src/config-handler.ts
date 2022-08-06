@@ -1,14 +1,9 @@
-import { ServerConfig } from './http-server'
 import merge from 'deepmerge'
 
-interface SummerConfig {
-  SERVER_CONFIG: ServerConfig
-}
-
 let _envConfig = null
-export const getConfig = (): SummerConfig & Record<string, any> => {
+export const getConfig = (key?: string): Record<string, any> => {
   if (_envConfig) {
-    return _envConfig
+    return key ? _envConfig[key] : _envConfig
   }
 
   const defaultConfig = global['$$_DEFAULT_CONFIG'] || {}
@@ -16,5 +11,5 @@ export const getConfig = (): SummerConfig & Record<string, any> => {
   const finalConfig = merge(defaultConfig, envConfig)
 
   _envConfig = finalConfig
-  return finalConfig as any
+  return key ? finalConfig[key] : finalConfig
 }
