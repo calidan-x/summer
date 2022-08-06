@@ -3,6 +3,7 @@ export { summerStart, summerDestroy, waitForStart, addPlugin, pluginCollection }
 export * from './decorators'
 export * from './utils'
 export { requestHandler, Context } from './request-handler'
+export * from './error'
 export { getInjectable, addInjectable } from './loc'
 export { Logger } from './logger'
 export { SessionConfig } from './session'

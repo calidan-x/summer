@@ -13,6 +13,7 @@ interface StaticConfig {
   requestPath: string
   destPath: string
   indexFiles?: string[]
+  spa?: boolean
 }
 
 export interface ServerConfig {
@@ -41,7 +42,7 @@ export const httpServer = {
   },
   async handlerRequest(req: http.IncomingMessage, res: http.ServerResponse, bodyData, serverConfig: ServerConfig) {
     if (serverConfig.basePath) {
-      if (req.url.indexOf(serverConfig.basePath) === 0) {
+      if (req.url.startsWith(serverConfig.basePath)) {
         req.url = req.url.replace(serverConfig.basePath, '')
       } else {
         res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })

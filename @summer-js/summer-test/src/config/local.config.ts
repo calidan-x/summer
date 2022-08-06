@@ -21,6 +21,12 @@ export const SERVER_CONFIG: ServerConfig = {
       requestPath: '/static',
       destPath: 'resource',
       indexFiles: ['1.txt']
+    },
+    {
+      requestPath: '/spa',
+      destPath: 'resource/spa',
+      indexFiles: ['index.html'],
+      spa: true
     }
   ]
   // clusterMode: true,

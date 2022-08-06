@@ -9,6 +9,7 @@ import { session } from './session'
 import { parseCookie, assembleCookie } from './cookie'
 import { handleCors } from './cors'
 import { rpc } from './rpc'
+import { ResponseError, ValidationError } from './error'
 
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
@@ -202,11 +203,7 @@ const callControllerMethod = async (ctx: Context) => {
     }
 
     if (allErrors.length > 0) {
-      ctx.response = {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json; charset=utf-8' },
-        body: JSON.stringify({ errors: allErrors })
-      }
+      throw new ValidationError(400, { errors: allErrors })
     } else {
       await asyncLocalStorage.run(ctx, async () => {
         let responseData = await controller[callMethod].apply(controller, applyParam)
@@ -215,7 +212,7 @@ const callControllerMethod = async (ctx: Context) => {
       })
     }
   } else {
-    ctx.response = { statusCode: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' }, body: '404 Not Found' }
+    throw new ResponseError(404, '404 Not Found')
   }
 }
 
@@ -275,6 +272,12 @@ const makeServerError = (ctx: Context) => {
   }
 }
 
+const makeRequestError = (ctx: Context, responseError: ResponseError) => {
+  ctx.response.statusCode = responseError.statusCode
+  ctx.response.headers['Content-Type'] = undefined
+  ctx.response.body = responseError.body
+}
+
 const decodeQuery = (ctx: Context) => {
   for (const key in ctx.request.queries) {
     ctx.request.queries[key] = decodeURIComponent(ctx.request.queries[key])
@@ -301,11 +304,15 @@ export const requestHandler = async (ctx: Context) => {
 
     assembleCookie(ctx)
   } catch (err) {
-    Logger.error(err)
-    if (err.stack) {
-      console.log(err.stack)
+    if (err instanceof ResponseError) {
+      makeRequestError(ctx, err)
+    } else {
+      Logger.error(err)
+      if (err.stack) {
+        console.log(err.stack)
+      }
+      makeServerError(ctx)
     }
-    makeServerError(ctx)
   }
 
   if (typeof ctx.response.body !== 'string') {

@@ -32,7 +32,10 @@ export const handleStaticRequest = (requestPath: string): StaticResult | null =>
         if (fs.existsSync(requestFile) && !fs.lstatSync(requestFile).isDirectory()) {
         } else if (fs.existsSync(requestFile) && fs.lstatSync(requestFile).isDirectory()) {
           if (!requestFile.endsWith('/')) {
-            return { code: 301, headers: { Location: requestPath + '/', 'Cache-Control': 'no-store' } }
+            return {
+              code: 301,
+              headers: { Location: (serverConfig.basePath || '') + requestPath + '/', 'Cache-Control': 'no-store' }
+            }
           } else if (indexFiles) {
             let foundFile = false
             for (const file of indexFiles) {
@@ -48,6 +51,21 @@ export const handleStaticRequest = (requestPath: string): StaticResult | null =>
           }
         } else {
           requestFile = ''
+        }
+
+        // spa
+        if (staticConfig.spa && !requestFile && path.extname(requestPath) === '') {
+          let foundFile = false
+          for (const file of indexFiles) {
+            if (fs.existsSync(targetPath + '/' + file)) {
+              requestFile = targetPath + '/' + file
+              foundFile = true
+              break
+            }
+          }
+          if (!foundFile) {
+            requestFile = ''
+          }
         }
 
         if (requestFile) {

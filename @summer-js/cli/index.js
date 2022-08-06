@@ -145,7 +145,7 @@ program
   .action((options) => {
     spinner = ora('Compiling...')
     spinner.start()
-    const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
+    const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile test`)
     printProcessData(compileProcess)
 
     compileProcess.on('exit', () => {

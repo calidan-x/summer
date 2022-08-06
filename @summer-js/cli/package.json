@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/cli",
-	"version": "0.0.56",
+	"version": "0.0.57",
 	"description": "",
 	"type": "module",
 	"bin": {

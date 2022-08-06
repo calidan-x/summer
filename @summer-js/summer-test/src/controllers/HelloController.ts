@@ -1,9 +1,5 @@
-import { AutoInject, Controller, createPropertyDecorator, Body, Get, Post, Queries } from '@summer-js/summer'
+import { AutoInject, Controller, Body, Get, Post, ResponseError, Query } from '@summer-js/summer'
 import { HelloService } from '../service'
-
-class B {
-  b: Date
-}
 
 @Controller
 @AutoInject
@@ -11,14 +7,8 @@ export class HelloController {
   helloService: HelloService
 
   @Get
-  hello() {
+  hello(@Query q: string) {
     return 'Hello Summer!'
-  }
-
-  @Post
-  test(@Body body: B) {
-    console.log(body)
-    return body
   }
 
   @Get('/service-inject')

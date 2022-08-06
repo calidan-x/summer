@@ -36,7 +36,7 @@ describe('DTO convert Test', () => {
 
     const user = convertData(addUserRequest, User)
 
-    expect(JSON.stringify(user)).toBe('{"name":"John","age":12}')
+    expect(user).toEqual({ name: 'John', age: 12 })
   })
 
   test('test fillData', async () => {
@@ -49,6 +49,6 @@ describe('DTO convert Test', () => {
 
     userResource.moreInfo = 'moreInfo'
 
-    expect(JSON.stringify(userResource)).toBe('{"name":"John","age":12,"moreInfo":"moreInfo"}')
+    expect(userResource).toEqual({ name: 'John', age: 12, moreInfo: 'moreInfo' })
   })
 })

@@ -10,6 +10,14 @@ const timePrefix = () => {
 type LogType = ('Log' | 'Warning' | 'Error' | 'Info' | 'Debug')[]
 const sLogType = Symbol('LogEnable')
 const isTerminal = process.env.TERM !== undefined
+const colorPrint = (color: string, type: string, message?: any, ...optionalParams: any[]) => {
+  if (!isTerminal) {
+    console.log(timePrefix(), type, message, ...optionalParams)
+  } else {
+    console.log(`\x1b[${color}`, timePrefix(), type, message, ...optionalParams, '\x1b[0m')
+  }
+}
+
 export const Logger = {
   [sLogType]: ['Log', 'Warning', 'Error', 'Info', 'Debug'],
   get logType() {
@@ -20,27 +28,27 @@ export const Logger = {
   },
   info(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Info')) {
-      console.log(isTerminal ? '\x1b[32m%s\x1b[0m' : '%s', timePrefix() + '[INFO] ' + message, ...optionalParams)
+      colorPrint('32m', '[INFO]', message, ...optionalParams)
     }
   },
   error(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Error')) {
-      console.log(isTerminal ? '\x1b[31m%s\x1b[0m' : '%s', timePrefix() + '[ERROR] ' + message, ...optionalParams)
+      colorPrint('31m', '[ERROR]', message, ...optionalParams)
     }
   },
   warning(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Warning')) {
-      console.log(isTerminal ? '\x1b[33m%s\x1b[0m' : '%s', timePrefix() + '[WARNING] ' + message, ...optionalParams)
+      colorPrint('33m', '[WARNING]', message, ...optionalParams)
     }
   },
   log(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Log')) {
-      console.log(timePrefix() + '[LOG] ' + message, ...optionalParams)
+      console.log(timePrefix(), '[LOG]', message, ...optionalParams)
     }
   },
   debug(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Debug')) {
-      console.log(isTerminal ? '\x1b[36m%s\x1b[0m' : '%s', timePrefix() + '[DEBUG] ' + message, ...optionalParams)
+      colorPrint('36m', '[DEBUG]', message, ...optionalParams)
     }
   }
 }

@@ -30,7 +30,7 @@ export type TypeORMConfig = Record<string, DataSourceOptions>
 const DataSources: Record<string, DataSource> = {}
 export const getDataSource = (dataSourceName: string) => {
   if (!DataSources[dataSourceName]) {
-    Logger.error('Fail connect to datasource: ' + dataSourceName)
+    Logger.error('datasource: ' + dataSourceName + ' not exists')
   }
   return DataSources[dataSourceName]
 }
