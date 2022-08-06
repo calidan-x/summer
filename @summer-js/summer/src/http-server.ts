@@ -93,8 +93,6 @@ export const httpServer = {
       return
     }
 
-    const isSummerTesting = process.env.SUMMER_TESTING !== undefined
-
     if (cluster.isPrimary && serverConfig.clusterMode) {
       const workersNumber = serverConfig.workersNumber || os.cpus().length
       for (let i = 0; i < workersNumber; i++) {
@@ -105,13 +103,11 @@ export const httpServer = {
         cluster.fork()
       })
 
-      if (!isSummerTesting) {
-        Logger.info(
-          `Cluster Server (${workersNumber} workers) running at: http://127.0.0.1:` +
-            serverConfig.port +
-            (serverConfig.basePath ? serverConfig.basePath + '/' : '')
-        )
-      }
+      Logger.info(
+        `Cluster Server (${workersNumber} workers) running at: http://127.0.0.1:` +
+          serverConfig.port +
+          (serverConfig.basePath ? serverConfig.basePath + '/' : '')
+      )
     } else {
       http
         .createServer(async (req, res) => {
@@ -119,14 +115,12 @@ export const httpServer = {
           this.handlerRequest(req, res, bodyData, serverConfig)
         })
         .listen(serverConfig.port, '', () => {
-          if (!isSummerTesting) {
-            if (cluster.isPrimary) {
-              Logger.info(
-                'Server running at: http://127.0.0.1:' +
-                  serverConfig.port +
-                  (serverConfig.basePath ? serverConfig.basePath + '/' : '')
-              )
-            }
+          if (cluster.isPrimary) {
+            Logger.info(
+              'Server running at: http://127.0.0.1:' +
+                serverConfig.port +
+                (serverConfig.basePath ? serverConfig.basePath + '/' : '')
+            )
           }
           serverStated && serverStated()
         })

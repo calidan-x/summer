@@ -142,12 +142,15 @@ class SwaggerPlugin implements SummerPlugin {
         delete requestMapping['/swagger-ui/swagger-docs.json']
       }
     }
-    Logger.info(
-      'Swagger url: http://127.0.0.1:' +
-        serverConfig.port +
-        (serverConfig.basePath ? serverConfig.basePath : '') +
-        config.docPath
-    )
+    const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+    if (!isSummerTesting) {
+      Logger.info(
+        'Swagger url: http://127.0.0.1:' +
+          serverConfig.port +
+          (serverConfig.basePath ? serverConfig.basePath : '') +
+          config.docPath
+      )
+    }
   }
 
   compile(clazz: ClassDeclaration) {
