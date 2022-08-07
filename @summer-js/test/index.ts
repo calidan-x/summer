@@ -7,7 +7,7 @@ import path from 'path'
 export const initTest = async () => {
   process.env.SUMMER_TESTING = 'true'
   await import(path.resolve('./compile/index'))
-  await waitForStart('SummerTest')
+  await waitForStart()
 }
 
 export const endTest = async () => {

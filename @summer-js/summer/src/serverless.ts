@@ -32,7 +32,7 @@ const getGZipData = async (data: string): Promise<string> => {
 
 // Serverless
 export const handler = async (...args) => {
-  await waitForStart('ServerLess')
+  await waitForStart()
   const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
 
   const serverType = getServerType()
@@ -42,7 +42,7 @@ export const handler = async (...args) => {
 
       if (serverConfig) {
         if (serverConfig.basePath) {
-          if (event.path.indexOf(serverConfig.basePath) === 0) {
+          if (event.path.startsWith(serverConfig.basePath)) {
             event.path = event.path.replace(serverConfig.basePath, '')
           } else {
             return {

@@ -6,7 +6,7 @@ class AddMovieRequest {
   year: string
 }
 
-class Movie {
+export class Movie {
   id: number
 
   @PropDoc('Name of the movie', '2022')

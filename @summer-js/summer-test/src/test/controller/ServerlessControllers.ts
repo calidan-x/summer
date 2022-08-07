@@ -1,4 +1,5 @@
-import { Controller, Get, setCookie, clearCookie, createPropertyDecorator } from '@summer-js/summer'
+import { Controller, Get, createPropertyDecorator, AutoInject } from '@summer-js/summer'
+import { MovieController } from './MovieController'
 
 const PropInject = createPropertyDecorator(async (config) => {
   return new Promise((resolve, rejected) => {
@@ -9,9 +10,12 @@ const PropInject = createPropertyDecorator(async (config) => {
 })
 
 @Controller('/serverless')
+@AutoInject
 export class ServerlessController {
   @PropInject
   prop: string
+
+  movieController: MovieController
 
   @Get('/hello')
   serverless() {
@@ -21,5 +25,10 @@ export class ServerlessController {
   @Get('/inject')
   inject() {
     return this.prop
+  }
+
+  @Get('/db-data')
+  async dbData() {
+    return await this.movieController.list()
   }
 }

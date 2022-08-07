@@ -308,9 +308,6 @@ export const requestHandler = async (ctx: Context) => {
       makeRequestError(ctx, err)
     } else {
       Logger.error(err)
-      if (err.stack) {
-        console.log(err.stack)
-      }
       makeServerError(ctx)
     }
   }

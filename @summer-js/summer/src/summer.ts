@@ -42,16 +42,12 @@ export const pluginCollection = {}
 }
 
 const startLocks = {}
-export const waitForStart = async (key: string) => {
+export const waitForStart = async () => {
   if (startLocks['done']) {
     return
   }
   return new Promise((resolve) => {
-    if (!startLocks[key]) {
-      startLocks[key] = resolve
-    } else {
-      resolve('')
-    }
+    startLocks[Date.now() + Math.random() * 100000] = resolve
   })
 }
 export const summerStart = async (options?: SummerStartOptions) => {
