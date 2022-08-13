@@ -180,7 +180,9 @@ export const validateAndConvertType = (
       }
       break
     case Boolean:
-      if (isFirstLevel) {
+      if (typeof propertyValue === 'boolean') {
+        value = propertyValue
+      } else if (typeof propertyValue === 'string') {
         if (propertyValue.toLowerCase() === 'false' || propertyValue === '0') {
           value = false
         } else if (propertyValue.toLowerCase() === 'true' || propertyValue === '1') {
@@ -191,9 +193,12 @@ export const validateAndConvertType = (
             message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a boolean'
           })
         }
-      } else {
-        value = propertyValue
-        if (typeof value !== 'boolean') {
+      } else if (typeof propertyValue === 'number') {
+        if (propertyValue === 0) {
+          value = false
+        } else if (propertyValue === 1) {
+          value = true
+        } else {
           allErrors.push({
             param: errorParam,
             message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a boolean'

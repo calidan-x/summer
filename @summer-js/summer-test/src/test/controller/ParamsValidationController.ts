@@ -5,6 +5,7 @@ import {
   Min,
   Post,
   Query,
+  Queries,
   Max,
   MinLen,
   MaxLen,
@@ -114,6 +115,12 @@ class EmptyRequest {
   notEmptyString: string
 }
 
+class Search {
+  isCity: boolean
+  name: string
+  count: number
+}
+
 @Controller
 export class ParamsValidationController {
   @Get('/request-basic-type-value')
@@ -160,12 +167,18 @@ export class ParamsValidationController {
       objValue ||
       stringUnionValue ||
       fixedStringValue
+
     if (booleanValue !== undefined) {
       value = booleanValue
     }
     let type = typeof value
 
     return { type, value }
+  }
+
+  @Get('/request-queries')
+  async requestQueries(@Queries search?: Search) {
+    return search
   }
 
   @Post('/request-body-value')

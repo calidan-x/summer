@@ -8,7 +8,7 @@ import { handleStaticRequest } from './static-server'
 import { getConfig } from './config-handler'
 import { getInitContextData, ServerConfig } from './http-server'
 import { parseBody } from './body-parser'
-import { waitForStart } from './summer'
+import { startOptions, summerInit } from './summer'
 
 export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
@@ -31,8 +31,10 @@ const getGZipData = async (data: string): Promise<string> => {
 }
 
 // Serverless
+
 export const handler = async (...args) => {
-  await waitForStart()
+  await summerInit(startOptions)
+
   const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
 
   const serverType = getServerType()
@@ -87,7 +89,7 @@ export const handler = async (...args) => {
       const context: Context = {
         request: {
           method: event.httpMethod,
-          path: event.path,
+          path: event.path || event.rawPath,
           queries: event.queryStringParameters,
           headers: event.headers,
           body: bodyData

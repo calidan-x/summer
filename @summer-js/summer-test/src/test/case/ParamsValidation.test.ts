@@ -95,6 +95,10 @@ describe('Controller Params Test', () => {
     await testRequestParam('0', 'boolean', false)
     await testRequestParam('true', 'boolean', true)
     await testRequestParam('false', 'boolean', false)
+    let response = await request.get('/request-queries?isCity=true&name=shanghai&count=1')
+    expect(response.body).toEqual({ isCity: true, name: 'shanghai', count: 1 })
+    response = await request.get('/request-queries?isCity=1&name=shanghai&count=1')
+    expect(response.body).toEqual({ isCity: true, name: 'shanghai', count: 1 })
   })
 
   test('test number enum type request value', async () => {

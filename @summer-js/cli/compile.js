@@ -374,19 +374,15 @@ const compile = async () => {
   let importFilesList = []
 
   for (const sf of sourceFiles) {
-    ;['default.config.ts', process.env.SUMMER_ENV + '.config.ts'].forEach((configFileName) => {
-      if (sf.getFilePath().indexOf(configFileName) > 0) {
-        const refSourceFiles = sf.getReferencedSourceFiles()
-        refSourceFiles.forEach((refSourceFile) => {
-          if (refSourceFile.getText().indexOf('SummerPlugin') > 0) {
-            const found = slash(refSourceFile.getFilePath()).match(/@summer-js\/[^/]+/)
-            if (found) {
-              if (found[0] !== '@summer-js/summer') {
-                PLUGINS.push(found[0])
-              }
-            }
+    const refSourceFiles = sf.getReferencedSourceFiles()
+    refSourceFiles.forEach((refSourceFile) => {
+      if (refSourceFile.getText().indexOf('SummerPlugin') > 0) {
+        const found = slash(refSourceFile.getFilePath()).match(/@summer-js\/[^/]+/)
+        if (found) {
+          if (found[0] !== '@summer-js/summer') {
+            PLUGINS.push(found[0])
           }
-        })
+        }
       }
     })
   }

@@ -50,12 +50,18 @@ export const waitForStart = async () => {
     startLocks[Date.now() + Math.random() * 100000] = resolve
   })
 }
-export const summerStart = async (options?: SummerStartOptions) => {
-  options = options || {}
-  const config = getConfig()
 
-  const isNormalServer = getServerType() === 'Normal'
+let initialized = false
+export const summerInit = async (options?: SummerStartOptions) => {
+  if (initialized) {
+    return
+  }
+  initialized = true
+
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+  const isNormalServer = getServerType() === 'Normal'
+
+  const config = getConfig()
 
   if (cluster.isPrimary && !isSummerTesting) {
     printSummerInfo()
@@ -83,9 +89,20 @@ export const summerStart = async (options?: SummerStartOptions) => {
     await locContainer.resolveLoc()
     rpc.resolveRpc()
     options.after && options.after(config)
-    for (const k in startLocks) {
-      startLocks[k]('')
+    if (!startLocks['done']) {
+      for (const k in startLocks) {
+        startLocks[k]('')
+      }
+      startLocks['done']
     }
+  }
+}
+
+export const summerStart = async (options?: SummerStartOptions) => {
+  startOptions = options || {}
+  if (getServerType() === 'Normal') {
+    await summerInit(startOptions)
+  } else {
     startLocks['done'] = true
   }
 }

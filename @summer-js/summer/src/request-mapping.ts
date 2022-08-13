@@ -9,6 +9,7 @@ export const requestMappingAssembler = {
   controllerRequestMapping: {},
   nextController() {
     this.controllerMethodDescriptors = []
+    this.params = []
   },
   addParam(paramMethod: (ctx: any) => any, paramValues: any[], declareType: any, index: number) {
     this.params[index] = {

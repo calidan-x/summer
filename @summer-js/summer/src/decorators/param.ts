@@ -14,10 +14,10 @@ const getArgName = (func, argIndex: number) => {
     })[argIndex]
 }
 
-const getArgType = (target: Object, propertyKey: string, parameterIndex: number) => {
-  const types = Reflect.getMetadata('design:paramtypes', target, propertyKey)
-  return types[parameterIndex]
-}
+// const getArgType = (target: Object, propertyKey: string, parameterIndex: number) => {
+//   const types = Reflect.getMetadata('design:paramtypes', target, propertyKey)
+//   return types[parameterIndex]
+// }
 
 const getArgDeclareType = (target: Object, propertyKey: string, parameterIndex: number) => {
   const types = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey)
