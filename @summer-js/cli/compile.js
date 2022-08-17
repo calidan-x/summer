@@ -348,8 +348,6 @@ const compile = async () => {
     }
   }
 
-  updateFileList.splice(0, updateFileList.length)
-
   let hasError = false
   dirtyFiles.forEach((df) => {
     try {
@@ -369,20 +367,33 @@ const compile = async () => {
     return
   }
 
+  updateFileList.splice(0, updateFileList.length)
+
   const sourceFiles = project.getSourceFiles()
 
   let importFilesList = []
 
   for (const sf of sourceFiles) {
-    const refSourceFiles = sf.getReferencedSourceFiles()
-    refSourceFiles.forEach((refSourceFile) => {
-      if (refSourceFile.getText().indexOf('SummerPlugin') > 0) {
-        const found = slash(refSourceFile.getFilePath()).match(/@summer-js\/[^/]+/)
-        if (found) {
-          if (found[0] !== '@summer-js/summer') {
-            PLUGINS.push(found[0])
+    ;['default.config.ts', process.env.SUMMER_ENV + '.config.ts'].forEach((configFileName) => {
+      if (sf.getFilePath().indexOf(configFileName) > 0) {
+        const refSourceFiles = sf.getReferencedSourceFiles()
+        refSourceFiles.forEach((refSourceFile) => {
+          const found = slash(refSourceFile.getFilePath()).match(/@summer-js\/[^/]+/)
+          if (found) {
+            if (found[0] !== '@summer-js/summer') {
+              PLUGINS.push(found[0])
+            }
+          } else {
+            refSourceFile.getReferencedSourceFiles().forEach((refSf) => {
+              const found = slash(refSf.getFilePath()).match(/@summer-js\/[^/]+/)
+              if (found) {
+                if (found[0] !== '@summer-js/summer') {
+                  PLUGINS.push(found[0])
+                }
+              }
+            })
           }
-        }
+        })
       }
     })
   }
