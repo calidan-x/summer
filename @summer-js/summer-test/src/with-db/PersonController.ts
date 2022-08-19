@@ -24,6 +24,7 @@ export class PersonController {
   @Get
   @ApiDoc('获取用户列表', {
     errors: [
+      new ResponseError(500, '错误'),
       new ResponseError(400, { message: '错误1' }),
       new ResponseError(400, { message: '错误2' }),
       { statusCode: 400, description: '请求错误', example: '错误3' },

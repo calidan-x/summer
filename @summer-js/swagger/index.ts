@@ -64,9 +64,7 @@ export interface SwaggerConfig {
   }
   host?: string
   schemes?: ('https' | 'http' | 'ws' | 'wss')[]
-  components?: {
-    securitySchemes?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
-  }
+  securitySchemes?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
 }
 
 interface SwaggerDoc {
@@ -139,7 +137,11 @@ class SwaggerPlugin implements SummerPlugin {
     if (!config.docPath.endsWith('/')) {
       config.docPath = config.docPath + '/'
     }
+    if (config.securitySchemes) {
+      swaggerJson.components = { securitySchemes: config.securitySchemes }
+    }
     Object.assign(swaggerJson, config)
+    delete swaggerJson['securitySchemes']
     const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
     if (serverConfig) {
       if (!serverConfig.static) {
@@ -790,7 +792,7 @@ export class SummerSwaggerUIController {
 
         const errorResponse = {}
         if (api.errors) {
-          api.errors.forEach((resError, counter) => {
+          api.errors.forEach((resError) => {
             if (!errorResponse[resError.statusCode]) {
               errorResponse[resError.statusCode] = {
                 description: '',
@@ -802,14 +804,16 @@ export class SummerSwaggerUIController {
                 }
               }
             }
+            const counter =
+              Object.keys(errorResponse[resError.statusCode].content['application/json'].examples).length + 1
             if (resError instanceof ResponseError) {
-              const codeDesc = resError.body?.message || resError.body?.msg || 'Error' + (counter + 1)
+              const codeDesc = resError.body?.message || resError.body?.msg || 'ERROR ' + counter
               errorResponse[resError.statusCode].content['application/json'].examples[codeDesc] = {
                 value: resError.body
               }
             } else {
               const codeDesc =
-                resError.description || resError.example?.message || resError.example?.msg || 'Error' + (counter + 1)
+                resError.description || resError.example?.message || resError.example?.msg || 'ERROR ' + counter
               errorResponse[resError.statusCode].content['application/json'].examples[codeDesc] = {
                 value: resError.example
               }
