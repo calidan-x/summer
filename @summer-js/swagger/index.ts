@@ -8,7 +8,8 @@ import {
   addPlugin,
   Logger,
   Ctx,
-  Context
+  Context,
+  ResponseError
 } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
 
@@ -63,14 +64,16 @@ export interface SwaggerConfig {
   }
   host?: string
   schemes?: ('https' | 'http' | 'ws' | 'wss')[]
-  securityDefinitions?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
+  components?: {
+    securitySchemes?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
+  }
 }
 
 interface SwaggerDoc {
-  swagger: string
+  openapi: string
   docPath: string
   readTypeORMComment?: boolean
-  basePath?: string
+  servers?: { url?: string; description?: string }[]
   info: {
     title: string
     description?: string
@@ -87,36 +90,40 @@ interface SwaggerDoc {
   }[]
   schemes?: ('https' | 'http' | 'ws' | 'wss')[]
   paths: Record<
+    // path
     string,
     Record<
+      // method
       string,
       {
         tags: string[]
         summary: string
         description?: string
         operationId?: string
-        consumes?: string[]
         produces?: string[]
+        requestBody?: { required: boolean; content: { 'application/json': { schema: Schema } } }
         parameters?: {
           name: string
-          in: string
+          in: 'path' | 'query' | 'header' | 'cookie'
           description: string
           required: boolean
           schema?: Schema
         }[]
-        responses?: Record<string, { description?: string; schema?: Schema }>
+        responses?: Record<string, { description?: string; content: { 'application/json': { schema?: Schema } } }>
         security?: Record<string, string[]>[]
         deprecated?: boolean
       }
     >
   >
-  securityDefinitions?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
+  components?: {
+    securitySchemes?: Record<string, SecurityDefinitionBasic | SecurityDefinitionApiKey | SecurityDefinitionOAuth2>
+  }
   definitions?: {}
   externalDocs?: { description: string; url: string }
 }
 
 const swaggerJson: SwaggerDoc = {
-  swagger: '2.0',
+  openapi: '3.0.3',
   docPath: '',
   info: { title: '', version: '' },
   tags: [],
@@ -307,7 +314,7 @@ interface ControllerApiDoc {
     request?: any
     response?: any
   }
-  errors?: { statusCode: number | string; description?: string; example: any }[]
+  errors?: ({ statusCode: number | string; description?: string; example: any } | ResponseError)[]
   order?: number
 }
 
@@ -672,6 +679,7 @@ export class SummerSwaggerUIController {
           swaggerJson.paths[docPath] = {}
         }
         const parameters = []
+        let requestBody = undefined
         let isFormBody = false
         params.forEach((param) => {
           const paramType = getParamType(param.paramMethod.toString())
@@ -697,18 +705,24 @@ export class SummerSwaggerUIController {
           if (isFormBody && paramType === 'body') {
             const formProps = getTypeDesc(d0, d2, true).properties
 
+            const multipartFormBody = { type: 'object', properties: {}, required: [] }
+            const required = []
             for (const filed in formProps) {
               let isRequired = true
               if (d0 && typeof d0 === 'function') {
                 isRequired = !Reflect.getMetadata('optional', d0.prototype, filed)
+                if (isRequired) {
+                  required.push(filed)
+                }
               }
-              parameters.push({
-                name: filed,
-                in: 'formData',
-                required: isRequired,
-                type: formProps[filed].type
-              })
+              if (formProps[filed].type === 'file') {
+                multipartFormBody.properties[filed] = { type: 'string', format: 'binary' }
+              } else {
+                multipartFormBody.properties[filed] = { type: formProps[filed].type }
+              }
             }
+            multipartFormBody.required = required
+            requestBody = { content: { 'multipart/form-data': { schema: multipartFormBody } } }
           } else if (paramType === 'queries') {
             const props = getTypeDesc(d0, d2, true).properties
             for (const filed in props) {
@@ -721,15 +735,17 @@ export class SummerSwaggerUIController {
                 in: 'query',
                 description: '',
                 required: isRequired,
-                type: props[filed].type
+                schema: {
+                  type: props[filed].type
+                }
               })
             }
-          } else if (paramType) {
+          } else if (paramType !== 'body') {
             const ptype = getType(d0)
             let isRequired = !(Reflect.getMetadata('optional', api.controller, api.callMethod) || [])[inx]
 
             const parameter: any = {
-              name: paramType === 'body' ? 'body' : param.paramValues[0],
+              name: param.paramValues[0],
               in: paramType,
               required: isRequired
             }
@@ -746,8 +762,8 @@ export class SummerSwaggerUIController {
               schema = {
                 ...getTypeDesc(d0, d2, true)
               }
-            } else if (parameter.in !== 'body') {
-              parameter.type = type
+            } else {
+              parameter.schema = { type }
             }
 
             if (schema) {
@@ -755,19 +771,47 @@ export class SummerSwaggerUIController {
               parameter.schema = schema
             }
             parameters.push(parameter)
+          } else if (paramType === 'body') {
+            const ptype = getType(d0)
+            let schema = null
+            if (d1 === Array) {
+              schema = {
+                type: 'array',
+                items: getTypeDesc(d0, d2, true)
+              }
+            } else if (ptype === 'object') {
+              schema = {
+                ...getTypeDesc(d0, d2, true)
+              }
+            }
+            requestBody = { content: { 'application/json': { schema } } }
           }
         })
 
         const errorResponse = {}
         if (api.errors) {
-          api.errors.forEach((resError) => {
-            const resExample = resError.example
-            errorResponse[resError.statusCode] = {
-              description: resError.description || '',
-              schema: {
-                type: typeof resExample === 'object' ? 'object' : 'string',
-                properties: {},
-                example: resExample
+          api.errors.forEach((resError, counter) => {
+            if (!errorResponse[resError.statusCode]) {
+              errorResponse[resError.statusCode] = {
+                description: '',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object' },
+                    examples: {}
+                  }
+                }
+              }
+            }
+            if (resError instanceof ResponseError) {
+              const codeDesc = resError.body?.message || resError.body?.msg || 'Error' + (counter + 1)
+              errorResponse[resError.statusCode].content['application/json'].examples[codeDesc] = {
+                value: resError.body
+              }
+            } else {
+              const codeDesc =
+                resError.description || resError.example?.message || resError.example?.msg || 'Error' + (counter + 1)
+              errorResponse[resError.statusCode].content['application/json'].examples[codeDesc] = {
+                value: resError.example
               }
             }
           })
@@ -815,12 +859,12 @@ export class SummerSwaggerUIController {
           deprecated: api.deprecated,
           security: security.length > 0 ? security : [],
           operationId: api.summary || api.callMethod,
-          consumes,
           // consumes: ['application/json'],
           // produces: ['application/json'],
           parameters,
+          requestBody,
           responses: {
-            200: { schema, description: '' },
+            200: { description: '', content: { 'application/json': { schema } } },
             ...errorResponse
           }
         }
@@ -828,8 +872,10 @@ export class SummerSwaggerUIController {
     })
 
     const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
-    const basePath = serverConfig.basePath || ''
-    swaggerJson.basePath = basePath
+    const basePath = serverConfig.basePath
+    if (basePath) {
+      swaggerJson.servers = [{ url: basePath }]
+    }
     const outPutJSON = { ...swaggerJson }
     delete outPutJSON.docPath
     delete outPutJSON.readTypeORMComment

@@ -43,11 +43,13 @@ export const SWAGGER_CONFIG: SwaggerConfig = {
   docPath: '/swagger-ui',
   readTypeORMComment: true,
   info: { title: 'Summer', version: '1.0.0' },
-  securityDefinitions: {
-    AppAuth: {
-      type: 'apiKey',
-      in: 'header',
-      name: 'Authorization'
+  components: {
+    securitySchemes: {
+      AppAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization'
+      }
     }
   }
 }

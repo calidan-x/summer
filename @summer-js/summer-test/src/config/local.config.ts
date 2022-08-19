@@ -45,11 +45,13 @@ export const SWAGGER_CONFIG: SwaggerConfig = {
     // description: 'Last build at: ' + new Date(Number(process.env.SUMMER_BUILD_TIME)),
     version: '1.0.0'
   },
-  securityDefinitions: {
-    AppAuth: {
-      type: 'apiKey',
-      in: 'header',
-      name: 'Authorization'
+  components: {
+    securitySchemes: {
+      AppAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization'
+      }
     }
   }
 }
