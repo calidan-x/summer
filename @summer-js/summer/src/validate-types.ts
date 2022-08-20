@@ -237,12 +237,16 @@ export const validateAndConvertType = (
       try {
         arrayValue = typeof propertyValue === 'string' ? JSON.parse(propertyValue) : propertyValue
       } catch (e) {
-        allErrors.push({
-          param: errorParam,
-          message:
-            'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to ' + (d0?.name || 'array') + '[]'
-        })
-        break
+        if ((d0 === _Int || d0 === Number) && typeof propertyValue === 'string') {
+          arrayValue = propertyValue.split(',')
+        } else {
+          allErrors.push({
+            param: errorParam,
+            message:
+              'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to ' + (d0?.name || 'array') + '[]'
+          })
+          break
+        }
       }
       if (!Array.isArray(arrayValue)) {
         allErrors.push({

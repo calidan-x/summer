@@ -70,7 +70,7 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
 }
 
 const addFileImport = (typeString, clazz) => {
-  if (typeString && typeString.startsWith('import("')) {
+  if (typeString && typeString.indexOf('import("') >= 0) {
     let statement = ''
     while (true) {
       const importReg = /import\("([^"]+)"\)\.([^<^>^\[^\]]+)/
@@ -146,13 +146,6 @@ const addPropDecorator = (cls) => {
       )
     }
   })
-
-  if (cls.getExtends()) {
-    const extendClass = cls.getExtends().getExpression().getType().getSymbolOrThrow().getDeclarations()[0]
-    if (!extendClass.getSourceFile().getFilePath().endsWith('.d.ts')) {
-      addPropDecorator(extendClass)
-    }
-  }
 }
 
 const addClassAndEnum = (sf, allTypeMapping) => {
@@ -316,6 +309,48 @@ const checkError = () => {
     compiling = false
     return true
   }
+
+  const importFileActions = []
+  for (const sf of project.getSourceFiles()) {
+    for (const cls of sf.getClasses()) {
+      for (const classDecorator of cls.getDecorators()) {
+        if (classDecorator.getName() === 'Controller') {
+          for (const cMethod of cls.getMethods()) {
+            if (cMethod.getText().indexOf('return ') > 0) {
+              let returnType = cMethod.getReturnType()
+              let returnTypeStr = returnType.getText(cls)
+
+              if (returnTypeStr.startsWith('Promise<')) {
+                returnType = returnType.getTypeArguments()[0]
+                returnTypeStr = returnType.getText(cls)
+              }
+              if (returnTypeStr.indexOf('|') > 0) {
+                console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:\n')
+                console.error('\x1b[31m%s\x1b[0m', cls.getSourceFile().getFilePath())
+                console.error(
+                  '\x1b[31m%s\x1b[0m',
+                  cls.getName() + '.' + cMethod.getName() + '()' + ' should return consistent type for api response'
+                )
+                console.error('\x1b[31m%s\x1b[0m', '# ' + returnTypeStr.replace(/import\("[^"]+"\)\./g, '') + '\n')
+                console.error('\x1b[31m%s\x1b[0m', 'Or add "as any" to return type to ignore this error')
+                compiling = false
+              }
+              importFileActions.push([returnTypeStr, cls])
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (!compiling) {
+    return true
+  }
+
+  for (const action of importFileActions) {
+    addFileImport(...action)
+  }
+
   return false
 }
 
@@ -475,7 +510,7 @@ const compile = async () => {
                   returnType = returnType.getTypeArguments()[0]
                   returnTypeStr = returnType.getText(cls)
                 }
-                addFileImport(returnTypeStr, cls)
+
                 returnTypeStr = returnType.getText(cls)
               }
 

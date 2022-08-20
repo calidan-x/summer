@@ -16,8 +16,8 @@ export const endTest = async () => {
 
 interface RequestParams {
   body?: any
-  queries?: any
-  headers?: any
+  queries?: Record<string, any>
+  headers?: Record<string, any>
 }
 
 type TestResponse = {
@@ -70,35 +70,58 @@ const parseUrl = (requestPath: string) => {
   return { path, queries }
 }
 
-export const request = {
+export class Request {
+  #headers = {}
+
+  constructor(options: { headers: Record<string, any> } = { headers: {} }) {
+    this.#headers = options.headers
+  }
+
+  setHeaders(headers: Record<string, any> = {}) {
+    this.#headers = headers
+  }
+
   async get(requestPath: string, requestParams: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     requestParams.queries = merge(queries, requestParams.queries || {})
+    requestParams.headers = merge(this.#headers, requestParams.headers || {})
     return await sendRequest('GET', path, requestParams)
-  },
+  }
+
   async post(requestPath: string, requestParams: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     requestParams.queries = merge(queries, requestParams.queries || {})
+    requestParams.headers = merge(this.#headers, requestParams.headers || {})
     return await sendRequest('POST', path, requestParams)
-  },
+  }
+
   async put(requestPath: string, requestParams: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     requestParams.queries = merge(queries, requestParams.queries || {})
+    requestParams.headers = merge(this.#headers, requestParams.headers || {})
     return await sendRequest('PUT', path, requestParams)
-  },
+  }
+
   async delete(requestPath: string, requestParams: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     requestParams.queries = merge(queries, requestParams.queries || {})
+    requestParams.headers = merge(this.#headers, requestParams.headers || {})
     return await sendRequest('DELETE', path, requestParams)
-  },
+  }
+
   async patch(requestPath: string, requestParams: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     requestParams.queries = merge(queries, requestParams.queries || {})
+    requestParams.headers = merge(this.#headers, requestParams.headers || {})
     return await sendRequest('PATCH', path, requestParams)
-  },
+  }
+
   async options(requestPath: string, requestParams: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     requestParams.queries = merge(queries, requestParams.queries || {})
+    requestParams.headers = merge(this.#headers, requestParams.headers || {})
     return await sendRequest('OPTIONS', path, requestParams)
   }
 }
+
+export const request = new Request()

@@ -99,7 +99,7 @@ interface SwaggerDoc {
         description?: string
         operationId?: string
         produces?: string[]
-        requestBody?: { required: boolean; content: { 'application/json': { schema: Schema } } }
+        requestBody?: { required: boolean; content: Record<string, { schema: Schema }> }
         parameters?: {
           name: string
           in: 'path' | 'query' | 'header' | 'cookie'
@@ -107,7 +107,7 @@ interface SwaggerDoc {
           required: boolean
           schema?: Schema
         }[]
-        responses?: Record<string, { description?: string; content: { 'application/json': { schema?: Schema } } }>
+        responses?: Record<string, { description?: string; content: Record<string, { schema?: Schema }> }>
         security?: Record<string, string[]>[]
         deprecated?: boolean
       }
@@ -742,7 +742,7 @@ export class SummerSwaggerUIController {
                 }
               })
             }
-          } else if (paramType !== 'body') {
+          } else if (paramType !== 'body' && paramType) {
             const ptype = getType(d0)
             let isRequired = !(Reflect.getMetadata('optional', api.controller, api.callMethod) || [])[inx]
 
@@ -831,11 +831,6 @@ export class SummerSwaggerUIController {
 
         const isArray = d1 === Array
 
-        const consumes = []
-        if (parameters.find((p) => p.type === 'file')) {
-          consumes.push('multipart/form-data')
-        }
-
         const security = [...findSecurity(api.controllerName), ...(api.security || [])]
 
         // response structure
@@ -863,12 +858,13 @@ export class SummerSwaggerUIController {
           deprecated: api.deprecated,
           security: security.length > 0 ? security : [],
           operationId: api.summary || api.callMethod,
-          // consumes: ['application/json'],
-          // produces: ['application/json'],
           parameters,
           requestBody,
           responses: {
-            200: { description: '', content: { 'application/json': { schema } } },
+            200: {
+              description: '',
+              content: { [schema.type === 'string' ? 'text/html' : 'application/json']: { schema } }
+            },
             ...errorResponse
           }
         }

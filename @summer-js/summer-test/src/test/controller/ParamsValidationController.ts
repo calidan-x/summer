@@ -173,7 +173,7 @@ export class ParamsValidationController {
     }
     let type = typeof value
 
-    return { type, value }
+    return { type, value } as any
   }
 
   @Get('/request-queries')
@@ -184,7 +184,7 @@ export class ParamsValidationController {
   @Post('/request-body-value')
   async requestBodyValue(@Body dog: Dog) {
     let type = typeof dog
-    return { type, value: dog }
+    return { type, value: dog } as any
   }
 
   @Post('/request-key-validate/optional')

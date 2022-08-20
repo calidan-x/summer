@@ -149,7 +149,7 @@ export class SwaggerController {
     if (a) {
       return ''
     }
-    return [1, 2]
+    return [1, 2] as any
   }
 
   @Get('/multi-return')
@@ -268,7 +268,7 @@ export class SwaggerController {
 
   @Put('/service-mixed-type-return')
   async serviceMixTypeClass() {
-    return this.swaggerService.getMixType()
+    return this.swaggerService.getMixType() as any
   }
 
   @Put('/service-paging-return')
