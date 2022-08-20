@@ -38,7 +38,7 @@ export const getDataSource = (dataSourceName: string) => {
 class TypeORMPlugin implements SummerPlugin {
   configKey = 'TYPEORM_CONFIG'
 
-  compile(clazz: ClassDeclaration) {
+  compile(clazz: ClassDeclaration, modifyActions: (() => void)[]) {
     let isSummerTypeOrmDeclare = false
     let isEntity = false
     for (const classDecorator of clazz.getDecorators()) {
@@ -58,24 +58,28 @@ class TypeORMPlugin implements SummerPlugin {
           }
         }
       })
-      clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllEntities'"] })
-      clazz.getChildren()[0].replaceWithText(
-        clazz
-          .getChildren()[0]
-          .getText()
-          .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
-      )
+      modifyActions.push(() => {
+        clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllEntities'"] })
+        clazz.getChildren()[0].replaceWithText(
+          clazz
+            .getChildren()[0]
+            .getText()
+            .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
+        )
+      })
     }
 
     const imps = clazz.getImplements()
     if (imps.length > 0 && imps[0].getText() === 'MigrationInterface') {
-      clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllMigrations'"] })
-      clazz.getChildren()[0].replaceWithText(
-        clazz
-          .getChildren()[0]
-          .getText()
-          .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
-      )
+      modifyActions.push(() => {
+        clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllMigrations'"] })
+        clazz.getChildren()[0].replaceWithText(
+          clazz
+            .getChildren()[0]
+            .getText()
+            .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
+        )
+      })
     }
 
     if (!isSummerTypeOrmDeclare) {

@@ -102,10 +102,12 @@ const addFileImport = (typeString, clazz) => {
       }
     }
 
-    clazz
-      .getSourceFile()
-      .getImportDeclarations()[0]
-      .replaceWithText(statement + clazz.getSourceFile().getImportDeclarations()[0].getText())
+    if (statement) {
+      clazz
+        .getSourceFile()
+        .getImportDeclarations()[0]
+        .replaceWithText(statement + clazz.getSourceFile().getImportDeclarations()[0].getText())
+    }
   }
 }
 
@@ -137,13 +139,15 @@ const addPropDecorator = (cls) => {
     }
 
     if (pendingDecorators.length) {
-      p.addDecorators(pendingDecorators)
-      p.replaceWithText(
-        p
-          .getText()
-          .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
-          .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
-      )
+      modifyActions.push(() => {
+        p.addDecorators(pendingDecorators)
+        p.replaceWithText(
+          p
+            .getText()
+            .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
+            .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
+        )
+      })
     }
   })
 }
@@ -236,15 +240,9 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
   if (declareLine.indexOf('<') > 0) {
     const baseType = paramType.getText(parameter).replace(/<.+>/, '').replace('[]', '')
-    // const genericArgs = declareLine.replace(/<(.+)>/, '$1').split(',')
     const typeArgs = paramType
       .getTypeArguments()
       .map((tArg, inx) => {
-        // fs.appendFileSync('debug.txt', genericArgs[inx] + ' ' + tArg.getText(parameter) + '\n')
-        // let tArgText = tArg.getText(parameter)
-        // if (genericArgs[inx].trim().replace('int', 'number') === tArg.getText(parameter)) {
-        //   tArgText = tArgText.replace('number', 'int')
-        // }
         addFileImport(tArg.getText(parameter), parameter)
         return getDeclareType(':' + tArg.getText(parameter), parameter, tArg, typeParams)
       })
@@ -301,6 +299,8 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
   return type
 }
 
+let modifyActions = []
+
 const checkError = () => {
   const diagnostics = project.getPreEmitDiagnostics()
   if (diagnostics.length > 0) {
@@ -310,33 +310,32 @@ const checkError = () => {
     return true
   }
 
-  const importFileActions = []
   for (const sf of project.getSourceFiles()) {
     for (const cls of sf.getClasses()) {
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller') {
           for (const cMethod of cls.getMethods()) {
-            if (cMethod.getText().indexOf('return ') > 0) {
-              let returnType = cMethod.getReturnType()
-              let returnTypeStr = returnType.getText(cls)
+            let returnType = cMethod.getReturnType()
+            let returnTypeStr = returnType.getText(cls)
 
-              if (returnTypeStr.startsWith('Promise<')) {
-                returnType = returnType.getTypeArguments()[0]
-                returnTypeStr = returnType.getText(cls)
-              }
-              if (returnTypeStr.indexOf('|') > 0) {
-                console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:\n')
-                console.error('\x1b[31m%s\x1b[0m', cls.getSourceFile().getFilePath())
-                console.error(
-                  '\x1b[31m%s\x1b[0m',
-                  cls.getName() + '.' + cMethod.getName() + '()' + ' should return consistent type for api response'
-                )
-                console.error('\x1b[31m%s\x1b[0m', '# ' + returnTypeStr.replace(/import\("[^"]+"\)\./g, '') + '\n')
-                console.error('\x1b[31m%s\x1b[0m', 'Or add "as any" to return type to ignore this error')
-                compiling = false
-              }
-              importFileActions.push([returnTypeStr, cls])
+            if (returnTypeStr.startsWith('Promise<')) {
+              returnType = returnType.getTypeArguments()[0]
+              returnTypeStr = returnType.getText(cls)
             }
+            if (returnTypeStr.indexOf('|') > 0) {
+              console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:\n')
+              console.error('\x1b[31m%s\x1b[0m', cls.getSourceFile().getFilePath())
+              console.error(
+                '\x1b[31m%s\x1b[0m',
+                cls.getName() + '.' + cMethod.getName() + '()' + ' should return consistent type for api response'
+              )
+              console.error('\x1b[31m%s\x1b[0m', '# ' + returnTypeStr.replace(/import\("[^"]+"\)\./g, '') + '\n')
+              console.error('\x1b[31m%s\x1b[0m', 'Or add "as any" to return type to ignore this error')
+              compiling = false
+            }
+            modifyActions.push(() => {
+              addFileImport(returnTypeStr, cls)
+            })
           }
         }
       }
@@ -345,10 +344,6 @@ const checkError = () => {
 
   if (!compiling) {
     return true
-  }
-
-  for (const action of importFileActions) {
-    addFileImport(...action)
   }
 
   return false
@@ -360,6 +355,7 @@ const updateFileList = []
 const compile = async () => {
   compiling = true
   const pluginIncs = []
+  modifyActions = []
 
   console.log('COMPILE_START')
 
@@ -401,6 +397,12 @@ const compile = async () => {
   if (checkError()) {
     return
   }
+
+  modifyActions.forEach((action) => {
+    action()
+  })
+
+  modifyActions = []
 
   updateFileList.splice(0, updateFileList.length)
 
@@ -456,6 +458,8 @@ const compile = async () => {
 
   let compileCounter = 0
   for (const sf of sourceFiles) {
+    console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 150) / sourceFiles.length / 10).toFixed(0) + '% ]')
+
     compileCounter++
 
     if (sf.getFilePath().endsWith('.d.ts') || (watch && sf.getFilePath().endsWith('.test.ts'))) {
@@ -495,36 +499,41 @@ const compile = async () => {
                       arguments: []
                     })
                   }
-                  param.addDecorators(decorators)
+                  modifyActions.push(() => {
+                    param.addDecorators(decorators)
+                  })
                 }
               })
 
               /// return type
+
               let returnType = null
               let returnTypeStr = 'void'
-              if (cMethod.getText().indexOf('return ') > 0) {
-                returnType = cMethod.getReturnType()
-                returnTypeStr = returnType.getText(cls)
 
-                if (returnTypeStr.startsWith('Promise<')) {
-                  returnType = returnType.getTypeArguments()[0]
-                  returnTypeStr = returnType.getText(cls)
-                }
+              returnType = cMethod.getReturnType()
+              returnTypeStr = returnType.getText(cls)
 
+              if (returnTypeStr.startsWith('Promise<')) {
+                returnType = returnType.getTypeArguments()[0]
                 returnTypeStr = returnType.getText(cls)
               }
 
-              cMethod.addDecorator({
-                name: '_ReturnDeclareType',
-                arguments: [getDeclareType(':' + returnTypeStr, cls, returnType)]
-              })
+              returnTypeStr = returnType.getText(cls)
+              const declareType = getDeclareType(':' + returnTypeStr, cls, returnType)
 
-              cMethod.getChildren()[0].replaceWithText(
-                cMethod
-                  .getChildren()[0]
-                  .getText()
-                  .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
-              )
+              modifyActions.push(() => {
+                cMethod.addDecorator({
+                  name: '_ReturnDeclareType',
+                  arguments: [declareType]
+                })
+
+                cMethod.getChildren()[0].replaceWithText(
+                  cMethod
+                    .getChildren()[0]
+                    .getText()
+                    .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
+                )
+              })
             }
           })
         } else if (classDecorator.getName() === 'RpcClient') {
@@ -560,9 +569,11 @@ const compile = async () => {
               })
             }
           })
-          cls.addMethods(pendingMethods)
-          pendingProperties.forEach((p) => {
-            p.remove()
+          modifyActions.push(() => {
+            cls.addMethods(pendingMethods)
+            pendingProperties.forEach((p) => {
+              p.remove()
+            })
           })
         }
       }
@@ -574,32 +585,34 @@ const compile = async () => {
             if (cpd.getName() === 'Send') {
               const callSignature = classProperty.getType().getCallSignatures()[0]
               const returnPromiseType = callSignature.getReturnType().getTypeArguments()[0]
-              classProperty.addDecorators([
-                {
-                  name: '_ReturnDeclareType',
-                  arguments: [
-                    getDeclareType(
-                      ':' + (returnPromiseType ? returnPromiseType.getText(cls) : ''),
-                      classProperty,
-                      returnPromiseType
-                    )
-                  ]
-                }
-              ])
+              modifyActions.push(() => {
+                classProperty.addDecorators([
+                  {
+                    name: '_ReturnDeclareType',
+                    arguments: [
+                      getDeclareType(
+                        ':' + (returnPromiseType ? returnPromiseType.getText(cls) : ''),
+                        classProperty,
+                        returnPromiseType
+                      )
+                    ]
+                  }
+                ])
 
-              classProperty.getChildren()[0].replaceWithText(
-                classProperty
-                  .getChildren()[0]
-                  .getText()
-                  .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
-              )
+                classProperty.getChildren()[0].replaceWithText(
+                  classProperty
+                    .getChildren()[0]
+                    .getText()
+                    .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
+                )
+              })
             }
           }
         }
       }
 
       for (const p of pluginIncs) {
-        p.compile && (await p.compile(cls))
+        p.compile && (await p.compile(cls, modifyActions))
         for (const classDecorator of cls.getDecorators()) {
           if (autoImportDecorators.includes(classDecorator.getName())) {
             importFilesList.push(
@@ -609,11 +622,14 @@ const compile = async () => {
         }
       }
     }
-
-    console.log('COMPILE_PROGRESS(' + compileCounter + '/' + sourceFiles.length + ')')
   }
 
-  console.log('COMPILE_PROGRESS(' + sourceFiles.length + '/' + sourceFiles.length + ')')
+  modifyActions.forEach((action, inx) => {
+    console.log('COMPILE_PROGRESS [ ' + (((inx * 850) / modifyActions.length + 150) / 10).toFixed(0) + '% ]')
+    action()
+  })
+
+  console.log('COMPILE_PROGRESS [ 100% ]')
 
   const statements = []
   statements.push(`process.env.SUMMER_VERSION = "${summerPackage.version}";`)
@@ -647,11 +663,6 @@ const compile = async () => {
   indexSourceFile.refreshFromFileSystemSync()
   indexSourceFile.getChildAtIndex(0).replaceWithText(statements.join('') + indexSourceFile.getChildAtIndex(0).getText())
   project.resolveSourceFileDependencies()
-
-  // if (checkError()) {
-  //   firstCompile = false
-  //   return
-  // }
 
   if (updateFileList.length > 0) {
     compile()

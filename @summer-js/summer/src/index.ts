@@ -16,7 +16,7 @@ export { File } from './validate-types'
 
 export interface SummerPlugin {
   configKey: string
-  compile?: (clazz: ClassDeclaration) => void
+  compile?: (clazz: ClassDeclaration, modifyActions: (() => void)[]) => void
   postCompile?: () => void
   init: (config: any) => void
   destroy?: () => void

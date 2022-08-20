@@ -180,7 +180,7 @@ class SwaggerPlugin implements SummerPlugin {
     }
   }
 
-  compile(clazz: ClassDeclaration) {
+  compile(clazz: ClassDeclaration, modifyActions: (() => void)[]) {
     for (const classDecorator of clazz.getDecorators()) {
       // remember return type and add api doc
       if (classDecorator.getName() === 'ApiDocGroup') {
@@ -205,13 +205,25 @@ class SwaggerPlugin implements SummerPlugin {
                     })
                   })
                 if (!hasImport) {
-                  m.getSourceFile().addImportDeclaration({
-                    namedImports: ['ApiDoc'],
-                    moduleSpecifier: '@summer-js/swagger'
+                  modifyActions.push(() => {
+                    m.getSourceFile()
+                      .getImportDeclarations()[0]
+                      .replaceWithText(
+                        "import {ApiDoc} from '@summer-js/swagger'" +
+                          m.getSourceFile().getImportDeclarations()[0].getText()
+                      )
                   })
                 }
               }
-              m.addDecorator({ name: 'ApiDoc', arguments: ["''"] })
+              modifyActions.push(() => {
+                m.addDecorator({ name: 'ApiDoc', arguments: ["''"] })
+                m.getChildren()[0].replaceWithText(
+                  m
+                    .getChildren()[0]
+                    .getText()
+                    .replace(/\n[^\n]*@ApiDoc/g, ' @ApiDoc')
+                )
+              })
               apiDoc = true
             }
           }

@@ -35,7 +35,7 @@ const printProcessData = (p) => {
           isProgressCommand = true
           return
         } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
-          spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
+          spinner.text = 'Compiling...' + data.trim().replace('COMPILE_PROGRESS', '')
           isProgressCommand = true
           return
         }
@@ -94,7 +94,7 @@ program
                 serveProcess = null
               }
             } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
-              spinner.text = 'Compiling' + data.trim().replace('COMPILE_PROGRESS', '') + '...'
+              spinner.text = 'Compiling...' + data.trim().replace('COMPILE_PROGRESS', '')
             } else if (data.trim().startsWith('COMPILE_DONE')) {
               spinner.text = 'Starting...'
               if (fs.existsSync('./compile/index.js')) {
