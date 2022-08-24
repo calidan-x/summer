@@ -120,7 +120,7 @@ export const validateAndConvertType = (
     case Number:
     case _Int:
       const numVal = Number(propertyValue)
-      if (typeof propertyValue === 'boolean') {
+      if (typeof propertyValue === 'boolean' || propertyValue === null) {
         allErrors.push({
           param: errorParam,
           message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a number'

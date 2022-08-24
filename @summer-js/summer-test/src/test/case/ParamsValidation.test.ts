@@ -69,6 +69,7 @@ describe('Controller Params Test', () => {
 
   test('test number type request value', async () => {
     await testErrorRequestParam('hello', 'number', 'is not a number')
+    await testErrorRequestParam(null, 'number', 'is not a number')
     await testRequestParam('123', 'number', 123)
     await testRequestParam('123.123', 'number', 123.123)
     await testRequestParam('-123', 'number', -123)
@@ -77,6 +78,7 @@ describe('Controller Params Test', () => {
   test('test int type request value', async () => {
     await testErrorRequestParam('hello', 'int', 'is not an integer')
     await testErrorRequestParam('123.123', 'int', 'is not an integer')
+    await testErrorRequestParam(null, 'int', 'is not an integer')
     await testRequestParam('123', 'int', 123)
     await testRequestParam('-123', 'int', -123)
   })
