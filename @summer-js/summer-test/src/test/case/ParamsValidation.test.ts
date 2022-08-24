@@ -181,7 +181,7 @@ describe('Controller Params Test', () => {
     await testErrorRequestParam('str', 'fixedString', 'is not in [\\"str:ing\\"]')
   })
 
-  test('test optional and required and empty key', async () => {
+  test('test ignore unknown key', async () => {
     let result = await request.post('/request-key-validate/ignore-unknown-props', {
       body: { a: 123, b: 'str', c: 100 }
     })
@@ -211,8 +211,14 @@ describe('Controller Params Test', () => {
     result = await request.post('/request-key-validate/optional', {
       body: { optionalKey: null, requiredKey: 'requiredKey' }
     })
-    expect(result.statusCode).toBe(400)
-    expect(result.rawBody).toContain('null is not a string')
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toStrictEqual({ optionalKey: null, requiredKey: 'requiredKey' })
+
+    result = await request.post('/request-key-validate/optional', {
+      body: { optionalInteger: null, requiredKey: 'requiredKey' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toStrictEqual({ optionalInteger: null, requiredKey: 'requiredKey' })
 
     result = await request.post('/request-key-validate/optional', {
       body: { optionalKey: 'optionalKey' }

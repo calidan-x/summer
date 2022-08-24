@@ -34,6 +34,7 @@ enum StringEnum {
 class OptionalRequest {
   optionalKey?: string
   requiredKey: string
+  optionalInteger?: int
 }
 
 @IgnoreUnknownProperties

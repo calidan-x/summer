@@ -47,7 +47,7 @@ describe('Config Test', () => {
 
   test('test auth', async () => {
     let result = await request.get('/userinfo')
-    expect(result.body).toBe('')
+    expect(result.rawBody).toContain("'uid' is required")
 
     var token = jwt.sign({ uid: 1, name: 'Tom' }, 'xxxxxxxx')
     result = await request.get('/userinfo', { headers: { authentication: token } })
