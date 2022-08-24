@@ -74,6 +74,6 @@ export const Email: ValidateDecoratorType = (...args) => {
 }
 
 export const Validate =
-  (validateFunction: (value: any) => boolean) =>
+  (validateFunction: (value: any) => boolean | string) =>
   (...arg) =>
     defineMetaValue(arg, 'validate', validateFunction)

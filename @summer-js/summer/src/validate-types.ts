@@ -550,10 +550,11 @@ const customValidate = (
   const validateFunc = getMetaData('validate', instance, methodName, paramIndex, propName)
   if (validateFunc) {
     try {
-      if (!validateFunc(propValue)) {
+      const err = validateFunc(propValue)
+      if (err !== true) {
         errors.push({
           param: errorParam,
-          message: `${typeDisplayText(propValue, isFirstLevel)} is invalid`
+          message: err || `${typeDisplayText(propValue, isFirstLevel)} is invalid`
         })
       }
     } catch (err) {

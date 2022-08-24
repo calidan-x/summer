@@ -357,16 +357,17 @@ describe('Controller Params Test', () => {
 
   test('test @Validate', async () => {
     let result = await request.post('/request-key-validate/custom-validate', {
-      body: { value: 'aaaaa,bbbb' }
+      body: { value: 'aaaaa,bbbb', value2: 'aaaaa,bbbb' }
     })
 
     expect(result.statusCode).toBe(200)
-    expect(result.body).toStrictEqual({ value: 'aaaaa,bbbb' })
+    expect(result.body).toStrictEqual({ value: 'aaaaa,bbbb', value2: 'aaaaa,bbbb' })
 
     result = await request.post('/request-key-validate/custom-validate', {
-      body: { value: 'cccccc' }
+      body: { value: 'cccccc', value2: 'sssss' }
     })
     expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('Data must has')
     expect(result.rawBody).toContain('is invalid')
   })
 

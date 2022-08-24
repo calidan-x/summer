@@ -79,9 +79,19 @@ class PatternRequest {
 
 class CustomValidateRequest {
   @Validate((val: string) => {
-    return val.indexOf(',') > 0
+    if (val.indexOf(',') > 0) {
+      return true
+    }
+    return 'Data must has ,'
   })
   value: string
+
+  @Validate((val: string) => {
+    if (val.indexOf(',') > 0) {
+      return true
+    }
+  })
+  value2: string
 }
 
 enum GenderNum {

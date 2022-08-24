@@ -118,7 +118,6 @@ const addPropDecorator = (cls) => {
   }
 
   ALLTypeMapping = { ...TypeMapping }
-  addClassAndEnum(cls.getSourceFile(), ALLTypeMapping)
 
   const typeParameters = cls.getTypeParameters().map((tp) => tp.getText(cls))
   cls.getProperties().forEach((p) => {
@@ -148,34 +147,6 @@ const addPropDecorator = (cls) => {
             .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
         )
       })
-    }
-  })
-}
-
-const addClassAndEnum = (sf, allTypeMapping) => {
-  // add enum
-  sf.getEnums().forEach((sfEnum) => {
-    const enumName = sfEnum.getName()
-    allTypeMapping[enumName] = `[()=>${enumName}]`
-    allTypeMapping[enumName + '[]'] = `[()=>${enumName},Array]`
-  })
-
-  // add class
-  sf.getClasses().forEach((clz) => {
-    const className = clz.getName()
-    allTypeMapping[className] = `[()=>${className}]`
-    allTypeMapping[className + '[]'] = `[()=>${className},Array]`
-  })
-
-  // add import class
-  sf.getReferencedSourceFiles().forEach((rsf) => {
-    if (!rsf.getFilePath().endsWith('.d.ts')) {
-      for (const [name, declarations] of rsf.getExportedDeclarations()) {
-        if (declarations[0] instanceof ClassDeclaration || declarations[0] instanceof EnumDeclaration) {
-          allTypeMapping[name] = `[()=>${name}]`
-          allTypeMapping[name + '[]'] = `[()=>${name},Array]`
-        }
-      }
     }
   })
 }
@@ -349,10 +320,9 @@ const checkError = () => {
   return false
 }
 
-let firstCompile = true
 let compiling = false
 const updateFileList = []
-const compile = async () => {
+const compile = async (compileAll = false) => {
   compiling = true
   const pluginIncs = []
   modifyActions = []
@@ -374,7 +344,11 @@ const compile = async () => {
     }
     if (['unlink'].includes(event)) {
       try {
-        project.removeSourceFile(project.getSourceFileOrThrow(updatePath))
+        const unlinkSourceFile = project.getSourceFileOrThrow(updatePath)
+        getAllReferencingSourceFiles(unlinkSourceFile, dirtyFiles)
+        const inx = dirtyFiles.findIndex((sf) => sf === unlinkSourceFile)
+        dirtyFiles.splice(inx, 1)
+        project.removeSourceFile(unlinkSourceFile)
       } catch (e) {}
     }
   }
@@ -389,7 +363,6 @@ const compile = async () => {
   })
 
   if (hasError) {
-    firstCompile = false
     compiling = false
     return
   }
@@ -403,7 +376,6 @@ const compile = async () => {
   })
 
   modifyActions = []
-
   updateFileList.splice(0, updateFileList.length)
 
   const sourceFiles = project.getSourceFiles()
@@ -458,8 +430,6 @@ const compile = async () => {
 
   let compileCounter = 0
   for (const sf of sourceFiles) {
-    console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 150) / sourceFiles.length / 10).toFixed(0) + '% ]')
-
     compileCounter++
 
     if (sf.getFilePath().endsWith('.d.ts') || (watch && sf.getFilePath().endsWith('.test.ts'))) {
@@ -475,7 +445,7 @@ const compile = async () => {
       }
     }
 
-    if (!firstCompile && !dirtyFiles.includes(sf)) {
+    if (!dirtyFiles.includes(sf) && !compileAll) {
       continue
     }
 
@@ -506,7 +476,6 @@ const compile = async () => {
               })
 
               /// return type
-
               let returnType = null
               let returnTypeStr = 'void'
 
@@ -521,12 +490,11 @@ const compile = async () => {
               returnTypeStr = returnType.getText(cls)
               const declareType = getDeclareType(':' + returnTypeStr, cls, returnType)
 
-              modifyActions.push(() => {
+              modifyActions.splice(0, 0, () => {
                 cMethod.addDecorator({
                   name: '_ReturnDeclareType',
                   arguments: [declareType]
                 })
-
                 cMethod.getChildren()[0].replaceWithText(
                   cMethod
                     .getChildren()[0]
@@ -583,9 +551,9 @@ const compile = async () => {
         for (const classProperty of cls.getMethods()) {
           for (const cpd of classProperty.getDecorators()) {
             if (cpd.getName() === 'Send') {
-              const callSignature = classProperty.getType().getCallSignatures()[0]
-              const returnPromiseType = callSignature.getReturnType().getTypeArguments()[0]
-              modifyActions.push(() => {
+              modifyActions.splice(0, 0, () => {
+                const callSignature = classProperty.getType().getCallSignatures()[0]
+                const returnPromiseType = callSignature.getReturnType().getTypeArguments()[0]
                 classProperty.addDecorators([
                   {
                     name: '_ReturnDeclareType',
@@ -622,6 +590,7 @@ const compile = async () => {
         }
       }
     }
+    console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 150) / sourceFiles.length / 10).toFixed(0) + '% ]')
   }
 
   modifyActions.forEach((action, inx) => {
@@ -669,20 +638,19 @@ const compile = async () => {
     return
   }
 
-  if (firstCompile) {
+  if (compileAll) {
     project.emitSync()
   } else {
     dirtyFiles.forEach((df) => {
       project.emitSync({ targetSourceFile: df })
     })
-    project.emitSync({ targetSourceFile: indexSourceFile })
   }
+  project.emitSync({ targetSourceFile: indexSourceFile })
 
   for (const p of pluginIncs) {
     p.postCompile && (await p.postCompile())
   }
 
-  firstCompile = false
   console.log('COMPILE_DONE')
   compiling = false
 }
@@ -691,7 +659,7 @@ let compileTimer = null
 if (watch) {
   const fileHashes = {}
   const watchDir = './src/'
-  const watcher = chokidar
+  chokidar
     .watch(watchDir, { awaitWriteFinish: { stabilityThreshold: 39, pollInterval: 100 } })
     .on('all', async (event, path) => {
       if (fs.existsSync('./' + path)) {
@@ -701,36 +669,27 @@ if (watch) {
         const md5 = crypto.createHash('md5')
         const currentMD5 = md5.update(fs.readFileSync('./' + path).toString()).digest('hex')
 
-        if (!fileHashes[path] && firstCompile) {
+        if (!fileHashes[path]) {
           fileHashes[path] = currentMD5
+        } else if (currentMD5 === fileHashes[path]) {
           return
         }
-
-        if (currentMD5 === fileHashes[path]) {
-          return
-        }
-
         fileHashes[path] = currentMD5
       } else {
         delete fileHashes[path]
       }
       updateFileList.push({ event, updatePath: path })
-      if (compiling) {
-        return
-      }
 
       if (compileTimer) {
         clearTimeout(compileTimer)
       }
-      compileTimer = setTimeout(() => {
+      compileTimer = setTimeout(async () => {
         compileTimer = null
-        compile()
+        const timeStart = Date.now()
+        await compile()
+        // console.log(' Compile Time: ' + (Date.now() - timeStart) / 1000 + 's\n')
       }, 40)
     })
-
-  watcher.on('ready', async () => {
-    await compile()
-  })
 } else {
-  compile()
+  compile(true)
 }

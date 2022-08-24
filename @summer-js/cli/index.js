@@ -44,18 +44,24 @@ const printProcessData = (p) => {
         process.stdout.write(dataLines)
       }
     } else {
-      spinner.stop()
+      if (spinner.isSpinning) {
+        spinner.stop()
+      }
       process.stdout.write(dataLines)
     }
   })
 
   p.stderr.on('data', (data) => {
-    spinner.stop()
-    process.stdout.write(data)
+    if (spinner.isSpinning) {
+      spinner.stop()
+    }
+    process.stderr.write(data)
   })
 
   p.on('error', (data) => {
-    spinner.stop()
+    if (spinner.isSpinning) {
+      spinner.stop()
+    }
     //@ts-ignore
     process.stdout.write(data)
   })
@@ -101,7 +107,9 @@ program
                 serveProcess = spawn('node', ['--enable-source-maps', './compile/index.js'])
                 printProcessData(serveProcess)
               } else {
-                spinner.stop()
+                if (spinner.isSpinning) {
+                  spinner.stop()
+                }
                 console.error(
                   '\x1b[31mError starting server: ./compile/index.js not exist\n\nPlease check tsconfig.ts "include" should not contains files out of ./src\x1b[0m'
                 )
@@ -119,7 +127,9 @@ program
             kill(serveProcess.pid)
             serveProcess = null
           }
-          spinner.stop()
+          if (spinner.isSpinning) {
+            spinner.stop()
+          }
           process.stdout.write(data)
         })
 
@@ -128,7 +138,9 @@ program
             kill(serveProcess.pid)
             serveProcess = null
           }
-          spinner.stop()
+          if (spinner.isSpinning) {
+            spinner.stop()
+          }
           //@ts-ignore
           process.stdout.write(data)
         })
@@ -205,7 +217,9 @@ program
       } else {
         process.exit(1)
       }
-      spinner.stop()
+      if (spinner.isSpinning) {
+        spinner.stop()
+      }
     })
   })
 

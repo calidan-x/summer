@@ -181,6 +181,7 @@ class SwaggerPlugin implements SummerPlugin {
   }
 
   compile(clazz: ClassDeclaration, modifyActions: (() => void)[]) {
+    let hasImport = false
     for (const classDecorator of clazz.getDecorators()) {
       // remember return type and add api doc
       if (classDecorator.getName() === 'ApiDocGroup') {
@@ -194,7 +195,6 @@ class SwaggerPlugin implements SummerPlugin {
                 .find((d) => ['Get', 'Post', 'Put', 'Patch', 'Delete', 'Head', 'Options'].includes(d.getName()))
             ) {
               if (!m.getDecorator('ApiDoc')) {
-                let hasImport = false
                 m.getSourceFile()
                   .getImportDeclarations()
                   .forEach((d) => {
@@ -209,10 +209,11 @@ class SwaggerPlugin implements SummerPlugin {
                     m.getSourceFile()
                       .getImportDeclarations()[0]
                       .replaceWithText(
-                        "import {ApiDoc} from '@summer-js/swagger'" +
+                        "import {ApiDoc} from '@summer-js/swagger';" +
                           m.getSourceFile().getImportDeclarations()[0].getText()
                       )
                   })
+                  hasImport = true
                 }
               }
               modifyActions.push(() => {
