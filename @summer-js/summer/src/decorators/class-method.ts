@@ -17,8 +17,8 @@ const generateClassMethodDecorator =
       descriptor.value = async function (...arg) {
         const context = asyncLocalStorage.getStore() || ({} as Context)
         context.invocation = {
-          class: target.constructor.name,
-          method: propertyKey,
+          className: target.constructor.name,
+          methodName: propertyKey,
           params: arg
         }
         const ret = await decoratorCall(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)
@@ -34,8 +34,8 @@ const generateClassMethodDecorator =
           descriptor.value = async function (...arg) {
             const context = asyncLocalStorage.getStore() || ({} as Context)
             context.invocation = {
-              class: target.constructor.name,
-              method: propertyKey,
+              className: constructor.name,
+              methodName: name,
               params: arg
             }
             const ret = await decoratorCall(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)

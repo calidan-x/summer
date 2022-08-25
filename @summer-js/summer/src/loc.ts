@@ -32,6 +32,23 @@ export const locContainer = {
       this.locClass.push(clazz)
     }
   },
+  // instanceCls(clazz: any) {
+  //   clazz.prototype.$_paddingInject.forEach((prop) => {
+  //     let injectClass = Reflect.getMetadata('DeclareType', clazz, prop)[0]
+  //     if (typeof injectClass === 'function' && injectClass.name === '') {
+  //       injectClass = injectClass()
+  //     }
+  //     if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
+  //       let classInstance = this.getInstance(injectClass)
+  //       if (!classInstance) {
+  //         classInstance = this.instanceCls(injectClass)
+  //         this.addInstance(injectClass, classInstance)
+  //       }
+  //       clazz.prototype[prop] = classInstance
+  //     }
+  //   })
+  //   return new clazz()
+  // },
   instanceLocClasses() {
     this.locClass.forEach((clazz: any) => {
       const instance = new clazz()

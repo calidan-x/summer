@@ -33,8 +33,8 @@ export interface Context {
   session?: Record<string, string>
   data: Record<string, any>
   invocation?: {
-    class: string
-    method: string
+    className: string
+    methodName: string
     params: any[]
   }
 }
@@ -176,8 +176,8 @@ const callControllerMethod = async (ctx: Context) => {
     const { controller, callMethod, params, pathParams } = match
     ctx.request.pathParams = pathParams
     ctx.invocation = {
-      class: controller.constructor.name,
-      method: callMethod,
+      className: controller.constructor.name,
+      methodName: callMethod,
       params: undefined
     }
     const applyParam = []

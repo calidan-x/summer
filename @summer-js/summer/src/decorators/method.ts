@@ -28,8 +28,8 @@ const generateMethodDecorator =
     descriptor.value = async function (...arg) {
       const context = asyncLocalStorage.getStore() || ({} as Context)
       context.invocation = {
-        class: target.constructor.name,
-        method: propertyKey,
+        className: target.constructor.name,
+        methodName: propertyKey,
         params: arg
       }
       const ret = await paramMethod(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)
