@@ -23,6 +23,14 @@ describe('Config Test', () => {
     result = await request.get('/cache/1')
     expect(result.body).toBe(firstResult)
 
+    await new Promise((resolve) => {
+      setTimeout(async () => {
+        result = await request.get('/cache/1')
+        expect(result.body !== firstResult).toBe(true)
+        resolve('')
+      }, 1200)
+    })
+
     result = await request.get('/cache2/2')
     expect(result.statusCode).toBe(200)
     firstResult = result.body
