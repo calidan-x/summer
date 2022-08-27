@@ -35,7 +35,7 @@ export const getDataSource = (dataSourceName: string) => {
   return DataSources[dataSourceName]
 }
 
-class TypeORMPlugin implements SummerPlugin {
+class TypeORMPlugin extends SummerPlugin {
   configKey = 'TYPEORM_CONFIG'
 
   compile(clazz: ClassDeclaration, modifyActions: (() => void)[]) {
@@ -58,28 +58,12 @@ class TypeORMPlugin implements SummerPlugin {
           }
         }
       })
-      modifyActions.push(() => {
-        clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllEntities'"] })
-        clazz.getChildren()[0].replaceWithText(
-          clazz
-            .getChildren()[0]
-            .getText()
-            .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
-        )
-      })
+      this.collectClass(clazz, 'AllEntities', modifyActions)
     }
 
     const imps = clazz.getImplements()
     if (imps.length > 0 && imps[0].getText() === 'MigrationInterface') {
-      modifyActions.push(() => {
-        clazz.addDecorator({ name: 'ClassCollect', arguments: ["'AllMigrations'"] })
-        clazz.getChildren()[0].replaceWithText(
-          clazz
-            .getChildren()[0]
-            .getText()
-            .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
-        )
-      })
+      this.collectClass(clazz, 'AllMigrations', modifyActions)
     }
 
     if (!isSummerTypeOrmDeclare) {

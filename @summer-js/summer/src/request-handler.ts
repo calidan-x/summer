@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { getConfig } from './config-handler'
-import { locContainer } from './loc'
+import { getInjectable, locContainer } from './loc'
 import { Logger } from './logger'
 import { middlewares } from './middleware'
 import { requestMapping } from './request-mapping'
@@ -9,7 +9,8 @@ import { session } from './session'
 import { parseCookie, assembleCookie } from './cookie'
 import { handleCors } from './cors'
 import { rpc } from './rpc'
-import { NotFoundError, ResponseError, ValidationError } from './error'
+import { AnyError, NotFoundError, ResponseError, ValidationError } from './error'
+import { errorHandle } from './error'
 
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
@@ -79,23 +80,6 @@ const matchPathMethod = (path: string, httpMethod: string) => {
   }
   return null
 }
-
-const addZero = (num: number) => (num < 10 ? '0' + num : num + '')
-
-const toDate = (d: Date) => {
-  if (d instanceof Date) {
-    return d.getFullYear() + '-' + addZero(d.getMonth() + 1) + '-' + addZero(d.getDate())
-  }
-  return d ?? null
-}
-
-const toDateTime = (d: Date) => {
-  if (d instanceof Date) {
-    return toDate(d) + ' ' + addZero(d.getHours()) + ':' + addZero(d.getMinutes()) + ':' + addZero(d.getSeconds())
-  }
-  return d ?? null
-}
-
 const serialize = (obj, declareType: any[]) => {
   let [d0, d1, d2] = declareType || []
   if (typeof d0 === 'function' && d0.name === '') {
@@ -204,11 +188,9 @@ const callControllerMethod = async (ctx: Context) => {
     if (allErrors.length > 0) {
       throw new ValidationError(400, { message: 'Validation Failed', errors: allErrors })
     } else {
-      await asyncLocalStorage.run(ctx, async () => {
-        let responseData = await controller[callMethod].apply(controller, applyParam)
-        const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
-        applyResponse(ctx, responseData, returnDeclareType)
-      })
+      let responseData = await controller[callMethod].apply(controller, applyParam)
+      const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
+      applyResponse(ctx, responseData, returnDeclareType)
     }
   } else {
     throw new NotFoundError(404, { message: '404 Not Found' })
@@ -284,48 +266,67 @@ const decodeQuery = (ctx: Context) => {
 }
 
 export const requestHandler = async (ctx: Context) => {
-  try {
-    decodeQuery(ctx)
+  await asyncLocalStorage.run(ctx, async () => {
+    try {
+      decodeQuery(ctx)
 
-    if (await handleRpc(ctx)) {
-      return
+      if (await handleRpc(ctx)) {
+        return
+      }
+
+      if (handleCors(ctx)) {
+        return
+      }
+
+      parseCookie(ctx)
+
+      session.handleSession(ctx)
+
+      await callMiddleware(ctx)
+
+      assembleCookie(ctx)
+    } catch (err) {
+      const { errorHandlerClass, errorMap } = errorHandle
+      if (errorHandlerClass) {
+        const errorHandler = getInjectable(errorHandlerClass)
+        const errType = errorMap.find((e) => err instanceof e.type)
+        if (errType) {
+          const errInfo = errorHandler[errType.method](err)
+          err = new ResponseError(errInfo.statusCode, errInfo.body)
+        } else {
+          const anyErrorType = errorMap.find((e) => e.type === AnyError)
+          if (anyErrorType) {
+            const errInfo = errorHandler[anyErrorType.method](err)
+            err = new ResponseError(errInfo.statusCode, errInfo.body)
+          }
+        }
+      }
+      if (err instanceof ResponseError || err instanceof ValidationError || err instanceof NotFoundError) {
+        makeRequestError(ctx, err)
+      } else {
+        Logger.error(err)
+        makeServerError(ctx)
+      }
     }
 
-    if (handleCors(ctx)) {
-      return
-    }
-
-    parseCookie(ctx)
-
-    session.handleSession(ctx)
-
-    await callMiddleware(ctx)
-
-    assembleCookie(ctx)
-  } catch (err) {
-    if (err instanceof ResponseError) {
-      makeRequestError(ctx, err)
+    if (typeof ctx.response.body !== 'string') {
+      if (ctx.response.body !== undefined) {
+        ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'application/json; charset=utf-8'
+        ctx.response.body = JSON.stringify(ctx.response.body)
+      } else {
+        ctx.response.body = ''
+      }
     } else {
-      Logger.error(err)
+      ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html; charset=utf-8'
+    }
+
+    if (ctx.response.statusCode === 0) {
+      if (ctx.response.body === undefined) {
+        Logger.error('Unhandled request response, this error may cause by middleware missing await for next()')
+      }
       makeServerError(ctx)
     }
-  }
-
-  if (typeof ctx.response.body !== 'string') {
-    if (ctx.response.body !== undefined) {
-      ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'application/json; charset=utf-8'
-      ctx.response.body = JSON.stringify(ctx.response.body)
-    } else {
-      ctx.response.body = ''
-    }
-  } else {
-    ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'text/html; charset=utf-8'
-  }
-
-  if (ctx.response.statusCode === 0) {
-    if (ctx.response.body === undefined) {
-      Logger.error('Unhandled request response, this error may cause by middleware missing await for next()')
-    }
-    makeServerError(ctx)
-  }
+  })
 }
+
+export const getContext = () => asyncLocalStorage.getStore()

@@ -425,7 +425,8 @@ const compile = async (compileAll = false) => {
     'RpcProvider',
     'RpcClient',
     'Middleware',
-    'Controller'
+    'Controller',
+    'ErrorHandler'
   ]
 
   let compileCounter = 0
@@ -581,13 +582,9 @@ const compile = async (compileAll = false) => {
 
       for (const p of pluginIncs) {
         p.compile && (await p.compile(cls, modifyActions))
-        for (const classDecorator of cls.getDecorators()) {
-          if (autoImportDecorators.includes(classDecorator.getName())) {
-            importFilesList.push(
-              './' + slash(path.relative(path.resolve() + '/src', cls.getSourceFile().getFilePath()))
-            )
-          }
-        }
+        p.getClassCollection().forEach((cls) => {
+          importFilesList.push('./' + slash(path.relative(path.resolve() + '/src', cls.getSourceFile().getFilePath())))
+        })
       }
     }
     console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 150) / sourceFiles.length / 10).toFixed(0) + '% ]')

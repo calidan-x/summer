@@ -2,7 +2,7 @@ import { ClassDeclaration } from 'ts-morph'
 export { summerStart, summerDestroy, waitForStart, addPlugin, pluginCollection } from './summer'
 export * from './decorators'
 export * from './utils'
-export { requestHandler, Context } from './request-handler'
+export { requestHandler, Context, getContext } from './request-handler'
 export * from './error'
 export { getInjectable, addInjectable } from './loc'
 export { Logger } from './logger'
@@ -13,14 +13,7 @@ export { getConfig } from './config-handler'
 export { handler } from './serverless'
 export { setCookie, clearCookie } from './cookie'
 export { File } from './validate-types'
-
-export interface SummerPlugin {
-  configKey: string
-  compile?: (clazz: ClassDeclaration, modifyActions: (() => void)[]) => void
-  postCompile?: () => void
-  init: (config: any) => void
-  destroy?: () => void
-}
+export { SummerPlugin } from './plugin'
 
 declare global {
   type int = number

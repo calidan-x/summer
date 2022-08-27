@@ -128,7 +128,7 @@ const swaggerJson: SwaggerDoc = {
   paths: {}
 }
 
-class SwaggerPlugin implements SummerPlugin {
+class SwaggerPlugin extends SummerPlugin {
   configKey = 'SWAGGER_CONFIG'
   async init(config: SwaggerConfig) {
     if (!config) {
