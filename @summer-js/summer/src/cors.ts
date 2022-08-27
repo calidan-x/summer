@@ -35,7 +35,7 @@ export const handleCors = (ctx: Context) => {
         }
         return true
       } else {
-        ctx.response.headers = { ...ctx.response.headers, ...corsHeader(ctx.request.headers['origin']) }
+        Object.assign(ctx.response.headers, corsHeader(ctx.request.headers['origin']))
       }
     }
   }

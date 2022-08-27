@@ -1,31 +1,17 @@
-import { AutoInject, Controller, createClassAndMethodDecorator, Get, Logger, Query, Service } from '@summer-js/summer'
-
-const AccessLog = createClassAndMethodDecorator(async (ctx, invokeMethod) => {
-  Logger.debug('call ' + ctx.invocation.className + '.' + ctx.invocation.methodName + '() with', ctx.invocation.params)
-  return await invokeMethod(ctx.invocation.params)
-})
-
-@Service
-@AccessLog
-class InvokeService {
-  getInfo(info: string) {
-    return 'info: ' + info
-  }
-}
+import { AutoInject, Controller, Get, getContext } from '@summer-js/summer'
 
 @Controller
-@AccessLog
 @AutoInject
 export class ContextController {
-  invokeService: InvokeService
+  @Get('/context')
+  context() {
+    const context = getContext()
+    // highlight-next-line
+    context.response.headers['content-type'] = 'text/plain'
 
-  @Get('/invoke')
-  info(@Query q: string) {
-    return q
-  }
-
-  @Get('/invoke2')
-  info2() {
-    return this.invokeService.getInfo('summer works')
+    // although the controller return 'Hello Summer', set context response content has a higher priority
+    // highlight-next-line
+    context.response.body = 'hi Summer'
+    return 'hello winter'
   }
 }

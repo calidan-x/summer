@@ -26,7 +26,22 @@ export interface ServerConfig {
 }
 
 export const getInitContextData = () => ({
-  response: { statusCode: 0, headers: {}, body: undefined },
+  response: {
+    statusCode: 0,
+    headers: new Proxy(
+      {},
+      {
+        set(obj, prop: string, value) {
+          prop = prop.toLowerCase().replace(/^.|(-[a-zA-Z])/g, (str) => {
+            return str.toUpperCase()
+          })
+          obj[prop] = value
+          return true
+        }
+      }
+    ),
+    body: undefined
+  },
   cookies: {},
   session: {},
   data: {}

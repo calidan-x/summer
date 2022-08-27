@@ -279,9 +279,7 @@ export const requestHandler = async (ctx: Context) => {
       }
 
       parseCookie(ctx)
-
       session.handleSession(ctx)
-
       await callMiddleware(ctx)
 
       assembleCookie(ctx)
