@@ -60,39 +60,3 @@ There are 7 npm projects in this repo
 ### Develop core code
 
 Add / Modify code in @summer-js/summer
-
-### Develop a new plugin
-
-1. Add a new package to workspace
-   `npm init -w ./@summer-js/packagename`
-
-2. Add index.ts
-
-Example:
-
-```
-class PluginName implements SummerPlugin {
-    configKey: "CONFIG_KEY"
-
-    // optional
-    compile(clazz: ClassDeclaration) {
-       // code implement during compiling
-       // compiler will go through all classes
-    }
-
-    // optional
-    postCompile() {
-       // code implement after compile
-    }
-
-    init(config: any) {
-       // code implement when server start
-    };
-
-    // optional
-    destroy(){
-       // code implement when server destroyed
-    };
-}
-
-```
