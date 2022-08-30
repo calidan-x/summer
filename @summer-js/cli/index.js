@@ -35,7 +35,7 @@ const printProcessData = (p) => {
           isProgressCommand = true
           return
         } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
-          spinner.text = 'Compiling...' + data.trim().replace('COMPILE_PROGRESS', '')
+          spinner.text = 'COMPILING...' + data.trim().replace('COMPILE_PROGRESS', '')
           isProgressCommand = true
           return
         }
@@ -79,7 +79,7 @@ program
   .action((options) => {
     let compileProcess = null
     let serveProcess = null
-    spinner = ora('Compiling...')
+    spinner = ora('COMPILING...')
 
     const serve = () => {
       try {
@@ -93,16 +93,16 @@ program
           dataLines.split('\n').forEach((data) => {
             if (data.trim().startsWith('COMPILE_START')) {
               clearScreen()
-              spinner.text = 'Compiling...'
+              spinner.text = 'COMPILING...'
               spinner.start()
               if (serveProcess) {
                 kill(serveProcess.pid)
                 serveProcess = null
               }
             } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
-              spinner.text = 'Compiling...' + data.trim().replace('COMPILE_PROGRESS', '')
+              spinner.text = 'COMPILING...' + data.trim().replace('COMPILE_PROGRESS', '')
             } else if (data.trim().startsWith('COMPILE_DONE')) {
-              spinner.text = 'Starting...'
+              spinner.text = 'STARTING...'
               if (fs.existsSync('./compile/index.js')) {
                 serveProcess = spawn('node', ['--enable-source-maps', './compile/index.js'])
                 printProcessData(serveProcess)
@@ -158,13 +158,13 @@ program
   .option('-e, --env [ENV_NAME]', '')
   .option('-- [JEST_OPTIONS]', '')
   .action((options) => {
-    spinner = ora('Compiling...')
+    spinner = ora('COMPILING...')
     spinner.start()
     const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile test`)
     printProcessData(compileProcess)
 
     compileProcess.on('exit', () => {
-      spinner.text = 'Starting...'
+      spinner.text = 'STARTING...'
       if (fs.existsSync('./compile/index.js')) {
         const jestOptInx = program.args.findIndex((arg) => arg === '--')
         const jestOpts = jestOptInx > 0 ? program.args.splice(jestOptInx + 1).join(' ') : ''
@@ -189,7 +189,7 @@ program
   .option('-e, --env [ENV_NAME]', '')
   .option('-- [ESBUILD_OPTIONS]', '')
   .action((options) => {
-    spinner = ora('Compiling...')
+    spinner = ora('COMPILING...')
     spinner.start()
     const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
     printProcessData(compileProcess)
