@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/summer",
-	"version": "0.0.69",
+	"version": "0.0.70",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
