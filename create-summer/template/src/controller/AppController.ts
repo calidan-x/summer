@@ -1,5 +1,5 @@
 import { Controller, Get } from '@summer-js/summer'
-import { HiService } from '../service/HiService'
+import { HiService } from '../service'
 
 @Controller
 export class AppController {
