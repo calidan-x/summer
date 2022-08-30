@@ -1,8 +1,7 @@
-import { AutoInject, Config, Controller, Get, PostConstruct } from '@summer-js/summer'
+import { Config, Controller, Get, PostConstruct } from '@summer-js/summer'
 import { TestService2 } from '../service'
 
 @Controller('/loc')
-@AutoInject
 export class LocController {
   @Config('POST_CONSTRUCT_CONFIG')
   config

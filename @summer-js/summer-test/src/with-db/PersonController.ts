@@ -1,21 +1,9 @@
-import {
-  Controller,
-  Get,
-  PathParam,
-  Post,
-  Body,
-  Inject,
-  AutoInject,
-  Query,
-  convertData,
-  ResponseError
-} from '@summer-js/summer'
+import { Controller, Get, PathParam, Post, Body, Query, convertData, ResponseError } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 import { PersonRequest } from '../dto/request/person-request'
 import { Person } from '../entity'
 import { PersonService } from './PersonService'
 
-@AutoInject
 @Controller('/persons')
 @ApiDocGroup('Person相关服务')
 export class PersonController {

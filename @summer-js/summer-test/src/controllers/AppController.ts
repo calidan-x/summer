@@ -1,8 +1,7 @@
-import { AutoInject, Controller, Get, Logger } from '@summer-js/summer'
+import { Controller, Get, Logger } from '@summer-js/summer'
 import { AppClient } from './../client/AppClient'
 
 @Controller
-@AutoInject
 export class AppController {
   appClient: AppClient
 

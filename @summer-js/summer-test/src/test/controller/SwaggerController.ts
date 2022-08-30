@@ -15,8 +15,7 @@ import {
   Delete,
   Patch,
   Queries,
-  Put,
-  Inject
+  Put
 } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup, PropDoc } from '@summer-js/swagger'
 import { Paging, Obj, ExtendObj } from '../../dto/resource/Paging'
@@ -131,7 +130,6 @@ class AllQueries {
 @Controller('/swagger-test')
 @ApiDocGroup('Swagger Apis')
 export class SwaggerController {
-  @Inject
   swaggerService: SwaggerService
 
   @Get

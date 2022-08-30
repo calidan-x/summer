@@ -1,8 +1,7 @@
 import { SendRequestClient, SummerDevClient } from './SendRequestClient'
-import { AutoInject, Controller, Get, Inject } from '@summer-js/summer'
+import { Controller, Get } from '@summer-js/summer'
 
 @Controller
-@AutoInject
 export class SendRequestController {
   sendRequestClient: SendRequestClient
   summerDevClient: SummerDevClient

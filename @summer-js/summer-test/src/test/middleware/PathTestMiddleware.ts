@@ -1,9 +1,8 @@
-import { Middleware, Context, Inject } from '@summer-js/summer'
+import { Middleware, Context } from '@summer-js/summer'
 import { TestService2 } from '../service'
 
 @Middleware({ order: 0 })
 export class PathTestMiddleware {
-  @Inject()
   testService2: TestService2
 
   async process(ctx: Context, next: any) {

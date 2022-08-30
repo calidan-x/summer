@@ -47,7 +47,7 @@ export const rpc = {
       ).data
     } catch (e) {
       if (e.response.status === 404) {
-        Logger.error('RPC Fail: Remote url wrong ' + rpcConfig.url)
+        Logger.error('RPC Fail: Remote url not found ' + rpcConfig.url)
       } else {
         Logger.error('RPC Fail', e.response.data)
       }

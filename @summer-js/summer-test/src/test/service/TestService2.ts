@@ -1,8 +1,7 @@
-import { AutoInject, Service } from '@summer-js/summer'
+import { Service } from '@summer-js/summer'
 import { TestService } from './'
 
 @Service
-@AutoInject
 export class TestService2 {
   testService: TestService
 

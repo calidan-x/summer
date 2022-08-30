@@ -1,7 +1,6 @@
-import { AutoInject, Controller, Get, getContext } from '@summer-js/summer'
+import { Controller, Get, getContext } from '@summer-js/summer'
 
 @Controller
-@AutoInject
 export class ContextController {
   @Get('/context')
   context() {

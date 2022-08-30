@@ -1,4 +1,4 @@
-import { Controller, Get, createPropertyDecorator, AutoInject } from '@summer-js/summer'
+import { Controller, Get, createPropertyDecorator } from '@summer-js/summer'
 import { MovieController } from './MovieController'
 
 const PropInject = createPropertyDecorator(async (config) => {
@@ -10,7 +10,6 @@ const PropInject = createPropertyDecorator(async (config) => {
 })
 
 @Controller('/serverless')
-@AutoInject
 export class ServerlessController {
   @PropInject
   prop: string

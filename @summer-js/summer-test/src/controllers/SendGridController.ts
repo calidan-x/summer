@@ -1,8 +1,7 @@
-import { AutoInject, Controller, Get, Logger } from '@summer-js/summer'
+import { Controller, Get, Logger } from '@summer-js/summer'
 import { SendGridClient } from './../client/SendGridClient'
 
 @Controller
-@AutoInject
 export class SendGridController {
   sendGridClient: SendGridClient
 

@@ -1,4 +1,4 @@
-import { AutoInject, Controller, Body, Get, Post, ResponseError, Query, Ctx, Context } from '@summer-js/summer'
+import { Controller, Body, Get, Post, ResponseError, Query, Ctx, Context } from '@summer-js/summer'
 import { HelloService } from '../service'
 
 @Controller('/v1')

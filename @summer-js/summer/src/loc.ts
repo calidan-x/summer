@@ -30,11 +30,10 @@ export const locContainer = {
   paddingLocClass(clazz: any) {
     if (!this.locClass.includes(clazz)) {
       this.locClass.push(clazz)
-      if (getConfig('SERVER_CONFIG')) {
-        Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
-          locContainer.paddingInject(clazz.prototype, key, true)
-        })
-      }
+      // auto injection
+      Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
+        locContainer.paddingInject(clazz.prototype, key, true)
+      })
     }
   },
   instanceLocClasses() {

@@ -1,4 +1,4 @@
-import { AutoInject, Controller, createMethodDecorator, Get, Logger, PathParam, Service } from '@summer-js/summer'
+import { Controller, createMethodDecorator, Get, Logger, PathParam, Service } from '@summer-js/summer'
 import md5 from 'md5'
 
 const CACHE = {}
@@ -26,7 +26,6 @@ export class CacheService {
 }
 
 @Controller
-@AutoInject
 export class CacheController {
   cacheService: CacheService
 
