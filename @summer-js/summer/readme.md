@@ -2,4 +2,6 @@
 
 Efficient NodeJs Backend Framework
 
-Please visit [https://summerjs.dev](https://summerjs.dev) for more detail
+Official Website [https://summerjs.dev](https://summerjs.dev)
+
+Summer aims to provide a secure, high-quality, easy fast enterprise backend framework
