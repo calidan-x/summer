@@ -25,6 +25,7 @@ export interface ServerConfig {
   workersNumber?: number
 }
 
+const headerKeyMappingCache = {}
 export const getInitContextData = () => ({
   response: {
     statusCode: 0,
@@ -32,9 +33,12 @@ export const getInitContextData = () => ({
       {},
       {
         set(obj, prop: string, value) {
-          prop = prop.toLowerCase().replace(/^.|(-[a-zA-Z])/g, (str) => {
-            return str.toUpperCase()
-          })
+          if (!headerKeyMappingCache[prop]) {
+            headerKeyMappingCache[prop] = prop.toLowerCase().replace(/^.|(-[a-zA-Z])/g, (str) => {
+              return str.toUpperCase()
+            })
+          }
+          prop = headerKeyMappingCache[prop]
           obj[prop] = value
           return true
         }

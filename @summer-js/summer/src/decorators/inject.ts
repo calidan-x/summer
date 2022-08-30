@@ -1,16 +1,14 @@
 import { locContainer } from '../loc'
 
+/*
+@Deprecated
+
 interface InjectDecoratorType {
   (): PropertyDecorator
   (target: any, propertyKey: string): void
 }
 
 interface AutoInjectDecoratorType {
-  (): ClassDecorator
-  (target: any): void
-}
-
-interface InjectableDecoratorType {
   (): ClassDecorator
   (target: any): void
 }
@@ -37,6 +35,12 @@ export const AutoInject: AutoInjectDecoratorType = (...arg) => {
       locContainer.paddingInject(arg[0].prototype, key, true)
     })
   }
+}
+*/
+
+interface InjectableDecoratorType {
+  (): ClassDecorator
+  (target: any): void
 }
 
 export const Injectable: InjectableDecoratorType = (...args) => {

@@ -1,8 +1,7 @@
-import { AutoInject, Controller, Body, Get, Post, ResponseError, Query } from '@summer-js/summer'
+import { AutoInject, Controller, Body, Get, Post, ResponseError, Query, Ctx, Context } from '@summer-js/summer'
 import { HelloService } from '../service'
 
 @Controller('/v1')
-@AutoInject
 export class HelloController {
   helloService: HelloService
 
@@ -19,6 +18,11 @@ export class HelloController {
   @Get('/service-inject')
   helloFromService() {
     return this.helloService.sayHello()
+  }
+
+  @Get('/service-inject2')
+  helloFromService2() {
+    return this.helloService.getInfo2()
   }
 
   @Get('/import-inject-test')

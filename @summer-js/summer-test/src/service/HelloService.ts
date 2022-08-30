@@ -13,4 +13,8 @@ export class HelloService {
   getInfo() {
     return this.injectService.getInfo()
   }
+
+  getInfo2() {
+    return this.injectService.getInfo2()
+  }
 }

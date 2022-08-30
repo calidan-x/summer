@@ -293,6 +293,30 @@ const checkError = () => {
               returnType = returnType.getTypeArguments()[0]
               returnTypeStr = returnType.getText(cls)
             }
+
+            try {
+              if (returnType.isArray()) {
+                // @ts-ignore
+                returnType = returnType.getArrayElementType()
+              }
+              if (returnType.isClass() || returnType.isEnum()) {
+                const classDeclaration = returnType.getSymbol()?.getDeclarations()[0]
+                // @ts-ignore
+                if (!classDeclaration.isExported()) {
+                  // @ts-ignore
+                  classDeclaration.setIsExported(true)
+
+                  returnType = cMethod.getReturnType()
+                  returnTypeStr = returnType.getText(cls)
+
+                  if (returnTypeStr.startsWith('Promise<')) {
+                    returnType = returnType.getTypeArguments()[0]
+                    returnTypeStr = returnType.getText(cls)
+                  }
+                }
+              }
+            } catch (e) {}
+
             if (returnTypeStr.indexOf('|') > 0) {
               console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:\n')
               console.error('\x1b[31m%s\x1b[0m', cls.getSourceFile().getFilePath())
@@ -304,6 +328,7 @@ const checkError = () => {
               console.error('\x1b[31m%s\x1b[0m', 'Or add "as any" to return type to ignore this error')
               compiling = false
             }
+
             modifyActions.push(() => {
               addFileImport(returnTypeStr, cls)
             })
