@@ -1,24 +1,25 @@
 {
-	"name": "@summer-js/summer-test",
-	"version": "0.0.70",
-	"description": "",
-	"scripts": {
-		"serve": "summer serve --env local",
-		"test": "summer test --env test -- --maxWorkers 5",
-		"build": "summer build --env prod",
-		"start": "node --enable-source-maps ./build/index.js",
-		"generate-migration": "typeorm-ts-node-commonjs migration:generate src/migrations/migration -d ormconfig.ts -p"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"dependencies": {
-		"md5": "^2.3.0",
-		"cross-env": "^7.0.3",
-		"mysql2": "^2.3.3",
-		"ts-node": "^10.7.0",
-		"ts-jest": "^28.0.3",
-		"jest": "^28.0.3",
-		"jsonwebtoken": "^8.5.1"
-	}
+  "name": "@summer-js/summer-test",
+  "version": "0.0.70",
+  "description": "",
+  "scripts": {
+    "serve": "summer serve --env local",
+    "test": "summer test --env test -- --maxWorkers 5",
+    "build": "summer build --env prod",
+    "start": "node --enable-source-maps ./build/index.js",
+    "generate-migration": "typeorm-ts-node-commonjs migration:generate src/migrations/migration -d ormconfig.ts -p"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "md5": "^2.3.0",
+    "cross-env": "^7.0.3",
+    "mysql2": "^2.3.3",
+    "ts-node": "^10.7.0",
+    "ts-jest": "^28.0.3",
+    "jest": "^28.0.3",
+    "jsonwebtoken": "^8.5.1",
+    "redis": "^4.3.0"
+  }
 }

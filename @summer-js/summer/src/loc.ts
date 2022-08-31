@@ -18,7 +18,7 @@ export const locContainer = {
     await this.resolveAssign()
   },
   findGenericInstance(clazz: Class<any>, params: any[]) {
-    const typeKey = [clazz, ...params.map((p) => (typeof p[0] === 'function' ? p[0]() : p[0]))]
+    const typeKey = [clazz, ...params]
     const genericInstance = this.locGenericInstanceMap.find(({ key }) => {
       let equal = true
       key.forEach((item, inx) => {
@@ -43,9 +43,9 @@ export const locContainer = {
       this.locInstanceMap.set(clazz, instance)
       this.locInstance.push(instance)
     } else {
-      const typeKey = [clazz, ...params.map((p) => (typeof p[0] === 'function' ? p[0]() : p[0]))]
       const genericInstance = this.findGenericInstance(clazz, params)
       if (!genericInstance) {
+        const typeKey = [clazz, ...params]
         this.locGenericInstanceMap.push({ key: typeKey, instance })
         this.locInstance.push(instance)
       }
@@ -69,6 +69,22 @@ export const locContainer = {
     }
   },
 
+  paddingInject(target: any, propertyKey: string, auto = false) {
+    let [injectClass, array, genericParams] = Reflect.getMetadata('DeclareType', target, propertyKey)
+    genericParams = genericParams.map((p) => {
+      return typeof p[0] === 'function' && !p[0].name ? p[0]() : p[0]
+    })
+    if (!target.$_paddingInject) {
+      target.$_paddingInject = {}
+      target.$_autoInjectKeys = []
+    }
+    if (!target.$_paddingInject[propertyKey]) {
+      target.$_paddingInject[propertyKey] = [injectClass, array, genericParams]
+      if (auto) {
+        target.$_autoInjectKeys.push(propertyKey)
+      }
+    }
+  },
   instanceLocClasses() {
     this.locClass.forEach((clazz: any) => {
       const instance = new clazz()
@@ -80,15 +96,17 @@ export const locContainer = {
         if (typeof injectClass === 'function' && injectClass.name === '') {
           injectClass = injectClass()
         }
+        genericParams = genericParams.map((p) => {
+          return typeof p[0] === 'function' && !p[0].name ? p[0]() : p[0]
+        })
         if (genericParams.length > 0) {
-          const gParams = genericParams.map((gp) => (typeof gp[0] === 'function' ? gp[0]() : gp[0]))
           if (this.locClass.find((lc) => lc === injectClass)) {
             if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
               const generateFunction = this.generateFunction.get(injectClass)
               this.addInstance(
                 injectClass,
-                gParams,
-                generateFunction ? generateFunction(...gParams) : new injectClass(...gParams)
+                genericParams,
+                generateFunction ? generateFunction(...genericParams) : new injectClass(...genericParams)
               )
             }
           }
@@ -96,20 +114,6 @@ export const locContainer = {
       })
     })
     middlewareAssembler.init()
-  },
-  paddingInject(target: any, propertyKey: string, auto = false) {
-    const t = Reflect.getMetadata('DeclareType', target, propertyKey)
-
-    if (!target.$_paddingInject) {
-      target.$_paddingInject = {}
-      target.$_autoInjectKeys = []
-    }
-    if (!target.$_paddingInject[propertyKey]) {
-      target.$_paddingInject[propertyKey] = t
-      if (auto) {
-        target.$_autoInjectKeys.push(propertyKey)
-      }
-    }
   },
   resolveInject() {
     for (const obj of this.locInstance) {
@@ -133,8 +137,7 @@ export const locContainer = {
             if (genericParams.length === 0) {
               obj[injectKey] = this.getInstance(injectClass)
             } else {
-              const gParams = genericParams.map((gp) => (typeof gp[0] === 'function' ? gp[0]() : gp[0]))
-              obj[injectKey] = this.findGenericInstance(injectClass, gParams)?.instance
+              obj[injectKey] = this.findGenericInstance(injectClass, genericParams)?.instance
             }
 
             // if (!obj[injectKey]) {

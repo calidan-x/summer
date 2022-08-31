@@ -135,7 +135,7 @@ const serialize = (obj, declareType: any[]) => {
 }
 
 export const applyResponse = (ctx: Context, responseData: any, returnDeclareType: any[]) => {
-  if (!responseData) {
+  if (responseData === undefined) {
     responseData = ''
   }
   const isJSON = typeof responseData === 'object'
@@ -281,7 +281,6 @@ export const requestHandler = async (ctx: Context) => {
       parseCookie(ctx)
       session.handleSession(ctx)
       await callMiddleware(ctx)
-
       assembleCookie(ctx)
     } catch (err) {
       const { errorHandlerClass, errorMap } = errorHandle
