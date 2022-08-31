@@ -1,5 +1,7 @@
-import { Controller, Body, Get, Post, ResponseError, Query, Ctx, Context } from '@summer-js/summer'
+import { Controller, Get } from '@summer-js/summer'
 import { HelloService } from '../service'
+
+class Type {}
 
 @Controller('/v1')
 export class HelloController {

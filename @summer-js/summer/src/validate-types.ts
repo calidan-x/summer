@@ -282,6 +282,18 @@ export const validateAndConvertType = (
       }
       break
     default:
+      if (typeof d0 === 'string') {
+        if (propertyValue !== d0) {
+          allErrors.push({
+            param: errorParam,
+            message: typeDisplayText(propertyValue, isFirstLevel) + " is not equals '" + d0 + "'"
+          })
+        } else {
+          value = propertyValue
+        }
+        break
+      }
+
       let classInstance = new d0()
       let objectValue = {}
 

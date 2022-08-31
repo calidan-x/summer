@@ -180,7 +180,7 @@ describe('Controller Params Test', () => {
 
   test('test fixed string type request value', async () => {
     await testRequestParam('str:ing', 'fixedString', 'str:ing')
-    await testErrorRequestParam('str', 'fixedString', 'is not in [\\"str:ing\\"]')
+    await testErrorRequestParam('str', 'fixedString', "is not equals 'str:ing'")
   })
 
   test('test ignore unknown key', async () => {

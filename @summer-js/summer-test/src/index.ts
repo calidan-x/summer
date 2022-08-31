@@ -1,6 +1,9 @@
-import { summerStart, handler, Logger } from '@summer-js/summer'
+import { summerStart, handler, Logger, addInjectable, getConfig } from '@summer-js/summer'
+import { Repository } from 'typeorm'
 import { getDataSource } from '@summer-js/typeorm'
 export { handler }
+
+
 
 const runMigrations = async () => {
   const output = await getDataSource('DATA_SOURCE').runMigrations()
