@@ -16,10 +16,9 @@ class Cat {
 @Service
 export class AnimalService<AnimalType extends Dog | Cat> {
   animal: AnimalType
+
   constructor(Type: any) {
-    if (Type) {
-      this.animal = new Type()
-    }
+    this.animal = new Type()
   }
 }
 

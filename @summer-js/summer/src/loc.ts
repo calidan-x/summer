@@ -87,8 +87,11 @@ export const locContainer = {
   },
   instanceLocClasses() {
     this.locClass.forEach((clazz: any) => {
-      const instance = new clazz()
-      this.addInstance(clazz, [], instance)
+      const classParams = Reflect.getMetadata('design:paramtypes', clazz)
+      if (!classParams || (classParams && classParams.length === 0)) {
+        const instance = new clazz()
+        this.addInstance(clazz, [], instance)
+      }
     })
     this.locClass.forEach((clazz: any) => {
       Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
