@@ -1,7 +1,7 @@
 import { initTest, endTest, request } from '@summer-js/test'
 import fs from 'fs'
 
-describe('Test AWB Lambda', () => {
+describe('Test TypeORM', () => {
   beforeAll(async () => {
     await initTest()
   })
