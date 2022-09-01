@@ -37,7 +37,6 @@ export class GenericInjectController {
 
   @Get('/generic-inject-test2')
   testGenericService2() {
-    console.log(this.catService)
     return this.dogService.animal instanceof Dog && this.catService.animal instanceof Cat
   }
 }
