@@ -152,6 +152,16 @@ export const applyResponse = (ctx: Context, responseData: any, returnDeclareType
     ctx.response.headers['Content-Type'] || (isJSON ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8')
 }
 
+export const checkValidationError = (originalFunc, context) => {
+  if (originalFunc.name) {
+    const validateErrors = context.$_ValidateErrors
+    if (validateErrors) {
+      delete context.$_ValidateErrors
+      throw new ValidationError(400, { message: 'Validation Failed', errors: validateErrors })
+    }
+  }
+}
+
 const callControllerMethod = async (ctx: Context) => {
   const { method, path } = ctx.request
   const match = matchPathMethod(path, method)
@@ -186,12 +196,12 @@ const callControllerMethod = async (ctx: Context) => {
     }
 
     if (allErrors.length > 0) {
-      throw new ValidationError(400, { message: 'Validation Failed', errors: allErrors })
-    } else {
-      let responseData = await controller[callMethod].apply(controller, applyParam)
-      const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
-      applyResponse(ctx, responseData, returnDeclareType)
+      ;(ctx as any).$_ValidateErrors = allErrors
+      checkValidationError(controller[callMethod], ctx)
     }
+    let responseData = await controller[callMethod].apply(controller, applyParam)
+    const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
+    applyResponse(ctx, responseData, returnDeclareType)
   } else {
     throw new NotFoundError(404, { message: '404 Not Found' })
   }

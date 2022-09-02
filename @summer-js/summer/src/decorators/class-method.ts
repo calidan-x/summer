@@ -1,4 +1,4 @@
-import { asyncLocalStorage, Context } from '../request-handler'
+import { asyncLocalStorage, Context, checkValidationError } from '../request-handler'
 import { OmitFirstAndSecondArg } from './utility'
 
 type DecoratorMethodType<T = any> = (ctx: Context, invokeMethod: (args: any[]) => Promise<T>, ...args: any[]) => void
@@ -21,7 +21,14 @@ const generateClassMethodDecorator =
           methodName: propertyKey,
           params: arg
         }
-        const ret = await decoratorCall(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)
+        const ret = await decoratorCall(
+          context,
+          async (mArgs) => {
+            checkValidationError(originalFunc, context)
+            return await originalFunc.apply(this, mArgs)
+          },
+          ...args
+        )
         context.invocation = undefined
         return ret
       }
@@ -38,7 +45,14 @@ const generateClassMethodDecorator =
               methodName: name,
               params: arg
             }
-            const ret = await decoratorCall(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)
+            const ret = await decoratorCall(
+              context,
+              async (mArgs) => {
+                checkValidationError(originalFunc, context)
+                return await originalFunc.apply(this, mArgs)
+              },
+              ...args
+            )
             context.invocation = undefined
             return ret
           }

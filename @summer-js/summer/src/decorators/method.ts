@@ -1,4 +1,4 @@
-import { asyncLocalStorage, Context } from '../request-handler'
+import { asyncLocalStorage, checkValidationError, Context } from '../request-handler'
 import { requestMappingAssembler } from '../request-mapping'
 import { OmitFirstAndSecondArg } from './utility'
 
@@ -32,7 +32,15 @@ const generateMethodDecorator =
         methodName: propertyKey,
         params: arg
       }
-      const ret = await paramMethod(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)
+
+      const ret = await paramMethod(
+        context,
+        async (mArgs) => {
+          checkValidationError(originalFunc, context)
+          return await originalFunc.apply(this, mArgs)
+        },
+        ...args
+      )
       context.invocation = undefined
       return ret
     }

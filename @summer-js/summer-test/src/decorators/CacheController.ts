@@ -1,4 +1,4 @@
-import { Controller, createMethodDecorator, Get, Logger, PathParam, Service } from '@summer-js/summer'
+import { Controller, createMethodDecorator, Get, Logger, PathParam, ResponseError, Service } from '@summer-js/summer'
 import md5 from 'md5'
 
 const CACHE = {}
@@ -31,7 +31,7 @@ export class CacheController {
 
   @Get('/cache/:id')
   @Cache(1000)
-  async api(@PathParam id) {
+  async api(@PathParam id: number) {
     return id + ':' + Date.now()
   }
 

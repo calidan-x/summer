@@ -1,4 +1,4 @@
-import { asyncLocalStorage, Context } from '../request-handler'
+import { asyncLocalStorage, Context, checkValidationError } from '../request-handler'
 import { OmitFirstAndSecondArg } from './utility'
 
 const generateClassDecorator =
@@ -15,7 +15,14 @@ const generateClassDecorator =
             methodName: name,
             params: arg
           }
-          const ret = await decoratorCall(context, async (mArgs) => await originalFunc.apply(this, mArgs), ...args)
+          const ret = await decoratorCall(
+            context,
+            async (mArgs) => {
+              checkValidationError(originalFunc, context)
+              return await originalFunc.apply(this, mArgs)
+            },
+            ...args
+          )
           context.invocation = undefined
           return ret
         }
