@@ -345,6 +345,37 @@ const checkError = () => {
   return false
 }
 
+const resolvePath = (dirtyFiles, compileAll) => {
+  if (Object.keys(project.getCompilerOptions().paths || {}).length === 0) {
+    return []
+  }
+  const pathResolveActions = []
+  for (const sf of project.getSourceFiles()) {
+    if (sf.getFilePath().endsWith('.d.ts') || (!dirtyFiles.includes(sf) && !compileAll)) {
+      continue
+    }
+    sf.getImportDeclarations().forEach((impt) => {
+      const moduleSourceFile = impt.getModuleSpecifierSourceFile()
+      if (moduleSourceFile) {
+        if (
+          moduleSourceFile.getFilePath().endsWith('.d.ts') ||
+          moduleSourceFile.getFilePath().indexOf('node_modules') > 0 ||
+          impt.isModuleSpecifierRelative()
+        ) {
+          return
+        }
+
+        pathResolveActions.push(() => {
+          impt.setModuleSpecifier(
+            path.relative(path.dirname(sf.getFilePath()), moduleSourceFile.getFilePath()).replace(/.ts$/, '')
+          )
+        })
+      }
+    })
+  }
+  return pathResolveActions
+}
+
 let compiling = false
 const updateFileList = []
 const compile = async (compileAll = false) => {
@@ -396,6 +427,8 @@ const compile = async (compileAll = false) => {
     return
   }
 
+  const pathResolveActions = resolvePath(dirtyFiles, compileAll)
+
   modifyActions.forEach((action) => {
     action()
   })
@@ -436,11 +469,11 @@ const compile = async (compileAll = false) => {
   importFilesList.push(...PLUGINS)
 
   for (const plugin of PLUGINS) {
-    if (fs.existsSync('./node_modules/' + plugin) || fs.existsSync('../../node_modules/' + plugin)) {
+    try {
       const p = await import(plugin)
       const P = p.default.default
       pluginIncs.push(new P())
-    }
+    } catch (e) {}
   }
 
   const autoImportDecorators = [
@@ -653,6 +686,11 @@ const compile = async (compileAll = false) => {
   const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
   indexSourceFile.refreshFromFileSystemSync()
   indexSourceFile.getChildAtIndex(0).replaceWithText(statements.join('') + indexSourceFile.getChildAtIndex(0).getText())
+
+  pathResolveActions.forEach((action) => {
+    action()
+  })
+
   project.resolveSourceFileDependencies()
 
   if (updateFileList.length > 0) {

@@ -9,7 +9,7 @@ import { session } from './session'
 import { parseCookie, assembleCookie } from './cookie'
 import { handleCors } from './cors'
 import { rpc } from './rpc'
-import { AnyError, NotFoundError, ResponseError, ValidationError } from './error'
+import { OtherErrors, NotFoundError, ResponseError, ValidationError } from './error'
 import { errorHandle } from './error'
 
 interface RequestContext {
@@ -291,9 +291,9 @@ export const requestHandler = async (ctx: Context) => {
           const errInfo = errorHandler[errType.method](err)
           err = new ResponseError(errInfo.statusCode, errInfo.body)
         } else {
-          const anyErrorType = errorMap.find((e) => e.type === AnyError)
-          if (anyErrorType) {
-            const errInfo = errorHandler[anyErrorType.method](err)
+          const otherErrorsType = errorMap.find((e) => e.type === OtherErrors)
+          if (otherErrorsType) {
+            const errInfo = errorHandler[otherErrorsType.method](err)
             err = new ResponseError(errInfo.statusCode, errInfo.body)
           }
         }

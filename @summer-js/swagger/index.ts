@@ -239,7 +239,7 @@ class SwaggerPlugin extends SummerPlugin {
       swaggerUIPath = '../../node_modules/swagger-ui-dist'
     }
 
-    let swaggerPluginPath = './node_modules/@summer-js/swagger'
+    let swaggerPluginPath = swaggerUIPath + '/../@summer-js/swagger'
     if (!fs.existsSync(swaggerPluginPath)) {
       swaggerPluginPath = '../../node_modules/@summer-js/swagger'
     }

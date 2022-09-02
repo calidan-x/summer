@@ -1,5 +1,5 @@
 import { Config, Controller, Get, PostConstruct } from '@summer-js/summer'
-import { TestService2 } from '../service'
+import { TestService2 } from '@/test/service'
 
 @Controller('/loc')
 export class LocController {

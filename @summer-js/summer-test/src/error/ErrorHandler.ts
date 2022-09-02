@@ -1,4 +1,4 @@
-import { AnyError, E, ErrorHandler, Logger, NotFoundError, ValidationError } from '@summer-js/summer'
+import { OtherErrors, E, ErrorHandler, Logger, NotFoundError, ValidationError } from '@summer-js/summer'
 
 // @ErrorHandler
 export class HandleError {
@@ -12,7 +12,7 @@ export class HandleError {
     return { statusCode: 404, body: err.body.errors }
   }
 
-  @E(AnyError)
+  @E(OtherErrors)
   default(err) {
     Logger.error(err)
     return { statusCode: 500, body: 'Some Error Happen' }

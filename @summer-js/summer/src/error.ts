@@ -22,7 +22,7 @@ export class NotFoundError extends Error {
   }
 }
 
-export class AnyError extends Error {}
+export class OtherErrors extends Error {}
 
 export const errorHandle: { errorHandlerClass?: any; errorMap: { type: any; method: string }[] } = {
   errorHandlerClass: null,

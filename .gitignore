@@ -3,6 +3,7 @@ node_modules
 build
 compile
 @summer-js/*/lib
+create-summer/**/resource
 @summer-js/summer-test/coverage
 
 ## IDEs

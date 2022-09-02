@@ -10,7 +10,7 @@ const packageFiles = [
   './@summer-js/typeorm/package.json'
 ]
 
-const templateFiles = ['./create-summer/template/package.json']
+const templateFiles = ['./create-summer/template/empty/package.json', './create-summer/template/movie/package.json']
 
 const newVersion = process.argv[2]
 

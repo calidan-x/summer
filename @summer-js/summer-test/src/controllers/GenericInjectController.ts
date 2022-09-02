@@ -1,5 +1,5 @@
 import { Controller, Get, Service } from '@summer-js/summer'
-import { GenericService } from '../service/GenericService'
+import { GenericService } from '@/service/GenericService'
 
 export interface Class extends Function {
   new (...args: any[]): any

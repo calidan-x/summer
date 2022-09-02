@@ -1,0 +1,22 @@
+{
+  "name": "summer-movie",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "scripts": {
+    "serve": "summer serve --env local",
+    "test": "summer test --env test -- --maxWorkers 5",
+    "build": "summer build --env prod",
+    "start": "node --enable-source-maps ./build/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@summer-js/cli": "0.0.71",
+    "@summer-js/summer": "0.0.71",
+    "@summer-js/swagger": "0.0.71",
+    "@summer-js/test": "0.0.71",
+    "@summer-js/typeorm": "0.0.71",
+    "mysql2": "^2.3.3"
+  }
+}

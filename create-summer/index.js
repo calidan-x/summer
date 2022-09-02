@@ -19,7 +19,7 @@ const copyRecursiveSync = function (src, dest) {
 }
 
 ;(async () => {
-  const response = await prompts({
+  let response = await prompts({
     type: 'text',
     name: 'value',
     message: 'Project Name:',
@@ -31,12 +31,28 @@ const copyRecursiveSync = function (src, dest) {
     return
   }
 
+  response = await prompts({
+    type: 'select',
+    name: 'value',
+    message: 'Pick a template',
+    choices: [
+      { title: 'Empty Project', value: 'empty' },
+      {
+        title: 'Restful API Project',
+        description: 'A movie restful api project with TypeORM and Swagger Doc',
+        value: 'movie'
+      }
+    ],
+    initial: 0
+  })
+  const templateName = response.value
+
   if (fs.existsSync(projectName)) {
     console.log(projectName + ' exists, exit')
     return
   }
 
-  copyRecursiveSync(path.join(__dirname, 'template'), projectName)
+  copyRecursiveSync(path.join(__dirname, `templates/${templateName}`), projectName)
 
   fs.writeFileSync(projectName + '/.gitignore', ['.DS_Store', 'node_modules', 'build', 'compile'].join('\n'))
   const packageJson = JSON.parse(fs.readFileSync(projectName + '/package.json', { encoding: 'utf8' }))
