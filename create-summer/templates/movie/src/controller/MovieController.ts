@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, PathParam, Body, Query } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
-import { Paging } from '../dto/Paging'
 
+import { Paging } from '../dto/Paging'
 import { MovieRequest } from '../dto/request/movie'
 import { ResError } from '../error'
 import { MovieService } from '../service/MovieService'
