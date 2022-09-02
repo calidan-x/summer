@@ -10,7 +10,7 @@ const packageFiles = [
   './@summer-js/typeorm/package.json'
 ]
 
-const templateFiles = ['./create-summer/template/empty/package.json', './create-summer/template/movie/package.json']
+const templateFiles = ['./create-summer/templates/empty/package.json', './create-summer/templates/movie/package.json']
 
 const newVersion = process.argv[2]
 
@@ -49,6 +49,12 @@ templateFiles.forEach((f) => {
   json.dependencies['@summer-js/summer'] = newVersion
   json.dependencies['@summer-js/test'] = newVersion
   json.dependencies['@summer-js/cli'] = newVersion
+  if (json.dependencies['@summer-js/swagger']) {
+    json.dependencies['@summer-js/swagger'] = newVersion
+  }
+  if (json.dependencies['@summer-js/typeorm']) {
+    json.dependencies['@summer-js/typeorm'] = newVersion
+  }
   fs.writeFileSync(f, JSON.stringify(json, null, '\t'))
 })
 

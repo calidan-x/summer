@@ -20,16 +20,9 @@ export class MovieController {
 
   @Get('/:id')
   @ApiDoc('get a movie detail', {
-    deprecated: true,
     errors: [ResError.MOVIE_NOT_FOUND, ResError.FETCH_MOVIE_LIST_FAIL]
   })
   async detail(@PathParam id: int) {
-    return await this.movieService.getMovie(id)
-  }
-
-  @Get('^v2/movies/:id')
-  @ApiDoc('get a movie detail', { errors: [ResError.MOVIE_NOT_FOUND, ResError.FETCH_MOVIE_LIST_FAIL] })
-  async detailV2(@PathParam id: int) {
     return await this.movieService.getMovie(id)
   }
 
@@ -46,8 +39,14 @@ export class MovieController {
   }
 
   @Delete('/:id')
-  @ApiDoc('delete a movie')
+  @ApiDoc('delete a movie', { deprecated: true })
   async delete(@PathParam id: int) {
+    await this.movieService.deleteMovie(id)
+  }
+
+  @Delete('^/v2/movies/:id')
+  @ApiDoc('delete a movie')
+  async deleteV2(@PathParam id: int) {
     await this.movieService.deleteMovie(id)
   }
 }
