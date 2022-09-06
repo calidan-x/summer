@@ -138,9 +138,9 @@ export const locContainer = {
 
           if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
             if (genericParams.length === 0) {
-              obj[injectKey] = this.getInstance(injectClass)
+              obj[injectKey] = obj[injectKey] ?? this.getInstance(injectClass)
             } else {
-              obj[injectKey] = this.findGenericInstance(injectClass, genericParams)?.instance
+              obj[injectKey] = obj[injectKey] ?? this.findGenericInstance(injectClass, genericParams)?.instance
             }
 
             // if (!obj[injectKey]) {
