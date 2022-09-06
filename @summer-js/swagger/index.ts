@@ -653,15 +653,12 @@ export class SummerSwaggerUIController {
     allPages = Array.from(new Set(allPages))
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
     indexHTML = indexHTML.replace('{{TITLE}}', swaggerJson.info.title)
-    if (allPages.length === 1) {
-      indexHTML = indexHTML.replace('//{{URLS}}', `urls:[{url:"swagger-docs.json",name:"All"}],`)
-    } else {
-      const urls = allPages.map((ap) => ({
-        name: ap || 'Default',
-        url: `swagger-docs.json?category=${encodeURIComponent(ap)}`
-      }))
-      indexHTML = indexHTML.replace('//{{URLS}}', `urls:${JSON.stringify(urls)},\n'urls.primaryName':'${primaryName}',`)
-    }
+
+    const urls = allPages.map((ap) => ({
+      name: ap || 'Default',
+      url: 'swagger-docs.json' + (ap ? `?category=${encodeURIComponent(ap)}` : '')
+    }))
+    indexHTML = indexHTML.replace('//{{URLS}}', `urls:${JSON.stringify(urls)},\n'urls.primaryName':'${primaryName}',`)
 
     return indexHTML
   }

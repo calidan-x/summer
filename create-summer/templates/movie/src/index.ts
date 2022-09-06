@@ -4,7 +4,10 @@ export { handler }
 
 summerStart({
   async before(config) {
-    await getDataSource('MOVIE_DB').synchronize()
+    // You need to create database first
+    // SQL: CREATE DATABASE `movie-db` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci
+    const movieDataSource = getDataSource('MOVIE_DB')
+    await movieDataSource.synchronize()
   },
   async after(config) {}
 })

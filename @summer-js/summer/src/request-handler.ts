@@ -203,7 +203,7 @@ const callControllerMethod = async (ctx: Context) => {
     const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
     applyResponse(ctx, responseData, returnDeclareType)
   } else {
-    throw new NotFoundError(404, { message: '404 Not Found' })
+    throw new NotFoundError(404, { message: 'Api Not Found' })
   }
 }
 
