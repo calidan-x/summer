@@ -1,31 +1,37 @@
 {
-	"name": "@summer-js/swagger",
-	"version": "0.0.73",
-	"description": "",
-	"main": "lib/index.js",
-	"module": "lib/index.js",
-	"files": [
-		"lib",
-		"index.html"
-	],
-	"dependencies": {
-		"swagger-ui-dist": "^4.14.0"
-	},
-	"scripts": {
-		"build": "tsc",
-		"release": "npm publish --access public"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/calidan-x/summer.git"
-	},
-	"keywords": [
-		"swagger"
-	],
-	"author": "",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/calidan-x/summer/issues"
-	},
-	"homepage": "https://github.com/calidan-x/summer#readme"
+  "name": "@summer-js/swagger",
+  "version": "0.0.73",
+  "description": "",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "files": [
+    "lib",
+    "index.html"
+  ],
+  "dependencies": {
+    "swagger-ui-dist": "^4.14.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "release": "npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calidan-x/summer.git"
+  },
+  "keywords": [
+    "swagger"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calidan-x/summer/issues"
+  },
+  "homepage": "https://summerjs.dev",
+  "keywords": [
+    "node",
+    "nodejs",
+    "backend",
+    "api"
+  ]
 }

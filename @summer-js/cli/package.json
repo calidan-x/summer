@@ -1,31 +1,37 @@
 {
-	"name": "@summer-js/cli",
-	"version": "0.0.73",
-	"description": "",
-	"type": "module",
-	"bin": {
-		"summer": "index.js",
-		"summer-compile": "compile.js"
-	},
-	"scripts": {
-		"release": "npm publish --access public"
-	},
-	"dependencies": {
-		"tree-kill": "^1.2.2",
-		"chokidar": "^3.5.3",
-		"ora": "^6.0.1",
-		"commander": "^9.0.0",
-		"cross-env": "^7.0.3"
-	},
-	"devDependencies": {},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/calidan-x/summer.git"
-	},
-	"author": "",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/calidan-x/summer/issues"
-	},
-	"homepage": "https://github.com/calidan-x/summer#readme"
+  "name": "@summer-js/cli",
+  "version": "0.0.73",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "summer": "index.js",
+    "summer-compile": "compile.js"
+  },
+  "scripts": {
+    "release": "npm publish --access public"
+  },
+  "dependencies": {
+    "tree-kill": "^1.2.2",
+    "chokidar": "^3.5.3",
+    "ora": "^6.0.1",
+    "commander": "^9.0.0",
+    "cross-env": "^7.0.3"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calidan-x/summer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calidan-x/summer/issues"
+  },
+  "homepage": "https://summerjs.dev",
+  "keywords": [
+    "node",
+    "nodejs",
+    "backend",
+    "api"
+  ]
 }
