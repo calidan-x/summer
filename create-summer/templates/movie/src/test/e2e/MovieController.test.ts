@@ -1,7 +1,7 @@
 import { initTest, endTest, request } from '@summer-js/test'
 import { getDataSource } from '@summer-js/typeorm'
 
-import { Movie } from '../entity/Movie'
+import { Movie } from '../../entity/Movie'
 
 describe('Test MovieController', () => {
   beforeAll(async () => {
