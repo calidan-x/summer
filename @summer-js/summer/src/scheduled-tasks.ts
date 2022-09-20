@@ -5,7 +5,7 @@ import { Logger } from './logger'
 interface ScheduledTask {
   class: any
   methodName: string
-  cronOrFixedRate: { corn: string; timeZone?: string } | { fixedRate: number }
+  cronOrFixedRate: { cron: string; timeZone?: string } | { fixedRate: number }
 }
 
 export const scheduledTask = {
