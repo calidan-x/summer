@@ -1,8 +1,8 @@
 import { convertData, Service } from '@summer-js/summer'
 import { Repository } from '@summer-js/typeorm'
 
-import { MovieRequest } from '../dto/request/movie'
-import { Movie } from '../entity/Movie'
+import { MovieRequest } from '../dto/request'
+import { Movie } from '../entity'
 import { ResError } from '../error'
 
 @Service

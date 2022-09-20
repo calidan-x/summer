@@ -8,7 +8,10 @@
     "esModuleInterop": true,
     "outDir": "./compile",
     "moduleResolution": "Node",
-    "module": "commonjs"
+    "module": "commonjs",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["./src/**/*"]
 }
