@@ -38,8 +38,8 @@ const copyRecursiveSync = function (src, dest) {
     choices: [
       { title: 'Empty Project', value: 'empty' },
       {
-        title: 'Restful API Project',
-        description: 'A movie restful api project with TypeORM and Swagger Doc',
+        title: 'Rest API Project',
+        description: 'A movie rest api project with TypeORM and Swagger',
         value: 'movie'
       }
     ],
