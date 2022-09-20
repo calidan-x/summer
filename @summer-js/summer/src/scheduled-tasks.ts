@@ -27,8 +27,8 @@ export const scheduledTask = {
           )
         }
       }
-      if (st.cronOrFixedRate['corn']) {
-        cron.schedule(st.cronOrFixedRate['corn'], task, {
+      if (st.cronOrFixedRate['cron']) {
+        cron.schedule(st.cronOrFixedRate['cron'], task, {
           scheduled: true,
           timezone: st.cronOrFixedRate['timeZone']
         })
