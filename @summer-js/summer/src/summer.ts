@@ -8,6 +8,7 @@ import { rpc } from './rpc'
 import { session } from './session'
 import { getConfig } from './config-handler'
 import { Logger } from './logger'
+import { scheduledTask } from './scheduled-tasks'
 
 const printSummerInfo = () => {
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
@@ -83,11 +84,13 @@ export const summerInit = async (options?: SummerStartOptions) => {
     await httpServer.createServer(config['SERVER_CONFIG'], async () => {
       await locContainer.resolveLoc()
       rpc.resolveRpc()
+      scheduledTask.start()
       options.after && options.after(config)
     })
   } else {
     await locContainer.resolveLoc()
     rpc.resolveRpc()
+    scheduledTask.start()
     options.after && options.after(config)
     if (!startLocks['done']) {
       for (const k in startLocks) {
