@@ -1,6 +1,6 @@
 {
 	"name": "summer-packages",
-	"version": "0.0.73",
+	"version": "0.0.74",
 	"description": "",
 	"scripts": {
 		"build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build",
