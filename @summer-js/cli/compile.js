@@ -367,7 +367,11 @@ const resolvePath = (dirtyFiles, compileAll) => {
 
         pathResolveActions.push(() => {
           impt.setModuleSpecifier(
-            './' + path.relative(path.dirname(sf.getFilePath()), moduleSourceFile.getFilePath()).replace(/.ts$/, '')
+            './' +
+              path
+                .relative(path.dirname(sf.getFilePath()), moduleSourceFile.getFilePath())
+                .replace(/.ts$/, '')
+                .replace('\\', '/')
           )
         })
       }
