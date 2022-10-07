@@ -329,9 +329,11 @@ const checkError = () => {
               compiling = false
             }
 
-            modifyActions.push(() => {
-              addFileImport(returnTypeStr, cls)
-            })
+            if (!returnTypeStr.startsWith('{')) {
+              modifyActions.push(() => {
+                addFileImport(returnTypeStr, cls)
+              })
+            }
           }
         }
       }

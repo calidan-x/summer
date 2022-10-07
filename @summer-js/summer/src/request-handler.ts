@@ -220,8 +220,8 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
 const handleRpc = async (ctx: Context) => {
   if (ctx.request.headers['summer-rpc-access-key']) {
     if (
-      getConfig()['RPC_CONFIG'].provider &&
-      ctx.request.headers['summer-rpc-access-key'] === getConfig()['RPC_CONFIG'].provider.accessKey
+      getConfig('RPC_CONFIG').provider &&
+      ctx.request.headers['summer-rpc-access-key'] === getConfig('RPC_CONFIG').provider.accessKey
     ) {
       let rpcData
       try {

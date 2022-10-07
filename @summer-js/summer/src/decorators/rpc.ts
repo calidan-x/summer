@@ -25,7 +25,7 @@ export const RpcClient = (source: string, targetClass?: string) => {
     Object.getOwnPropertyNames(target.prototype).forEach((method) => {
       if (typeof target.prototype[method] === 'function' && method !== 'constructor') {
         target.prototype[method] = async (...args) => {
-          const config = getConfig()['RPC_CONFIG']
+          const config = getConfig('RPC_CONFIG')
           if (!config) {
             Logger.error('RPC_CONFIG is missing in config')
             return

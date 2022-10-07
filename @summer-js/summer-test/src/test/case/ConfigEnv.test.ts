@@ -11,7 +11,7 @@ describe('Config Test', () => {
   })
 
   test('test getConfig', async () => {
-    const config = getConfig()['TEST_CONFIG']
+    const config = getConfig('TEST_CONFIG')
     expect(config).toStrictEqual({
       var1: 'VAR1Change',
       var2: ['A1', 'B2'],

@@ -25,7 +25,7 @@ const hasPath = (path) => {
 }
 
 export const handleCors = (ctx: Context) => {
-  if (getConfig().SERVER_CONFIG.cors) {
+  if (getConfig('SERVER_CONFIG').cors) {
     if (hasPath(ctx.request.path)) {
       if (ctx.request.method === 'OPTIONS') {
         ctx.response = {

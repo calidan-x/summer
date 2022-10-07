@@ -35,7 +35,7 @@ const getGZipData = async (data: string): Promise<string> => {
 export const handler = async (...args) => {
   await summerInit(startOptions)
 
-  const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
+  const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
 
   const serverType = getServerType()
   switch (serverType) {

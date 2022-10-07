@@ -142,7 +142,7 @@ class SwaggerPlugin extends SummerPlugin {
     }
     Object.assign(swaggerJson, config)
     delete swaggerJson['securitySchemes']
-    const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
+    const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
     if (serverConfig) {
       if (!serverConfig.static) {
         serverConfig.static = []

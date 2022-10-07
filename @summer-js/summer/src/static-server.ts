@@ -12,7 +12,7 @@ interface StaticResult {
 }
 
 export const handleStaticRequest = (requestPath: string): StaticResult | null => {
-  const serverConfig: ServerConfig = getConfig()['SERVER_CONFIG']
+  const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
   if (serverConfig.static) {
     for (const staticConfig of serverConfig.static) {
       let { requestPath: requestPathRoot, destPath: destPathRoot, indexFiles } = staticConfig
