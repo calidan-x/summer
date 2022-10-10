@@ -9,7 +9,7 @@ import ora from 'ora'
 
 const clearScreen = () => process.stdout.write(process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H')
 
-const isTerminal = process.env.TERM !== undefined
+const isTerminal = process.stdout.isTTY
 let spinner
 
 var copyRecursiveSync = function (src, dest) {
@@ -162,7 +162,6 @@ program
     spinner.start()
     const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile test`)
     printProcessData(compileProcess)
-
     compileProcess.on('exit', () => {
       spinner.text = 'STARTING...'
       if (fs.existsSync('./compile/index.js')) {

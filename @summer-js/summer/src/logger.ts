@@ -10,12 +10,11 @@ const timePrefix = () => {
 type LogType = ('Log' | 'Warning' | 'Error' | 'Info' | 'Debug')[]
 const sLogType = Symbol('LogEnable')
 const isTerminal = process.env.TERM !== undefined
-const colorPrint = (color: string, type: string, message?: any, ...optionalParams: any[]) => {
+const print = (color: string, type: string, message?: any, ...optionalParams: any[]) => {
   if (!isTerminal) {
     console.log(timePrefix(), type, message, ...optionalParams)
   } else {
-    process.stdout.write(`\x1b[${color}`)
-    console.log(timePrefix(), type, message, ...optionalParams, '\x1b[0m')
+    console.log(`\x1b[${color}${timePrefix()}`, type, message, ...optionalParams, '\x1b[0m')
   }
 }
 
@@ -29,17 +28,17 @@ export const Logger = {
   },
   info(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Info')) {
-      colorPrint('32m', '[INFO]', message, ...optionalParams)
+      print('32m', '[INFO]', message, ...optionalParams)
     }
   },
   error(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Error')) {
-      colorPrint('31m', '[ERROR]', message, ...optionalParams)
+      print('31m', '[ERROR]', message, ...optionalParams)
     }
   },
   warning(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Warning')) {
-      colorPrint('33m', '[WARNING]', message, ...optionalParams)
+      print('33m', '[WARNING]', message, ...optionalParams)
     }
   },
   log(message?: any, ...optionalParams: any[]) {
@@ -49,7 +48,7 @@ export const Logger = {
   },
   debug(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Debug')) {
-      colorPrint('36m', '[DEBUG]', message, ...optionalParams)
+      print('36m', '[DEBUG]', message, ...optionalParams)
     }
   }
 }
