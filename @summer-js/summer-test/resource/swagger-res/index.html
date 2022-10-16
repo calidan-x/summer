@@ -1,4 +1,4 @@
-<!-- HTML for static distribution bundle build -->
+<!-- HTML for static distribution bundle  -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -24,6 +24,51 @@
         margin: 0;
         background: #fafafa;
       }
+
+      .mask {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        background-color: white;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        display: none;
+      }
+
+      .panel {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        width: 250px;
+        height: 100px;
+        text-align: center;
+        margin: auto;
+        margin-top: 130px;
+        padding-top: 20px;
+        font-size: 14px;
+      }
+
+      .panel input {
+        border: 1px solid #aaa;
+        outline: none;
+        padding: 5px;
+        text-align: center;
+        margin-top: 5px;
+        border-radius: 3px;
+      }
+
+      .panel button {
+        margin-top: 5px;
+        cursor: pointer;
+        background-color: #4990e2;
+        color: white;
+        border-radius: 5px;
+        border: none;
+        padding: 4px 10px;
+      }
+
+      .panel button:active {
+        background-color: #316198;
+      }
     </style>
   </head>
 
@@ -33,8 +78,20 @@
     <script src="swagger-res/swagger-ui-bundle.js" charset="UTF-8"></script>
     <script src="swagger-res/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
     <script>
+      function checkPassword() {
+        var xhttp = new XMLHttpRequest()
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            if (this.responseText === '') {
+              document.getElementById('mask').style.display = 'block'
+            }
+          }
+        }
+        xhttp.open('GET', 'check-password', true)
+        xhttp.send()
+      }
+
       window.onload = function () {
-        // Begin Swagger UI call region
         const ui = SwaggerUIBundle({
           //{{URLS}}
           dom_id: '#swagger-ui',
@@ -43,10 +100,26 @@
           plugins: [SwaggerUIBundle.plugins.DownloadUrl],
           layout: 'StandaloneLayout'
         })
-        // End Swagger UI call region
-
         window.ui = ui
       }
+
+      function setCookie(cname, cvalue) {
+        document.cookie = cname + '=' + cvalue + '; '
+      }
+
+      function enter() {
+        setCookie('password', document.getElementById('access-password').value)
+        setTimeout('location.reload()', 500)
+      }
+
+      checkPassword()
     </script>
+    <div class="mask" id="mask">
+      <div class="panel">
+        <div>Access Password:</div>
+        <div><input id="access-password" type="password" /></div>
+        <button onclick="enter()">ENTER</button>
+      </div>
+    </div>
   </body>
 </html>

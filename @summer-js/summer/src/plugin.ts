@@ -3,7 +3,7 @@ import { ClassDeclaration } from 'ts-morph'
 export class SummerPlugin {
   configKey: string
   compile(clazz: ClassDeclaration, modifyActions: (() => void)[]) {}
-  postCompile() {}
+  postCompile(isFirstCompile?: boolean) {}
   init(config: any) {}
   destroy() {}
 

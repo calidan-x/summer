@@ -9,7 +9,8 @@ import {
   Logger,
   Ctx,
   Context,
-  ResponseError
+  ResponseError,
+  Cookie
 } from '@summer-js/summer'
 import { pathToRegexp } from 'path-to-regexp'
 
@@ -54,6 +55,7 @@ interface SecurityDefinitionOAuth2 {
 export interface SwaggerConfig {
   docPath: string
   readTypeORMComment?: boolean
+  password?: string
   info: {
     title: string
     description?: string
@@ -71,6 +73,7 @@ interface SwaggerDoc {
   openapi: string
   docPath: string
   readTypeORMComment?: boolean
+  password?: string
   servers?: { url?: string; description?: string }[]
   info: {
     title: string
@@ -166,6 +169,10 @@ class SwaggerPlugin extends SummerPlugin {
           `${config.docPath}swagger-docs.json`
         )
         delete requestMapping['/-summer-swagger-ui/swagger-docs.json']
+
+        requestMapping[`${config.docPath}check-password`] = requestMapping['/-summer-swagger-ui/check-password']
+        requestMapping[`${config.docPath}check-password`].pathRegExp = pathToRegexp(`${config.docPath}check-password`)
+        delete requestMapping['/-summer-swagger-ui/check-password']
       }
     }
 
@@ -233,7 +240,7 @@ class SwaggerPlugin extends SummerPlugin {
     }
   }
 
-  async postCompile() {
+  async postCompile(isFirstCompile: boolean) {
     let swaggerUIPath = getAbsoluteFSPath()
     if (!fs.existsSync(swaggerUIPath)) {
       swaggerUIPath = '../../node_modules/swagger-ui-dist'
@@ -260,11 +267,11 @@ class SwaggerPlugin extends SummerPlugin {
       'favicon-32x32.png'
     ]
     files.forEach((f) => {
-      if (!fs.existsSync('./resource/swagger-res/' + f)) {
+      if (!fs.existsSync('./resource/swagger-res/' + f) || isFirstCompile) {
         fs.copyFileSync(swaggerUIPath + '/' + f, './resource/swagger-res/' + f)
       }
     })
-    if (!fs.existsSync('./resource/swagger-res/index.html')) {
+    if (!fs.existsSync('./resource/swagger-res/index.html') || isFirstCompile) {
       fs.copyFileSync(swaggerPluginPath + '/index.html', './resource/swagger-res/index.html')
     }
   }
@@ -663,8 +670,24 @@ export class SummerSwaggerUIController {
     return indexHTML
   }
 
+  @Get('/check-password')
+  checkPassword(@Cookie password?: string) {
+    if (swaggerJson.password) {
+      if (swaggerJson.password !== password) {
+        return ''
+      }
+    }
+    return 'ok'
+  }
+
   @Get('/swagger-docs.json')
-  getSwaggerDocument(@Query @_ParamDeclareType([String]) @_Optional category?: string) {
+  getSwaggerDocument(@Query @_ParamDeclareType([String]) @_Optional category?: string, @Cookie password?: string) {
+    if (swaggerJson.password) {
+      if (swaggerJson.password !== password) {
+        return ''
+      }
+    }
+
     swaggerJson.tags = []
     swaggerJson.paths = {}
     category = category || ''
@@ -889,6 +912,7 @@ export class SummerSwaggerUIController {
     const outPutJSON = { ...swaggerJson }
     delete outPutJSON.docPath
     delete outPutJSON.readTypeORMComment
+    delete outPutJSON.password
     return outPutJSON
   }
 }

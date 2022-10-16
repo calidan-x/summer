@@ -380,6 +380,7 @@ const resolvePath = (dirtyFiles, compileAll) => {
 }
 
 let compiling = false
+let isFirstCompile = true
 const updateFileList = []
 const compile = async (compileAll = false) => {
   compiling = true
@@ -711,8 +712,9 @@ const compile = async (compileAll = false) => {
   project.emitSync({ targetSourceFile: indexSourceFile })
 
   for (const p of pluginIncs) {
-    p.postCompile && (await p.postCompile())
+    p.postCompile && (await p.postCompile(isFirstCompile))
   }
+  isFirstCompile = false
 
   console.log('COMPILE_DONE')
   compiling = false
