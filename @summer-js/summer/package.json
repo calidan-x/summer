@@ -38,7 +38,6 @@
     "node-cron": "3.0.2"
   },
   "devDependencies": {
-    "@types/node": "^16.11.43",
-    "@types/validator": "13.1.3"
+    "@types/node": "^16.11.43"
   }
 }

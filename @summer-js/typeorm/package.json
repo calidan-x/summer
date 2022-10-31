@@ -27,6 +27,6 @@
 	},
 	"homepage": "https://summerjs.dev",
 	"dependencies": {
-		"typeorm": "^0.3.6"
+		"typeorm": "^0.3.10"
 	}
 }
