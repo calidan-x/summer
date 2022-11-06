@@ -1,4 +1,3 @@
-import cookie from 'cookie'
 import crypto from 'crypto'
 
 import { Context } from '.'

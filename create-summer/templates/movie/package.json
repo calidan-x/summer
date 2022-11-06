@@ -12,11 +12,11 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"@summer-js/cli": "0.0.80",
-		"@summer-js/summer": "0.0.80",
-		"@summer-js/swagger": "0.0.80",
-		"@summer-js/test": "0.0.80",
-		"@summer-js/typeorm": "0.0.80",
+		"@summer-js/cli": "0.0.81",
+		"@summer-js/summer": "0.0.81",
+		"@summer-js/swagger": "0.0.81",
+		"@summer-js/test": "0.0.81",
+		"@summer-js/typeorm": "0.0.81",
 		"mysql2": "^2.3.3"
 	}
 }

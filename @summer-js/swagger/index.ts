@@ -12,6 +12,7 @@ import {
   ResponseError,
   Cookie
 } from '@summer-js/summer'
+import crypto from 'crypto'
 import { pathToRegexp } from 'path-to-regexp'
 
 import {
@@ -121,6 +122,10 @@ interface SwaggerDoc {
   }
   definitions?: {}
   externalDocs?: { description: string; url: string }
+}
+
+const md5 = (str: string) => {
+  return crypto.createHash('md5').update(str).digest('hex')
 }
 
 const swaggerJson: SwaggerDoc = {
@@ -285,18 +290,21 @@ interface ApiDocGroupOption {
 }
 
 const allTags: ({
+  controllerClass: any
   controllerName: string
   name: string
   description: string
   order: number
   category: string
 } & ApiDocGroupOption)[] = []
+
 export const ApiDocGroup = (name: string, apiDocGroupOptions: ApiDocGroupOption = {}) => {
   const options = { description: '', order: 9999999, category: '' }
   Object.assign(options, apiDocGroupOptions)
   return function (target: any) {
     allTags.push({
       controllerName: target.name,
+      controllerClass: target,
       name,
       ...options
     })
@@ -340,8 +348,13 @@ interface ControllerApiDoc {
   order?: number
 }
 
-const allApis: (ControllerApiDoc & { summary: string; controller: any; controllerName: string; callMethod: string })[] =
-  []
+const allApis: (ControllerApiDoc & {
+  summary: string
+  controller: any
+  controllerClass: any
+  controllerName: string
+  callMethod: string
+})[] = []
 export const ApiDoc = (summary: string, options: ControllerApiDoc = {}) => {
   const opts = { order: 9999999, example: {} }
   Object.assign(opts, options)
@@ -350,17 +363,18 @@ export const ApiDoc = (summary: string, options: ControllerApiDoc = {}) => {
       ...opts,
       summary,
       controller: target,
+      controllerClass: target.constructor,
       controllerName: target.constructor.name,
       callMethod: propertyKey
     })
   }
 }
 
-const findRoute = (controllerName: string, callMethod: string) => {
+const findRoute = (controllerClass: any, callMethod: string) => {
   for (const path in requestMapping) {
     for (const requestMethod in requestMapping[path]) {
       const route = requestMapping[path][requestMethod]
-      if (route.controllerName === controllerName && route.callMethod === callMethod) {
+      if (route.controllerClass === controllerClass && route.callMethod === callMethod) {
         return { path, requestMethod, params: route.params }
       }
     }
@@ -368,24 +382,24 @@ const findRoute = (controllerName: string, callMethod: string) => {
   return null
 }
 
-const findTag = (controllerName: string) => {
-  const tag = allTags.find((tag) => tag.controllerName === controllerName)
+const findTag = (controllerClass: string) => {
+  const tag = allTags.find((tag) => tag.controllerClass === controllerClass)
   if (tag) {
     return tag.name
   }
   return ''
 }
 
-const findSecurity = (controllerName: string) => {
-  const tag = allTags.find((tag) => tag.controllerName === controllerName)
+const findSecurity = (controllerClass: string) => {
+  const tag = allTags.find((tag) => tag.controllerClass === controllerClass)
   if (tag) {
     return tag.security || []
   }
   return []
 }
 
-const findCategory = (controllerName: string) => {
-  const tag = allTags.find((tag) => tag.controllerName === controllerName)
+const findCategory = (controllerClass: string) => {
+  const tag = allTags.find((tag) => tag.controllerClass === controllerClass)
   if (tag) {
     return tag.category
   }
@@ -701,11 +715,11 @@ export class SummerSwaggerUIController {
 
     allApis.sort((a, b) => a.order - b.order)
     allApis.forEach((api) => {
-      const apiCate = findCategory(api.controllerName)
+      const apiCate = findCategory(api.controllerClass)
       if (apiCate !== category) {
         return
       }
-      const roteInfo = findRoute(api.controllerName, api.callMethod)
+      const roteInfo = findRoute(api.controllerClass, api.callMethod)
       if (roteInfo) {
         const { path, requestMethod, params } = roteInfo
         let docPath = (path || '/').replace(/\/{2,}/g, '/')
@@ -864,7 +878,7 @@ export class SummerSwaggerUIController {
 
         const isArray = d1 === Array
 
-        const security = [...findSecurity(api.controllerName), ...(api.security || [])]
+        const security = [...findSecurity(api.controllerClass), ...(api.security || [])]
 
         // response structure
         let schema: any = {}
@@ -884,13 +898,14 @@ export class SummerSwaggerUIController {
           schema.example = successResExample
         }
 
+        const route = findRoute(api.controllerClass, api.callMethod)
         swaggerJson.paths[docPath][requestMethod.toLowerCase()] = {
-          tags: [findTag(api.controllerName)],
+          tags: [findTag(api.controllerClass)],
           summary: api.summary,
           description: api.description,
           deprecated: api.deprecated,
           security: security.length > 0 ? security : [],
-          operationId: api.summary || api.callMethod,
+          operationId: md5(route.requestMethod + route.path).substring(0, 5),
           parameters,
           requestBody,
           responses: {

@@ -7,6 +7,7 @@ export const data = {
     { name: '上传相关接口', description: '' },
     { name: 'Generic', description: '' },
     { name: 'Movie Apis', description: '' },
+    { name: 'Movie Apis', description: '' },
     { name: 'Swagger Apis', description: '' }
   ],
   paths: {
@@ -15,7 +16,7 @@ export const data = {
         tags: ['Person相关服务'],
         summary: '获取用户列表',
         security: [],
-        operationId: '获取用户列表',
+        operationId: '21551',
         parameters: [{ name: 'pageIndex', in: 'query', required: false, schema: { type: 'string' } }],
         responses: {
           '200': {
@@ -62,7 +63,7 @@ export const data = {
         tags: ['Person相关服务'],
         summary: '',
         security: [],
-        operationId: 'addPerson',
+        operationId: '441d6',
         parameters: [],
         requestBody: {
           content: {
@@ -84,7 +85,7 @@ export const data = {
         tags: ['Person相关服务'],
         summary: '',
         security: [],
-        operationId: 'personInfo',
+        operationId: '8e99c',
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'number' } }],
         responses: {
           '200': {
@@ -112,7 +113,7 @@ export const data = {
         tags: ['Todo Apis'],
         summary: '',
         security: [],
-        operationId: 'list',
+        operationId: 'ad91d',
         parameters: [],
         responses: {
           '200': {
@@ -142,7 +143,7 @@ export const data = {
         tags: ['上传相关接口'],
         summary: '上传文件',
         security: [],
-        operationId: '上传文件',
+        operationId: '764c3',
         parameters: [],
         requestBody: {
           content: {
@@ -167,7 +168,7 @@ export const data = {
         tags: ['Generic'],
         summary: '',
         security: [],
-        operationId: 'genericRequest',
+        operationId: '639e5',
         parameters: [],
         requestBody: {
           content: {
@@ -303,7 +304,7 @@ export const data = {
         tags: ['Generic'],
         summary: '',
         security: [],
-        operationId: 'mixedObjectReturn',
+        operationId: 'c849e',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
       }
@@ -313,7 +314,7 @@ export const data = {
         tags: ['Movie Apis'],
         summary: 'Get movies',
         security: [],
-        operationId: 'Get movies',
+        operationId: '3b8fc',
         parameters: [{ name: 'search', in: 'query', required: false, schema: { type: 'string' } }],
         responses: {
           '200': {
@@ -341,7 +342,7 @@ export const data = {
         tags: ['Movie Apis'],
         summary: 'Add new movie',
         security: [],
-        operationId: 'Add new movie',
+        operationId: 'a703b',
         parameters: [],
         requestBody: {
           content: {
@@ -380,7 +381,101 @@ export const data = {
         tags: ['Movie Apis'],
         summary: 'Get movie detail',
         security: [],
-        operationId: 'Get movie detail',
+        operationId: '588ff',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                    name: { type: 'string', description: 'Name of the movie', example: '2022' },
+                    year: { type: 'string', description: 'Movie Release Year', example: '2022' }
+                  },
+                  description: ''
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/v2/movies': {
+      get: {
+        tags: ['Movie Apis'],
+        summary: 'Get movies',
+        security: [],
+        operationId: '04cd4',
+        parameters: [{ name: 'search', in: 'query', required: false, schema: { type: 'string' } }],
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'integer' },
+                      name: { type: 'string', description: 'Name of the movie', example: '2022' },
+                      year: { type: 'string', description: 'Movie Release Year', example: '2022' }
+                    },
+                    description: ''
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      post: {
+        tags: ['Movie Apis'],
+        summary: 'Add new movie',
+        security: [],
+        operationId: '10122',
+        parameters: [],
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: { name: { type: 'string' }, year: { type: 'string' } },
+                description: '',
+                required: ['name', 'year']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                    name: { type: 'string', description: 'Name of the movie', example: '2022' },
+                    year: { type: 'string', description: 'Movie Release Year', example: '2022' }
+                  },
+                  description: ''
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/v2/movies/{id}': {
+      get: {
+        tags: ['Movie Apis'],
+        summary: 'Get movie detail',
+        security: [],
+        operationId: '2a9ba',
         parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
         responses: {
           '200': {
@@ -408,7 +503,7 @@ export const data = {
         summary: 'Get Hello',
         description: 'desc',
         security: [],
-        operationId: 'Get Hello',
+        operationId: 'b5020',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string' } } } } }
       }
@@ -418,7 +513,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'unknown',
+        operationId: 'e0aef',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
       }
@@ -428,7 +523,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'promiseUnknown',
+        operationId: 'cd4bd',
         parameters: [],
         responses: {
           '200': {
@@ -456,7 +551,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'paging',
+        operationId: 'ea7a2',
         parameters: [],
         responses: {
           '200': {
@@ -495,7 +590,7 @@ export const data = {
         summary: 'Doc Summary',
         description: 'desc',
         security: [],
-        operationId: 'Doc Summary',
+        operationId: 'c8946',
         parameters: [
           { name: 'query', in: 'query', required: true, schema: { type: 'string' } },
           { name: 'boolQuery', in: 'query', required: true, schema: { type: 'boolean' } },
@@ -610,7 +705,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'stringArrayRequest',
+        operationId: '543db',
         parameters: [],
         requestBody: { content: { 'application/json': { schema: { type: 'array', items: { type: 'string' } } } } },
         responses: {
@@ -626,7 +721,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'objArrayRequest',
+        operationId: 'fca75',
         parameters: [],
         requestBody: {
           content: {
@@ -673,7 +768,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'returnString',
+        operationId: '0d129',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string' } } } } }
       }
@@ -683,7 +778,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'returnNumber',
+        operationId: '789db',
         parameters: [],
         responses: { '200': { description: '', content: { 'application/json': { schema: { type: 'number' } } } } }
       }
@@ -693,7 +788,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'returnObject',
+        operationId: '92b72',
         parameters: [],
         responses: {
           '200': {
@@ -763,7 +858,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'returnArray',
+        operationId: 'd7575',
         parameters: [],
         responses: {
           '200': {
@@ -778,7 +873,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'returnObjectArray',
+        operationId: '020db',
         parameters: [],
         responses: {
           '200': {
@@ -851,7 +946,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: 'security',
         security: [{ AppAuth: [] }],
-        operationId: 'security',
+        operationId: 'c7bdc',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string' } } } } }
       }
@@ -861,7 +956,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: 'extends class',
         security: [],
-        operationId: 'extends class',
+        operationId: 'c8491',
         parameters: [],
         requestBody: {
           content: {
@@ -906,7 +1001,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'getInterface',
+        operationId: '7e5a1',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
       }
@@ -916,7 +1011,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'getWringReturn',
+        operationId: '51d82',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
       }
@@ -926,7 +1021,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'getWringReturn2',
+        operationId: '80584',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
       }
@@ -936,7 +1031,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'getServiceData',
+        operationId: '2f310',
         parameters: [],
         responses: {
           '200': {
@@ -971,7 +1066,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'serviceMixTypeClass',
+        operationId: '9877f',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
       }
@@ -981,7 +1076,7 @@ export const data = {
         tags: ['Swagger Apis'],
         summary: '',
         security: [],
-        operationId: 'getServicePagingData',
+        operationId: 'b45ee',
         parameters: [],
         responses: {
           '200': {
