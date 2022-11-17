@@ -42,6 +42,11 @@ export const handler = async (...args) => {
     case 'AWSLambda': {
       const event = args[0]
 
+      // support function url
+      event.path = event.path || event.rawPath
+      event.queryStringParameters = event.queryStringParameters || {}
+      event.httpMethod = event.httpMethod || event.requestContext?.http?.method
+
       if (serverConfig) {
         if (serverConfig.basePath) {
           if (event.path.startsWith(serverConfig.basePath)) {
@@ -89,7 +94,7 @@ export const handler = async (...args) => {
       const context: Context = {
         request: {
           method: event.httpMethod,
-          path: event.path || event.rawPath,
+          path: event.path,
           queries: event.queryStringParameters,
           headers: event.headers,
           body: bodyData
