@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "noImplicitReturns":true,
+    "noUnusedParameters":true,
+    "noUnusedLocals":true,
     "types": ["node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

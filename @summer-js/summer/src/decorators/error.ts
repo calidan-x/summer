@@ -24,11 +24,12 @@ export const ErrorHandler: ErrorHandlerType = (...args) => {
     }
   } else {
     instanceHandler(args[0])
+    return null
   }
 }
 
 export const E = (err: any): MethodDecorator => {
-  return (target: any, method: string) => {
+  return (_target: any, method: string) => {
     errorHandle.errorMap.push({ type: err, method: method })
   }
 }

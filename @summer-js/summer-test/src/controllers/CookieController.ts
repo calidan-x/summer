@@ -1,4 +1,4 @@
-import { Controller, Post, Body, setCookie, clearCookie } from '@summer-js/summer'
+import { Controller, Post, setCookie } from '@summer-js/summer'
 
 @Controller
 export class CookieController {

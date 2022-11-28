@@ -13,6 +13,7 @@ export class SendRequestController {
     } catch (e) {
       console.log(e)
     }
+    return null
   }
 
   @Get('/summer-request')
@@ -22,5 +23,6 @@ export class SendRequestController {
     } catch (e) {
       console.log(e)
     }
+    return null
   }
 }

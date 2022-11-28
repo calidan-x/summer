@@ -118,7 +118,7 @@ export const httpServer = {
         cluster.fork()
       }
 
-      cluster.on('exit', (worker, code, signal) => {
+      cluster.on('exit', (_worker, _code, _signal) => {
         cluster.fork()
       })
 

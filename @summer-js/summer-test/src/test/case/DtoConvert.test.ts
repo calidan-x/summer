@@ -1,5 +1,5 @@
 import { convertData, fillData } from '@summer-js/summer'
-import { initTest, endTest, request } from '@summer-js/test'
+import { initTest, endTest } from '@summer-js/test'
 
 class AddUserRequest {
   name: string

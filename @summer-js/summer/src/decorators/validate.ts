@@ -48,6 +48,7 @@ const Optional: ValidateDecoratorType = (...args) => {
     return (...arg) => defineMetaValue(arg, 'optional', true)
   } else {
     defineMetaValue(args, 'optional', true)
+    return null
   }
 }
 ;(global as any)._Optional = Optional
@@ -57,6 +58,7 @@ export const IgnoreUnknownProperties: ValidateDecoratorClassType = (...args) => 
     return (target: any) => Reflect.defineMetadata('ignoreUnknownProperties', true, target)
   } else {
     Reflect.defineMetadata('ignoreUnknownProperties', true, args[0])
+    return null
   }
 }
 
@@ -70,6 +72,7 @@ export const Email: ValidateDecoratorType = (...args) => {
     return (...arg) => defineMetaValue(arg, 'email', true)
   } else {
     defineMetaValue(args, 'email', true)
+    return null
   }
 }
 

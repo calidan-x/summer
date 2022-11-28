@@ -358,7 +358,7 @@ const allApis: (ControllerApiDoc & {
 export const ApiDoc = (summary: string, options: ControllerApiDoc = {}) => {
   const opts = { order: 9999999, example: {} }
   Object.assign(opts, options)
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (target: any, propertyKey: string, _descriptor: PropertyDescriptor) {
     allApis.push({
       ...opts,
       summary,

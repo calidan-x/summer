@@ -8,7 +8,7 @@ describe('Test Send Request', () => {
   beforeAll(async () => {
     await initTest()
     server = http
-      .createServer(function (req, res) {
+      .createServer(function (_req, res) {
         res.writeHead(200, { 'Content-Type': 'text/plain' })
         res.write('{"id":22,"name":"John"}')
         res.end()

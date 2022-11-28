@@ -1,8 +1,6 @@
 import { Controller, Get } from '@summer-js/summer'
 import { HelloService } from '../service'
 
-class Type {}
-
 @Controller('/v1')
 export class HelloController {
   helloService: HelloService

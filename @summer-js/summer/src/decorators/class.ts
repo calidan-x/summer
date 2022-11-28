@@ -43,7 +43,7 @@ export const createClassDecorator =
   (...dArgs) => {
     if (dArgs.length === 1 && dArgs[0].toString().startsWith('class ')) {
       generateClassDecorator(paramMethod)(dArgs[0])
-      return
+      return null
     }
     return generateClassDecorator(paramMethod, ...dArgs)
   }

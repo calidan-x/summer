@@ -1,6 +1,6 @@
 import { Body, createRequestClientDecorator, Send } from '@summer-js/summer'
 
-const SendGrid = createRequestClientDecorator((config) => ({
+const SendGrid = createRequestClientDecorator(() => ({
   baseUrl: 'https://api.sendgrid.com',
   headers: {
     Authorization: 'Bearer <<API_KEY>>',
@@ -17,7 +17,7 @@ interface SendMailData {
 @SendGrid
 export class SendGridClient {
   @Send('POST', '/v3/mail/send')
-  sendEmail(@Body data: SendMailData) {
+  sendEmail(@Body _data: SendMailData) {
     return
   }
 }

@@ -1,4 +1,4 @@
-import { OtherErrors, E, ErrorHandler, Logger, NotFoundError, ValidationError } from '@summer-js/summer'
+import { OtherErrors, E, Logger, NotFoundError, ValidationError } from '@summer-js/summer'
 
 // @ErrorHandler
 export class HandleError {

@@ -21,6 +21,7 @@ export class Movie {
 export class MovieController {
   @ApiDoc('Get movies')
   @Get('/movies')
+  // @ts-ignore
   list(@Query search?: string) {
     const movies: Movie[] = [
       { id: 1, name: 'Titanic', year: '1997' },
@@ -31,6 +32,7 @@ export class MovieController {
 
   @ApiDoc('Get movie detail')
   @Get('/movies/:id')
+  // @ts-ignore
   detail(@PathParam id: string) {
     const movies: Movie = { id: 1, name: 'Titanic', year: '1997' }
     return movies
@@ -38,6 +40,7 @@ export class MovieController {
 
   @ApiDoc('Add new movie')
   @Post('/movies')
+  // @ts-ignore
   add(@Body body: AddMovieRequest) {
     const movies: Movie = { id: 1, name: 'Titanic', year: '1997' }
     return movies

@@ -29,13 +29,14 @@ export const createRequestClientDecorator = (requestConfig: RequestConfig): Requ
     } else {
       args[0].prototype._$requestConfig = requestConfig
       locContainer.paddingLocClass(args[0])
+      return null
     }
   }
 }
 
 export const Send =
   (requestMethod: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS', requestPath: string) =>
-  (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+  (_target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     const paramDefinitions = [...requestMappingAssembler.params]
     requestMappingAssembler.params = []
     descriptor.value = async function (...args: any) {
@@ -85,7 +86,7 @@ export const Send =
       ).data
 
       const allErrors = []
-      const [type, declareType] = Reflect.getMetadata('ReturnDeclareType', this, propertyKey)
+      const [_type, declareType] = Reflect.getMetadata('ReturnDeclareType', this, propertyKey)
       responseData = validateAndConvertType(declareType, '', responseData, allErrors, '', -1, this)
       if (allErrors.length) {
         throw new Error(JSON.stringify(allErrors))

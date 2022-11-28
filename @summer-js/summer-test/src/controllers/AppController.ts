@@ -1,4 +1,4 @@
-import { Controller, Get, Logger } from '@summer-js/summer'
+import { Controller, Get } from '@summer-js/summer'
 import { AppClient } from './../client/AppClient'
 
 @Controller

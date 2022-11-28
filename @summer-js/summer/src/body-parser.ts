@@ -11,7 +11,7 @@ const random = (() => {
 })()
 
 export const parseBody = (req: Readable, method: string, headers): Promise<any> => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (
       method === 'POST' &&
       (headers['content-type'] === 'application/x-www-form-urlencoded' ||

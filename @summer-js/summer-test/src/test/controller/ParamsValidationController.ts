@@ -91,6 +91,7 @@ class CustomValidateRequest {
     if (val.indexOf(',') > 0) {
       return true
     }
+    return false
   })
   value2: string
 }

@@ -38,6 +38,6 @@ export const Cookie = createParamDecorator((ctx, paramName: string, name: string
 export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
 
 // property
-export const Config = createPropertyDecorator(async (config, propertyName, configKey?: string) => {
+export const Config = createPropertyDecorator(async (config, _propertyName, configKey?: string) => {
   return configKey ? config[configKey] : config
 })

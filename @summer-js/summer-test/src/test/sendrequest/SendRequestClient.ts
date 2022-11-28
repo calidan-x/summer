@@ -1,6 +1,6 @@
 import { createRequestClientDecorator, Send } from '@summer-js/summer'
 
-const LocalClient = createRequestClientDecorator((config) => ({
+const LocalClient = createRequestClientDecorator((_config) => ({
   baseUrl: 'http://127.0.0.1:8803'
 }))
 
@@ -13,11 +13,11 @@ export class User {
 export class SendRequestClient {
   @Send('GET', '/')
   async getApi(): Promise<User> {
-    return
+    return null
   }
 }
 
-const SummerDev = createRequestClientDecorator((config) => ({
+const SummerDev = createRequestClientDecorator((_config) => ({
   baseUrl: 'https://summerjs.dev'
 }))
 
@@ -25,6 +25,6 @@ const SummerDev = createRequestClientDecorator((config) => ({
 export class SummerDevClient {
   @Send('GET', '/')
   async getHomePage(): Promise<string> {
-    return
+    return null
   }
 }

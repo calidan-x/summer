@@ -50,6 +50,7 @@ export const Injectable: InjectableDecoratorType = (...args) => {
     }
   } else {
     locContainer.paddingLocClass(args[0])
+    return null
   }
 }
 

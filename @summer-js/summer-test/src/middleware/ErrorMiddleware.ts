@@ -1,10 +1,10 @@
-import { Middleware, Context, ValidationError } from '@summer-js/summer'
+import { Middleware, Context } from '@summer-js/summer'
 
 @Middleware({
   order: 0
 })
 export class ErrorMiddleware {
-  async process(ctx: Context, next: any) {
+  async process(_ctx: Context, next: any) {
     try {
       await next()
     } catch (err) {

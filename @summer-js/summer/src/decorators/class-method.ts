@@ -67,10 +67,10 @@ export const createClassAndMethodDecorator =
   (...dArgs) => {
     if (dArgs.length === 1 && dArgs[0].toString().startsWith('class ')) {
       generateClassMethodDecorator(paramMethod)(dArgs[0])
-      return
+      return null
     } else if (dArgs.length === 3 && dArgs[0].constructor?.toString().startsWith('class ')) {
       generateClassMethodDecorator(paramMethod)(dArgs[0], dArgs[1], dArgs[2])
-      return
+      return null
     }
     return generateClassMethodDecorator(paramMethod, ...dArgs)
   }

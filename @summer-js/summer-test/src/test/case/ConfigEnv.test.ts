@@ -1,5 +1,5 @@
 import { getConfig } from '@summer-js/summer'
-import { initTest, endTest, request } from '@summer-js/test'
+import { initTest, endTest } from '@summer-js/test'
 
 describe('Config Test', () => {
   beforeAll(async () => {

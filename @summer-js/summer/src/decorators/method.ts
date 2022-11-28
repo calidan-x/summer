@@ -18,6 +18,7 @@ export const restfulMethodDecorator =
     } else {
       requestMappingAssembler.addMethodRoute('', httpMethod, dArgs[1], dArgs[0].constructor)
       requestMappingAssembler.addMethodDescriptor(dArgs[2])
+      return null
     }
   }
 
@@ -58,7 +59,7 @@ export const createMethodDecorator =
   (...dArgs) => {
     if (dArgs.length === 3 && dArgs[0].constructor?.toString().startsWith('class ')) {
       generateMethodDecorator(paramMethod)(dArgs[0], dArgs[1], dArgs[2])
-      return
+      return null
     }
     return generateMethodDecorator(paramMethod, ...dArgs)
   }

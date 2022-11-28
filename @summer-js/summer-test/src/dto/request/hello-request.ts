@@ -1,4 +1,4 @@
-import { Max, Min, MaxLen } from '@summer-js/summer'
+import { MaxLen } from '@summer-js/summer'
 import { Pet } from './Pet'
 
 export enum Direction {
@@ -13,11 +13,6 @@ export enum Direction2 {
   Down = 'go',
   Left = 'we',
   Right = 'hill'
-}
-
-enum BooleanLikeHeterogeneousEnum {
-  No = 0,
-  Yes = 'YES'
 }
 
 class Base {

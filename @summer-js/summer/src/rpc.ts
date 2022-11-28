@@ -39,7 +39,7 @@ export const rpc = {
       throw new Error('No PRCProvider named: ' + className)
     }
   },
-  async rpcRequest(rpcConfig: RpcServerConfig, postData: any, type, declareType, instance) {
+  async rpcRequest(rpcConfig: RpcServerConfig, postData: any, _type, declareType, instance) {
     let result
     try {
       result = (

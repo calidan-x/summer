@@ -192,7 +192,14 @@ export class SwaggerController {
     @Queries queries: AllQueries,
     @PathParam id: int,
     @Header header: string
-  ) {}
+  ) {
+    body
+    query
+    boolQuery
+    queries
+    id
+    header
+  }
 
   @Post('/swagger-string-array-request')
   async stringArrayRequest(@Body array: string[]) {
@@ -237,7 +244,7 @@ export class SwaggerController {
 
   @Post('/swagger-extends-class')
   @ApiDoc('extends class')
-  async extendClass(@Body extendObj: ExtendObj) {
+  async extendClass(@Body _extendObj: ExtendObj) {
     return new ExtendObj()
   }
 

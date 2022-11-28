@@ -1,5 +1,5 @@
 import { handleStaticRequest } from '@summer-js/summer/lib/static-server'
-import { initTest, endTest, request } from '@summer-js/test'
+import { initTest, endTest } from '@summer-js/test'
 
 describe('Config Test', () => {
   beforeAll(async () => {

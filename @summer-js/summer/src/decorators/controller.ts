@@ -20,5 +20,6 @@ export const Controller: ControllerDecoratorType = (...args) => {
     locContainer.paddingLocClass(args[0])
     requestMappingAssembler.addControllerRoute(args[0].name, '')
     requestMappingAssembler.nextController()
+    return null
   }
 }

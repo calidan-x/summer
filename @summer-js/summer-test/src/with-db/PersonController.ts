@@ -1,4 +1,4 @@
-import { Controller, Get, PathParam, Post, Body, Query, convertData, ResponseError } from '@summer-js/summer'
+import { Controller, Get, PathParam, Post, Body, convertData, ResponseError, Query } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup } from '@summer-js/swagger'
 import { PersonRequest } from '../dto/request/person-request'
 import { Person } from '../entity'
@@ -20,6 +20,7 @@ export class PersonController {
     ]
   })
   async personList(@Query pageIndex?: string) {
+    pageIndex
     const persons = await this.personService.getPersons()
     return persons
   }

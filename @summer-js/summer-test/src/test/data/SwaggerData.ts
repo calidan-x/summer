@@ -382,7 +382,7 @@ export const data = {
         summary: 'Get movie detail',
         security: [],
         operationId: '588ff',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
         responses: {
           '200': {
             description: '',

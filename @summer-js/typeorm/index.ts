@@ -95,6 +95,7 @@ export default TypeORMPlugin
 
 export class Repository<
   Entity extends ObjectLiteral,
+  // @ts-ignore
   DataSourceName extends string = ''
 > extends TypeOrmRepository<Entity> {}
 
@@ -107,4 +108,5 @@ addInjectable(Repository, (entity: any, dataSourceName: string) => {
       Logger.error(e)
     }
   }
+  return null
 })

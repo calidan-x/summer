@@ -19,7 +19,7 @@ export const createPropertyDecorator =
   (...dArgs) => {
     if (dArgs.length === 3 && dArgs[0].constructor?.toString().startsWith('class ') && dArgs[2] === undefined) {
       generatePropertyDecorator(paramMethod)(dArgs[0], dArgs[1])
-      return
+      return undefined
     }
     return generatePropertyDecorator(paramMethod, ...dArgs)
   }

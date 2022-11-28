@@ -1,4 +1,4 @@
-import { Scheduled, Service } from '@summer-js/summer'
+import { Service } from '@summer-js/summer'
 
 @Service
 export class TaskService {

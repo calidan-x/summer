@@ -115,6 +115,7 @@ export const handler = async (...args) => {
         }
       }
     }
+
     // case 'AliFC': {
     //   const req = args[0]
     //   const resp = args[1]
@@ -167,4 +168,6 @@ export const handler = async (...args) => {
     //   resp.send(context.response.body)
     // }
   }
+
+  return null
 }

@@ -1,8 +1,8 @@
 import { Controller, Get, createPropertyDecorator } from '@summer-js/summer'
 import { MovieController } from './MovieController'
 
-const PropInject = createPropertyDecorator(async (config) => {
-  return new Promise((resolve, rejected) => {
+const PropInject = createPropertyDecorator(async () => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve('Test Injection')
     }, 100)

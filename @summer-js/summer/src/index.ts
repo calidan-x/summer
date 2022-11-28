@@ -1,4 +1,4 @@
-import { ClassDeclaration } from 'ts-morph'
+// import { ClassDeclaration } from 'ts-morph'
 export { summerStart, summerDestroy, waitForStart, addPlugin, pluginCollection } from './summer'
 export * from './decorators'
 export * from './utils'

@@ -2,8 +2,11 @@ import { ClassDeclaration } from 'ts-morph'
 
 export class SummerPlugin {
   configKey: string
+  //@ts-ignore
   compile(clazz: ClassDeclaration, modifyActions: (() => void)[]) {}
+  //@ts-ignore
   postCompile(isFirstCompile?: boolean) {}
+  //@ts-ignore
   init(config: any) {}
   destroy() {}
 

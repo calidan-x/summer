@@ -16,6 +16,7 @@ export const RpcProvider: RpcProviderDecoratorType = (...args) => {
     }
   } else {
     rpc.addRpcClass(args[0])
+    return null
   }
 }
 
