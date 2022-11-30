@@ -197,6 +197,8 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
   if (!paramType) {
     paramType = parameter.getType()
+    paramType = paramType.getNonNullableType()
+
     if (paramType.isInterface()) {
       return '[]'
     }
@@ -277,7 +279,7 @@ const checkError = () => {
   if (diagnostics.length > 0) {
     console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:')
     console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
-    console.log('\x1b[33m%s\x1b[0m', '# ' + diagnostics.length + ' Error' + (diagnostics.length > 1 ? 's' : ''))
+    console.log('\x1b[33m%s\x1b[0m', '\nFound ' + diagnostics.length + ' Error' + (diagnostics.length > 1 ? 's' : ''))
     compiling = false
     return true
   }
@@ -325,7 +327,7 @@ const checkError = () => {
                 '\x1b[31m%s\x1b[0m',
                 cls.getName() + '.' + cMethod.getName() + '()' + ' should return consistent type for api response'
               )
-              console.error('\x1b[31m%s\x1b[0m', 'Found ' + returnTypeStr.replace(/import\("[^"]+"\)\./g, '') + '\n')
+              console.error('\x1b[31m%s\x1b[0m', '# ' + returnTypeStr.replace(/import\("[^"]+"\)\./g, '') + '\n')
               console.error('\x1b[31m%s\x1b[0m', 'Or add "as any" to return type to ignore this error')
               compiling = false
             }
