@@ -76,7 +76,7 @@ export const summerInit = async (options?: SummerStartOptions) => {
     }
   }
 
-  options.before && (await options.before(config))
+  options && options.before && (await options.before(config))
   if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
     if (config['SESSION_CONFIG']) {
       session.init(config['SESSION_CONFIG'])
@@ -85,13 +85,13 @@ export const summerInit = async (options?: SummerStartOptions) => {
       await locContainer.resolveLoc()
       rpc.resolveRpc()
       scheduledTask.start()
-      options.after && options.after(config)
+      options && options.after && options.after(config)
     })
   } else {
     await locContainer.resolveLoc()
     rpc.resolveRpc()
     scheduledTask.start()
-    options.after && options.after(config)
+    options && options.after && options.after(config)
     if (!startLocks['done']) {
       for (const k in startLocks) {
         startLocks[k]('')

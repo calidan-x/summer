@@ -23,6 +23,12 @@ declare global {
   const _ReturnDeclareType: any
   const _Optional: any
   const ClassCollect: any
+  namespace NodeJS {
+    interface ProcessEnv {
+      SUMMER_ENV: string
+      SUMMER_BUILD_TIME: string
+    }
+  }
 }
 
 ;(global as any)._Int = class _Int {}

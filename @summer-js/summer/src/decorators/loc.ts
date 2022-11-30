@@ -3,6 +3,7 @@ interface MethodDecoratorType {
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor): void
 }
 
+// @ts-ignore
 export const PostConstruct: MethodDecoratorType = (...args) => {
   if (args.length == 0) {
     return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {

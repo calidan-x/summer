@@ -7,6 +7,7 @@ interface ErrorHandlerType {
   (target: Object): void
 }
 
+// @ts-ignore
 export const ErrorHandler: ErrorHandlerType = (...args) => {
   const instanceHandler = (target) => {
     if (!errorHandle.errorHandlerClass) {
@@ -24,7 +25,6 @@ export const ErrorHandler: ErrorHandlerType = (...args) => {
     }
   } else {
     instanceHandler(args[0])
-    return null
   }
 }
 

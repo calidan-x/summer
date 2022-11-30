@@ -20,6 +20,7 @@ interface RequestClientDecoratorType {
 }
 
 export const createRequestClientDecorator = (requestConfig: RequestConfig): RequestClientDecoratorType => {
+  // @ts-ignore
   return (...args: any) => {
     if (args.length === 0) {
       return (target: any) => {
@@ -37,7 +38,7 @@ export const createRequestClientDecorator = (requestConfig: RequestConfig): Requ
 export const Send =
   (requestMethod: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS', requestPath: string) =>
   (_target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    const paramDefinitions = [...requestMappingAssembler.params]
+    const paramDefinitions: any[] = [...requestMappingAssembler.params]
     requestMappingAssembler.params = []
     descriptor.value = async function (...args: any) {
       const rConfig = (this as any)._$requestConfig(getConfig())

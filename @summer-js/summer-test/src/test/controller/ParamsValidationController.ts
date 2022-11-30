@@ -190,7 +190,7 @@ export class ParamsValidationController {
 
   @Get('/request-queries')
   async requestQueries(@Queries search?: Search) {
-    return search
+    return search!
   }
 
   @Post('/request-body-value')
@@ -221,7 +221,7 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/param-optional')
   paramOptional(@Query keyword?: string) {
-    return keyword
+    return keyword!
   }
 
   @Post('/request-key-validate/param-required')

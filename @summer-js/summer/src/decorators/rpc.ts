@@ -9,6 +9,7 @@ interface RpcProviderDecoratorType {
   (target: any): void
 }
 
+// @ts-ignore
 export const RpcProvider: RpcProviderDecoratorType = (...args) => {
   if (args.length === 0) {
     return (target: any) => {
@@ -16,7 +17,6 @@ export const RpcProvider: RpcProviderDecoratorType = (...args) => {
     }
   } else {
     rpc.addRpcClass(args[0])
-    return null
   }
 }
 

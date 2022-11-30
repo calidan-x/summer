@@ -42,10 +42,11 @@ type DecoratorMethodType = (ctx: Context, ...args: any[]) => any
 
 export const createParamDecorator =
   <T extends DecoratorMethodType>(paramMethod: T): ParamDecoratorType<T> =>
-  (...dArgs) => {
+  //@ts-ignore
+  (...dArgs: any[]) => {
     if (dArgs.length === 3 && dArgs[0].constructor?.toString().startsWith('class ')) {
       generateParamDecorator(paramMethod)(dArgs[0], dArgs[1], dArgs[2])
-      return undefined
+      return
     }
     return generateParamDecorator(paramMethod, ...dArgs)
   }

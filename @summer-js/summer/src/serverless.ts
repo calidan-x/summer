@@ -95,6 +95,7 @@ export const handler = async (...args) => {
         request: {
           method: event.httpMethod,
           path: event.path,
+          pathParams: {},
           queries: event.queryStringParameters,
           headers: event.headers,
           body: bodyData

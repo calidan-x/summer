@@ -34,7 +34,9 @@ export const Header = createParamDecorator(_headerConvertFunc)
 // export const _headersConvertFunc = (ctx) => ctx.request.headers
 // export const Headers = createParamDecorator(_headerConvertFunc)
 
-export const Cookie = createParamDecorator((ctx, paramName: string, name: string) => ctx.cookies[name || paramName])
+export const Cookie = createParamDecorator((ctx, paramName: string, name: string) =>
+  ctx.cookies ? ctx.cookies[name || paramName] : undefined
+)
 export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
 
 // property

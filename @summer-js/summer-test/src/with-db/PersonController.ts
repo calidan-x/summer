@@ -22,18 +22,18 @@ export class PersonController {
   async personList(@Query pageIndex?: string) {
     pageIndex
     const persons = await this.personService.getPersons()
-    return persons
+    return persons!
   }
 
   @Post
   async addPerson(@Body personRequest: PersonRequest) {
     const persons = await this.personService.savePerson(convertData(personRequest, Person))
-    return persons
+    return persons!
   }
 
   @Get('/:id')
   async personInfo(@PathParam id: number) {
     const person = await this.personService.getPersonInfo(id)
-    return person
+    return person!
   }
 }

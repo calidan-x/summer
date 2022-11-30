@@ -19,7 +19,7 @@ export const validateAndConvertType = (
   allErrors: ValidateError[],
   methodName = '',
   paramIndex = -1,
-  instance = undefined,
+  instance: any = undefined,
   propertyNamePath = ''
 ) => {
   const isFirstLevel = paramIndex >= 0
@@ -233,7 +233,7 @@ export const validateAndConvertType = (
       }
       break
     case Array:
-      let arrayValue = []
+      let arrayValue: any = []
       try {
         arrayValue = typeof propertyValue === 'string' ? JSON.parse(propertyValue) : propertyValue
       } catch (e) {
@@ -313,7 +313,7 @@ export const validateAndConvertType = (
           message: typeDisplayText(propertyValue, isFirstLevel) + ' is not an object'
         })
       } else {
-        const allProperties = []
+        const allProperties: string[] = []
         let proto = d0
         let ignoreUnknownProperties = false
         while (proto.name) {

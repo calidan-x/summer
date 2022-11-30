@@ -43,6 +43,7 @@ interface InjectableDecoratorType {
   (target: any): void
 }
 
+// @ts-ignore
 export const Injectable: InjectableDecoratorType = (...args) => {
   if (args.length === 0) {
     return (clazz: any) => {
@@ -50,7 +51,6 @@ export const Injectable: InjectableDecoratorType = (...args) => {
     }
   } else {
     locContainer.paddingLocClass(args[0])
-    return null
   }
 }
 

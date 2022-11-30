@@ -9,6 +9,7 @@ export interface ControllerMethodDecoratorType {
 
 export const restfulMethodDecorator =
   (httpMethod: string): ControllerMethodDecoratorType =>
+  //@ts-ignore
   (...dArgs): MethodDecorator => {
     if (dArgs.length <= 1) {
       return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -18,7 +19,6 @@ export const restfulMethodDecorator =
     } else {
       requestMappingAssembler.addMethodRoute('', httpMethod, dArgs[1], dArgs[0].constructor)
       requestMappingAssembler.addMethodDescriptor(dArgs[2])
-      return null
     }
   }
 
@@ -31,7 +31,7 @@ const generateMethodDecorator =
       context.invocation = {
         className: target.constructor.name,
         methodName: propertyKey,
-        params: arg
+        params: arg || []
       }
 
       const ret = await paramMethod(
@@ -56,10 +56,11 @@ interface MethodDecoratorType<T extends DecoratorMethodType> {
 
 export const createMethodDecorator =
   <T extends DecoratorMethodType>(paramMethod: T): MethodDecoratorType<T> =>
-  (...dArgs) => {
+  //@ts-ignore
+  (...dArgs: any[]) => {
     if (dArgs.length === 3 && dArgs[0].constructor?.toString().startsWith('class ')) {
       generateMethodDecorator(paramMethod)(dArgs[0], dArgs[1], dArgs[2])
-      return null
+      return
     }
     return generateMethodDecorator(paramMethod, ...dArgs)
   }

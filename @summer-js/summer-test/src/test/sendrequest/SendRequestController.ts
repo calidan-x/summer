@@ -8,21 +8,11 @@ export class SendRequestController {
 
   @Get('/send-request')
   async getUser() {
-    try {
-      return await this.sendRequestClient.getApi()
-    } catch (e) {
-      console.log(e)
-    }
-    return null
+    return await this.sendRequestClient.getApi()
   }
 
   @Get('/summer-request')
   async getSummerSite() {
-    try {
-      return await this.summerDevClient.getHomePage()
-    } catch (e) {
-      console.log(e)
-    }
-    return null
+    return await this.summerDevClient.getHomePage()
   }
 }

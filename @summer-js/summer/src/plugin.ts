@@ -10,7 +10,7 @@ export class SummerPlugin {
   init(config: any) {}
   destroy() {}
 
-  #classCollection = []
+  #classCollection: any[] = []
   collectClass(clazz: ClassDeclaration, collectName: string, modifyActions: (() => void)[]) {
     modifyActions.push(() => {
       clazz.addDecorator({ name: 'ClassCollect', arguments: ["'" + collectName + "'"] })

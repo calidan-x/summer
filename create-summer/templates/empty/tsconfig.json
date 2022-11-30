@@ -4,6 +4,7 @@
     "noImplicitReturns":true,
     "noUnusedParameters":true,
     "noUnusedLocals":true,
+    "strictNullChecks": true, 
     "types": ["node", "jest"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

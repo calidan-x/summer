@@ -4,7 +4,7 @@ import { Controller, Get, getContext } from '@summer-js/summer'
 export class ContextController {
   @Get('/context')
   context() {
-    const context = getContext()
+    const context = getContext()!
     // highlight-next-line
     context.response.headers['content-type'] = 'text/plain'
 

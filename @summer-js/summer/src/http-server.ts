@@ -61,8 +61,8 @@ export const httpServer = {
   },
   async handlerRequest(req: http.IncomingMessage, res: http.ServerResponse, bodyData, serverConfig: ServerConfig) {
     if (serverConfig.basePath) {
-      if (req.url.startsWith(serverConfig.basePath)) {
-        req.url = req.url.replace(serverConfig.basePath, '')
+      if (req.url!.startsWith(serverConfig.basePath)) {
+        req.url = req.url!.replace(serverConfig.basePath, '')
       } else {
         res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
         res.write('')
@@ -70,7 +70,7 @@ export const httpServer = {
         return
       }
     }
-    const urlParts = req.url.split('?')
+    const urlParts = req.url!.split('?')
     const requestPath = urlParts[0].split('#')[0]
 
     const staticHandleResult = handleStaticRequest(requestPath)
@@ -92,6 +92,7 @@ export const httpServer = {
       request: {
         method: req.method as any,
         path: requestPath,
+        pathParams: {},
         queries: this.paramsToObject(new URLSearchParams(urlParts[1]).entries()),
         headers: req.headers as any,
         body: bodyData
@@ -130,7 +131,7 @@ export const httpServer = {
     } else {
       http
         .createServer(async (req, res) => {
-          const bodyData = await parseBody(req, req.method, req.headers)
+          const bodyData = await parseBody(req, req.method!, req.headers)
           this.handlerRequest(req, res, bodyData, serverConfig)
         })
         .listen(serverConfig.port, '', () => {

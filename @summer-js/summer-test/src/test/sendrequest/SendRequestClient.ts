@@ -13,7 +13,7 @@ export class User {
 export class SendRequestClient {
   @Send('GET', '/')
   async getApi(): Promise<User> {
-    return null
+    return null as any
   }
 }
 
@@ -25,6 +25,6 @@ const SummerDev = createRequestClientDecorator((_config) => ({
 export class SummerDevClient {
   @Send('GET', '/')
   async getHomePage(): Promise<string> {
-    return null
+    return null as any
   }
 }

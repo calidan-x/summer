@@ -20,7 +20,7 @@ describe('Test AWB Lambda', () => {
         body: ''
       })
 
-      expect(result.body).toBe('Test Injection')
+      expect(result!.body).toBe('Test Injection')
 
       result = await module.handler({
         path: '/serverless/hello',
@@ -30,7 +30,7 @@ describe('Test AWB Lambda', () => {
         body: ''
       })
 
-      expect(result.body).toBe('Hello Serverless')
+      expect(result!.body).toBe('Hello Serverless')
 
       result = await module.handler({
         path: '/serverless/db-data',
@@ -40,7 +40,7 @@ describe('Test AWB Lambda', () => {
         body: ''
       })
 
-      expect(result.statusCode).toBe(200)
+      expect(result!.statusCode).toBe(200)
     })
   })
 })

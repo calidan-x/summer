@@ -14,7 +14,7 @@ export interface SessionConfig {
 }
 
 const SESSIONS = {}
-const SESSION_IDS = []
+const SESSION_IDS: string[] = []
 export const session = {
   enabled: false,
   cookieName: 'SUMMER_SESSION',
@@ -51,7 +51,7 @@ export const session = {
       }
     }
 
-    let sessionId = ctx.cookies[this.cookieName]
+    let sessionId = ctx.cookies ? ctx.cookies[this.cookieName] : undefined
     if (sessionId && SESSIONS[sessionId]) {
       sessionValues = SESSIONS[sessionId]
     } else {

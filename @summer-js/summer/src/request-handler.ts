@@ -15,10 +15,10 @@ import { errorHandle } from './error'
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
   path: string
-  pathParams?: Record<string, string>
-  queries?: Record<string, string>
-  headers?: Record<string, string>
-  body?: string
+  pathParams: Record<string, string>
+  queries: Record<string, string>
+  headers: Record<string, string>
+  body: string
 }
 
 export interface ResponseContext {
@@ -172,9 +172,9 @@ const callControllerMethod = async (ctx: Context) => {
     ctx.invocation = {
       className: controller.constructor.name,
       methodName: callMethod,
-      params: undefined
+      params: []
     }
-    const applyParam = []
+    const applyParam: any[] = []
     let allErrors = []
     for (let i = 0; i < params.length; i++) {
       const param = params[i]
@@ -265,7 +265,7 @@ const makeServerError = (ctx: Context) => {
 
 const makeRequestError = (ctx: Context, responseError: ResponseError) => {
   ctx.response.statusCode = responseError.statusCode
-  ctx.response.headers['Content-Type'] = undefined
+  delete ctx.response.headers['Content-Type']
   ctx.response.body = responseError.body
 }
 
@@ -295,7 +295,7 @@ export const requestHandler = async (ctx: Context) => {
     } catch (err) {
       const { errorHandlerClass, errorMap } = errorHandle
       if (errorHandlerClass) {
-        const errorHandler = getInjectable(errorHandlerClass)
+        const errorHandler = getInjectable(errorHandlerClass)!
         const errType = errorMap.find((e) => err instanceof e.type)
         if (errType) {
           const errInfo = errorHandler[errType.method](err)

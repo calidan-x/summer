@@ -42,6 +42,7 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
     request: {
       method,
       path,
+      pathParams: {},
       body: requestParams.body ?? '',
       headers: lowerCaseHeader,
       queries: requestParams.queries || {}

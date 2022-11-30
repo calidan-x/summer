@@ -319,7 +319,7 @@ const convertType = (d0) => {
 }
 
 const getAllProps = (clazz) => {
-  const allProperties = []
+  const allProperties: any[] = []
   while (clazz.name) {
     allProperties.splice(0, 0, ...Reflect.getOwnMetadataKeys(clazz.prototype))
     clazz = clazz.__proto__
@@ -462,7 +462,7 @@ const getRequiredKeys = (t: any, isRequest: boolean) => {
   if (!isRequest) {
     return []
   }
-  const requireKeys = []
+  const requireKeys: any[] = []
   for (const key of getAllProps(t)) {
     const required = !Reflect.getMetadata('optional', t.prototype, key)
     if (required) {
@@ -713,7 +713,7 @@ export class SummerSwaggerUIController {
         swaggerJson.tags.push({ name: tag.name, description: tag.description })
       })
 
-    allApis.sort((a, b) => a.order - b.order)
+    allApis.sort((a, b) => a.order! - b.order!)
     allApis.forEach((api) => {
       const apiCate = findCategory(api.controllerClass)
       if (apiCate !== category) {
@@ -727,8 +727,8 @@ export class SummerSwaggerUIController {
         if (!swaggerJson.paths[docPath]) {
           swaggerJson.paths[docPath] = {}
         }
-        const parameters = []
-        let requestBody = undefined
+        const parameters: any[] = []
+        let requestBody: any = undefined
         let isFormBody = false
         params.forEach((param) => {
           const paramType = getParamType(param.paramMethod.toString())
@@ -754,8 +754,8 @@ export class SummerSwaggerUIController {
           if (isFormBody && paramType === 'body') {
             const formProps = getTypeDesc(d0, d2, true).properties
 
-            const multipartFormBody = { type: 'object', properties: {}, required: [] }
-            const required = []
+            const multipartFormBody = { type: 'object', properties: {}, required: [] as string[] }
+            const required: string[] = []
             for (const filed in formProps) {
               let isRequired = true
               if (d0 && typeof d0 === 'function') {
@@ -801,7 +801,7 @@ export class SummerSwaggerUIController {
 
             const type = ptype || 'string'
 
-            let schema = null
+            let schema: any = null
             if (d1 === Array) {
               schema = {
                 type: 'array',
@@ -822,7 +822,7 @@ export class SummerSwaggerUIController {
             parameters.push(parameter)
           } else if (paramType === 'body') {
             const ptype = getType(d0)
-            let schema = null
+            let schema: any = null
             if (d1 === Array) {
               schema = {
                 type: 'array',
@@ -898,7 +898,7 @@ export class SummerSwaggerUIController {
           schema.example = successResExample
         }
 
-        const route = findRoute(api.controllerClass, api.callMethod)
+        const route = findRoute(api.controllerClass, api.callMethod)!
         swaggerJson.paths[docPath][requestMethod.toLowerCase()] = {
           tags: [findTag(api.controllerClass)],
           summary: api.summary,
@@ -925,6 +925,7 @@ export class SummerSwaggerUIController {
       swaggerJson.servers = [{ url: basePath }]
     }
     const outPutJSON = { ...swaggerJson }
+    // @ts-ignore
     delete outPutJSON.docPath
     delete outPutJSON.readTypeORMComment
     delete outPutJSON.password

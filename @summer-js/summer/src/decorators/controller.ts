@@ -6,7 +6,8 @@ interface ControllerDecoratorType {
   (target: Object): void
 }
 
-export const Controller: ControllerDecoratorType = (...args) => {
+// @ts-ignore
+export const Controller: ControllerDecoratorType = (...args: any[]) => {
   if (args.length == 0) {
     args[0] = ''
   }
@@ -20,6 +21,5 @@ export const Controller: ControllerDecoratorType = (...args) => {
     locContainer.paddingLocClass(args[0])
     requestMappingAssembler.addControllerRoute(args[0].name, '')
     requestMappingAssembler.nextController()
-    return null
   }
 }

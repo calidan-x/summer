@@ -6,14 +6,14 @@ const generateClassDecorator =
   (constructor: Function) => {
     Object.getOwnPropertyNames(constructor.prototype).forEach((name) => {
       if (typeof constructor.prototype[name] === 'function' && name !== 'constructor') {
-        const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, name)
+        const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, name)!
         const originalFunc = descriptor.value
         descriptor.value = async function (...arg) {
           const context = asyncLocalStorage.getStore() || ({} as Context)
           context.invocation = {
             className: constructor.name,
             methodName: name,
-            params: arg
+            params: arg || []
           }
           const ret = await decoratorCall(
             context,
@@ -40,10 +40,11 @@ export interface MethodDecoratorType<T extends DecoratorMethodType> {
 
 export const createClassDecorator =
   <T extends DecoratorMethodType>(paramMethod: T): MethodDecoratorType<T> =>
+  // @ts-ignore
   (...dArgs) => {
     if (dArgs.length === 1 && dArgs[0].toString().startsWith('class ')) {
       generateClassDecorator(paramMethod)(dArgs[0])
-      return null
+      return
     }
     return generateClassDecorator(paramMethod, ...dArgs)
   }

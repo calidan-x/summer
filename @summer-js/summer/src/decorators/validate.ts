@@ -43,22 +43,22 @@ export const MinLen =
   (...arg) =>
     defineMetaValue(arg, 'minLen', minLength)
 
+// @ts-ignore
 const Optional: ValidateDecoratorType = (...args) => {
   if (args.length === 0) {
     return (...arg) => defineMetaValue(arg, 'optional', true)
   } else {
     defineMetaValue(args, 'optional', true)
-    return null
   }
 }
 ;(global as any)._Optional = Optional
 
+// @ts-ignore
 export const IgnoreUnknownProperties: ValidateDecoratorClassType = (...args) => {
   if (args.length === 0) {
     return (target: any) => Reflect.defineMetadata('ignoreUnknownProperties', true, target)
   } else {
     Reflect.defineMetadata('ignoreUnknownProperties', true, args[0])
-    return null
   }
 }
 
@@ -67,12 +67,12 @@ export const Pattern =
   (...arg) =>
     defineMetaValue(arg, 'pattern', regExp)
 
+// @ts-ignore
 export const Email: ValidateDecoratorType = (...args) => {
   if (args.length === 0) {
     return (...arg) => defineMetaValue(arg, 'email', true)
   } else {
     defineMetaValue(args, 'email', true)
-    return null
   }
 }
 

@@ -14,8 +14,8 @@ export interface Cookie {
 export const responseCookies: Cookie[] = []
 
 export const parseCookie = (ctx: Context) => {
-  if (ctx.request.headers.cookie) {
-    ctx.cookies = cookie.parse(ctx.request.headers.cookie) || {}
+  if (ctx.request.headers!.cookie) {
+    ctx.cookies = cookie.parse(ctx.request.headers!.cookie) || {}
   }
   responseCookies.splice(0, responseCookies.length)
 }

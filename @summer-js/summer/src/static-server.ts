@@ -56,7 +56,7 @@ export const handleStaticRequest = (requestPath: string): StaticResult | null =>
         // spa
         if (staticConfig.spa && !requestFile && path.extname(requestPath) === '') {
           let foundFile = false
-          for (const file of indexFiles) {
+          for (const file of indexFiles || []) {
             if (fs.existsSync(targetPath + '/' + file)) {
               requestFile = targetPath + '/' + file
               foundFile = true

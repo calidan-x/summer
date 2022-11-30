@@ -16,7 +16,8 @@ export interface PropertyDecoratorType<T extends DecoratorMethodType> {
 
 export const createPropertyDecorator =
   <T extends DecoratorMethodType>(paramMethod: T): PropertyDecoratorType<T> =>
-  (...dArgs) => {
+  //@ts-ignore
+  (...dArgs: any[]) => {
     if (dArgs.length === 3 && dArgs[0].constructor?.toString().startsWith('class ') && dArgs[2] === undefined) {
       generatePropertyDecorator(paramMethod)(dArgs[0], dArgs[1])
       return undefined
