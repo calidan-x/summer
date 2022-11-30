@@ -2,7 +2,7 @@ import { Controller, createMethodDecorator, Get } from '@summer-js/summer'
 
 export const ResponseCode = createMethodDecorator(async (ctx, invokeMethod, code: number) => {
   ctx.response.statusCode = code
-  return await invokeMethod(ctx.invocation!.params)
+  return await invokeMethod(ctx.invocation.params)
 })
 
 @Controller

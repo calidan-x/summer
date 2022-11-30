@@ -1,6 +1,6 @@
-import { asyncLocalStorage, checkValidationError, Context } from '../request-handler'
+import { asyncLocalStorage, checkValidationError } from '../request-handler'
 import { requestMappingAssembler } from '../request-mapping'
-import { OmitFirstAndSecondArg } from './utility'
+import { ContextInvocation as Context, OmitFirstAndSecondArg } from './utility'
 
 export interface ControllerMethodDecoratorType {
   (path?: string): MethodDecorator

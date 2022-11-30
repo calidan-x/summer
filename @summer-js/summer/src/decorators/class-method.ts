@@ -1,5 +1,5 @@
-import { asyncLocalStorage, Context, checkValidationError } from '../request-handler'
-import { OmitFirstAndSecondArg } from './utility'
+import { asyncLocalStorage, checkValidationError } from '../request-handler'
+import { OmitFirstAndSecondArg, ContextInvocation as Context } from './utility'
 
 type DecoratorMethodType<T = any> = (ctx: Context, invokeMethod: (args: any[]) => Promise<T>, ...args: any[]) => void
 

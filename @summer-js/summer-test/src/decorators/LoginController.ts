@@ -5,7 +5,7 @@ export const RequireLogin = createClassAndMethodDecorator(async (ctx, invokeMeth
   const token = ctx.request.headers['authentication']
   try {
     jwt.verify(token, 'xxxxxxxx')
-    return await invokeMethod(ctx.invocation!.params)
+    return await invokeMethod(ctx.invocation.params)
   } catch (e) {
     ctx.response.statusCode = 401
     ctx.response.body = 'Unauthorized'
