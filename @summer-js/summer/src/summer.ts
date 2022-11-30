@@ -111,6 +111,7 @@ export const summerStart = async (options?: SummerStartOptions) => {
 }
 
 export const summerDestroy = async () => {
+  scheduledTask.stop()
   for (const plugin of pluginIncs) {
     plugin.destroy && (await plugin.destroy())
   }

@@ -1,4 +1,4 @@
-var cron = require('node-cron')
+const cron = require('node-cron')
 import { getInjectable } from './loc'
 import { Logger } from './logger'
 
@@ -10,6 +10,8 @@ interface ScheduledTask {
 
 export const scheduledTask = {
   scheduledTasks: [],
+  cornTasks: [],
+  fixedRateTasks: [],
   add(scheduledTask: ScheduledTask) {
     this.scheduledTasks.push(scheduledTask)
   },
@@ -32,9 +34,18 @@ export const scheduledTask = {
           scheduled: true,
           timezone: st.cronOrFixedRate['timeZone']
         })
+        this.cornTasks.push(cron)
       } else if (st.cronOrFixedRate['fixedRate']) {
-        setInterval(task, st.cronOrFixedRate['fixedRate'])
+        this.fixedRateTasks.push(setInterval(task, st.cronOrFixedRate['fixedRate']))
       }
+    })
+  },
+  stop() {
+    this.cornTasks.forEach((cornTask) => {
+      cornTask.stop()
+    })
+    this.fixedRateTasks.forEach((fixedRateTask) => {
+      clearInterval(fixedRateTask)
     })
   }
 }
