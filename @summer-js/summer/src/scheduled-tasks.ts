@@ -30,11 +30,11 @@ export const scheduledTask = {
         }
       }
       if (st.cronOrFixedRate['cron']) {
-        cron.schedule(st.cronOrFixedRate['cron'], task, {
+        const scheduledTask = cron.schedule(st.cronOrFixedRate['cron'], task, {
           scheduled: true,
           timezone: st.cronOrFixedRate['timeZone']
         })
-        this.cornTasks.push(cron)
+        this.cornTasks.push(scheduledTask)
       } else if (st.cronOrFixedRate['fixedRate']) {
         this.fixedRateTasks.push(setInterval(task, st.cronOrFixedRate['fixedRate']))
       }
