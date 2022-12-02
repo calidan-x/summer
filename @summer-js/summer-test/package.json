@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/summer-test",
-	"version": "0.0.82",
+	"version": "0.0.83",
 	"description": "",
 	"scripts": {
 		"serve": "summer serve --env local",
@@ -26,6 +26,7 @@
 		"jsonwebtoken": "^8.5.1",
 		"redis": "^4.3.0",
 		"jest": "^29.2.2",
-		"ts-jest": "^29.0.3"
+		"ts-jest": "^29.0.3",
+		"@elastic/elasticsearch": "7.15.0"
 	}
 }

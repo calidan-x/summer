@@ -1,11 +1,13 @@
 {
-	"name": "@summer-js/typeorm",
+	"name": "@summer-js/elasticsearch",
 	"version": "0.0.83",
 	"description": "",
 	"main": "lib/index.js",
-	"files": [
-		"lib"
-	],
+	"module": "lib/index.js",
+	"peerDependencies": {
+		"@elastic/elasticsearch": "^8.x || ^7.x || ^6.x"
+	},
+	"devDependencies": {},
 	"scripts": {
 		"build": "tsc",
 		"release": "npm publish --access public"
@@ -14,19 +16,16 @@
 		"type": "git",
 		"url": "git+https://github.com/calidan-x/summer.git"
 	},
-	"keywords": [
-		"node",
-		"nodejs",
-		"backend",
-		"api"
-	],
-	"author": "",
+	"author": "Calidan",
 	"license": "ISC",
 	"bugs": {
 		"url": "https://github.com/calidan-x/summer/issues"
 	},
 	"homepage": "https://summerjs.dev",
-	"dependencies": {
-		"typeorm": "^0.3.10"
-	}
+	"keywords": [
+		"node",
+		"nodejs",
+		"backend",
+		"api"
+	]
 }

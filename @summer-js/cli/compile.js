@@ -60,13 +60,21 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
   if (!allRefFiles.includes(sf)) {
     allRefFiles.push(sf)
   }
-  const refFiles = sf.getReferencingSourceFiles()
-  for (const refFile of refFiles) {
-    if (allRefFiles.includes(refFile)) {
-      continue
-    }
-    getAllReferencingSourceFiles(refFile, allRefFiles)
-  }
+
+  sf.getExportSymbols().forEach((es) => {
+    es.getDeclarations().forEach((d) => {
+      try {
+        // @ts-ignore
+        d.findReferencesAsNodes().forEach((node) => {
+          const refSourceFile = node.getSourceFile()
+          if (allRefFiles.includes(refSourceFile)) {
+            return
+          }
+          getAllReferencingSourceFiles(refSourceFile, allRefFiles)
+        })
+      } catch (e) {}
+    })
+  })
 }
 
 const addFileImport = (typeString, clazz) => {
@@ -579,15 +587,16 @@ const compile = async (compileAll = false) => {
               pendingProperties.push(p)
 
               const returnPromiseType = callSignature.getReturnType().getTypeArguments()[0]
+              const params = callSignature.getParameters().map((param, inx) => ({
+                name: param.getName(),
+                type: callSignature.getParameters()[inx].getDeclarations()[0].getType().getText(p)
+              }))
 
               pendingMethods.push({
                 name: p.getName(),
                 returnType: callSignature.getReturnType().getText(p),
-                parameters: callSignature.getParameters().map((param, inx) => ({
-                  name: param.getName(),
-                  type: callSignature.getParameters()[inx].getDeclarations()[0].getType().getText(p)
-                })),
-                statements: 'return {} as Promise<any>',
+                parameters: params,
+                statements: [...params.map((p) => p.name), 'return {} as Promise<any>'],
                 decorators: [
                   {
                     name: '_ReturnDeclareType',

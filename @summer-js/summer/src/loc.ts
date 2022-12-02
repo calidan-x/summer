@@ -89,7 +89,13 @@ export const locContainer = {
     this.locClass.forEach((clazz: any) => {
       const classParams = Reflect.getMetadata('design:paramtypes', clazz)
       if (!classParams || (classParams && classParams.length === 0)) {
-        const instance = new clazz()
+        const generateFunction = this.generateFunction.get(clazz)
+        let instance: any
+        if (!generateFunction) {
+          instance = new clazz()
+        } else {
+          instance = generateFunction()
+        }
         this.addInstance(clazz, [], instance)
       }
     })
