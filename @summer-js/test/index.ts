@@ -25,6 +25,7 @@ type TestResponse = {
   headers: Record<string, string | string[]>
   body: any
   rawBody: string
+  print: () => void
 }
 
 const sendRequest = async (method: any, path: string, requestParams: RequestParams) => {
@@ -58,7 +59,40 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
   } catch (e) {
     context.response.body = rawBody
   }
-  return { ...context.response, rawBody } as TestResponse
+  return {
+    ...context.response,
+    rawBody,
+    print() {
+      const reqParams = { ...requestParams }
+      if (reqParams.body) {
+        try {
+          reqParams.body = JSON.parse(reqParams.body)
+        } catch (e) {}
+      }
+      if (reqParams.queries && Object.keys(reqParams.queries).length === 0) {
+        delete reqParams.queries
+      }
+      if (reqParams.headers && Object.keys(reqParams.headers).length === 0) {
+        delete reqParams.headers
+      }
+      console.log(
+        '\x1b[36m' +
+          method +
+          ' ' +
+          path +
+          '\x1b[0m' +
+          '\n\n' +
+          JSON.stringify(reqParams, null, 2) +
+          '\n\n' +
+          '\x1b[36m' +
+          'Response: ' +
+          context.response.statusCode +
+          '\x1b[0m' +
+          '\n\n' +
+          JSON.stringify(context.response.body, null, 2)
+      )
+    }
+  } as TestResponse
 }
 
 const parseUrl = (requestPath: string) => {

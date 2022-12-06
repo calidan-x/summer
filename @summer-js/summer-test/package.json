@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/summer-test",
-	"version": "0.0.84",
+	"version": "0.0.85",
 	"description": "",
 	"scripts": {
 		"serve": "summer serve --env local",

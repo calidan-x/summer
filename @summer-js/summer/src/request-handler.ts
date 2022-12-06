@@ -1,4 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { gzip } from 'node:zlib'
+import { promisify } from 'node:util'
 import { getConfig } from './config-handler'
 import { getInjectable, locContainer } from './loc'
 import { Logger } from './logger'
@@ -11,6 +13,9 @@ import { handleCors } from './cors'
 import { rpc } from './rpc'
 import { OtherErrors, NotFoundError, ResponseError, ValidationError } from './error'
 import { errorHandle } from './error'
+import { ServerConfig } from './http-server'
+
+const zip = promisify(gzip)
 
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
@@ -332,6 +337,21 @@ export const requestHandler = async (ctx: Context) => {
         Logger.error('Unhandled request response, this error may cause by middleware missing await for next()')
       }
       makeServerError(ctx)
+    }
+
+    // compression
+    const serverConfig = getConfig('SERVER_CONFIG') as ServerConfig
+    if (serverConfig.compression && serverConfig.compression.enable) {
+      const contentType = ctx.response.headers['Content-Type']
+      if (
+        !ctx.response.headers['Content-Encoding'] &&
+        (contentType.indexOf('application/json') >= 0 || contentType.indexOf('text/html') >= 0)
+      ) {
+        if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
+          ctx.response.body = await zip(ctx.response.body)
+          ctx.response.headers['Content-Encoding'] = 'gzip'
+        }
+      }
     }
   })
 }

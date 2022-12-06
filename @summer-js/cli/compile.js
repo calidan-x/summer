@@ -340,7 +340,7 @@ const checkError = () => {
               compiling = false
             }
 
-            if (!returnTypeStr.startsWith('{')) {
+            if (!returnTypeStr.startsWith('{') && !returnType.isInterface()) {
               modifyActions.push(() => {
                 addFileImport(returnTypeStr, cls)
               })

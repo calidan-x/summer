@@ -23,6 +23,10 @@ export interface ServerConfig {
   cors?: boolean
   clusterMode?: boolean
   workersNumber?: number
+  compression?: {
+    enable: boolean
+    threshold?: number
+  }
 }
 
 const headerKeyMappingCache = {}

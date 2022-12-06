@@ -1,7 +1,7 @@
 import { ServerConfig, SessionConfig, RpcConfig } from '@summer-js/summer'
 import { SwaggerConfig } from '@summer-js/swagger'
 import { TypeORMConfig } from '@summer-js/typeorm'
-import { ElasticSearchConfig } from '@summer-js/elasticsearch'
+// import { ElasticSearchConfig } from '@summer-js/elasticsearch'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
   DATA_SOURCE: {
@@ -29,7 +29,10 @@ export const SERVER_CONFIG: ServerConfig = {
       indexFiles: ['index.html'],
       spa: true
     }
-  ]
+  ],
+  compression: {
+    enable: true
+  }
   // clusterMode: true,
   // workersNumber: 3
 }
@@ -68,6 +71,6 @@ export const RPC_CONFIG: RpcConfig = {
   }
 }
 
-export const ELASTICSEARCH_CONFIG: ElasticSearchConfig = {
-  node: 'http://localhost:9200'
-}
+// export const ELASTICSEARCH_CONFIG: ElasticSearchConfig = {
+//   node: 'http://localhost:9200'
+// }
