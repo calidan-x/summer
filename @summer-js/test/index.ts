@@ -1,4 +1,5 @@
 import { Context, requestHandler, waitForStart, summerDestroy } from '@summer-js/summer'
+import { unzipSync } from 'node:zlib'
 import { getInitContextData } from '@summer-js/summer/lib/http-server'
 import queryString from 'query-string'
 import merge from 'deepmerge'
@@ -25,7 +26,7 @@ type TestResponse = {
   headers: Record<string, string | string[]>
   body: any
   rawBody: string
-  print: () => void
+  print: (options?: { full: boolean }) => void
 }
 
 const sendRequest = async (method: any, path: string, requestParams: RequestParams) => {
@@ -51,6 +52,9 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
     ...getInitContextData()
   }
   await requestHandler(context)
+  if (context.response.headers['Content-Encoding'] === 'gzip') {
+    context.response.body = unzipSync(context.response.body).toString('utf-8')
+  }
   const rawBody = context.response.body
   try {
     if (context.response.body.trim().startsWith('{') || context.response.body.trim().startsWith('[')) {
@@ -62,7 +66,7 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
   return {
     ...context.response,
     rawBody,
-    print() {
+    print(options?: { full: boolean }) {
       const reqParams = { ...requestParams }
       if (reqParams.body) {
         try {
@@ -75,6 +79,8 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
       if (reqParams.headers && Object.keys(reqParams.headers).length === 0) {
         delete reqParams.headers
       }
+      const isJSON =
+        ((context.response.headers['Content-Type'] || '') as string).toLowerCase().indexOf('application/json') >= 0
       console.log(
         '\x1b[36m' +
           method +
@@ -82,14 +88,17 @@ const sendRequest = async (method: any, path: string, requestParams: RequestPara
           path +
           '\x1b[0m' +
           '\n\n' +
-          JSON.stringify(reqParams, null, 2) +
-          '\n\n' +
+          (Object.keys(reqParams).length > 0 ? JSON.stringify(reqParams, null, 2) + '\n\n' : '') +
           '\x1b[36m' +
-          'Response: ' +
+          'RESPONSE ' +
           context.response.statusCode +
-          '\x1b[0m' +
-          '\n\n' +
-          JSON.stringify(context.response.body, null, 2)
+          ' ' +
+          (options?.full ? rawBody.length + ' bytes' : ''),
+        '\x1b[0m\n\n' +
+          (options?.full
+            ? JSON.stringify(context.response.headers, null, 1).replace(/^\{\n/, '').replace(/\n\}$/, '') + '\n\n'
+            : '') +
+          (isJSON ? JSON.stringify(context.response.body, null, 2) : context.response.body)
       )
     }
   } as TestResponse

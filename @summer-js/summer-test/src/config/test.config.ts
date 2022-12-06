@@ -24,7 +24,10 @@ export const SESSION_CONFIG: SessionConfig = {
 export const SERVER_CONFIG: ServerConfig = {
   static: [{ requestPath: '/static', destPath: 'resource', indexFiles: ['index.html'] }],
   cors: true,
-  port: 8802
+  port: 8802,
+  compression: {
+    enable: true
+  }
 }
 
 export const RPC_CONFIG: RpcConfig = {
