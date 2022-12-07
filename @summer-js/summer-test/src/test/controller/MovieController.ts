@@ -22,7 +22,7 @@ export class MovieController {
   @ApiDoc('Get movies')
   @Get('/movies')
   list(@Query search?: string) {
-    console.log(search)
+    search
     const movies: Movie[] = [
       { id: 1, name: 'Titanic', year: '1997' },
       { id: 2, name: 'CODA', year: '2021' }
