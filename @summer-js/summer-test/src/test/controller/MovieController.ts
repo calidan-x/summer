@@ -21,8 +21,8 @@ export class Movie {
 export class MovieController {
   @ApiDoc('Get movies')
   @Get('/movies')
-  // @ts-ignore
   list(@Query search?: string) {
+    console.log(search)
     const movies: Movie[] = [
       { id: 1, name: 'Titanic', year: '1997' },
       { id: 2, name: 'CODA', year: '2021' }
@@ -33,6 +33,7 @@ export class MovieController {
   @ApiDoc('Get movie detail')
   @Get('/movies/:id')
   detail(@PathParam id: int) {
+    console.log(id)
     const movies: Movie = { id, name: 'Titanic', year: '1997' }
     return movies
   }

@@ -4,14 +4,12 @@ import { OmitFirstAndSecondArg } from './utility'
 
 const getArgName = (func, argIndex: number) => {
   var args = func.toString().match(/.*?\(([^)]*)\)/)[1]
-  return args
-    .split(',')
-    .map(function (arg) {
-      return arg.replace(/\/\*.*\*\//, '').trim()
-    })
-    .filter(function (arg) {
-      return arg
-    })[argIndex]
+  return args.split(',').map(function (arg) {
+    return arg
+      .split('=')[0]
+      .replace(/\/\*.*\*\//g, '')
+      .trim()
+  })[argIndex]
 }
 
 // const getArgType = (target: Object, propertyKey: string, parameterIndex: number) => {

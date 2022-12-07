@@ -135,7 +135,7 @@ const addPropDecorator = (cls) => {
     }
 
     const pendingDecorators = []
-    if (p.hasQuestionToken()) {
+    if (p.hasQuestionToken() || p.hasInitializer()) {
       if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
         pendingDecorators.push({ name: '_Optional', arguments: [] })
       }
@@ -224,7 +224,9 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     const typeArgs = paramType
       .getTypeArguments()
       .map((tArg, inx) => {
-        addFileImport(tArg.getText(parameter), parameter)
+        if (!(tArg.getText(parameter).indexOf('<') > 0 && tArg.getTargetType && tArg.getTargetType()?.isInterface())) {
+          addFileImport(tArg.getText(parameter), parameter)
+        }
         return getDeclareType(':' + tArg.getText(parameter), parameter, tArg, typeParams)
       })
       .join(',')
@@ -341,9 +343,11 @@ const checkError = () => {
             }
 
             if (!returnTypeStr.startsWith('{') && !returnType.isInterface()) {
-              modifyActions.push(() => {
-                addFileImport(returnTypeStr, cls)
-              })
+              if (!(returnTypeStr.indexOf('<') > 0 && returnType.getTargetType()?.isInterface())) {
+                modifyActions.push(() => {
+                  addFileImport(returnTypeStr, cls)
+                })
+              }
             }
           }
         }
@@ -537,7 +541,7 @@ const compile = async (compileAll = false) => {
                       arguments: [getDeclareType(param.getText(), param)]
                     }
                   ]
-                  if (param.hasQuestionToken()) {
+                  if (param.hasQuestionToken() || param.hasInitializer()) {
                     decorators.push({
                       name: '_Optional',
                       arguments: []

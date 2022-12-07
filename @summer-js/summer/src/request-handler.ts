@@ -72,7 +72,7 @@ const matchPathMethod = (path: string, httpMethod: string) => {
           const pathKeys = routeData.pathKeys
           const pathParams = {}
           pathKeys.forEach((pk, inx) => {
-            pathParams[pk] = pathParamArray[inx + 1]
+            pathParams[pk] = decodeURIComponent(pathParamArray[inx + 1])
           })
           return {
             controller: locContainer.getInstance(methodData.controllerClass),
@@ -170,7 +170,6 @@ export const checkValidationError = (originalFunc, context) => {
 const callControllerMethod = async (ctx: Context) => {
   const { method, path } = ctx.request
   const match = matchPathMethod(path, method)
-
   if (match !== null) {
     const { controller, callMethod, params, pathParams } = match
     ctx.request.pathParams = pathParams
@@ -275,9 +274,13 @@ const makeRequestError = (ctx: Context, responseError: ResponseError) => {
 }
 
 const decodeQuery = (ctx: Context) => {
-  for (const key in ctx.request.queries) {
-    ctx.request.queries[key] = decodeURIComponent(ctx.request.queries[key])
-  }
+  Object.keys(ctx.request.queries).forEach((key) => {
+    if (ctx.request.queries[key] !== '') {
+      ctx.request.queries[key] = decodeURIComponent(ctx.request.queries[key])
+    } else {
+      delete ctx.request.queries[key]
+    }
+  })
 }
 
 export const requestHandler = async (ctx: Context) => {
