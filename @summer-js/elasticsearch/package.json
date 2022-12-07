@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/elasticsearch",
-	"version": "0.0.86",
+	"version": "0.0.87",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
