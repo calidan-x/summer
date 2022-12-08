@@ -256,7 +256,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     } else {
       type = TypeMapping[type]
     }
-  } else if (paramType.isUnion() && !paramType.isEnum() && !paramType.isBoolean()) {
+  } else if (paramType.isUnion() && !paramType.isEnum() && !paramType.isEnumLiteral() && !paramType.isBoolean()) {
     const unionTypes = paramType.getUnionTypes()
     const unionArr = []
     for (const ut of unionTypes) {
@@ -271,10 +271,10 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
       }
     }
     return `[${JSON.stringify(unionArr)}]`
+  } else if (paramType.isClass() || paramType.isEnum() || paramType.isEnumLiteral()) {
+    return `[()=>${type}]`
   } else if (paramType.isStringLiteral() || paramType.isNumberLiteral()) {
     return `[${paramType.getText()}]`
-  } else if (paramType.isClass() || paramType.isEnum()) {
-    return `[()=>${type}]`
   } else {
     type = ALLTypeMapping[type]
   }

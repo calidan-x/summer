@@ -590,6 +590,11 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
           schemeDesc = {
             type: 'string'
           }
+        } else if (typeof d0 === 'string') {
+          schemeDesc = {
+            type: 'string',
+            example: d0
+          }
         } else {
           schemeDesc = {
             type: intToInteger(d0.name.toLowerCase())
