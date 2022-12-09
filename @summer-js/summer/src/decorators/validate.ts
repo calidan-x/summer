@@ -54,6 +54,16 @@ const Optional: ValidateDecoratorType = (...args) => {
 ;(global as any)._Optional = Optional
 
 // @ts-ignore
+const NotBlank: ValidateDecoratorType = (...args) => {
+  if (args.length === 0) {
+    return (...arg) => defineMetaValue(arg, 'notBlank', true)
+  } else {
+    defineMetaValue(args, 'notBlank', true)
+  }
+}
+;(global as any)._NotBlank = NotBlank
+
+// @ts-ignore
 export const IgnoreUnknownProperties: ValidateDecoratorClassType = (...args) => {
   if (args.length === 0) {
     return (target: any) => Reflect.defineMetadata('ignoreUnknownProperties', true, target)

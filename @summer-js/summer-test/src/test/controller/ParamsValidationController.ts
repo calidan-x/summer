@@ -37,6 +37,10 @@ class OptionalRequest {
   optionalInteger?: int
 }
 
+class BlankRequest {
+  blankKey!: string
+}
+
 @IgnoreUnknownProperties
 class IgnoreUnknownProps {
   a: number
@@ -201,6 +205,21 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/optional')
   optionalKey(@Body request: OptionalRequest) {
+    return request
+  }
+
+  @Post('/optional-body')
+  optionalBody(@Body request?: int) {
+    return typeof request + request
+  }
+
+  @Post('/optional-body-object')
+  optionalBodyObject(@Body request?: BlankRequest) {
+    return typeof request + ''
+  }
+
+  @Post('/request-key-validate/blank')
+  blankKey(@Body request: BlankRequest) {
     return request
   }
 

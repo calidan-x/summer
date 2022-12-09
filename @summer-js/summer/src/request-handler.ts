@@ -23,7 +23,7 @@ interface RequestContext {
   pathParams: Record<string, string>
   queries: Record<string, string>
   headers: Record<string, string>
-  body: string
+  body?: string
 }
 
 export interface ResponseContext {
@@ -229,7 +229,7 @@ const handleRpc = async (ctx: Context) => {
     ) {
       let rpcData
       try {
-        rpcData = JSON.parse(ctx.request.body)
+        rpcData = JSON.parse(ctx.request.body!)
         if (!rpcData.class || !rpcData.method) {
           throw new Error()
         }
@@ -287,6 +287,10 @@ export const requestHandler = async (ctx: Context) => {
   await asyncLocalStorage.run(ctx, async () => {
     try {
       decodeQuery(ctx)
+
+      if (ctx.request.body === '') {
+        delete ctx.request.body
+      }
 
       if (await handleRpc(ctx)) {
         return

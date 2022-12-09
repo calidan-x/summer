@@ -38,9 +38,6 @@ export const validateAndConvertType = (
     if (propertyValue === undefined || propertyValue === null) {
       let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
       validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
-      if (propertyValue === '') {
-        validateNotEmpty(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
-      }
     }
     return propertyValue
   }
@@ -115,7 +112,7 @@ export const validateAndConvertType = (
         allErrors,
         isFirstLevel
       )
-      validateNotEmpty(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
+      validateNotEmptyOrBlank(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
       break
     case Number:
     case _Int:
@@ -424,7 +421,7 @@ const validateRequired = (
   }
 }
 
-const validateNotEmpty = (
+const validateNotEmptyOrBlank = (
   instance: any,
   methodName,
   paramIndex: number,
@@ -434,12 +431,21 @@ const validateNotEmpty = (
   errors: ValidateError[]
 ) => {
   let optional: boolean = getMetaData('optional', instance, methodName, paramIndex, propName)
-
   if (!optional && propValue.length === 0) {
     errors.push({
       param: errorParam,
       message: `'${propName}' cannot be empty`
     })
+  }
+
+  let notBlack: boolean = getMetaData('notBlank', instance, methodName, paramIndex, propName)
+  if (notBlack && typeof propValue === 'string') {
+    if (propValue.trim().length === 0) {
+      errors.push({
+        param: errorParam,
+        message: `'${propName}' cannot be blank`
+      })
+    }
   }
 }
 

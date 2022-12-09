@@ -59,22 +59,21 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
   }
   if (!allRefFiles.includes(sf)) {
     allRefFiles.push(sf)
-  }
-
-  sf.getExportSymbols().forEach((es) => {
-    es.getDeclarations().forEach((d) => {
-      try {
-        // @ts-ignore
-        d.findReferencesAsNodes().forEach((node) => {
-          const refSourceFile = node.getSourceFile()
-          if (allRefFiles.includes(refSourceFile)) {
-            return
-          }
-          getAllReferencingSourceFiles(refSourceFile, allRefFiles)
-        })
-      } catch (e) {}
+    sf.getExportSymbols().forEach((es) => {
+      es.getDeclarations().forEach((d) => {
+        try {
+          // @ts-ignore
+          d.findReferencesAsNodes().forEach((node) => {
+            const refSourceFile = node.getSourceFile()
+            if (allRefFiles.includes(refSourceFile)) {
+              return
+            }
+            getAllReferencingSourceFiles(refSourceFile, allRefFiles)
+          })
+        } catch (e) {}
+      })
     })
-  })
+  }
 }
 
 const addFileImport = (typeString, clazz) => {
@@ -138,6 +137,12 @@ const addPropDecorator = (cls) => {
     if (p.hasQuestionToken() || p.hasInitializer()) {
       if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
         pendingDecorators.push({ name: '_Optional', arguments: [] })
+      }
+    }
+
+    if (p.hasExclamationToken()) {
+      if (!p.getDecorators().find((d) => d.getName() === '_NotBlank')) {
+        pendingDecorators.push({ name: '_NotBlank', arguments: [] })
       }
     }
 

@@ -22,6 +22,7 @@ declare global {
   const _ParamDeclareType: any
   const _ReturnDeclareType: any
   const _Optional: any
+  const _NotBlank: any
   const ClassCollect: any
   namespace NodeJS {
     interface ProcessEnv {

@@ -263,6 +263,56 @@ describe('Controller Params Test', () => {
       }
     })
     expect(result.statusCode).toBe(200)
+
+    result = await request.post('/optional-body', {
+      body: 123
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.rawBody).toBe('number123')
+
+    result = await request.post('/optional-body', {
+      body: 'fff'
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('is not an integer')
+
+    result = await request.post('/optional-body', {
+      body: ''
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.rawBody).toContain('undefinedundefined')
+
+    result = await request.post('/optional-body')
+    expect(result.statusCode).toBe(200)
+    expect(result.rawBody).toContain('undefinedundefined')
+
+    result = await request.post('/optional-body-object', { body: '' })
+    expect(result.statusCode).toBe(200)
+    expect(result.rawBody).toContain('undefined')
+
+    result = await request.post('/optional-body-object')
+    expect(result.statusCode).toBe(200)
+    expect(result.rawBody).toContain('undefined')
+  })
+
+  test('test blank key', async () => {
+    let result = await request.post('/request-key-validate/blank', {
+      body: { blankKey: ' s ' }
+    })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toStrictEqual({ blankKey: ' s ' })
+
+    result = await request.post('/request-key-validate/blank', {
+      body: { blankKey: '   ' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('cannot be blank')
+
+    result = await request.post('/request-key-validate/blank', {
+      body: { blankKey: '' }
+    })
+    expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('cannot be empty')
   })
 
   test('test @Min', async () => {
