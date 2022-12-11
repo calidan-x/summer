@@ -3,7 +3,6 @@ import '@summer-js/test'
 describe('Test AWB Lambda', () => {
   beforeAll(async () => {
     process.env.AWS_LAMBDA_FUNCTION_VERSION = '1'
-    // await initTest()
   })
 
   test('should AWB Lambda work', async () => {

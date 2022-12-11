@@ -35,15 +35,15 @@ interface FullRequestParams {
   headers?: Record<string, any>
 }
 
-type TestResponse = {
+type TestResponse<T> = {
   statusCode: number
   headers: Record<string, string | string[]>
-  body: any
+  body: T
   rawBody: string
   print: (options?: { full: boolean }) => void
 }
 
-const sendRequest = async (method: any, path: string, requestParams: FullRequestParams) => {
+const sendRequest = async <T>(method: any, path: string, requestParams: FullRequestParams) => {
   if (typeof requestParams.body === 'object') {
     requestParams.body = JSON.stringify(requestParams.body)
   }
@@ -115,7 +115,7 @@ const sendRequest = async (method: any, path: string, requestParams: FullRequest
           (isJSON ? JSON.stringify(context.response.body, null, 2) : context.response.body)
       )
     }
-  } as TestResponse
+  } as TestResponse<T>
 }
 
 const parseUrl = (requestPath: string) => {
@@ -139,54 +139,54 @@ export class Request {
     this.#headers = headers
   }
 
-  async get(requestPath: string, queries?: Record<string, any>, params: RequestParams = {}) {
+  async get<T = any>(requestPath: string, queries?: Record<string, any>, params: RequestParams = {}) {
     let { path, queries: urlQueries } = parseUrl(requestPath)
     const requestParams: FullRequestParams = {}
     requestParams.queries = merge(urlQueries || {}, queries || {})
     requestParams.headers = merge(this.#headers, params.headers || {})
-    return await sendRequest('GET', path, requestParams)
+    return await sendRequest<T>('GET', path, requestParams)
   }
 
-  async post(requestPath: string, body?: any, params: RequestParams = {}) {
+  async post<T = any>(requestPath: string, body?: any, params: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     const requestParams: FullRequestParams = {}
     requestParams.queries = queries || {}
     requestParams.body = body
     requestParams.headers = merge(this.#headers, params.headers || {})
-    return await sendRequest('POST', path, requestParams)
+    return await sendRequest<T>('POST', path, requestParams)
   }
 
-  async put(requestPath: string, body?: any, params: RequestParams = {}) {
+  async put<T = any>(requestPath: string, body?: any, params: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     const requestParams: FullRequestParams = {}
     requestParams.queries = queries || {}
     requestParams.body = body
     requestParams.headers = merge(this.#headers, params.headers || {})
-    return await sendRequest('PUT', path, requestParams)
+    return await sendRequest<T>('PUT', path, requestParams)
   }
 
-  async patch(requestPath: string, body?: any, params: RequestParams = {}) {
+  async patch<T = any>(requestPath: string, body?: any, params: RequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     const requestParams: FullRequestParams = {}
     requestParams.queries = queries || {}
     requestParams.body = body
     requestParams.headers = merge(this.#headers, params.headers || {})
-    return await sendRequest('PATCH', path, requestParams)
+    return await sendRequest<T>('PATCH', path, requestParams)
   }
 
-  async delete(requestPath: string, queries?: Record<string, any>, params: RequestParams = {}) {
+  async delete<T = any>(requestPath: string, queries?: Record<string, any>, params: RequestParams = {}) {
     let { path, queries: urlQueries } = parseUrl(requestPath)
     const requestParams: FullRequestParams = {}
     requestParams.queries = merge(urlQueries || {}, queries || {})
     requestParams.headers = merge(this.#headers, params.headers || {})
-    return await sendRequest('DELETE', path, requestParams)
+    return await sendRequest<T>('DELETE', path, requestParams)
   }
 
-  async options(requestPath: string, requestParams: FullRequestParams = {}) {
+  async options<T = any>(requestPath: string, requestParams: FullRequestParams = {}) {
     let { path, queries } = parseUrl(requestPath)
     requestParams.queries = merge(queries || {}, requestParams.queries || {})
     requestParams.headers = merge(this.#headers, requestParams.headers || {})
-    return await sendRequest('OPTIONS', path, requestParams)
+    return await sendRequest<T>('OPTIONS', path, requestParams)
   }
 }
 
