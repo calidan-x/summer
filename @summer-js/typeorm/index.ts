@@ -42,6 +42,14 @@ class TypeORMPlugin extends SummerPlugin {
 
     if (isEntity) {
       this.collectClass(clazz, 'AllEntities', modifyActions)
+      // console.log(clazz.getName())
+      // clazz.getProperties().forEach((p) => {
+      //   p.getChildren().forEach((c, inx) => {
+      //     console.log(inx, c.getText(), c.compilerNode.kind.toString())
+      //     console.log('\n')
+      //   })
+      //   console.log(p.getText())
+      // })
     }
 
     const imps = clazz.getImplements()
@@ -110,3 +118,6 @@ addInjectable(Repository, (entity: any, dataSourceName: string) => {
   }
   return null
 })
+
+// // @ts-ignore
+// export type VarChar<T> = string

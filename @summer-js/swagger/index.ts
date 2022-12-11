@@ -327,7 +327,7 @@ const getAllProps = (clazz) => {
   return allProperties
 }
 
-export const PropDoc = (description: string, example: any) => {
+export const PropDoc = (description: string, example?: any) => {
   return (target: any, propertyKey: string) => {
     Reflect.defineMetadata('Api:PropDescription', description, target, propertyKey)
     if (example) {
@@ -506,11 +506,15 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
     }
 
     if (getType(d0) === 'object') {
+      let propExample = Reflect.getMetadata('Api:PropExample', dType.prototype, key)
       if (isArray) {
         typeDesc[key] = { type: 'array', items: getTypeDesc(d0, typeParams, isRequest) }
       } else {
         const typeParams = d2
         typeDesc[key] = getTypeDesc(d0, typeParams, isRequest)
+      }
+      if (propExample) {
+        typeDesc[key].example = propExample
       }
     } else {
       let schemeDesc: any = {}
