@@ -1,14 +1,6 @@
-import { initTest, endTest, request } from '@summer-js/test'
+import { request } from '@summer-js/test'
 
 describe('Config Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('cors test path options', async () => {
     let result = await request.options('/cors')
     expect(result.statusCode).toBe(200)
@@ -34,7 +26,7 @@ describe('Config Test', () => {
   })
 
   test('cors test method origin', async () => {
-    let result = await request.get('/cors', { headers: { origin: 'https://example.com' } })
+    let result = await request.get('/cors', {}, { headers: { origin: 'https://example.com' } })
     expect(result.statusCode).toBe(200)
     expect(result.headers['Access-Control-Allow-Origin']).toBe('https://example.com')
   })

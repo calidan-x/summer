@@ -1,5 +1,5 @@
 import { convertData, fillData } from '@summer-js/summer'
-import { initTest, endTest } from '@summer-js/test'
+import '@summer-js/test'
 
 class AddUserRequest {
   name: string
@@ -20,14 +20,6 @@ class UserResource {
 }
 
 describe('DTO convert Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test convertData', async () => {
     const addUserRequest: AddUserRequest = new AddUserRequest()
     addUserRequest.name = 'John'

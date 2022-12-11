@@ -1,17 +1,9 @@
-import { initTest, endTest, request } from '@summer-js/test'
+import { request } from '@summer-js/test'
 import jwt from 'jsonwebtoken'
 
 describe('Config Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test createParamDecorator', async () => {
-    const result = await request.get('/app/version', { headers: { 'app-version': '1.0.0' } })
+    const result = await request.get('/app/version', {}, { headers: { 'app-version': '1.0.0' } })
     expect(result.statusCode).toBe(200)
     expect(result.body).toBe('1.0.0')
   })
@@ -58,14 +50,16 @@ describe('Config Test', () => {
     expect(result.rawBody).toContain("'uid' is required")
 
     var token = jwt.sign({ uid: 1, name: 'Tom' }, 'xxxxxxxx')
-    result = await request.get('/userinfo', { headers: { authentication: token } })
+    result = await request.get('/userinfo', {}, { headers: { authentication: token } })
     expect(result.body).toBe('1')
 
     result = await request.get('/me')
     expect(result.statusCode).toBe(401)
 
-    result = await request.put('/me', { headers: { authentication: token } })
+    request.setHeaders({ authentication: token })
+    result = await request.put('/me')
     expect(result.statusCode).toBe(200)
+    request.setHeaders({})
   })
 
   test('test response code', async () => {

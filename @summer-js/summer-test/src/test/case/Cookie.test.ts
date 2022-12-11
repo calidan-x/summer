@@ -1,14 +1,6 @@
-import { initTest, endTest, request } from '@summer-js/test'
+import { request } from '@summer-js/test'
 
 describe('Config Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test set cookie', async () => {
     let result = await request.get('/cookie/set')
     expect(result.headers['Set-Cookie'][0]).toEqual('TestCookie=Value')

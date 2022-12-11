@@ -1,4 +1,4 @@
-import { initTest, endTest, request } from '@summer-js/test'
+import { request } from '@summer-js/test'
 
 type TestTypes =
   | 'notype'
@@ -30,31 +30,19 @@ const typeVal = (value) => {
 
 const testRequestParam = async (requestValue: string, convertType: TestTypes, resultValue: any) => {
   const response = await request.get('/request-basic-type-value', {
-    queries: {
-      [convertType + 'Value']: requestValue
-    }
+    [convertType + 'Value']: requestValue
   })
   expect(response.body).toStrictEqual(typeVal(resultValue))
 }
 
 const testErrorRequestParam = async (requestValue: string, convertType: TestTypes, errorMessage: any) => {
   const response = await request.get('/request-basic-type-value', {
-    queries: {
-      [convertType + 'Value']: requestValue
-    }
+    [convertType + 'Value']: requestValue
   })
   expect(response.rawBody).toContain(errorMessage)
 }
 
 describe('Controller Params Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test no type request value', async () => {
     await testRequestParam('hello', 'notype', 'hello')
   })
@@ -184,47 +172,36 @@ describe('Controller Params Test', () => {
   })
 
   test('test ignore unknown key', async () => {
-    let result = await request.post('/request-key-validate/ignore-unknown-props', {
-      body: { a: 123, b: 'str', c: 100 }
-    })
+    let result = await request.post('/request-key-validate/ignore-unknown-props', { a: 123, b: 'str', c: 100 })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ a: 123, b: 'str' })
 
-    result = await request.post('/request-key-validate/validate-unknown-props', {
-      body: { a: 123, b: 'str', c: 100 }
-    })
+    result = await request.post('/request-key-validate/validate-unknown-props', { a: 123, b: 'str', c: 100 })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("'c' is not a valid key of")
   })
 
   test('test optional and required and empty key', async () => {
     let result = await request.post('/request-key-validate/optional', {
-      body: { optionalKey: 'optionalKey', requiredKey: 'requiredKey' }
+      optionalKey: 'optionalKey',
+      requiredKey: 'requiredKey'
     })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ optionalKey: 'optionalKey', requiredKey: 'requiredKey' })
 
-    result = await request.post('/request-key-validate/optional', {
-      body: { requiredKey: 'requiredKey' }
-    })
+    result = await request.post('/request-key-validate/optional', { requiredKey: 'requiredKey' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ requiredKey: 'requiredKey' })
 
-    result = await request.post('/request-key-validate/optional', {
-      body: { optionalKey: null, requiredKey: 'requiredKey' }
-    })
+    result = await request.post('/request-key-validate/optional', { optionalKey: null, requiredKey: 'requiredKey' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ optionalKey: null, requiredKey: 'requiredKey' })
 
-    result = await request.post('/request-key-validate/optional', {
-      body: { optionalInteger: null, requiredKey: 'requiredKey' }
-    })
+    result = await request.post('/request-key-validate/optional', { optionalInteger: null, requiredKey: 'requiredKey' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ optionalInteger: null, requiredKey: 'requiredKey' })
 
-    result = await request.post('/request-key-validate/optional', {
-      body: { optionalKey: 'optionalKey' }
-    })
+    result = await request.post('/request-key-validate/optional', { optionalKey: 'optionalKey' })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("'requiredKey' is required")
 
@@ -232,11 +209,11 @@ describe('Controller Params Test', () => {
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("'headerKey' is required")
 
-    result = await request.post('/request-key-validate/optional-no-type', { headers: { headerKey: '' } })
+    result = await request.post('/request-key-validate/optional-no-type', '', { headers: { headerKey: '' } })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("'headerKey' cannot be empty")
 
-    result = await request.post('/request-key-validate/optional-no-type', { headers: { headerKey: 'value' } })
+    result = await request.post('/request-key-validate/optional-no-type', null, { headers: { headerKey: 'value' } })
     expect(result.statusCode).toBe(200)
     expect(result.body).toBe('value')
 
@@ -249,36 +226,26 @@ describe('Controller Params Test', () => {
     expect(result.rawBody).toContain("'keyword' is required")
 
     result = await request.post('/request-key-validate/param-empty', {
-      body: {
-        normal: '',
-        notEmptyString: ''
-      }
+      normal: '',
+      notEmptyString: ''
     })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("'notEmptyString' cannot be empty")
 
     result = await request.post('/request-key-validate/param-empty', {
-      body: {
-        notEmptyString: 'xxxx'
-      }
+      notEmptyString: 'xxxx'
     })
     expect(result.statusCode).toBe(200)
 
-    result = await request.post('/optional-body', {
-      body: 123
-    })
+    result = await request.post('/optional-body', 123)
     expect(result.statusCode).toBe(200)
     expect(result.rawBody).toBe('number123')
 
-    result = await request.post('/optional-body', {
-      body: 'fff'
-    })
+    result = await request.post('/optional-body', 'fff')
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('is not an integer')
 
-    result = await request.post('/optional-body', {
-      body: ''
-    })
+    result = await request.post('/optional-body', '')
     expect(result.statusCode).toBe(200)
     expect(result.rawBody).toContain('undefinedundefined')
 
@@ -286,7 +253,7 @@ describe('Controller Params Test', () => {
     expect(result.statusCode).toBe(200)
     expect(result.rawBody).toContain('undefinedundefined')
 
-    result = await request.post('/optional-body-object', { body: '' })
+    result = await request.post('/optional-body-object', '')
     expect(result.statusCode).toBe(200)
     expect(result.rawBody).toContain('undefined')
 
@@ -297,19 +264,19 @@ describe('Controller Params Test', () => {
 
   test('test blank key', async () => {
     let result = await request.post('/request-key-validate/blank', {
-      body: { blankKey: ' s ' }
+      blankKey: ' s '
     })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ blankKey: ' s ' })
 
     result = await request.post('/request-key-validate/blank', {
-      body: { blankKey: '   ' }
+      blankKey: '   '
     })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('cannot be blank')
 
     result = await request.post('/request-key-validate/blank', {
-      body: { blankKey: '' }
+      blankKey: ''
     })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('cannot be empty')
@@ -317,113 +284,86 @@ describe('Controller Params Test', () => {
 
   test('test @Min', async () => {
     let result = await request.post('/request-key-validate/min', {
-      body: { min: 12 }
+      min: 12
     })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ min: 12 })
 
-    result = await request.post('/request-key-validate/min', {
-      body: { min: 7 }
-    })
+    result = await request.post('/request-key-validate/min', { min: 7 })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("7 should not less than 10 for field 'min'")
   })
 
   test('test @Max', async () => {
-    let result = await request.post('/request-key-validate/max', {
-      body: { max: 8 }
-    })
+    let result = await request.post('/request-key-validate/max', { max: 8 })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ max: 8 })
 
-    result = await request.post('/request-key-validate/max', {
-      body: { max: 14 }
-    })
+    result = await request.post('/request-key-validate/max', { max: 14 })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("14 should not greater than 10 for field 'max'")
   })
 
   test('test @MinLen', async () => {
-    let result = await request.post('/request-key-validate/min-len', {
-      body: { minLen: 'xxxxxxxxxxxxx' }
-    })
+    let result = await request.post('/request-key-validate/min-len', { minLen: 'xxxxxxxxxxxxx' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ minLen: 'xxxxxxxxxxxxx' })
 
-    result = await request.post('/request-key-validate/min-len', {
-      body: { minLen: 'xxx' }
-    })
+    result = await request.post('/request-key-validate/min-len', { minLen: 'xxx' })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('length(3)  should not less than 5')
   })
 
   test('test @MaxLen', async () => {
-    let result = await request.post('/request-key-validate/max-len', {
-      body: { maxLen: 'xxx' }
-    })
+    let result = await request.post('/request-key-validate/max-len', { maxLen: 'xxx' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ maxLen: 'xxx' })
 
-    result = await request.post('/request-key-validate/max-len', {
-      body: { maxLen: 'xxxxxxxxxxxxx' }
-    })
+    result = await request.post('/request-key-validate/max-len', { maxLen: 'xxxxxxxxxxxxx' })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('length(13) should not greater than 5')
   })
 
   test('test @Email', async () => {
-    let result = await request.post('/request-key-validate/email', {
-      body: { email: 'aa@bb.com' }
-    })
+    let result = await request.post('/request-key-validate/email', { email: 'aa@bb.com' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ email: 'aa@bb.com' })
 
-    result = await request.post('/request-key-validate/email', {
-      body: { email: 'not an email' }
-    })
+    result = await request.post('/request-key-validate/email', { email: 'not an email' })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain("'not an email' is no a valid email")
   })
 
   test('test @Pattern', async () => {
-    let result = await request.post('/request-key-validate/pattern', {
-      body: { pattern: '123123' }
-    })
+    let result = await request.post('/request-key-validate/pattern', { pattern: '123123' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ pattern: '123123' })
 
-    result = await request.post('/request-key-validate/pattern', {
-      body: { pattern: 'xxx' }
-    })
+    result = await request.post('/request-key-validate/pattern', { pattern: 'xxx' })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('is not match')
   })
 
   test('test @Pattern', async () => {
-    let result = await request.post('/request-key-validate/pattern', {
-      body: { pattern: '123123' }
-    })
+    let result = await request.post('/request-key-validate/pattern', { pattern: '123123' })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ pattern: '123123' })
 
-    result = await request.post('/request-key-validate/pattern', {
-      body: { pattern: 'xxx' }
-    })
+    result = await request.post('/request-key-validate/pattern', { pattern: 'xxx' })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('is not match')
   })
 
   test('test @Validate', async () => {
     let result = await request.post('/request-key-validate/custom-validate', {
-      body: { value: 'aaaaa,bbbb', value2: 'aaaaa,bbbb' }
+      value: 'aaaaa,bbbb',
+      value2: 'aaaaa,bbbb'
     })
 
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ value: 'aaaaa,bbbb', value2: 'aaaaa,bbbb' })
 
-    result = await request.post('/request-key-validate/custom-validate', {
-      body: { value: 'cccccc', value2: 'sssss' }
-    })
+    result = await request.post('/request-key-validate/custom-validate', { value: 'cccccc', value2: 'sssss' })
     expect(result.statusCode).toBe(400)
     expect(result.rawBody).toContain('Data must has')
     expect(result.rawBody).toContain('is invalid')
@@ -444,9 +384,7 @@ describe('Controller Params Test', () => {
         }
       ]
     }
-    const result = await request.post('/request-key-validate/enum', {
-      body: postBody
-    })
+    const result = await request.post('/request-key-validate/enum', postBody)
     expect(result.body).toStrictEqual(postBody)
   })
 
@@ -454,9 +392,7 @@ describe('Controller Params Test', () => {
     const postBody = {
       date: '2012-12-12T00:00:00.000Z'
     }
-    const result = await request.post('/request-key-validate/date', {
-      body: postBody
-    })
+    const result = await request.post('/request-key-validate/date', postBody)
     expect(result.body).toStrictEqual(postBody)
   })
 
@@ -506,9 +442,7 @@ describe('Controller Params Test', () => {
         o: ['hhh', 'wwww']
       }
 
-      const result = await request.post('/generic-type', {
-        body: postBody
-      })
+      const result = await request.post('/generic-type', postBody)
       expect(result.statusCode).toBe(200)
       expect(result.body).toStrictEqual(resBody)
     }
@@ -536,9 +470,7 @@ describe('Controller Params Test', () => {
         o: ['hhh', 'wwww']
       }
 
-      const result = await request.post('/generic-type', {
-        body: postBody
-      })
+      const result = await request.post('/generic-type', postBody)
       expect(result.statusCode).toBe(400)
       expect(result.rawBody).toContain("'www' is not a number")
       expect(result.rawBody).toContain("'ooo' is not a number")

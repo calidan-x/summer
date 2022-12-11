@@ -1,17 +1,9 @@
 import { getInjectable } from '@summer-js/summer'
-import { initTest, endTest, request } from '@summer-js/test'
+import { request } from '@summer-js/test'
 import { GType } from '../../controllers/GenericInjectController'
 import { GenericService } from '../../service/GenericService'
 
 describe('Test Loc', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('should inject works', async () => {
     let res = await request.get('/generic-inject-test')
     expect(res.body).toBe('true')

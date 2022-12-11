@@ -1,15 +1,7 @@
 import { handleStaticRequest } from '@summer-js/summer/lib/static-server'
-import { initTest, endTest } from '@summer-js/test'
+import '@summer-js/test'
 
 describe('Config Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test static server', async () => {
     let result = handleStaticRequest('/static/static.txt')
     expect(result!.filePath).toEqual('./resource/static.txt')

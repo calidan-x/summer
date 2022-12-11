@@ -1,28 +1,20 @@
-import { initTest, endTest, request } from '@summer-js/test'
+import { request } from '@summer-js/test'
 
 const typeVal = (value) => {
   return { type: typeof value, value }
 }
 
 const testRequestParam = async (requestValue: string, resultValue: any) => {
-  const response = await request.post('/request-body-value', { body: requestValue })
+  const response = await request.post('/request-body-value', requestValue)
   expect(response.body).toStrictEqual(typeVal(resultValue))
 }
 
 const testErrorRequestParam = async (requestValue: string, errorMessage: any) => {
-  const response = await request.post('/request-body-value', { body: requestValue })
+  const response = await request.post('/request-body-value', requestValue)
   expect(response.rawBody).toContain(errorMessage)
 }
 
 describe('Controller Object Convert Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test object convert', async () => {
     await testErrorRequestParam(
       `{

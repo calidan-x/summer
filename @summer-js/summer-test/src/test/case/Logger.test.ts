@@ -1,15 +1,7 @@
 import { Logger } from '@summer-js/summer'
-import { initTest, endTest } from '@summer-js/test'
+import '@summer-js/test'
 
 describe('Test Logger', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('should log all', async () => {
     jest.spyOn(console, 'log')
     Logger.logType = ['Info', 'Warning', 'Log', 'Error', 'Debug']

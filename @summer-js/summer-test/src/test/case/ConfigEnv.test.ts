@@ -1,15 +1,7 @@
 import { getConfig } from '@summer-js/summer'
-import { initTest, endTest } from '@summer-js/test'
+import '@summer-js/test'
 
 describe('Config Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test getConfig', async () => {
     const config = getConfig('TEST_CONFIG')
     expect(config).toStrictEqual({

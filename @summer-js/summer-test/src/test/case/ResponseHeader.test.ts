@@ -1,14 +1,6 @@
-import { initTest, endTest, request } from '@summer-js/test'
+import { request } from '@summer-js/test'
 
 describe('ResponseHeader Test', () => {
-  beforeAll(async () => {
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
-  })
-
   test('test string return', async () => {
     let result = await request.get('/res-headers/string-return')
     expect(result.body).toEqual('string')

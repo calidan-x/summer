@@ -1,13 +1,9 @@
-import { initTest, endTest } from '@summer-js/test'
+import '@summer-js/test'
 
 describe('Test AWB Lambda', () => {
   beforeAll(async () => {
     process.env.AWS_LAMBDA_FUNCTION_VERSION = '1'
-    await initTest()
-  })
-
-  afterAll(async () => {
-    await endTest()
+    // await initTest()
   })
 
   test('should AWB Lambda work', async () => {
