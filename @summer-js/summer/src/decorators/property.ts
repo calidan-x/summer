@@ -1,10 +1,10 @@
-import { locContainer } from '../loc'
+import { iocContainer } from '../ioc'
 import { OmitFirstAndSecondArg } from './utility'
 
 const generatePropertyDecorator =
   (decoratorMethod: any, ...args: any[]) =>
   (target: Object, propertyKey: string) => {
-    locContainer.paddingAssign(target, propertyKey, decoratorMethod, args)
+    iocContainer.paddingAssign(target, propertyKey, decoratorMethod, args)
   }
 
 type DecoratorMethodType = (config: any, propertyName: string, ...args: any[]) => any

@@ -1,5 +1,5 @@
 import { MiddlewareOptions } from './decorators/middleware'
-import { getInjectable } from './loc'
+import { getInjectable } from './ioc'
 
 export const middlewares: any[] = []
 export const middlewareAssembler = {

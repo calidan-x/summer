@@ -1,4 +1,4 @@
-import { locContainer } from '../loc'
+import { iocContainer } from '../ioc'
 import { requestMappingAssembler } from '../request-mapping'
 
 interface ControllerDecoratorType {
@@ -13,12 +13,12 @@ export const Controller: ControllerDecoratorType = (...args: any[]) => {
   }
   if (typeof args[0] === 'string') {
     return (controllerClass: any) => {
-      locContainer.paddingLocClass(controllerClass)
+      iocContainer.paddingIocClass(controllerClass)
       requestMappingAssembler.addControllerRoute(controllerClass.name, args[0])
       requestMappingAssembler.nextController()
     }
   } else {
-    locContainer.paddingLocClass(args[0])
+    iocContainer.paddingIocClass(args[0])
     requestMappingAssembler.addControllerRoute(args[0].name, '')
     requestMappingAssembler.nextController()
   }

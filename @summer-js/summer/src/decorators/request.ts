@@ -1,5 +1,5 @@
 import { compile } from 'path-to-regexp'
-import { locContainer } from './../loc'
+import { iocContainer } from '../ioc'
 import axios from 'axios'
 import { validateAndConvertType } from './../validate-types'
 import { requestMappingAssembler } from '../request-mapping'
@@ -25,11 +25,11 @@ export const createRequestClientDecorator = (requestConfig: RequestConfig): Requ
     if (args.length === 0) {
       return (target: any) => {
         target.prototype._$requestConfig = requestConfig
-        locContainer.paddingLocClass(target)
+        iocContainer.paddingIocClass(target)
       }
     } else {
       args[0].prototype._$requestConfig = requestConfig
-      locContainer.paddingLocClass(args[0])
+      iocContainer.paddingIocClass(args[0])
       return null
     }
   }

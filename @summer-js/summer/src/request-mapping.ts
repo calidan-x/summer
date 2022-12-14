@@ -1,5 +1,5 @@
 import { pathToRegexp } from 'path-to-regexp'
-import { Class } from './loc'
+import { Class } from './ioc'
 import { Logger } from './logger'
 
 export const requestMapping = {}

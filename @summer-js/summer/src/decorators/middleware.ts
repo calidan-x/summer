@@ -1,4 +1,4 @@
-import { locContainer } from '../loc'
+import { iocContainer } from '../ioc'
 import { middlewareAssembler } from '../middleware'
 
 export interface MiddlewareOptions {
@@ -6,5 +6,5 @@ export interface MiddlewareOptions {
 }
 export const Middleware = (middlewareOptions: MiddlewareOptions) => (target: any) => {
   middlewareAssembler.add(target, middlewareOptions)
-  locContainer.paddingLocClass(target)
+  iocContainer.paddingIocClass(target)
 }

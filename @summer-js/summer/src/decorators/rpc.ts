@@ -1,4 +1,4 @@
-import { locContainer } from './../loc'
+import { iocContainer } from '../ioc'
 import { Logger } from './../logger'
 import { getConfig } from './../config-handler'
 
@@ -22,7 +22,7 @@ export const RpcProvider: RpcProviderDecoratorType = (...args) => {
 
 export const RpcClient = (source: string, targetClass?: string) => {
   return (target: any) => {
-    locContainer.paddingLocClass(target)
+    iocContainer.paddingIocClass(target)
     Object.getOwnPropertyNames(target.prototype).forEach((method) => {
       if (typeof target.prototype[method] === 'function' && method !== 'constructor') {
         target.prototype[method] = async (...args) => {

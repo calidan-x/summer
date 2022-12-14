@@ -1,5 +1,5 @@
 const cron = require('node-cron')
-import { getInjectable } from './loc'
+import { getInjectable } from './ioc'
 import { Logger } from './logger'
 
 interface ScheduledTask {

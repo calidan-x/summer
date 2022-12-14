@@ -1,4 +1,4 @@
-import { locContainer } from '../loc'
+import { iocContainer } from '../ioc'
 
 /*
 @Deprecated
@@ -47,10 +47,10 @@ interface InjectableDecoratorType {
 export const Injectable: InjectableDecoratorType = (...args) => {
   if (args.length === 0) {
     return (clazz: any) => {
-      locContainer.paddingLocClass(clazz)
+      iocContainer.paddingIocClass(clazz)
     }
   } else {
-    locContainer.paddingLocClass(args[0])
+    iocContainer.paddingIocClass(args[0])
   }
 }
 

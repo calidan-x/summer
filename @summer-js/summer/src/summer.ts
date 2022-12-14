@@ -3,7 +3,7 @@ import cluster from 'node:cluster'
 import { getServerType } from './serverless'
 import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
-import { locContainer } from './loc'
+import { iocContainer } from './ioc'
 import { rpc } from './rpc'
 import { session } from './session'
 import { getConfig } from './config-handler'
@@ -82,13 +82,13 @@ export const summerInit = async (options?: SummerStartOptions) => {
       session.init(config['SESSION_CONFIG'])
     }
     await httpServer.createServer(config['SERVER_CONFIG'], async () => {
-      await locContainer.resolveLoc()
+      await iocContainer.resolveLoc()
       rpc.resolveRpc()
       scheduledTask.start()
       options && options.after && options.after(config)
     })
   } else {
-    await locContainer.resolveLoc()
+    await iocContainer.resolveLoc()
     rpc.resolveRpc()
     scheduledTask.start()
     options && options.after && options.after(config)

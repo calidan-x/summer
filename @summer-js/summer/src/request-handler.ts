@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { gzip } from 'node:zlib'
 import { promisify } from 'node:util'
 import { getConfig } from './config-handler'
-import { getInjectable, locContainer } from './loc'
+import { getInjectable, iocContainer } from './ioc'
 import { Logger } from './logger'
 import { middlewares } from './middleware'
 import { requestMapping } from './request-mapping'
@@ -55,7 +55,7 @@ const matchPathMethod = (path: string, httpMethod: string) => {
     const methodData = routeData[httpMethod] || routeData['REQUEST']
     if (methodData) {
       return {
-        controller: locContainer.getInstance(methodData.controllerClass),
+        controller: iocContainer.getInstance(methodData.controllerClass),
         ...methodData
       }
     }
@@ -75,7 +75,7 @@ const matchPathMethod = (path: string, httpMethod: string) => {
             pathParams[pk] = decodeURIComponent(pathParamArray[inx + 1])
           })
           return {
-            controller: locContainer.getInstance(methodData.controllerClass),
+            controller: iocContainer.getInstance(methodData.controllerClass),
             pathParams,
             ...methodData
           }

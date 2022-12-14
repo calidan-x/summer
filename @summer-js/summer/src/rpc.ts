@@ -1,5 +1,5 @@
 import { validateAndConvertType } from './validate-types'
-import { locContainer } from './loc'
+import { iocContainer } from './ioc'
 import axios from 'axios'
 import { Logger } from './logger'
 
@@ -13,7 +13,7 @@ export const rpc = {
   rpcInstance: {},
   addRpcClass(clazz: any) {
     this.rpcClass.push(clazz)
-    locContainer.paddingLocClass(clazz)
+    iocContainer.paddingIocClass(clazz)
   },
   resolveRpc() {
     this.rpcClass.forEach((rc) => {
