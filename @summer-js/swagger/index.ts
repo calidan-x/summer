@@ -506,12 +506,16 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
     }
 
     if (getType(d0) === 'object') {
+      let propDescription = Reflect.getMetadata('Api:PropDescription', dType.prototype, key)
       let propExample = Reflect.getMetadata('Api:PropExample', dType.prototype, key)
       if (isArray) {
         typeDesc[key] = { type: 'array', items: getTypeDesc(d0, typeParams, isRequest) }
       } else {
         const typeParams = d2
         typeDesc[key] = getTypeDesc(d0, typeParams, isRequest)
+      }
+      if (propDescription) {
+        typeDesc[key].description = propDescription
       }
       if (propExample) {
         typeDesc[key].example = propExample
@@ -641,12 +645,6 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
           return false
         })?.options.comment
       }
-
-      // if (!propExample) {
-      //   if (typeDesc[key].type === 'string' && propDescription) {
-      //     propExample = propDescription
-      //   }
-      // }
 
       if (propDescription) {
         typeDesc[key].description = propDescription
