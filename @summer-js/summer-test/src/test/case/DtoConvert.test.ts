@@ -10,12 +10,12 @@ class AddUserRequest {
 class User {
   id: number
   name: string
-  age: number
+  age: number | null
 }
 
 class UserResource {
   name: string
-  age: number
+  age: number | null
   moreInfo: string
 }
 
@@ -36,7 +36,7 @@ describe('DTO convert Test', () => {
     user.name = 'John'
     user.age = 12
 
-    const userResource: UserResource = new UserResource()
+    const userResource = new UserResource()
     fillData(userResource, user)
 
     userResource.moreInfo = 'moreInfo'

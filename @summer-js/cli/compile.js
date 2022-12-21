@@ -129,25 +129,28 @@ const addPropDecorator = (cls) => {
   const typeParameters = cls.getTypeParameters().map((tp) => tp.getText(cls))
   cls.getProperties().forEach((p) => {
     let type = getDeclareType(p.getText(), p, undefined, typeParameters)
-    if (type === undefined || type === null) {
-      return
-    }
-
     const pendingDecorators = []
-    if (p.hasQuestionToken() || p.hasInitializer()) {
-      if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
-        pendingDecorators.push({ name: '_Optional', arguments: [] })
-      }
-    }
 
-    if (p.hasExclamationToken()) {
-      if (!p.getDecorators().find((d) => d.getName() === '_NotBlank')) {
-        pendingDecorators.push({ name: '_NotBlank', arguments: [] })
+    if (type === undefined || type === null) {
+      if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
+        pendingDecorators.push({ name: '_PropDeclareType', arguments: [] })
       }
-    }
+    } else {
+      if (p.hasQuestionToken() || p.hasInitializer()) {
+        if (!p.getDecorators().find((d) => d.getName() === '_Optional')) {
+          pendingDecorators.push({ name: '_Optional', arguments: [] })
+        }
+      }
 
-    if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
-      pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
+      if (p.hasExclamationToken()) {
+        if (!p.getDecorators().find((d) => d.getName() === '_NotBlank')) {
+          pendingDecorators.push({ name: '_NotBlank', arguments: [] })
+        }
+      }
+
+      if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
+        pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
+      }
     }
 
     if (pendingDecorators.length) {
