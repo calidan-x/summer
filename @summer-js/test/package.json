@@ -1,11 +1,13 @@
 {
 	"name": "@summer-js/test",
-	"version": "0.0.92",
+	"version": "0.0.93",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
 	"files": [
-		"lib"
+		"lib",
+		"jest-preset.js",
+		"setup-jest.js"
 	],
 	"dependencies": {
 		"query-string": "^7.1.1",
