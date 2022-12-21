@@ -25,18 +25,6 @@ if (newVersion.split('.').length !== 3) {
   process.exit()
 }
 
-const createSummerNewVersion = process.argv[3]
-
-if (!createSummerNewVersion) {
-  console.error('Error: Missing Version')
-  process.exit()
-}
-
-if (createSummerNewVersion.split('.').length !== 3) {
-  console.error('Error: Version must like 1.0.0')
-  process.exit()
-}
-
 packageFiles.forEach((f) => {
   const content = fs.readFileSync(f, { encoding: 'utf-8' })
   const json = JSON.parse(content)
@@ -62,5 +50,5 @@ templateFiles.forEach((f) => {
 const createSummerPackage = './create-summer/package.json'
 const content = fs.readFileSync(createSummerPackage, { encoding: 'utf-8' })
 const json = JSON.parse(content)
-json.version = createSummerNewVersion
+json.version = newVersion
 fs.writeFileSync(createSummerPackage, JSON.stringify(json, null, '\t'))
