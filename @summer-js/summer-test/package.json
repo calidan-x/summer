@@ -27,6 +27,7 @@
 		"redis": "^4.3.0",
 		"jest": "^29.2.2",
 		"ts-jest": "^29.0.3",
-		"@elastic/elasticsearch": "7.15.0"
+		"@elastic/elasticsearch": "7.15.0",
+		"@aws-sdk/client-s3": "^3.33.0"
 	}
 }
