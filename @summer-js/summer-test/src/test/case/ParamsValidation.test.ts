@@ -324,6 +324,24 @@ describe('Controller Params Test', () => {
     expect(result.rawBody).toContain('length(13) should not greater than 5')
   })
 
+  test('test @Len', async () => {
+    let result = await request.post('/request-key-validate/len', { len: 'xxxxx', lenRange: 'xx' })
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toStrictEqual({ len: 'xxxxx', lenRange: 'xx' })
+
+    result = await request.post('/request-key-validate/len', { len: 'xxx', lenRange: 'xx' })
+    expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('length(3) should equals to 5')
+
+    result = await request.post('/request-key-validate/len', { len: 'xxxxx', lenRange: 'x' })
+    expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('length(1) should in [2,5]')
+
+    result = await request.post('/request-key-validate/len', { len: 'xxxxx', lenRange: 'xxxxxxx' })
+    expect(result.statusCode).toBe(400)
+    expect(result.rawBody).toContain('length(7) should in [2,5]')
+  })
+
   test('test @Email', async () => {
     let result = await request.post('/request-key-validate/email', { email: 'aa@bb.com' })
     expect(result.statusCode).toBe(200)

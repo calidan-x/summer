@@ -13,6 +13,7 @@ import {
   Pattern,
   Validate,
   Header,
+  Len,
   IgnoreUnknownProperties
 } from '@summer-js/summer'
 import { Dog } from '../../dto/request/Dog'
@@ -70,6 +71,14 @@ class MinLenRequest {
 class MaxLenRequest {
   @MaxLen(5)
   maxLen: string
+}
+
+class LenRequest {
+  @Len(5)
+  len: string
+
+  @Len(2, 5)
+  lenRange: string
 }
 
 class EmailRequest {
@@ -270,6 +279,11 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/max-len')
   maxLenKey(@Body request: MaxLenRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/len')
+  equalsLenKey(@Body request: LenRequest) {
     return request
   }
 

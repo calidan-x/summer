@@ -1,4 +1,5 @@
 import os from 'os'
+import { ValidateMessage } from './decorators'
 
 export class File {
   filename: string
@@ -403,6 +404,13 @@ const getMetaData = (key: string, instance: any, methodName: string, paramIndex:
   }
 }
 
+const getMessage = (validateMessage: ValidateMessage, value: any) => {
+  if (!validateMessage) {
+    return undefined
+  }
+  return typeof validateMessage === 'string' ? validateMessage : validateMessage(value)
+}
+
 const validateRequired = (
   instance: any,
   methodName,
@@ -462,9 +470,10 @@ const validateEmail = (
   const emailRegExp =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   if (isEmail && !emailRegExp.test(propValue)) {
+    const message = getMetaData('message[email]', instance, methodName, paramIndex, propName)
     errors.push({
       param: errorParam,
-      message: `'${propValue}' is no a valid email`
+      message: getMessage(message, propValue) || `'${propValue}' is no a valid email`
     })
   }
 }
@@ -481,9 +490,10 @@ const validatePattern = (
 ) => {
   const match: RegExp = getMetaData('pattern', instance, methodName, paramIndex, propName)
   if (match && !match.test(propValue)) {
+    const message = getMetaData('message[pattern]', instance, methodName, paramIndex, propName)
     errors.push({
       param: errorParam,
-      message: `${typeDisplayText(propValue, isFirstLevel)} is not match ${match}`
+      message: getMessage(message, propValue) || `${typeDisplayText(propValue, isFirstLevel)} is not match ${match}`
     })
   }
 }
@@ -498,25 +508,52 @@ const validateMinMaxLength = (
   errors: ValidateError[],
   isFirstLevel: boolean
 ) => {
-  let maxLength = getMetaData('maxLen', instance, methodName, paramIndex, propName)
+  const maxLength = getMetaData('maxLen', instance, methodName, paramIndex, propName)
   if (maxLength !== undefined) {
     if (propValue.length > maxLength) {
+      const message = getMetaData('message[maxLen]', instance, methodName, paramIndex, propName)
       errors.push({
         param: errorParam,
-        message: `${typeDisplayText(propValue, isFirstLevel)} length(${
-          propValue.length
-        }) should not greater than ${maxLength}`
+        message:
+          getMessage(message, propValue) ||
+          `${typeDisplayText(propValue, isFirstLevel)} length(${propValue.length}) should not greater than ${maxLength}`
       })
     }
   }
   const minLength = getMetaData('minLen', instance, methodName, paramIndex, propName)
   if (minLength !== undefined) {
     if (propValue.length < minLength) {
+      const message = getMetaData('message[minLen]', instance, methodName, paramIndex, propName)
       errors.push({
         param: propName,
-        message: `${typeDisplayText(propValue, isFirstLevel)} length(${
-          propValue.length
-        })  should not less than ${minLength}`
+        message:
+          getMessage(message, propValue) ||
+          `${typeDisplayText(propValue, isFirstLevel)} length(${propValue.length})  should not less than ${minLength}`
+      })
+    }
+  }
+  const length = getMetaData('len', instance, methodName, paramIndex, propName)
+  if (length !== undefined) {
+    if (propValue.length !== length) {
+      const message = getMetaData('message[len]', instance, methodName, paramIndex, propName)
+      errors.push({
+        param: propName,
+        message:
+          getMessage(message, propValue) ||
+          `${typeDisplayText(propValue, isFirstLevel)} length(${propValue.length}) should equals to ${length}`
+      })
+    }
+  }
+  const lenRange = getMetaData('lenRange', instance, methodName, paramIndex, propName)
+  if (lenRange !== undefined) {
+    const [minLen, maxLen] = lenRange
+    if (propValue.length < minLen || propValue.length > maxLen) {
+      const message = getMetaData('message[lenRange]', instance, methodName, paramIndex, propName)
+      errors.push({
+        param: propName,
+        message:
+          getMessage(message, propValue) ||
+          `${typeDisplayText(propValue, isFirstLevel)} length(${propValue.length}) should in [${minLen},${maxLen}]`
       })
     }
   }
@@ -538,18 +575,24 @@ const validateMinMax = (
   const max = getMetaData('max', instance, methodName, paramIndex, propName)
   if (max !== undefined) {
     if (propValue > max) {
+      const message = getMetaData('message[max]', instance, methodName, paramIndex, propName)
       errors.push({
         param: errorParam,
-        message: `${typeDisplayText(propValue, isFirstLevel)} should not greater than ${max} for field '${propName}'`
+        message:
+          getMessage(message, propValue) ||
+          `${typeDisplayText(propValue, isFirstLevel)} should not greater than ${max} for field '${propName}'`
       })
     }
   }
   const min = getMetaData('min', instance, methodName, paramIndex, propName)
   if (min !== undefined) {
     if (propValue < min) {
+      const message = getMetaData('message[min]', instance, methodName, paramIndex, propName)
       errors.push({
         param: propName,
-        message: `${typeDisplayText(propValue, isFirstLevel)} should not less than ${min} for field '${propName}'`
+        message:
+          getMessage(message, propValue) ||
+          `${typeDisplayText(propValue, isFirstLevel)} should not less than ${min} for field '${propName}'`
       })
     }
   }

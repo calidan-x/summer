@@ -13,8 +13,10 @@ const defineMetaValue = (arg, validateKey, validateValue) => {
   }
 }
 
+export type ValidateMessage = string | ((value?: any) => string)
+
 interface ValidateDecoratorType {
-  (): PropertyDecorator
+  (validateMessage?: ValidateMessage): PropertyDecorator
   (target: any, propertyKey: string): void
 }
 
@@ -24,25 +26,58 @@ interface ValidateDecoratorClassType {
 }
 
 export const Max =
-  (max: number) =>
-  (...arg) =>
+  (max: number, validateMessage?: ValidateMessage) =>
+  (...arg) => {
     defineMetaValue(arg, 'max', max)
+    if (validateMessage) {
+      defineMetaValue(arg, 'message[max]', validateMessage)
+    }
+  }
 
 export const Min =
-  (min: number) =>
-  (...arg) =>
+  (min: number, validateMessage?: ValidateMessage) =>
+  (...arg) => {
     defineMetaValue(arg, 'min', min)
+    if (validateMessage) {
+      defineMetaValue(arg, 'message[min]', validateMessage)
+    }
+  }
+
+export function Len(length: number, validateMessage?: ValidateMessage): PropertyDecorator
+export function Len(minLength: number, maxLength: number, validateMessage?: ValidateMessage): PropertyDecorator
+export function Len(...args) {
+  return (...arg) => {
+    if (args.length === 1 || (args.length === 2 && typeof args[1] !== 'number')) {
+      defineMetaValue(arg, 'len', args[0])
+      if (args[1]) {
+        defineMetaValue(arg, 'message[len]', args[1])
+      }
+    } else {
+      defineMetaValue(arg, 'lenRange', [args[0], args[1]])
+      if (args[2]) {
+        defineMetaValue(arg, 'message[lenRange]', args[2])
+      }
+    }
+  }
+}
 
 export const MaxLen =
-  (maxLength: number) =>
-  (...arg) =>
+  (maxLength: number, validateMessage?: ValidateMessage) =>
+  (...arg) => {
     defineMetaValue(arg, 'maxLen', maxLength)
+    if (validateMessage) {
+      defineMetaValue(arg, 'message[maxLen]', validateMessage)
+    }
+  }
 
 export const MinLen =
-  (minLength: number) =>
-  (...arg) =>
+  (minLength: number, validateMessage?: ValidateMessage) =>
+  (...arg) => {
     defineMetaValue(arg, 'minLen', minLength)
-
+    if (validateMessage) {
+      defineMetaValue(arg, 'message[minLen]', validateMessage)
+    }
+  }
 // @ts-ignore
 const Optional: ValidateDecoratorType = (...args) => {
   if (args.length === 0) {
@@ -73,14 +108,23 @@ export const IgnoreUnknownProperties: ValidateDecoratorClassType = (...args) => 
 }
 
 export const Pattern =
-  (regExp: RegExp) =>
-  (...arg) =>
+  (regExp: RegExp, validateMessage?: ValidateMessage) =>
+  (...arg) => {
     defineMetaValue(arg, 'pattern', regExp)
+    if (validateMessage) {
+      defineMetaValue(arg, 'message[pattern]', validateMessage)
+    }
+  }
 
 // @ts-ignore
 export const Email: ValidateDecoratorType = (...args) => {
-  if (args.length === 0) {
-    return (...arg) => defineMetaValue(arg, 'email', true)
+  if (args.length <= 1) {
+    return (...arg) => {
+      defineMetaValue(arg, 'email', true)
+      if (args[0]) {
+        defineMetaValue(arg, 'message[email]', args[0])
+      }
+    }
   } else {
     defineMetaValue(args, 'email', true)
   }
