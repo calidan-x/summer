@@ -146,6 +146,10 @@ class Search {
   count: number
 }
 
+class NullableRequest {
+  name: string | null
+}
+
 @Controller
 export class ParamsValidationController {
   @Get('/request-basic-type-value')
@@ -309,6 +313,11 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/date')
   date(@Body request: DateValidateRequest) {
+    return request
+  }
+
+  @Post('/request-key-validate/nullable')
+  nullable(@Body request: NullableRequest) {
     return request
   }
 }

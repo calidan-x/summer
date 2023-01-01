@@ -280,9 +280,9 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     }
     return `[${JSON.stringify(unionArr)}]`
   } else if (paramType.isClass() || paramType.isEnum() || paramType.isEnumLiteral()) {
-    return `[()=>${type}]`
+    return `[()=>${paramType.getText(parameter)}]`
   } else if (paramType.isStringLiteral() || paramType.isNumberLiteral()) {
-    return `[${paramType.getText()}]`
+    return `[${paramType.getText(parameter)}]`
   } else {
     type = ALLTypeMapping[type]
   }

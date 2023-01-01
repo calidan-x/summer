@@ -500,4 +500,12 @@ describe('Controller Params Test', () => {
       expect(result.rawBody).toContain('{"hello":"World","g":{"a":123,"b":"sss","d":')
     }
   })
+
+  test('test nullable', async () => {
+    const postBody = {
+      name: null
+    }
+    const result = await request.post('/request-key-validate/nullable', postBody)
+    expect(result.body).toStrictEqual(postBody)
+  })
 })
