@@ -71,6 +71,9 @@ export const iocContainer = {
 
   paddingInject(target: any, propertyKey: string, auto = false) {
     let [injectClass, array, genericParams] = Reflect.getMetadata('DeclareType', target, propertyKey)
+    if (injectClass === undefined) {
+      return
+    }
     genericParams = genericParams.map((p) => {
       return typeof p[0] === 'function' && !p[0].name ? p[0]() : p[0]
     })

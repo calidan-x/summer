@@ -5,6 +5,9 @@ import { HelloService } from '../service'
 export class HelloController {
   helloService: HelloService
 
+  anyTypeProp: any[]
+  neverTypeProp: never[]
+
   @Get
   hello() {
     return 'Hello Summer!'
