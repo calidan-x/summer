@@ -3,7 +3,7 @@ import IORedis, { RedisOptions } from 'ioredis'
 
 let redisClient: IORedis
 
-export type RedisConfig = RedisOptions
+export type RedisConfig = RedisOptions | string
 
 class Redis extends SummerPlugin {
   configKey = 'REDIS_CONFIG'
@@ -14,12 +14,17 @@ class Redis extends SummerPlugin {
     }
   }
 
-  async connect(options: any) {
+  async connect(options: RedisOptions) {
     const isSummerTesting = process.env.SUMMER_TESTING !== undefined
     redisClient = new IORedis(options)
-    if (!isSummerTesting) {
-      Logger.info('Redis Connected')
-    }
+    redisClient.on('connect', () => {
+      if (!isSummerTesting) {
+        Logger.info('Redis Connected')
+      }
+    })
+    redisClient.on('error', (message) => {
+      Logger.error(message)
+    })
   }
 
   async destroy() {}

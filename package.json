@@ -3,9 +3,9 @@
   "version": "0.0.96",
   "description": "",
   "scripts": {
-    "build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build && npm -w @summer-js/elasticsearch run build",
+    "build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build && npm -w @summer-js/elasticsearch run build && npm -w @summer-js/redis run build",
     "test-all": "npm -w @summer-js/summer-test run test",
-    "pubulish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w @summer-js/elasticsearch run release && npm -w create-summer run release",
+    "pubulish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w @summer-js/elasticsearch run release && npm -w @summer-js/redis run release && npm -w create-summer run release",
     "unpublish-all": "npm unpublish create-summer@1.0.11"
   },
   "repository": {
