@@ -2,6 +2,7 @@ import { ServerConfig, SessionConfig, RpcConfig } from '@summer-js/summer'
 import { SwaggerConfig } from '@summer-js/swagger'
 import { TypeORMConfig } from '@summer-js/typeorm'
 // import { ElasticSearchConfig } from '@summer-js/elasticsearch'
+import { RedisConfig } from '@summer-js/redis'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
   DATA_SOURCE: {
@@ -74,3 +75,8 @@ export const RPC_CONFIG: RpcConfig = {
 // export const ELASTICSEARCH_CONFIG: ElasticSearchConfig = {
 //   node: 'http://localhost:9200'
 // }
+
+export const REDIS_CONFIG: RedisConfig = {
+  port: 6379,
+  host: '127.0.0.1'
+}
