@@ -17,13 +17,17 @@ class Redis extends SummerPlugin {
   async connect(options: RedisOptions) {
     const isSummerTesting = process.env.SUMMER_TESTING !== undefined
     redisClient = new IORedis(options)
-    redisClient.on('connect', () => {
-      if (!isSummerTesting) {
-        Logger.info('Redis Connected')
-      }
-    })
-    redisClient.on('error', (message) => {
-      Logger.error(message)
+    await new Promise((resolve) => {
+      redisClient.on('connect', () => {
+        if (!isSummerTesting) {
+          Logger.info('Redis Connected')
+        }
+        resolve('')
+      })
+      redisClient.on('error', (message) => {
+        Logger.error(message)
+        resolve('')
+      })
     })
   }
 

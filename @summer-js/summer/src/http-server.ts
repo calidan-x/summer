@@ -148,6 +148,9 @@ export const httpServer = {
           }
           serverStated && serverStated()
         })
+        .on('error', (msg) => {
+          Logger.error(msg)
+        })
     }
   }
 }

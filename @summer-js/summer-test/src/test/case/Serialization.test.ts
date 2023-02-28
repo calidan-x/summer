@@ -3,9 +3,16 @@ import { request } from '@summer-js/test'
 describe('Test Serialization', () => {
   test('test serialization', async () => {
     let res = await request.get('/serialize')
-    expect(res.body).toStrictEqual({
-      direction: 'LEFT'
-    })
+    expect(res.body).toStrictEqual([
+      {
+        direction: 'LEFT',
+        country: 'China'
+      },
+      {
+        direction: 'LEFT',
+        country: 'China'
+      }
+    ])
 
     res = await request.get('/class-extends-serialize')
     expect(res.body).toStrictEqual({

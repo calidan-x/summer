@@ -292,11 +292,19 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
 let modifyActions = []
 
+const stripColor = (str) => {
+  const isTerminal = process.env.TERM !== undefined
+  if (isTerminal) {
+    return str
+  }
+  return str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, '')
+}
+
 const checkError = () => {
   const diagnostics = project.getPreEmitDiagnostics()
   if (diagnostics.length > 0) {
     console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:')
-    console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
+    console.log(stripColor(project.formatDiagnosticsWithColorAndContext(diagnostics)))
     console.log('\x1b[33m%s\x1b[0m', '\nFound ' + diagnostics.length + ' Error' + (diagnostics.length > 1 ? 's' : ''))
     compiling = false
     return true

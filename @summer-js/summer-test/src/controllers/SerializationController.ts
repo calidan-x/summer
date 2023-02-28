@@ -6,9 +6,14 @@ enum Direction {
   LEFT = 2,
   RIGHT = 3
 }
+enum Country {
+  'China' = '中国',
+  'US' = '美国'
+}
 
 class Resource {
   direction: Direction
+  country: Country
 }
 
 class ExtendResource extends Resource {
@@ -30,8 +35,8 @@ export class SerializationController {
   async serialize() {
     const r = new Resource()
     r.direction = Direction.LEFT
-
-    return r
+    r.country = Country.China
+    return [r, r]
   }
 
   @Get('/class-extends-serialize')

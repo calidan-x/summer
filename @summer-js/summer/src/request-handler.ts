@@ -124,9 +124,9 @@ const serialize = (obj, declareType: any[]) => {
     }
   } else {
     if (typeof d0 === 'object') {
-      if (d0[obj]) {
+      if (d0[obj] && typeof obj === 'number') {
         obj = d0[obj]
-      } else {
+      } else if (typeof d0[obj] !== 'number') {
         for (const enumKey in d0) {
           if (d0[enumKey] === obj) {
             obj = enumKey
