@@ -108,6 +108,26 @@ export const data = {
         }
       }
     },
+    '/persons/search': {
+      get: {
+        tags: ['Person相关服务'],
+        summary: '',
+        security: [],
+        operationId: '804b8',
+        parameters: [
+          {
+            name: 'firstName',
+            in: 'query',
+            description: 'query first name',
+            required: true,
+            example: 'John',
+            schema: { type: 'string' }
+          },
+          { name: 'lastName', in: 'query', description: '', required: true, schema: { type: 'string' } }
+        ],
+        responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string' } } } } }
+      }
+    },
     '/todos': {
       get: {
         tags: ['Todo Apis'],

@@ -789,8 +789,9 @@ export class SummerSwaggerUIController {
               parameters.push({
                 name: filed,
                 in: 'query',
-                description: '',
+                description: props[filed].description || '',
                 required: isRequired,
+                example: props[filed].example,
                 schema: {
                   type: props[filed].type
                 }
