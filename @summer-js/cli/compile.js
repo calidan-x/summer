@@ -514,6 +514,7 @@ const compile = async (compileAll = false) => {
   const autoImportDecorators = [
     'ClassCollect',
     'Service',
+    'SocketIOController',
     'Injectable',
     'RpcProvider',
     'RpcClient',
@@ -637,6 +638,24 @@ const compile = async (compileAll = false) => {
             pendingProperties.forEach((p) => {
               p.remove()
             })
+          })
+        } else if (classDecorator.getName() === 'SocketIOController') {
+          cls.getMethods().forEach((cMethod) => {
+            if (cMethod.getDecorators().length > 0) {
+              cMethod.getParameters().forEach((param, inx) => {
+                if (inx === 1) {
+                  const decorators = [
+                    {
+                      name: '_ParamDeclareType',
+                      arguments: [getDeclareType(param.getText(), param)]
+                    }
+                  ]
+                  modifyActions.push(() => {
+                    param.addDecorators(decorators)
+                  })
+                }
+              })
+            }
           })
         }
       }

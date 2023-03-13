@@ -8,6 +8,8 @@ export class SummerPlugin {
   postCompile(isFirstCompile?: boolean) {}
   //@ts-ignore
   init(config: any) {}
+  //@ts-ignore
+  postInit(config: any) {}
   destroy() {}
 
   #classCollection: any[] = []

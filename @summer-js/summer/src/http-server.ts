@@ -1,4 +1,4 @@
-import http from 'http'
+import http, { Server } from 'http'
 import cluster from 'node:cluster'
 import os from 'node:os'
 import fs from 'fs'
@@ -56,6 +56,7 @@ export const getInitContextData = () => ({
 })
 
 export const httpServer = {
+  server: undefined as unknown as Server,
   paramsToObject(entries) {
     const result = {}
     for (const [key, value] of entries) {
@@ -111,7 +112,7 @@ export const httpServer = {
     res.end()
   },
 
-  createServer(serverConfig: ServerConfig, serverStated?: () => void) {
+  createServer(serverConfig: ServerConfig) {
     if (!serverConfig.port) {
       Logger.error('Server port not set in ServerConfig')
       return
@@ -133,24 +134,27 @@ export const httpServer = {
           (serverConfig.basePath ? serverConfig.basePath + '/' : '')
       )
     } else {
-      http
+      this.server = http
         .createServer(async (req, res) => {
           const bodyData = await parseBody(req, req.method!, req.headers)
           this.handlerRequest(req, res, bodyData, serverConfig)
-        })
-        .listen(serverConfig.port, '', () => {
-          if (cluster.isPrimary) {
-            Logger.info(
-              'Server running at: http://127.0.0.1:' +
-                serverConfig.port +
-                (serverConfig.basePath ? serverConfig.basePath + '/' : '')
-            )
-          }
-          serverStated && serverStated()
         })
         .on('error', (msg) => {
           Logger.error(msg)
         })
     }
+  },
+
+  startServer(serverConfig: ServerConfig, serverStated?: () => void) {
+    this.server.listen(serverConfig.port, '', () => {
+      if (cluster.isPrimary) {
+        Logger.info(
+          'Server running at: http://127.0.0.1:' +
+            serverConfig.port +
+            (serverConfig.basePath ? serverConfig.basePath + '/' : '')
+        )
+      }
+      serverStated && serverStated()
+    })
   }
 }

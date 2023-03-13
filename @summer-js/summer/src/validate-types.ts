@@ -8,7 +8,7 @@ export class File {
   tmpPath: string
 }
 
-interface ValidateError {
+export interface ValidateError {
   param: string
   message: string
 }

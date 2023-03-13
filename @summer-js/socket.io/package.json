@@ -1,0 +1,24 @@
+{
+  "name": "@summer-js/socket.io",
+  "version": "0.0.99",
+  "description": "",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "devDependencies": {
+    "socket.io": "4.6.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "release": "npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calidan-x/summer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calidan-x/summer/issues"
+  },
+  "homepage": "https://github.com/calidan-x/summer#readme"
+}

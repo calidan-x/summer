@@ -59,17 +59,17 @@ export const iocContainer = {
       return genericInstance ? genericInstance.instance : undefined
     }
   },
-  paddingIocClass(clazz: any) {
+  pendingIocClass(clazz: any) {
     if (!this.iocClass.includes(clazz)) {
       this.iocClass.push(clazz)
       // auto injection
       Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
-        iocContainer.paddingInject(clazz.prototype, key, true)
+        iocContainer.pendingInject(clazz.prototype, key, true)
       })
     }
   },
 
-  paddingInject(target: any, propertyKey: string, auto = false) {
+  pendingInject(target: any, propertyKey: string, auto = false) {
     let [injectClass, array, genericParams] = Reflect.getMetadata('DeclareType', target, propertyKey)
     if (injectClass === undefined) {
       return
@@ -77,12 +77,12 @@ export const iocContainer = {
     genericParams = genericParams.map((p) => {
       return typeof p[0] === 'function' && !p[0].name ? p[0]() : p[0]
     })
-    if (!target.$_paddingInject) {
-      target.$_paddingInject = {}
+    if (!target.$_pendingInject) {
+      target.$_pendingInject = {}
       target.$_autoInjectKeys = []
     }
-    if (!target.$_paddingInject[propertyKey]) {
-      target.$_paddingInject[propertyKey] = [injectClass, array, genericParams]
+    if (!target.$_pendingInject[propertyKey]) {
+      target.$_pendingInject[propertyKey] = [injectClass, array, genericParams]
       if (auto) {
         target.$_autoInjectKeys.push(propertyKey)
       }
@@ -129,9 +129,9 @@ export const iocContainer = {
   },
   resolveInject() {
     for (const obj of this.iocInstance) {
-      if (obj.$_paddingInject) {
-        for (const injectKey in obj.$_paddingInject) {
-          let [injectClass, array, genericParams] = obj.$_paddingInject[injectKey]
+      if (obj.$_pendingInject) {
+        for (const injectKey in obj.$_pendingInject) {
+          let [injectClass, array, genericParams] = obj.$_pendingInject[injectKey]
 
           if (typeof injectClass === 'function' && injectClass.name === '') {
             injectClass = injectClass()
@@ -159,39 +159,39 @@ export const iocContainer = {
             // }
           }
         }
-        delete obj.$_paddingInject
+        delete obj.$_pendingInject
         delete obj.$_autoInjectKeys
       }
-      if (obj.constructor.prototype.$_paddingInject) {
-        delete obj.constructor.prototype.$_paddingInject
+      if (obj.constructor.prototype.$_pendingInject) {
+        delete obj.constructor.prototype.$_pendingInject
       }
       if (obj.constructor.prototype.$_autoInjectKeys) {
         delete obj.constructor.prototype.$_autoInjectKeys
       }
     }
   },
-  paddingAssign(target: any, propertyKey: string, decoratorFunc: any, args: any) {
-    if (!target._paddingAssign) {
-      target._paddingAssign = {}
+  pendingAssign(target: any, propertyKey: string, decoratorFunc: any, args: any) {
+    if (!target._pendingAssign) {
+      target._pendingAssign = {}
     }
-    target._paddingAssign[propertyKey] = { decoratorFunc, args }
+    target._pendingAssign[propertyKey] = { decoratorFunc, args }
   },
   async resolveAssign() {
     const config = getConfig()
     for (const obj of this.iocInstance) {
-      if (obj._paddingAssign) {
-        for (const assignKey in obj._paddingAssign) {
-          obj[assignKey] = await obj._paddingAssign[assignKey].decoratorFunc(
+      if (obj._pendingAssign) {
+        for (const assignKey in obj._pendingAssign) {
+          obj[assignKey] = await obj._pendingAssign[assignKey].decoratorFunc(
             config,
             assignKey,
-            ...obj._paddingAssign[assignKey].args
+            ...obj._pendingAssign[assignKey].args
           )
         }
-        delete obj._paddingAssign
+        delete obj._pendingAssign
       }
 
-      if (obj.constructor.prototype._paddingAssign) {
-        delete obj.constructor.prototype._paddingAssign
+      if (obj.constructor.prototype._pendingAssign) {
+        delete obj.constructor.prototype._pendingAssign
       }
 
       if (obj['$_postConstruct']) {
@@ -211,7 +211,7 @@ export const getInjectable = <T>(clazz: Class<T>, params: any[] = []): T => {
 }
 
 export const addInjectable = <T>(clazz: Class<T>, generateFunction?: (...params: any[]) => any) => {
-  iocContainer.paddingIocClass(clazz)
+  iocContainer.pendingIocClass(clazz)
   if (generateFunction) {
     iocContainer.generateFunction.set(clazz, generateFunction)
   }

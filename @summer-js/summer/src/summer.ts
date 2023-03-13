@@ -68,6 +68,10 @@ export const summerInit = async (options?: SummerStartOptions) => {
     printSummerInfo()
   }
 
+  if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
+    await httpServer.createServer(config['SERVER_CONFIG'])
+  }
+
   for (const Plugin of plugins) {
     const plugin: SummerPlugin = new Plugin()
     pluginIncs.push(plugin)
@@ -81,15 +85,21 @@ export const summerInit = async (options?: SummerStartOptions) => {
     if (config['SESSION_CONFIG']) {
       session.init(config['SESSION_CONFIG'])
     }
-    await httpServer.createServer(config['SERVER_CONFIG'], async () => {
+    await httpServer.startServer(config['SERVER_CONFIG'], async () => {
       await iocContainer.resolveLoc()
       rpc.resolveRpc()
+      for (const plugin of pluginIncs) {
+        plugin.postInit && plugin.postInit(config[plugin.configKey])
+      }
       scheduledTask.start()
       options && options.after && options.after(config)
     })
   } else {
     await iocContainer.resolveLoc()
     rpc.resolveRpc()
+    for (const plugin of pluginIncs) {
+      plugin.postInit && plugin.postInit(config[plugin.configKey])
+    }
     scheduledTask.start()
     options && options.after && options.after(config)
     if (!startLocks['done']) {

@@ -13,12 +13,12 @@ export const Controller: ControllerDecoratorType = (...args: any[]) => {
   }
   if (typeof args[0] === 'string') {
     return (controllerClass: any) => {
-      iocContainer.paddingIocClass(controllerClass)
+      iocContainer.pendingIocClass(controllerClass)
       requestMappingAssembler.addControllerRoute(controllerClass.name, args[0])
       requestMappingAssembler.nextController()
     }
   } else {
-    iocContainer.paddingIocClass(args[0])
+    iocContainer.pendingIocClass(args[0])
     requestMappingAssembler.addControllerRoute(args[0].name, '')
     requestMappingAssembler.nextController()
   }

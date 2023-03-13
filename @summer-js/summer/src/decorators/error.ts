@@ -12,7 +12,7 @@ export const ErrorHandler: ErrorHandlerType = (...args) => {
   const instanceHandler = (target) => {
     if (!errorHandle.errorHandlerClass) {
       errorHandle.errorHandlerClass = target
-      iocContainer.paddingIocClass(target)
+      iocContainer.pendingIocClass(target)
     } else {
       Logger.error('Duplicate ErrorHandler')
       process.exit()

@@ -6,5 +6,5 @@ export interface MiddlewareOptions {
 }
 export const Middleware = (middlewareOptions: MiddlewareOptions) => (target: any) => {
   middlewareAssembler.add(target, middlewareOptions)
-  iocContainer.paddingIocClass(target)
+  iocContainer.pendingIocClass(target)
 }

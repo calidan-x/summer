@@ -47,10 +47,10 @@ interface InjectableDecoratorType {
 export const Injectable: InjectableDecoratorType = (...args) => {
   if (args.length === 0) {
     return (clazz: any) => {
-      iocContainer.paddingIocClass(clazz)
+      iocContainer.pendingIocClass(clazz)
     }
   } else {
-    iocContainer.paddingIocClass(args[0])
+    iocContainer.pendingIocClass(args[0])
   }
 }
 

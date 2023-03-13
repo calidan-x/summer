@@ -3,6 +3,7 @@ import { SwaggerConfig } from '@summer-js/swagger'
 import { TypeORMConfig } from '@summer-js/typeorm'
 // import { ElasticSearchConfig } from '@summer-js/elasticsearch'
 import { RedisConfig } from '@summer-js/redis'
+import { SocketIOConfig } from '@summer-js/socket.io'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
   DATA_SOURCE: {
@@ -80,3 +81,5 @@ export const REDIS_CONFIG: RedisConfig = {
   port: 6379,
   host: '127.0.0.1'
 }
+
+export const SOCKET_IO_CONFIG: SocketIOConfig = {}

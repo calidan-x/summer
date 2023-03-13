@@ -4,7 +4,7 @@ import { OmitFirstAndSecondArg } from './utility'
 const generatePropertyDecorator =
   (decoratorMethod: any, ...args: any[]) =>
   (target: Object, propertyKey: string) => {
-    iocContainer.paddingAssign(target, propertyKey, decoratorMethod, args)
+    iocContainer.pendingAssign(target, propertyKey, decoratorMethod, args)
   }
 
 type DecoratorMethodType = (config: any, propertyName: string, ...args: any[]) => any

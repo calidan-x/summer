@@ -25,11 +25,11 @@ export const createRequestClientDecorator = (requestConfig: RequestConfig): Requ
     if (args.length === 0) {
       return (target: any) => {
         target.prototype._$requestConfig = requestConfig
-        iocContainer.paddingIocClass(target)
+        iocContainer.pendingIocClass(target)
       }
     } else {
       args[0].prototype._$requestConfig = requestConfig
-      iocContainer.paddingIocClass(args[0])
+      iocContainer.pendingIocClass(args[0])
       return null
     }
   }

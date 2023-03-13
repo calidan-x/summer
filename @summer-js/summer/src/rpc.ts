@@ -13,7 +13,7 @@ export const rpc = {
   rpcInstance: {},
   addRpcClass(clazz: any) {
     this.rpcClass.push(clazz)
-    iocContainer.paddingIocClass(clazz)
+    iocContainer.pendingIocClass(clazz)
   },
   resolveRpc() {
     this.rpcClass.forEach((rc) => {

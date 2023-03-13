@@ -22,7 +22,7 @@ export const RpcProvider: RpcProviderDecoratorType = (...args) => {
 
 export const RpcClient = (source: string, targetClass?: string) => {
   return (target: any) => {
-    iocContainer.paddingIocClass(target)
+    iocContainer.pendingIocClass(target)
     Object.getOwnPropertyNames(target.prototype).forEach((method) => {
       if (typeof target.prototype[method] === 'function' && method !== 'constructor') {
         target.prototype[method] = async (...args) => {
