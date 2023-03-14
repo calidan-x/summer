@@ -1,3 +1,4 @@
+import { SocketIOConfig } from '@summer-js/socket.io'
 import { SessionConfig, ServerConfig, RpcConfig } from '@summer-js/summer'
 import { SwaggerConfig } from '@summer-js/swagger'
 import { TypeORMConfig } from '@summer-js/typeorm'
@@ -58,3 +59,5 @@ export const SWAGGER_CONFIG: SwaggerConfig = {
 export const MySQL = {
   host: 'localhost'
 }
+
+export const SOCKET_IO_CONFIG: SocketIOConfig = {}

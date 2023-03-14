@@ -26,9 +26,19 @@ class SocketIOPlugin extends SummerPlugin {
       if (basePath) {
         config.path = basePath + config.path
       }
-      socketIO = new Server(httpServer.server, config)
+
+      if (httpServer.server) {
+        if (!socketIO) {
+          socketIO = new Server(httpServer.server, config)
+        }
+      } else {
+        socketIO = new Server(config)
+      }
+
       addInjectable(IO, () => socketIO)
-      Logger.info('Socket.io initialized path: http://127.0.0.1:' + serverConfig.port + config.path)
+      if (process.env.SUMMER_ENV !== 'test') {
+        Logger.info('Socket.io initialized path: http://127.0.0.1:' + serverConfig.port + config.path)
+      }
     }
   }
   async postInit(config) {
