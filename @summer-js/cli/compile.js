@@ -463,6 +463,9 @@ const compile = async (compileAll = false) => {
   }
 
   const pathResolveActions = resolvePath(dirtyFiles, compileAll)
+  for (const action of pathResolveActions) {
+    action()
+  }
 
   modifyActions.forEach((action) => {
     action()
@@ -741,10 +744,6 @@ const compile = async (compileAll = false) => {
   const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
   indexSourceFile.refreshFromFileSystemSync()
   indexSourceFile.getChildAtIndex(0).replaceWithText(statements.join('') + indexSourceFile.getChildAtIndex(0).getText())
-
-  pathResolveActions.forEach((action) => {
-    action()
-  })
 
   project.resolveSourceFileDependencies()
 
