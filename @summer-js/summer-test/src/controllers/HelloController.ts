@@ -1,8 +1,10 @@
-import { Controller, Get } from '@summer-js/summer'
+import { Controller, EnvConfig, Get } from '@summer-js/summer'
 import { HelloService } from '../service'
 
 @Controller('/v1')
 export class HelloController {
+  serverConfig: EnvConfig<'SERVER_CONFIG'>
+
   helloService: HelloService
 
   anyTypeProp: any[]
@@ -10,6 +12,7 @@ export class HelloController {
 
   @Get
   hello() {
+    console.log(this.serverConfig)
     return 'Hello Summer!'
   }
 

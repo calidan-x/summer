@@ -9,7 +9,7 @@ export { Logger } from './logger'
 export { SessionConfig } from './session'
 export { RpcConfig } from './rpc'
 export { ServerConfig } from './http-server'
-export { getConfig } from './config-handler'
+export { getConfig, EnvConfig } from './config-handler'
 export { handler } from './serverless'
 export { setCookie, clearCookie } from './cookie'
 export { File } from './validate-types'
@@ -18,6 +18,7 @@ export { SummerPlugin } from './plugin'
 declare global {
   type int = number
   const _Int: any
+  const _EnvConfig: any
   const _PropDeclareType: any
   const _ParamDeclareType: any
   const _ReturnDeclareType: any

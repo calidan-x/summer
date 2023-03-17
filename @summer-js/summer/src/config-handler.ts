@@ -13,3 +13,6 @@ export const getConfig = (key?: string): Record<string, any> => {
   _envConfig = finalConfig
   return key ? finalConfig[key] : finalConfig
 }
+
+// @ts-ignore
+export type EnvConfig<name extends string, T = any> = T

@@ -131,6 +131,11 @@ const addPropDecorator = (cls) => {
     let type = getDeclareType(p.getText(), p, undefined, typeParameters)
     const pendingDecorators = []
 
+    const match = p.getText().match(/EnvConfig<['"]([^'^"]+)['"]/)
+    if (match) {
+      pendingDecorators.push({ name: '_EnvConfig', arguments: ["'" + match[1]] + "'" })
+    }
+
     if (type === undefined || type === null) {
       if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
         pendingDecorators.push({ name: '_PropDeclareType', arguments: [] })
@@ -161,6 +166,9 @@ const addPropDecorator = (cls) => {
             .getText()
             .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
             .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
+            .replace(/(@_NotBlank[^\n]+)\n/g, '$1 ')
+            .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
+            .replace(/(@_EnvConfig[^\n]+)\n/g, '$1 ')
         )
       })
     }

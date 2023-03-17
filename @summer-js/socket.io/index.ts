@@ -68,7 +68,7 @@ class SocketIOPlugin extends SummerPlugin {
                 if (errors.length === 0) {
                   controller[method](socket, d)
                 } else {
-                  socket.send({ errors: errors })
+                  socket.emit('error', { errors: errors })
                 }
               })
             }

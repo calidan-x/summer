@@ -43,3 +43,4 @@ export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
 export const Config = createPropertyDecorator(async (config, _propertyName, configKey?: string) => {
   return configKey ? config[configKey] : config
 })
+;(global as any)._EnvConfig = Config
