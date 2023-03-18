@@ -1,6 +1,6 @@
 {
 	"name": "create-summer",
-	"version": "0.0.100",
+	"version": "0.0.101",
 	"description": "",
 	"main": "index.js",
 	"bin": {
