@@ -40,7 +40,11 @@ export const Cookie = createParamDecorator((ctx, paramName: string, name: string
 export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
 
 // property
-export const Config = createPropertyDecorator(async (config, _propertyName, configKey?: string) => {
+;(global as any)._EnvConfig = createPropertyDecorator(async (config, _propertyName, configKey?: string) => {
   return configKey ? config[configKey] : config
 })
-;(global as any)._EnvConfig = Config
+
+/**
+ * @deprecated Please use EnvConfig<'Name',Type = any>
+ */
+export const Config = (global as any)._EnvConfig

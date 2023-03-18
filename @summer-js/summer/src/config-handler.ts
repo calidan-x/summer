@@ -1,7 +1,8 @@
 import merge from 'deepmerge'
 
 let _envConfig: any = null
-export const getConfig = (key?: string): Record<string, any> => {
+
+export const getEnvConfig = (key?: string): Record<string, any> => {
   if (_envConfig) {
     return key ? _envConfig[key] : _envConfig
   }
@@ -13,6 +14,11 @@ export const getConfig = (key?: string): Record<string, any> => {
   _envConfig = finalConfig
   return key ? finalConfig[key] : finalConfig
 }
+
+/**
+ * @deprecated Please use getEnvConfig() instead
+ */
+export const getConfig = getEnvConfig
 
 // @ts-ignore
 export type EnvConfig<name extends string, T = any> = T

@@ -1,5 +1,5 @@
 import { requestMapping } from './request-mapping'
-import { getConfig } from './config-handler'
+import { getEnvConfig } from './config-handler'
 import { Context } from '.'
 
 const corsHeader = (origin: string) => ({
@@ -25,7 +25,7 @@ const hasPath = (path) => {
 }
 
 export const handleCors = (ctx: Context) => {
-  if (getConfig('SERVER_CONFIG').cors) {
+  if (getEnvConfig('SERVER_CONFIG').cors) {
     if (hasPath(ctx.request.path)) {
       if (ctx.request.method === 'OPTIONS') {
         ctx.response = {

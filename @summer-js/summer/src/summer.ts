@@ -6,7 +6,7 @@ import { httpServer } from './http-server'
 import { iocContainer } from './ioc'
 import { rpc } from './rpc'
 import { session } from './session'
-import { getConfig } from './config-handler'
+import { getEnvConfig } from './config-handler'
 import { Logger } from './logger'
 import { scheduledTask } from './scheduled-tasks'
 
@@ -62,7 +62,7 @@ export const summerInit = async (options?: SummerStartOptions) => {
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
   const isNormalServer = getServerType() === 'Normal'
 
-  const config = getConfig()
+  const config = getEnvConfig()
 
   if (cluster.isPrimary && !isSummerTesting) {
     printSummerInfo()

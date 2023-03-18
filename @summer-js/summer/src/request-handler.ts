@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { gzip } from 'node:zlib'
 import { promisify } from 'node:util'
-import { getConfig } from './config-handler'
+import { getEnvConfig } from './config-handler'
 import { getInjectable, iocContainer } from './ioc'
 import { Logger } from './logger'
 import { middlewares } from './middleware'
@@ -224,8 +224,8 @@ const callMiddleware = async (ctx: Context, deep = 0) => {
 const handleRpc = async (ctx: Context) => {
   if (ctx.request.headers['summer-rpc-access-key']) {
     if (
-      getConfig('RPC_CONFIG').provider &&
-      ctx.request.headers['summer-rpc-access-key'] === getConfig('RPC_CONFIG').provider.accessKey
+      getEnvConfig('RPC_CONFIG').provider &&
+      ctx.request.headers['summer-rpc-access-key'] === getEnvConfig('RPC_CONFIG').provider.accessKey
     ) {
       let rpcData
       try {
@@ -347,7 +347,7 @@ export const requestHandler = async (ctx: Context) => {
     }
 
     // compression
-    const serverConfig = getConfig('SERVER_CONFIG') as ServerConfig
+    const serverConfig = getEnvConfig('SERVER_CONFIG') as ServerConfig
     if (serverConfig.compression && serverConfig.compression.enable) {
       const contentType = ctx.response.headers['Content-Type']
       if (

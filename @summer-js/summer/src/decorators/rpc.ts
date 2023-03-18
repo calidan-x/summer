@@ -1,6 +1,6 @@
 import { iocContainer } from '../ioc'
 import { Logger } from './../logger'
-import { getConfig } from './../config-handler'
+import { getEnvConfig } from './../config-handler'
 
 import { rpc } from '../rpc'
 
@@ -26,7 +26,7 @@ export const RpcClient = (source: string, targetClass?: string) => {
     Object.getOwnPropertyNames(target.prototype).forEach((method) => {
       if (typeof target.prototype[method] === 'function' && method !== 'constructor') {
         target.prototype[method] = async (...args) => {
-          const config = getConfig('RPC_CONFIG')
+          const config = getEnvConfig('RPC_CONFIG')
           if (!config) {
             Logger.error('RPC_CONFIG is missing in config')
             return

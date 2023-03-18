@@ -131,7 +131,7 @@ const addPropDecorator = (cls) => {
     let type = getDeclareType(p.getText(), p, undefined, typeParameters)
     const pendingDecorators = []
 
-    const match = p.getText().match(/EnvConfig<['"]([^'^"]+)['"]/)
+    const match = p.getText().match(/EnvConfig *< *['"]([^'^"]+)['"]/)
     if (match) {
       pendingDecorators.push({ name: '_EnvConfig', arguments: ["'" + match[1]] + "'" })
     }
@@ -668,39 +668,6 @@ const compile = async (compileAll = false) => {
               })
             }
           })
-        }
-      }
-
-      // RPC
-      if (cls.getDecorators().length > 0) {
-        for (const classProperty of cls.getMethods()) {
-          for (const cpd of classProperty.getDecorators()) {
-            if (cpd.getName() === 'Send') {
-              modifyActions.splice(0, 0, () => {
-                const callSignature = classProperty.getType().getCallSignatures()[0]
-                const returnPromiseType = callSignature.getReturnType().getTypeArguments()[0]
-                classProperty.addDecorators([
-                  {
-                    name: '_ReturnDeclareType',
-                    arguments: [
-                      getDeclareType(
-                        ':' + (returnPromiseType ? returnPromiseType.getText(cls) : ''),
-                        classProperty,
-                        returnPromiseType
-                      )
-                    ]
-                  }
-                ])
-
-                classProperty.getChildren()[0].replaceWithText(
-                  classProperty
-                    .getChildren()[0]
-                    .getText()
-                    .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
-                )
-              })
-            }
-          }
         }
       }
 

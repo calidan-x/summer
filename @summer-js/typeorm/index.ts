@@ -1,4 +1,4 @@
-import { Logger, SummerPlugin, addPlugin, pluginCollection, addInjectable, getConfig } from '@summer-js/summer'
+import { Logger, SummerPlugin, addPlugin, pluginCollection, addInjectable, getEnvConfig } from '@summer-js/summer'
 import { ClassDeclaration } from 'ts-morph'
 import {
   DefaultNamingStrategy,
@@ -108,7 +108,7 @@ export class Repository<
 > extends TypeOrmRepository<Entity> {}
 
 addInjectable(Repository, (entity: any, dataSourceName: string) => {
-  const typeORMConfig = getConfig('TYPEORM_CONFIG')
+  const typeORMConfig = getEnvConfig('TYPEORM_CONFIG')
   if (Object.keys(typeORMConfig)[0]) {
     try {
       return getDataSource(dataSourceName || Object.keys(typeORMConfig)[0]).getRepository(entity)

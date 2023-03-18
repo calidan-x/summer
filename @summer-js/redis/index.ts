@@ -31,7 +31,13 @@ class Redis extends SummerPlugin {
     })
   }
 
-  async destroy() {}
+  async destroy() {
+    if (redisClient) {
+      try {
+        redisClient.disconnect()
+      } catch (e) {}
+    }
+  }
 }
 
 addPlugin(Redis)

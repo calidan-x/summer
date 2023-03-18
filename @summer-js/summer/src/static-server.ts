@@ -2,7 +2,7 @@ import fs from 'fs'
 import mine = require('mime')
 import path = require('path')
 
-import { getConfig } from './config-handler'
+import { getEnvConfig } from './config-handler'
 import { ServerConfig } from './http-server'
 
 interface StaticResult {
@@ -12,7 +12,7 @@ interface StaticResult {
 }
 
 export const handleStaticRequest = (requestPath: string): StaticResult | null => {
-  const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
+  const serverConfig: ServerConfig = getEnvConfig('SERVER_CONFIG')
   if (serverConfig.static) {
     for (const staticConfig of serverConfig.static) {
       let { requestPath: requestPathRoot, destPath: destPathRoot, indexFiles } = staticConfig

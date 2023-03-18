@@ -1,6 +1,6 @@
 import {
   SummerPlugin,
-  getConfig,
+  getEnvConfig,
   Controller,
   Get,
   Query,
@@ -150,7 +150,7 @@ class SwaggerPlugin extends SummerPlugin {
     }
     Object.assign(swaggerJson, config)
     delete swaggerJson['securitySchemes']
-    const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
+    const serverConfig: ServerConfig = getEnvConfig('SERVER_CONFIG')
     if (serverConfig) {
       if (!serverConfig.static) {
         serverConfig.static = []
@@ -667,7 +667,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
 export class SummerSwaggerUIController {
   @Get
   redirect(@Ctx ctx: Context) {
-    const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
+    const serverConfig: ServerConfig = getEnvConfig('SERVER_CONFIG')
     ctx.response.statusCode = 301
     ctx.response.headers = {
       Location: (serverConfig.basePath || '') + ctx.request.path + '/',
@@ -927,7 +927,7 @@ export class SummerSwaggerUIController {
       }
     })
 
-    const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
+    const serverConfig: ServerConfig = getEnvConfig('SERVER_CONFIG')
     const basePath = serverConfig.basePath
     if (basePath) {
       swaggerJson.servers = [{ url: basePath }]

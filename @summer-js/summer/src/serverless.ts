@@ -5,7 +5,7 @@ import { Readable } from 'stream'
 
 import { Context, requestHandler } from './request-handler'
 import { handleStaticRequest } from './static-server'
-import { getConfig } from './config-handler'
+import { getEnvConfig } from './config-handler'
 import { getInitContextData, ServerConfig } from './http-server'
 import { parseBody } from './body-parser'
 import { startOptions, summerInit } from './summer'
@@ -35,7 +35,7 @@ const getGZipData = async (data: string): Promise<string> => {
 export const handler = async (...args) => {
   await summerInit(startOptions)
 
-  const serverConfig: ServerConfig = getConfig('SERVER_CONFIG')
+  const serverConfig: ServerConfig = getEnvConfig('SERVER_CONFIG')
 
   const serverType = getServerType()
   switch (serverType) {
