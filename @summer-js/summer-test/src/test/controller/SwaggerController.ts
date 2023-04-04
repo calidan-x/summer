@@ -15,7 +15,8 @@ import {
   Delete,
   Patch,
   Queries,
-  Put
+  Put,
+  StreamData
 } from '@summer-js/summer'
 import { ApiDoc, ApiDocGroup, PropDoc } from '@summer-js/swagger'
 import { Paging, Obj, ExtendObj } from '../../dto/resource/Paging'
@@ -279,5 +280,10 @@ export class SwaggerController {
   @Put('/service-paging-return')
   async getServicePagingData() {
     return this.swaggerService.getPagingData()
+  }
+
+  @Get('/file')
+  async fileData() {
+    return new StreamData('package.json')
   }
 }

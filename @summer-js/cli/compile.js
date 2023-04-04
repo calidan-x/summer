@@ -57,6 +57,7 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
   if (!sf) {
     return
   }
+  sf.refreshFromFileSystemSync()
   if (!allRefFiles.includes(sf)) {
     allRefFiles.push(sf)
     sf.getExportSymbols().forEach((es) => {
@@ -133,7 +134,7 @@ const addPropDecorator = (cls) => {
 
     const match = p.getText().match(/EnvConfig *< *['"]([^'^"]+)['"]/)
     if (match) {
-      pendingDecorators.push({ name: '_EnvConfig', arguments: ["'" + match[1]] + "'" })
+      pendingDecorators.push({ name: '_EnvConfig', arguments: ["'" + match[1] + "'"] })
     }
 
     if (type === undefined || type === null) {
@@ -160,16 +161,11 @@ const addPropDecorator = (cls) => {
 
     if (pendingDecorators.length) {
       modifyActions.push(() => {
-        p.addDecorators(pendingDecorators)
-        p.replaceWithText(
-          p
-            .getText()
-            .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
-            .replace(/(@_PropDeclareType[^\n]+)\n/g, '$1 ')
-            .replace(/(@_NotBlank[^\n]+)\n/g, '$1 ')
-            .replace(/(@_Optional[^\n]+)\n/g, '$1 ')
-            .replace(/(@_EnvConfig[^\n]+)\n/g, '$1 ')
-        )
+        let decoratorText = ''
+        pendingDecorators.forEach((d) => {
+          decoratorText += `@${d.name}(${d.arguments.join(',')}) `
+        })
+        p.replaceWithText(decoratorText + p.getText())
       })
     }
   })
@@ -421,6 +417,7 @@ const resolvePath = (dirtyFiles, compileAll) => {
 let compiling = false
 let isFirstCompile = true
 const updateFileList = []
+const dirtyFiles = []
 const compile = async (compileAll = false) => {
   compiling = true
   const pluginIncs = []
@@ -428,12 +425,17 @@ const compile = async (compileAll = false) => {
 
   console.log('COMPILE_START')
 
-  const dirtyFiles = []
   for (const { event, updatePath } of updateFileList) {
     if (['add', 'change'].includes(event)) {
       if (updatePath.endsWith('.ts')) {
-        getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles)
-        project.resolveSourceFileDependencies()
+        if (isFirstCompile) {
+          const sf = project.getSourceFile(path.resolve(updatePath))
+          if (sf) {
+            dirtyFiles.push(sf)
+          }
+        } else {
+          getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles)
+        }
       }
     }
     if (['add'].includes(event)) {
@@ -452,21 +454,13 @@ const compile = async (compileAll = false) => {
     }
   }
 
-  let hasError = false
-  dirtyFiles.forEach((df) => {
-    try {
-      df.refreshFromFileSystemSync()
-    } catch (e) {
-      hasError = true
-    }
-  })
-
-  if (hasError) {
-    compiling = false
-    return
+  if (!isFirstCompile) {
+    project.resolveSourceFileDependencies()
   }
 
   if (checkError()) {
+    updateFileList.splice(0, updateFileList.length)
+    isFirstCompile = false
     return
   }
 
@@ -735,6 +729,7 @@ const compile = async (compileAll = false) => {
     })
   }
   project.emitSync({ targetSourceFile: indexSourceFile })
+  dirtyFiles.splice(0, dirtyFiles.length)
 
   for (const p of pluginIncs) {
     p.postCompile && (await p.postCompile(isFirstCompile))

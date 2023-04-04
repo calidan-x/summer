@@ -12,7 +12,6 @@ export class HelloController {
 
   @Get
   hello() {
-    console.log(this.serverConfig)
     return 'Hello Summer!'
   }
 

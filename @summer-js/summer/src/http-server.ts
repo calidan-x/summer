@@ -5,7 +5,7 @@ import fs from 'fs'
 
 import { Logger } from './logger'
 import { parseBody } from './body-parser'
-import { requestHandler } from './request-handler'
+import { StreamData, requestHandler } from './request-handler'
 import { Context } from './'
 import { handleStaticRequest } from './static-server'
 
@@ -84,7 +84,7 @@ export const httpServer = {
       if (staticHandleResult.filePath) {
         fs.createReadStream(staticHandleResult.filePath)
           .pipe(res)
-          .on('finish', () => {
+          .on('end', () => {
             res.end()
           })
       } else {
@@ -105,11 +105,20 @@ export const httpServer = {
       ...getInitContextData()
     }
 
+    ;(req as any).$SummerContext = context
+    ;(res as any).$SummerContext = context
+
     await requestHandler(context)
 
     res.writeHead(context.response.statusCode, context.response.headers)
-    res.write(context.response.body)
-    res.end()
+    if (!(context.response.body instanceof StreamData)) {
+      res.write(context.response.body)
+      res.end()
+    } else {
+      context.response.body.readable.pipe(res).on('end', () => {
+        res.end()
+      })
+    }
   },
 
   createServer(serverConfig: ServerConfig) {

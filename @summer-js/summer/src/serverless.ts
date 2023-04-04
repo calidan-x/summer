@@ -3,7 +3,7 @@ import path from 'path'
 import zlib from 'zlib'
 import { Readable } from 'stream'
 
-import { Context, requestHandler } from './request-handler'
+import { Context, StreamData, requestHandler } from './request-handler'
 import { handleStaticRequest } from './static-server'
 import { getEnvConfig } from './config-handler'
 import { getInitContextData, ServerConfig } from './http-server'
@@ -107,12 +107,36 @@ export const handler = async (...args) => {
       if (setCookies) {
         delete context.response.headers['Set-Cookie']
       }
-      return {
-        statusCode: context.response.statusCode,
-        body: context.response.body,
-        headers: context.response.headers,
-        multiValueHeaders: {
-          'Set-Cookie': setCookies
+
+      if (!(context.response.body instanceof StreamData)) {
+        return {
+          statusCode: context.response.statusCode,
+          body: context.response.body,
+          headers: context.response.headers,
+          multiValueHeaders: {
+            'Set-Cookie': setCookies
+          }
+        }
+      } else {
+        const base64Body = await new Promise((resolve, rejected) => {
+          let resData = ''
+          context.response.body.readable.setEncoding('base64')
+          context.response.body.readable.on('end', () => {
+            resolve(resData)
+          })
+          context.response.body.readable.on('error', () => {
+            rejected('')
+          })
+          context.response.body.readable.on('data', (d) => {
+            resData += d
+          })
+        })
+
+        return {
+          isBase64Encoded: true,
+          statusCode: context.response.statusCode,
+          body: base64Body,
+          headers: context.response.headers
         }
       }
     }

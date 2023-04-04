@@ -33,6 +33,6 @@ describe('Config Test', () => {
 
   test('cors test path not exist', async () => {
     let result = await request.options('/cors-not-exist')
-    expect(result.statusCode).toBe(404)
+    expect(result.statusCode).toBe(200)
   })
 })

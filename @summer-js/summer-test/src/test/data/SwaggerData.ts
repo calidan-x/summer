@@ -1125,6 +1125,23 @@ export const data = {
           }
         }
       }
+    },
+    '/swagger-test/file': {
+      get: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: '89811',
+        parameters: [],
+        responses: {
+          '200': {
+            description: '',
+            content: {
+              'application/octet-stream': { schema: { type: 'string', format: 'binary', example: '<stream data>' } }
+            }
+          }
+        }
+      }
     }
   },
   components: { securitySchemes: { AppAuth: { type: 'apiKey', in: 'header', name: 'Authorization' } } }

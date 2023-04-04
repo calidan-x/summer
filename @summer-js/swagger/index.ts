@@ -10,7 +10,8 @@ import {
   Ctx,
   Context,
   ResponseError,
-  Cookie
+  Cookie,
+  StreamData
 } from '@summer-js/summer'
 import crypto from 'crypto'
 import { pathToRegexp } from 'path-to-regexp'
@@ -893,6 +894,10 @@ export class SummerSwaggerUIController {
         if (!d0) {
           schema.type = 'string'
           schema.example = ''
+        } else if (d0 === StreamData) {
+          schema.type = 'string'
+          schema.format = 'binary'
+          schema.example = '<stream data>'
         } else if (isArray) {
           schema.type = 'array'
           schema.items = getTypeDesc(d0, returnTypeParams, false)
@@ -919,7 +924,15 @@ export class SummerSwaggerUIController {
           responses: {
             200: {
               description: '',
-              content: { [schema.type === 'string' ? 'text/html' : 'application/json']: { schema } }
+              content: {
+                [schema.type === 'string'
+                  ? schema.format === 'binary'
+                    ? 'application/octet-stream'
+                    : 'text/html'
+                  : 'application/json']: {
+                  schema
+                }
+              }
             },
             ...errorResponse
           }

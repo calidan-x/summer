@@ -1,4 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { Readable } from 'node:stream'
+import fs from 'fs'
+import mine from 'mime'
+import { basename, extname } from 'path'
 import { gzip } from 'node:zlib'
 import { promisify } from 'node:util'
 import { getEnvConfig } from './config-handler'
@@ -24,6 +28,30 @@ interface RequestContext {
   queries: Record<string, string>
   headers: Record<string, string>
   body?: string
+}
+
+export class StreamData {
+  readable: Readable
+  contentType: string
+  downloadFileName: string
+
+  constructor(
+    filePathOrReadStream: string | Readable,
+    options: { contentType?: string; downloadFileName?: string } = {}
+  ) {
+    if (typeof filePathOrReadStream === 'string') {
+      this.readable = fs.createReadStream(filePathOrReadStream)
+    } else {
+      this.readable = filePathOrReadStream
+    }
+    const { contentType, downloadFileName } = options
+    if (contentType) {
+      this.contentType = contentType
+    }
+    if (downloadFileName) {
+      this.downloadFileName = downloadFileName
+    }
+  }
 }
 
 export interface ResponseContext {
@@ -204,8 +232,13 @@ const callControllerMethod = async (ctx: Context) => {
       checkValidationError(controller[callMethod], ctx)
     }
     let responseData = await controller[callMethod].apply(controller, applyParam)
-    const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
-    applyResponse(ctx, responseData, returnDeclareType)
+    if (!(responseData instanceof StreamData)) {
+      const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
+      applyResponse(ctx, responseData, returnDeclareType)
+    } else {
+      ctx.response.body = responseData
+      ctx.response.statusCode = 200
+    }
   } else {
     throw new NotFoundError(404, { message: 'Api Not Found' })
   }
@@ -328,10 +361,37 @@ export const requestHandler = async (ctx: Context) => {
       }
     }
 
-    if (typeof ctx.response.body !== 'string') {
-      if (ctx.response.body !== undefined) {
-        ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || 'application/json; charset=utf-8'
-        ctx.response.body = JSON.stringify(ctx.response.body)
+    const body = ctx.response.body
+    if (typeof body !== 'string') {
+      if (body !== undefined) {
+        if (!(body instanceof StreamData)) {
+          ctx.response.headers['Content-Type'] =
+            ctx.response.headers['Content-Type'] || 'application/json; charset=utf-8'
+          ctx.response.body = JSON.stringify(body)
+        } else {
+          let downloadFileName
+          let mimeFileName
+          let mimeType
+          if (body.downloadFileName) {
+            downloadFileName = basename(body.downloadFileName)
+            mimeFileName = body.downloadFileName
+          } else if (body.readable instanceof fs.ReadStream) {
+            mimeFileName = body.readable.path
+          }
+
+          if (mimeFileName) {
+            const ext = extname(mimeFileName).replace('.', '')
+            if (ext) {
+              mimeType = mine.getType(ext)
+            }
+          }
+
+          if (downloadFileName) {
+            ctx.response.headers['Content-Disposition'] = `attachment; filename="${downloadFileName}"`
+          }
+          const contentType = body.contentType ?? mimeType ?? 'application/octet-stream'
+          ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || contentType
+        }
       } else {
         ctx.response.body = ''
       }
