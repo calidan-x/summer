@@ -4,21 +4,29 @@ import '@summer-js/test'
 describe('Test Logger', () => {
   test('should log all', async () => {
     jest.spyOn(console, 'log')
-    Logger.logType = ['Info', 'Warning', 'Log', 'Error', 'Debug']
+    jest.spyOn(console, 'warn')
+    jest.spyOn(console, 'info')
+    jest.spyOn(console, 'debug')
+    jest.spyOn(console, 'error')
+    Logger.logEnableTypes = ['Info', 'Warn', 'Log', 'Error', 'Debug']
     Logger.log('')
-    Logger.warning('')
+    Logger.warn('')
     Logger.info('')
     Logger.error('')
     Logger.debug('')
-    expect((console.log as any).mock.calls.length).toBe(5)
+    expect((console.log as any).mock.calls.length).toBe(1)
+    expect((console.warn as any).mock.calls.length).toBe(1)
+    expect((console.info as any).mock.calls.length).toBe(1)
+    expect((console.debug as any).mock.calls.length).toBe(1)
+    expect((console.error as any).mock.calls.length).toBe(1)
     jest.clearAllMocks()
   })
 
   test('should log noting', async () => {
     jest.spyOn(console, 'log')
-    Logger.logType = []
+    Logger.logEnableTypes = []
     Logger.log('')
-    Logger.warning('')
+    Logger.warn('')
     Logger.info('')
     Logger.error('')
     Logger.debug('')
@@ -28,13 +36,14 @@ describe('Test Logger', () => {
 
   test('should log error', async () => {
     jest.spyOn(console, 'log')
-    Logger.logType = ['Error']
+    Logger.logEnableTypes = ['Error']
     Logger.log('')
-    Logger.warning('')
+    Logger.warn('')
     Logger.info('')
     Logger.error('')
     Logger.debug('')
-    expect((console.log as any).mock.calls.length).toBe(1)
+    expect((console.log as any).mock.calls.length).toBe(0)
+    expect((console.error as any).mock.calls.length).toBe(1)
     jest.clearAllMocks()
   })
 })

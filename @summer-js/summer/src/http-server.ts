@@ -5,7 +5,7 @@ import fs from 'fs'
 
 import { Logger } from './logger'
 import { parseBody } from './body-parser'
-import { StreamData, requestHandler } from './request-handler'
+import { StreamingData, requestHandler } from './request-handler'
 import { Context } from './'
 import { handleStaticRequest } from './static-server'
 
@@ -111,7 +111,7 @@ export const httpServer = {
     await requestHandler(context)
 
     res.writeHead(context.response.statusCode, context.response.headers)
-    if (!(context.response.body instanceof StreamData)) {
+    if (!(context.response.body instanceof StreamingData)) {
       res.write(context.response.body)
       res.end()
     } else {

@@ -1,28 +1,12 @@
-// import { requestMapping } from './request-mapping'
 import { getEnvConfig } from './config-handler'
 import { Context } from '.'
 
-const corsHeader = (origin: string) => ({
-  'Access-Control-Allow-Origin': origin || '*',
+const corsHeader = (context: Context) => ({
+  'Access-Control-Allow-Origin': context.request.headers['origin'] || '*',
   'Access-Control-Allow-Methods': '*',
-  'Access-Control-Allow-Headers': '*',
+  'Access-Control-Allow-Headers': context.request.headers['access-control-request-headers'] || '*',
   'Access-Control-Allow-Credentials': 'true'
 })
-
-// const hasPath = (path) => {
-//   if (requestMapping[path]) {
-//     return true
-//   } else {
-//     const paths = Object.keys(requestMapping)
-//     for (let i = 0; i < paths.length; i++) {
-//       const routeData = requestMapping[paths[i]]
-//       if (routeData.pathRegExp.test(path)) {
-//         return true
-//       }
-//     }
-//   }
-//   return false
-// }
 
 export const handleCors = (ctx: Context) => {
   if (getEnvConfig('SERVER_CONFIG').cors) {
@@ -30,11 +14,11 @@ export const handleCors = (ctx: Context) => {
       ctx.response = {
         statusCode: 200,
         body: '',
-        headers: corsHeader(ctx.request.headers['origin'])
+        headers: corsHeader(ctx)
       }
       return true
     } else {
-      Object.assign(ctx.response.headers, corsHeader(ctx.request.headers['origin']))
+      Object.assign(ctx.request.headers, corsHeader(ctx))
     }
   }
   return false

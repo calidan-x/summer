@@ -53,11 +53,23 @@ const TypeMapping = {
   void: '[]'
 }
 
-const getAllReferencingSourceFiles = (sf, allRefFiles) => {
+const getAllReferencingSourceFiles = (sf, allRefFiles, refreshFiles, deep = 0) => {
   if (!sf) {
     return
   }
-  sf.refreshFromFileSystemSync()
+
+  if (!refreshFiles.includes(sf)) {
+    if (deep === 0) {
+      refreshFiles.push(sf)
+    } else {
+      sf.getClasses().forEach((cls) => {
+        if (cls.getDecorators().find((d) => d.getName() === 'Controller')) {
+          refreshFiles.push(sf)
+        }
+      })
+    }
+  }
+
   if (!allRefFiles.includes(sf)) {
     allRefFiles.push(sf)
     sf.getExportSymbols().forEach((es) => {
@@ -69,7 +81,7 @@ const getAllReferencingSourceFiles = (sf, allRefFiles) => {
             if (allRefFiles.includes(refSourceFile)) {
               return
             }
-            getAllReferencingSourceFiles(refSourceFile, allRefFiles)
+            getAllReferencingSourceFiles(refSourceFile, allRefFiles, refreshFiles, deep + 1)
           })
         } catch (e) {}
       })
@@ -422,7 +434,7 @@ const compile = async (compileAll = false) => {
   compiling = true
   const pluginIncs = []
   modifyActions = []
-
+  const refreshFiles = []
   console.log('COMPILE_START')
 
   for (const { event, updatePath } of updateFileList) {
@@ -434,7 +446,7 @@ const compile = async (compileAll = false) => {
             dirtyFiles.push(sf)
           }
         } else {
-          getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles)
+          getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles, refreshFiles)
         }
       }
     }
@@ -446,7 +458,7 @@ const compile = async (compileAll = false) => {
     if (['unlink'].includes(event)) {
       try {
         const unlinkSourceFile = project.getSourceFileOrThrow(updatePath)
-        getAllReferencingSourceFiles(unlinkSourceFile, dirtyFiles)
+        getAllReferencingSourceFiles(unlinkSourceFile, dirtyFiles, refreshFiles)
         const inx = dirtyFiles.findIndex((sf) => sf === unlinkSourceFile)
         dirtyFiles.splice(inx, 1)
         project.removeSourceFile(unlinkSourceFile)
@@ -455,6 +467,9 @@ const compile = async (compileAll = false) => {
   }
 
   if (!isFirstCompile) {
+    for (const sf of refreshFiles) {
+      await sf.refreshFromFileSystem()
+    }
     project.resolveSourceFileDependencies()
   }
 

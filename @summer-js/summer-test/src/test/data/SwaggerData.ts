@@ -1137,7 +1137,7 @@ export const data = {
           '200': {
             description: '',
             content: {
-              'application/octet-stream': { schema: { type: 'string', format: 'binary', example: '<stream data>' } }
+              'application/octet-stream': { schema: { type: 'string', format: 'binary', example: '<Streaming Data>' } }
             }
           }
         }

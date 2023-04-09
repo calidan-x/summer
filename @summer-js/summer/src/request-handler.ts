@@ -30,7 +30,7 @@ interface RequestContext {
   body?: string
 }
 
-export class StreamData {
+export class StreamingData {
   readable: Readable
   contentType: string
   downloadFileName: string
@@ -232,7 +232,7 @@ const callControllerMethod = async (ctx: Context) => {
       checkValidationError(controller[callMethod], ctx)
     }
     let responseData = await controller[callMethod].apply(controller, applyParam)
-    if (!(responseData instanceof StreamData)) {
+    if (!(responseData instanceof StreamingData)) {
       const returnDeclareType = Reflect.getMetadata('ReturnDeclareType', controller, callMethod)
       applyResponse(ctx, responseData, returnDeclareType)
     } else {
@@ -364,7 +364,7 @@ export const requestHandler = async (ctx: Context) => {
     const body = ctx.response.body
     if (typeof body !== 'string') {
       if (body !== undefined) {
-        if (!(body instanceof StreamData)) {
+        if (!(body instanceof StreamingData)) {
           ctx.response.headers['Content-Type'] =
             ctx.response.headers['Content-Type'] || 'application/json; charset=utf-8'
           ctx.response.body = JSON.stringify(body)

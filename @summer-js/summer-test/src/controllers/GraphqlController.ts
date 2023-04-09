@@ -1,36 +1,6 @@
 import { Controller, Post, Body } from '@summer-js/summer'
 import { handle, GraphQLRequest } from '@summer-js/graphql'
-import { buildSchema } from 'graphql'
-
-var schema = buildSchema(`
-
-  type Query {
-    users(id: Int): [User]
-    books: [String]
-  }
-
-  type User {
-    id: Int
-    name: String
-    age: Int
-  }
-
-  input MessageInput {
-    content: String
-    author: String
-  }
-
-  type Message {
-    id: ID!
-    content: String
-    author: String
-  }
-
-  type Mutation {
-    createMessage(input: MessageInput): Message
-  }
-  
-`)
+import { schema } from '../graphql'
 
 @Controller
 export class GraphqlController {
@@ -38,6 +8,7 @@ export class GraphqlController {
   graphql(@Body req: GraphQLRequest) {
     var rootValue = {
       users: (_query: any) => {
+        // data can read from DB here
         return [
           {
             id: 1,

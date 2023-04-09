@@ -3,7 +3,7 @@ import path from 'path'
 import zlib from 'zlib'
 import { Readable } from 'stream'
 
-import { Context, StreamData, requestHandler } from './request-handler'
+import { Context, StreamingData, requestHandler } from './request-handler'
 import { handleStaticRequest } from './static-server'
 import { getEnvConfig } from './config-handler'
 import { getInitContextData, ServerConfig } from './http-server'
@@ -108,7 +108,7 @@ export const handler = async (...args) => {
         delete context.response.headers['Set-Cookie']
       }
 
-      if (!(context.response.body instanceof StreamData)) {
+      if (!(context.response.body instanceof StreamingData)) {
         return {
           statusCode: context.response.statusCode,
           body: context.response.body,

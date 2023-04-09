@@ -2,7 +2,7 @@ import { Controller, Get } from '@summer-js/summer'
 import { ESClient } from '@summer-js/elasticsearch'
 
 @Controller('/es')
-export class CookieTestController {
+export class ESController {
   esClient: ESClient
 
   @Get('/search')

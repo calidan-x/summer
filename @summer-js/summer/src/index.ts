@@ -2,7 +2,7 @@
 export { summerStart, summerDestroy, waitForStart, addPlugin, pluginCollection } from './summer'
 export * from './decorators'
 export * from './utils'
-export { requestHandler, Context, getContext, StreamData } from './request-handler'
+export { requestHandler, Context, getContext, StreamingData } from './request-handler'
 export * from './error'
 export { getInjectable, addInjectable } from './ioc'
 export { Logger } from './logger'

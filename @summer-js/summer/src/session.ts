@@ -26,7 +26,7 @@ export const session = {
     }
     const SixHours = 6 * 60 * 60 * 1000
     if (config.expireIn > SixHours) {
-      Logger.warning('Session expire time cannot bigger than 6 hours, set to 6 hours')
+      Logger.warn('Session expire time cannot bigger than 6 hours, set to 6 hours')
       config.expireIn = SixHours
     }
     this.expireIn = config.expireIn

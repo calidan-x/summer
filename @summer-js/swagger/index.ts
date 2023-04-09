@@ -11,7 +11,7 @@ import {
   Context,
   ResponseError,
   Cookie,
-  StreamData
+  StreamingData
 } from '@summer-js/summer'
 import crypto from 'crypto'
 import { pathToRegexp } from 'path-to-regexp'
@@ -894,10 +894,10 @@ export class SummerSwaggerUIController {
         if (!d0) {
           schema.type = 'string'
           schema.example = ''
-        } else if (d0 === StreamData) {
+        } else if (d0 === StreamingData) {
           schema.type = 'string'
           schema.format = 'binary'
-          schema.example = '<stream data>'
+          schema.example = '<Streaming Data>'
         } else if (isArray) {
           schema.type = 'array'
           schema.items = getTypeDesc(d0, returnTypeParams, false)
