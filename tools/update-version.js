@@ -10,7 +10,8 @@ const packageFiles = [
   './@summer-js/typeorm/package.json',
   './@summer-js/elasticsearch/package.json',
   './@summer-js/redis/package.json',
-  './@summer-js/socket.io/package.json'
+  './@summer-js/socket.io/package.json',
+  './@summer-js/graphql/package.json'
 ]
 
 const templateFiles = ['./create-summer/templates/empty/package.json', './create-summer/templates/movie/package.json']

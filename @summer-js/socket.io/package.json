@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/socket.io",
-	"version": "0.0.104",
+	"version": "0.0.105",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",

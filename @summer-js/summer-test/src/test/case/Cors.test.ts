@@ -31,6 +31,17 @@ describe('Config Test', () => {
     expect(result.headers['Access-Control-Allow-Origin']).toBe('https://example.com')
   })
 
+  test('chrome preflight request header', async () => {
+    let result = await request.get(
+      '/cors',
+      {},
+      { headers: { origin: 'https://example.com', 'access-control-request-headers': 'content-type' } }
+    )
+    expect(result.statusCode).toBe(200)
+    expect(result.headers['Access-Control-Allow-Origin']).toBe('https://example.com')
+    expect(result.headers['Access-Control-Allow-Headers']).toBe('content-type')
+  })
+
   test('cors test path not exist', async () => {
     let result = await request.options('/cors-not-exist')
     expect(result.statusCode).toBe(200)
