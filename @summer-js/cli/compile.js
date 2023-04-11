@@ -435,19 +435,24 @@ const compile = async (compileAll = false) => {
   const pluginIncs = []
   modifyActions = []
   const refreshFiles = []
+  const jsFiles = []
   console.log('COMPILE_START')
 
   for (const { event, updatePath } of updateFileList) {
     if (['add', 'change'].includes(event)) {
       if (updatePath.endsWith('.ts')) {
+        const sf = project.getSourceFile(path.resolve(updatePath))
         if (isFirstCompile) {
-          const sf = project.getSourceFile(path.resolve(updatePath))
           if (sf) {
             dirtyFiles.push(sf)
           }
         } else {
-          getAllReferencingSourceFiles(project.getSourceFile(path.resolve(updatePath)), dirtyFiles, refreshFiles)
+          getAllReferencingSourceFiles(sf, dirtyFiles, refreshFiles)
         }
+      }
+      if (updatePath.endsWith('.js')) {
+        const sf = project.getSourceFile(path.resolve(updatePath))
+        jsFiles.push(sf)
       }
     }
     if (['add'].includes(event)) {
@@ -467,7 +472,7 @@ const compile = async (compileAll = false) => {
   }
 
   if (!isFirstCompile) {
-    for (const sf of refreshFiles) {
+    for (const sf of [...refreshFiles, ...jsFiles]) {
       await sf.refreshFromFileSystem()
     }
     project.resolveSourceFileDependencies()
@@ -741,6 +746,9 @@ const compile = async (compileAll = false) => {
   } else {
     dirtyFiles.forEach((df) => {
       project.emitSync({ targetSourceFile: df })
+    })
+    jsFiles.forEach((jf) => {
+      project.emitSync({ targetSourceFile: jf })
     })
   }
   project.emitSync({ targetSourceFile: indexSourceFile })

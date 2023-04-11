@@ -1,17 +1,13 @@
-import cookie from 'cookie'
-import { Context } from '.'
+import cookie, { CookieSerializeOptions } from 'cookie'
+import { Context, getContext } from '.'
 
-export interface Cookie {
+export interface CookieItem {
   name: string
   value: string
-  domain?: string
-  expires?: Date
-  httpOnly?: boolean
-  maxAge?: number
-  path?: string
+  options?: CookieSerializeOptions
 }
 
-export const responseCookies: Cookie[] = []
+export const responseCookies: CookieItem[] = []
 
 export const parseCookie = (ctx: Context) => {
   if (ctx.request.headers!.cookie) {
@@ -21,13 +17,21 @@ export const parseCookie = (ctx: Context) => {
 }
 
 export const assembleCookie = (ctx: Context) => {
-  ctx.response.headers['Set-Cookie'] = responseCookies.map((rc) => cookie.serialize(rc.name, rc.value, rc))
+  ctx.response.headers['Set-Cookie'] = responseCookies.map((rc) => cookie.serialize(rc.name, rc.value, rc.options))
 }
 
-export const setCookie = (cookie: Cookie) => {
-  responseCookies.push(cookie)
-}
-
-export const clearCookie = (name: string) => {
-  setCookie({ name, value: '', maxAge: 0 })
+export const Cookie = {
+  get(name: string) {
+    const context = getContext()
+    if (context && context.cookies) {
+      return context.cookies[name]
+    }
+    return undefined
+  },
+  set(name: string, value: string, options?: CookieSerializeOptions) {
+    responseCookies.push({ name, value, options })
+  },
+  clear(name: string, domain?: string) {
+    responseCookies.push({ name, value: '', options: { maxAge: 0, domain } })
+  }
 }

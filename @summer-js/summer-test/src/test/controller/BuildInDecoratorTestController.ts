@@ -101,22 +101,22 @@ export class BuildInDecoratorTestController {
   }
 
   @Get('/cookie')
-  cookie(@Cookie id: string) {
-    return 'Cookie' + id
+  cookie() {
+    return 'Cookie' + Cookie.get('id')!
   }
 
   @Get('/cookie2')
-  cookie2(@Cookie('Id') id: string) {
-    return 'Cookie' + id
+  cookie2() {
+    return 'Cookie' + Cookie.get('Id')
   }
 
   @Post('/session')
-  addSession(@Session session: any) {
-    session.id = '100'
+  addSession() {
+    Session.set('id', 100)
   }
 
   @Get('/session')
-  session(@Session session: any) {
-    return 'Session' + session.id
+  session() {
+    return 'Session' + Session.get('id')
   }
 }

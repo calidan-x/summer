@@ -20,10 +20,10 @@ const print = (color: string, type: string, method: string, message?: any, ...op
 
 export const Logger = {
   [sLogType]: ['Log', 'Warn', 'Error', 'Info', 'Debug'],
-  get logEnableTypes() {
+  get enableTypes() {
     return this.EnableType
   },
-  set logEnableTypes(enable: LogType) {
+  set enableTypes(enable: LogType) {
     this[sLogType] = enable
   },
   info(message?: any, ...optionalParams: any[]) {
@@ -43,7 +43,7 @@ export const Logger = {
   },
   log(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Log')) {
-      console.log(timePrefix(), '[LOG]', 'log', message, ...optionalParams)
+      console.log(timePrefix(), '[LOG]', message, ...optionalParams)
     }
   },
   debug(message?: any, ...optionalParams: any[]) {

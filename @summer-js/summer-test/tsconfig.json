@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "noImplicitReturns":true,
-    "noUnusedParameters":true,
-    "noUnusedLocals":true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "strictNullChecks": true,
     "types": ["node", "jest"],
     "experimentalDecorators": true,
@@ -14,6 +14,7 @@
     "lib": ["es6"],
     "moduleResolution": "Node",
     "module": "commonjs",
+    "allowJs": true,
     "paths": {
       "@/*": ["./src/*"]
     }

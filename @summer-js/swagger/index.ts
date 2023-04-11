@@ -693,9 +693,9 @@ export class SummerSwaggerUIController {
   }
 
   @Get('/check-password')
-  checkPassword(@Cookie password?: string) {
+  checkPassword() {
     if (swaggerJson.password) {
-      if (swaggerJson.password !== password) {
+      if (swaggerJson.password !== Cookie.get('password')) {
         return ''
       }
     }
@@ -703,9 +703,9 @@ export class SummerSwaggerUIController {
   }
 
   @Get('/swagger-docs.json')
-  getSwaggerDocument(@Query @_ParamDeclareType([String]) @_Optional category?: string, @Cookie password?: string) {
+  getSwaggerDocument(@Query @_ParamDeclareType([String]) @_Optional category?: string) {
     if (swaggerJson.password) {
-      if (swaggerJson.password !== password) {
+      if (swaggerJson.password !== Cookie.get('password')) {
         return ''
       }
     }

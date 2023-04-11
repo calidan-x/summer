@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-import { exec, execSync, spawn } from 'child_process'
+import { exec, spawn } from 'child_process'
 import kill from 'tree-kill'
 import fs from 'fs'
 import path from 'path'
-import { program } from 'commander'
 import ora from 'ora'
+import { program } from 'commander'
+import esbuild from 'esbuild'
 
 const clearScreen = () => process.stdout.write(process.platform === 'win32' ? '\x1Bc' : '\x1B[2J\x1B[3J\x1B[H')
 
@@ -65,6 +66,67 @@ const printProcessData = (p) => {
     //@ts-ignore
     process.stdout.write(data)
   })
+}
+
+// esbuild
+const plugin = {
+  name: 'excludeVendorFromSourceMap',
+  setup(build) {
+    build.onLoad({ filter: /node_modules.+\.js$/ }, (args) => {
+      return {
+        contents:
+          fs.readFileSync(args.path, 'utf8') +
+          '\n//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIiJdLCJtYXBwaW5ncyI6IkEifQ==',
+        loader: 'default'
+      }
+    })
+  }
+}
+
+const getFileSize = (file) => {
+  const stats = fs.statSync(file)
+  const fileSizeInBytes = stats.size
+  if (fileSizeInBytes > 1024 * 1024) {
+    return Math.round((fileSizeInBytes * 100) / (1024 * 1024)) / 100 + 'MB'
+  }
+  return Math.round((fileSizeInBytes * 100) / 1024) / 100 + 'KB'
+}
+
+// external: string[]
+// fullSourceMap: boolean
+const build = (env, { fullSourceMap = false, external = [] }) => {
+  esbuild
+    .build({
+      entryPoints: ['./compile/index.js'],
+      bundle: true,
+      platform: 'node',
+      minifyWhitespace: true,
+      sourcemap: true,
+      outfile: './build/index.js',
+      plugins: fullSourceMap ? [] : [plugin],
+      external
+    })
+    .then((res) => {
+      if (res.errors.length === 0) {
+        console.log('BUILD SUCCESS')
+        console.log('----------------------------')
+        console.log('ENV: ' + env + '\n')
+        console.log('build/index.js      ' + getFileSize('build/index.js'))
+        console.log('build/index.js.map  ' + getFileSize('build/index.js.map'))
+        if (fs.existsSync('build/resource')) {
+          console.log('build/resource')
+        }
+        console.log()
+      }
+
+      res.warnings.forEach((worn) => {
+        console.warn('Warn: ', worn)
+      })
+
+      res.errors.forEach((err) => {
+        console.error('Error: ', err)
+      })
+    })
 }
 
 // name & version
@@ -186,7 +248,8 @@ program
   .command('build')
   .description('build production')
   .option('-e, --env [ENV_NAME]', '')
-  .option('-- [ESBUILD_OPTIONS]', '')
+  .option('-fsm, --fullSourceMap', '')
+  .option('-ext, --external [NODE_MODULES]', '')
   .action((options) => {
     spinner = ora('COMPILING...')
     spinner.start()
@@ -201,18 +264,20 @@ program
           fs.mkdirSync('./build')
           copyRecursiveSync('./resource', './build/resource')
         }
-        const esbuildOptInx = program.args.findIndex((arg) => arg === '--')
-        const esbuildOpts = esbuildOptInx > 0 ? program.args.splice(esbuildOptInx + 1).join(' ') : ''
-        const buildProcess = exec(
-          'npx esbuild ./compile/index.js --bundle --sourcemap --minify-whitespace  --platform=node --outfile=./build/index.js ' +
-            esbuildOpts
-        )
-        printProcessData(buildProcess)
-        buildProcess.on('exit', (signal) => {
-          if (signal === 1) {
-            process.exit(signal)
-          }
-        })
+
+        build(options.env, { fullSourceMap: options.fullSourceMap, external: (options.external || '').split(',') })
+        // const esbuildOptInx = program.args.findIndex((arg) => arg === '--')
+        // const esbuildOpts = esbuildOptInx > 0 ? program.args.splice(esbuildOptInx + 1).join(' ') : ''
+        // const buildProcess = exec(
+        //   'npx esbuild ./compile/index.js --bundle --sourcemap --minify-whitespace  --platform=node --outfile=./build/index.js ' +
+        //     esbuildOpts
+        // )
+        // printProcessData(buildProcess)
+        // buildProcess.on('exit', (signal) => {
+        //   if (signal === 1) {
+        //     process.exit(signal)
+        //   }
+        // })
       } else {
         process.exit(1)
       }

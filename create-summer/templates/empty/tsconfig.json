@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "noImplicitReturns":true,
-    "noUnusedParameters":true,
-    "noUnusedLocals":true,
-    "strictNullChecks": true, 
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
     "types": ["node", "jest"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./compile",
+    "allowJs": true,
     "moduleResolution": "Node",
     "module": "commonjs",
     "paths": {

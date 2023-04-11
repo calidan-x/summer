@@ -40,7 +40,24 @@ type TestResponse<T> = {
   headers: Record<string, string | string[]>
   body: T
   rawBody: string
-  print: (options?: { full: boolean }) => void
+  print: () => void
+}
+
+const assembleJsonData = (jsonData: Record<string, any>) => {
+  let d = ''
+  for (const key in jsonData) {
+    d += '\x1b[36m' + key.toUpperCase() + ':\n' + '\x1b[0m'
+    const itemData = jsonData[key]
+    if (typeof itemData === 'object' && key !== 'body') {
+      for (const k in itemData) {
+        d += k + ': ' + JSON.stringify(itemData[k], null, 1) + '\n'
+      }
+    } else if (jsonData[key] !== undefined) {
+      d += JSON.stringify(jsonData[key], null, 1) + '\n'
+    }
+    d += '\n'
+  }
+  return d
 }
 
 const sendRequest = async <T>(method: any, path: string, requestParams: FullRequestParams) => {
@@ -80,7 +97,7 @@ const sendRequest = async <T>(method: any, path: string, requestParams: FullRequ
   return {
     ...context.response,
     rawBody,
-    print(options?: { full: boolean }) {
+    print(type = 'FULL_DATA') {
       const reqParams = { ...requestParams }
       if (reqParams.body) {
         try {
@@ -95,25 +112,28 @@ const sendRequest = async <T>(method: any, path: string, requestParams: FullRequ
       }
       const isJSON =
         ((context.response.headers['Content-Type'] || '') as string).toLowerCase().indexOf('application/json') >= 0
-      console.log(
+      const isTerminal = process.env.TERM !== undefined
+      let printData =
+        '========================================\n\x1b[36m' +
+        method +
+        ' ' +
+        path +
+        '\x1b[0m' +
+        '\n\n' +
+        (Object.keys(reqParams).length > 0 ? assembleJsonData(reqParams) + '\n\n' : '') +
         '\x1b[36m' +
-          method +
-          ' ' +
-          path +
-          '\x1b[0m' +
-          '\n\n' +
-          (Object.keys(reqParams).length > 0 ? JSON.stringify(reqParams, null, 2) + '\n\n' : '') +
-          '\x1b[36m' +
-          'RESPONSE ' +
-          context.response.statusCode +
-          ' ' +
-          (options?.full ? rawBody.length + ' bytes' : ''),
+        '》RESPONSE ' +
+        context.response.statusCode +
+        ' ' +
         '\x1b[0m\n\n' +
-          (options?.full
-            ? JSON.stringify(context.response.headers, null, 1).replace(/^\{\n/, '').replace(/\n\}$/, '') + '\n\n'
-            : '') +
-          (isJSON ? JSON.stringify(context.response.body, null, 2) : context.response.body)
-      )
+        (type === 'FULL_DATA' ? assembleJsonData({ headers: context.response.headers }) : '') +
+        '\x1b[36mBODY:\n\x1b[0m' +
+        (isJSON ? JSON.stringify(context.response.body, null, 2) : context.response.body) +
+        '\n========================================\n'
+      if (!isTerminal) {
+        printData = printData.replace(/\x1b\[\d+m/g, '')
+      }
+      process.stdout.write(printData)
     }
   } as TestResponse<T>
 }

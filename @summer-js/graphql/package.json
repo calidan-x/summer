@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "module": "lib/index.js",
   "peerDependencies": {
-    "ioredis": "^5.x || ^6.x"
+    "graphql": "^16.6.0"
   },
   "scripts": {
     "build": "tsc",

@@ -1,6 +1,17 @@
 import { Logger } from '@summer-js/summer'
 import '@summer-js/test'
 
+beforeAll(() => {
+  const log = (...args) => {
+    process.stdout.write(args.join(' ') + '\n')
+  }
+  console.log = log
+  console.warn = log
+  console.info = log
+  console.debug = log
+  console.error = log
+})
+
 describe('Test Logger', () => {
   test('should log all', async () => {
     jest.spyOn(console, 'log')
@@ -8,7 +19,7 @@ describe('Test Logger', () => {
     jest.spyOn(console, 'info')
     jest.spyOn(console, 'debug')
     jest.spyOn(console, 'error')
-    Logger.logEnableTypes = ['Info', 'Warn', 'Log', 'Error', 'Debug']
+    Logger.enableTypes = ['Info', 'Warn', 'Log', 'Error', 'Debug']
     Logger.log('')
     Logger.warn('')
     Logger.info('')
@@ -24,7 +35,7 @@ describe('Test Logger', () => {
 
   test('should log noting', async () => {
     jest.spyOn(console, 'log')
-    Logger.logEnableTypes = []
+    Logger.enableTypes = []
     Logger.log('')
     Logger.warn('')
     Logger.info('')
@@ -36,7 +47,7 @@ describe('Test Logger', () => {
 
   test('should log error', async () => {
     jest.spyOn(console, 'log')
-    Logger.logEnableTypes = ['Error']
+    Logger.enableTypes = ['Error']
     Logger.log('')
     Logger.warn('')
     Logger.info('')

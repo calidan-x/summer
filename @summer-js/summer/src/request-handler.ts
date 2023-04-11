@@ -24,9 +24,9 @@ const zip = promisify(gzip)
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
   path: string
-  pathParams: Record<string, string>
-  queries: Record<string, string>
-  headers: Record<string, string>
+  pathParams: Record<string, string | undefined>
+  queries: Record<string, string | undefined>
+  headers: Record<string, string | undefined>
   body?: string
 }
 
@@ -309,7 +309,7 @@ const makeRequestError = (ctx: Context, responseError: ResponseError) => {
 const decodeQuery = (ctx: Context) => {
   Object.keys(ctx.request.queries).forEach((key) => {
     if (ctx.request.queries[key] !== '') {
-      ctx.request.queries[key] = decodeURIComponent(ctx.request.queries[key])
+      ctx.request.queries[key] = decodeURIComponent(ctx.request.queries[key]!)
     } else {
       delete ctx.request.queries[key]
     }
