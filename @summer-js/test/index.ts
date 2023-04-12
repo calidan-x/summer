@@ -64,20 +64,14 @@ const sendRequest = async <T>(method: any, path: string, requestParams: FullRequ
   if (typeof requestParams.body === 'object') {
     requestParams.body = JSON.stringify(requestParams.body)
   }
-  const lowerCaseHeader = requestParams.headers || {}
-  Object.keys(lowerCaseHeader).forEach((key) => {
-    if (key.toLocaleLowerCase() !== key) {
-      lowerCaseHeader[key.toLocaleLowerCase()] = lowerCaseHeader[key]
-      delete lowerCaseHeader[key]
-    }
-  })
+
   const context: Context = {
     request: {
       method,
       path,
       pathParams: {},
       body: requestParams.body ?? '',
-      headers: lowerCaseHeader,
+      headers: requestParams.headers || {},
       queries: requestParams.queries || {}
     },
     ...getInitContextData()
@@ -87,6 +81,7 @@ const sendRequest = async <T>(method: any, path: string, requestParams: FullRequ
     context.response.body = unzipSync(context.response.body).toString('utf-8')
   }
   const rawBody = context.response.body
+
   try {
     if (context.response.body.trim().startsWith('{') || context.response.body.trim().startsWith('[')) {
       context.response.body = JSON.parse(context.response.body)
@@ -115,6 +110,7 @@ const sendRequest = async <T>(method: any, path: string, requestParams: FullRequ
       const isTerminal = process.env.TERM !== undefined
       let printData =
         '========================================\n\x1b[36m' +
+        '》' +
         method +
         ' ' +
         path +

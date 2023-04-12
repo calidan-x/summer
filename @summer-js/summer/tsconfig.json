@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "noImplicitReturns":true,
-    "noUnusedParameters":true,
-    "noUnusedLocals":true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "strictNullChecks": true,
     "types": ["node"],
     "experimentalDecorators": true,

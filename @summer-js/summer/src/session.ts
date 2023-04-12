@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { Context, getContext } from '.'
 import { Cookie } from './cookie'
 import { Logger } from './logger'
+import { CookieSerializeOptions } from 'cookie'
 
 const md5 = (str: string) => {
   return crypto.createHash('md5').update(str).digest('hex')
@@ -10,75 +11,121 @@ const md5 = (str: string) => {
 
 export interface SessionConfig {
   expireIn: number
-  cookieName?: string
+  mode?: 'Cookie' | 'Header'
+  sessionName?: string
+  cookieOptions?: CookieSerializeOptions
 }
 
 const SESSIONS = {}
-const SESSION_IDS: string[] = []
+export const expireTimers: Record<string, NodeJS.Timeout> = {}
 export const session = {
   enabled: false,
-  cookieName: 'SUMMER_SESSION',
+  sessionName: 'SUMMER_SESSION',
   expireIn: 0,
+  mode: 'Cookie' as 'Cookie' | 'Header',
+  cookieOptions: { httpOnly: true },
   init(config: SessionConfig) {
     this.enabled = true
-    if (config.cookieName) {
-      this.cookieName = config.cookieName
+    if (config.sessionName) {
+      this.sessionName = config.sessionName
+    }
+    if (config.mode) {
+      this.mode = config.mode
     }
     const SixHours = 6 * 60 * 60 * 1000
     if (config.expireIn > SixHours) {
-      Logger.warn('Session expire time cannot bigger than 6 hours, set to 6 hours')
+      Logger.warn('Session expire time cannot greater than 6 hours, set to 6 hours')
       config.expireIn = SixHours
     }
     this.expireIn = config.expireIn
+    if (config.cookieOptions) {
+      this.cookieOptions = config.cookieOptions
+    }
   },
-  handleSession(ctx: Context) {
+  getSessionId() {
+    const context = getContext()
+    let sessionId: string | undefined
+    if (context) {
+      if (session.mode === 'Cookie') {
+        sessionId = context.cookies ? context.cookies[this.sessionName] : undefined
+      } else if (session.mode === 'Header') {
+        sessionId = context.request.headers[this.sessionName] || (context.response.headers[this.sessionName] as string)
+      }
+      if (!sessionId) {
+        sessionId = md5(Date.now() + '' + Math.random())
+      }
+    }
+    return sessionId
+  },
+  async handleSession(context: Context) {
     if (!this.enabled) {
       return
     }
-
-    let sessionValues: Record<string, any> = {}
-
-    while (true) {
-      if (SESSION_IDS.length === 0) {
-        break
-      }
-      const sId = SESSION_IDS[0]
-      if (SESSIONS[sId]._expireIn < Date.now()) {
-        SESSION_IDS.splice(0, 1)
-        delete SESSIONS[sId]
-      } else {
-        break
-      }
+    let sessionId = this.getSessionId()
+    if (session.mode === 'Cookie') {
+      Cookie.set(this.sessionName, sessionId, this.cookieOptions)
+    } else if (session.mode === 'Header') {
+      context.response.headers[this.sessionName] = sessionId
     }
-
-    let sessionId = ctx.cookies ? ctx.cookies[this.cookieName] : undefined
-    if (sessionId && SESSIONS[sessionId]) {
-      sessionValues = SESSIONS[sessionId]
-    } else {
-      sessionId = md5(Date.now() + '' + Math.random())
-      SESSIONS[sessionId] = sessionValues
-      SESSION_IDS.push(sessionId)
+    await this.storage.expire(sessionId, this.expireIn)
+  },
+  storage: {
+    save: (sessionId: string, sessionObject: Record<string, any>) => {
+      SESSIONS[sessionId] = sessionObject
+    },
+    load: (sessionId: string) => {
+      return SESSIONS[sessionId] || {}
+    },
+    expire: (sessionId: string, expireIn: number) => {
+      if (expireTimers[sessionId]) {
+        clearTimeout(expireTimers[sessionId])
+      }
+      expireTimers[sessionId] = setTimeout(() => {
+        delete expireTimers[sessionId]
+        delete SESSIONS[sessionId]
+      }, expireIn * 1000)
     }
-
-    const expireDate = new Date()
-    expireDate.setTime(new Date().getTime() + this.expireIn * 1000)
-    sessionValues._expireIn = expireDate.getTime()
-    Cookie.set(this.cookieName, sessionId, { httpOnly: true })
   }
 }
 
 export const Session = {
-  get(key: string) {
+  async get(key: string) {
     const context = getContext()
-    if (context && context.session) {
-      return context.session[key]
+    if (context) {
+      let sessionId = session.getSessionId()
+      if (sessionId) {
+        const sessionData = (await session.storage.load(sessionId)) || {}
+        return sessionData[key]
+      }
     }
     return undefined
   },
-  set(key: string, value: any) {
+  async set(key: string, value: any) {
     const context = getContext()
-    if (context && context.session) {
-      context.session[key] = value
+    if (context) {
+      let sessionId = session.getSessionId()
+      if (sessionId) {
+        const sessionValue = (await session.storage.load(sessionId)) || {}
+        sessionValue[key] = value
+        await session.storage.save(sessionId, sessionValue)
+      }
     }
+  },
+  async getAll() {
+    const context = getContext()
+    if (context) {
+      let sessionId = session.getSessionId()
+      if (sessionId) {
+        return await session.storage.load(sessionId)
+      }
+    }
+    return undefined
+  },
+  setStorage(storage: {
+    save: (sessionId: string, sessionObject: Record<string, any>) => void
+    load: (sessionId: string) => any
+    expire: (sessionId: string, expireIn: number) => void
+  }) {
+    session.storage = storage
   }
 }

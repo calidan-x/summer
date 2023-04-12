@@ -5,7 +5,7 @@ import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
 import { iocContainer } from './ioc'
 import { rpc } from './rpc'
-import { session } from './session'
+import { expireTimers, session } from './session'
 import { getEnvConfig } from './config-handler'
 import { Logger } from './logger'
 import { scheduledTask } from './scheduled-tasks'
@@ -81,10 +81,11 @@ export const summerInit = async (options?: SummerStartOptions) => {
   }
 
   options && options.before && (await options.before(config))
+
+  if (config['SESSION_CONFIG']) {
+    session.init(config['SESSION_CONFIG'])
+  }
   if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
-    if (config['SESSION_CONFIG']) {
-      session.init(config['SESSION_CONFIG'])
-    }
     await httpServer.startServer(config['SERVER_CONFIG'], async () => {
       await iocContainer.resolveLoc()
       rpc.resolveRpc()
@@ -122,6 +123,9 @@ export const summerStart = async (options?: SummerStartOptions) => {
 
 export const summerDestroy = async () => {
   scheduledTask.stop()
+  for (const sessionId in expireTimers) {
+    clearTimeout(expireTimers[sessionId])
+  }
   for (const plugin of pluginIncs) {
     plugin.destroy && (await plugin.destroy())
   }

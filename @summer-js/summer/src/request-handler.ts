@@ -64,7 +64,6 @@ export interface Context {
   request: RequestContext
   response: ResponseContext
   cookies?: Record<string, string>
-  session?: Record<string, string>
   data: Record<string, any>
   invocation?: {
     className: string
@@ -316,15 +315,33 @@ const decodeQuery = (ctx: Context) => {
   })
 }
 
-export const requestHandler = async (ctx: Context) => {
+const patchRequestHeader = (ctx: Context, lCaseHeaders?: Record<string, string>) => {
+  // header case-insensitive
+  let lowerCaseHeader = lCaseHeaders
+  if (!lowerCaseHeader) {
+    lowerCaseHeader = {}
+    Object.keys(ctx.request.headers || {}).forEach((key) => {
+      lowerCaseHeader![key.toLocaleLowerCase()] = ctx.request.headers[key]!
+    })
+  }
+  ctx.request.headers = new Proxy(ctx.request.headers as any, {
+    get(_target, key: string) {
+      return lowerCaseHeader![key.toLocaleLowerCase()]
+    },
+    set(_) {
+      return false
+    }
+  })
+}
+
+export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<string, string>) => {
   await asyncLocalStorage.run(ctx, async () => {
     try {
+      patchRequestHeader(ctx, lowerCaseHeaders)
       decodeQuery(ctx)
-
       if (ctx.request.body === '') {
         delete ctx.request.body
       }
-
       if (await handleRpc(ctx)) {
         return
       }
@@ -334,7 +351,7 @@ export const requestHandler = async (ctx: Context) => {
       }
 
       parseCookie(ctx)
-      session.handleSession(ctx)
+      await session.handleSession(ctx)
       await callMiddleware(ctx)
       assembleCookie(ctx)
     } catch (err) {
@@ -412,7 +429,7 @@ export const requestHandler = async (ctx: Context) => {
       const contentType = ctx.response.headers['Content-Type']
       if (
         !ctx.response.headers['Content-Encoding'] &&
-        (contentType.indexOf('application/json') >= 0 || contentType.indexOf('text/html') >= 0)
+        (contentType.includes('application/json') || contentType.includes('text/html'))
       ) {
         if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
           ctx.response.body = await zip(ctx.response.body)

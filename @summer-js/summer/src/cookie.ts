@@ -28,7 +28,19 @@ export const Cookie = {
     }
     return undefined
   },
+  getAll() {
+    const context = getContext()
+    if (context && context.cookies) {
+      return context.cookies
+    }
+    return undefined
+  },
   set(name: string, value: string, options?: CookieSerializeOptions) {
+    const context = getContext()
+    if (context) {
+      context.cookies = context.cookies || {}
+      context.cookies[name] = value
+    }
     responseCookies.push({ name, value, options })
   },
   clear(name: string, domain?: string) {

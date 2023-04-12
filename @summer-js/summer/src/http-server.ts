@@ -29,22 +29,20 @@ export interface ServerConfig {
   }
 }
 
-const headerKeyMappingCache = {}
 export const getInitContextData = () => ({
   response: {
     statusCode: 0,
     headers: new Proxy(
       {},
       {
-        set(obj, prop: string, value) {
-          if (!headerKeyMappingCache[prop]) {
-            headerKeyMappingCache[prop] = prop.toLowerCase().replace(/^.|(-[a-zA-Z])/g, (str) => {
-              return str.toUpperCase()
-            })
-          }
-          prop = headerKeyMappingCache[prop]
-          obj[prop] = value
+        set(obj, key: string, value: string) {
+          const foundKey = Object.keys(obj).find((k) => k.toLowerCase() === key.toLowerCase())
+          obj[foundKey || key] = value
           return true
+        },
+        get(obj, key: string) {
+          const foundKey = Object.keys(obj).find((k) => k.toLowerCase() === key.toLowerCase())
+          return obj[foundKey || Symbol()]
         }
       }
     ),
@@ -99,7 +97,7 @@ export const httpServer = {
         path: requestPath,
         pathParams: {},
         queries: this.paramsToObject(new URLSearchParams(urlParts[1]).entries()),
-        headers: req.headers as any,
+        headers: req.rawHeaders as any,
         body: bodyData
       },
       ...getInitContextData()
@@ -108,7 +106,7 @@ export const httpServer = {
     ;(req as any).$SummerContext = context
     ;(res as any).$SummerContext = context
 
-    await requestHandler(context)
+    await requestHandler(context, req.headers as any)
 
     res.writeHead(context.response.statusCode, context.response.headers)
     if (!(context.response.body instanceof StreamingData)) {

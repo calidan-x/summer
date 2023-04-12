@@ -111,12 +111,17 @@ export class BuildInDecoratorTestController {
   }
 
   @Post('/session')
-  addSession() {
-    Session.set('id', 100)
+  async addSession() {
+    await Session.set('id', 100)
   }
 
   @Get('/session')
-  session() {
-    return 'Session' + Session.get('id')
+  async session() {
+    return 'Session' + (await Session.get('id'))
+  }
+
+  @Get('/session-all')
+  async sessionAll() {
+    return JSON.stringify(await Session.getAll())
   }
 }

@@ -679,7 +679,7 @@ export class SummerSwaggerUIController {
   @Get('/index')
   getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType([String]) @_Optional primaryName?: string) {
     let allPages = allTags.map((at) => at.category || '')
-    allPages = Array.from(new Set(allPages))
+    allPages = Array.from(new Set(allPages)).sort()
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
     indexHTML = indexHTML.replace('{{TITLE}}', swaggerJson.info.title)
 

@@ -27,8 +27,7 @@ export const PathParam = createParamDecorator(_pathParamConvertFunc)
 
 // export const Session = createParamDecorator((ctx) => ctx.session)
 
-export const _headerConvertFunc = (ctx, paramName: string, name: string) =>
-  ctx.request.headers[(name || paramName).toLowerCase()]
+export const _headerConvertFunc = (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
 export const Header = createParamDecorator(_headerConvertFunc)
 
 // export const _headersConvertFunc = (ctx) => ctx.request.headers

@@ -1,4 +1,5 @@
 import { request } from '@summer-js/test'
+import { session } from '@summer-js/summer/lib/session'
 
 describe('Build-In Decorator Test', () => {
   test('test @Get', async () => {
@@ -113,5 +114,41 @@ describe('Build-In Decorator Test', () => {
       }
     )
     expect(result.body).toEqual('Cookiea3fWa')
+  })
+
+  test('test Cookie Session', async () => {
+    const r = await request.post('/build-in-decorator/session')
+    let res = await request.get(
+      '/build-in-decorator/session',
+      {},
+      { headers: { cookie: r.headers['Set-Cookie'][0].replace('HttpOnly', '') } }
+    )
+    expect(res.body).toEqual('Session100')
+
+    res = await request.get(
+      '/build-in-decorator/session-all',
+      {},
+      { headers: { cookie: r.headers['Set-Cookie'][0].replace('HttpOnly', '') } }
+    )
+    expect(res.body).toStrictEqual({ id: 100 })
+  })
+
+  test('test Header Session', async () => {
+    session.mode = 'Header'
+
+    const r = await request.post('/build-in-decorator/session')
+    let res = await request.get(
+      '/build-in-decorator/session',
+      {},
+      { headers: { SUMMER_SESSION: r.headers['SUMMER_SESSION'] } }
+    )
+    expect(res.body).toEqual('Session100')
+
+    res = await request.get(
+      '/build-in-decorator/session-all',
+      {},
+      { headers: { SUMMER_SESSION: r.headers['SUMMER_SESSION'] } }
+    )
+    expect(res.body).toStrictEqual({ id: 100 })
   })
 })
