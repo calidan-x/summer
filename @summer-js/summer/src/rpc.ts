@@ -1,11 +1,42 @@
+import https from 'https'
+import http from 'http'
+import { URL } from 'url'
+
 import { validateAndConvertType } from './validate-types'
 import { iocContainer } from './ioc'
-import axios from 'axios'
 import { Logger } from './logger'
 
 interface RpcServerConfig {
   url: string
   accessKey: string
+}
+
+const httpPost = (url: string, body, headers) => {
+  const urlObject = new URL(url)
+  return new Promise<{ statusCode: number; body: string }>((resolve, reject) => {
+    const client = urlObject.protocol === 'https' ? https : http
+    const req = client.request(
+      {
+        method: 'POST',
+        hostname: urlObject.hostname,
+        path: urlObject.pathname,
+        port: urlObject.port,
+        headers
+      },
+
+      (res) => {
+        let chunks = ''
+        res.on('data', (data) => (chunks += data))
+        res.on('end', () => {
+          const resBody = JSON.parse(chunks)
+          resolve({ statusCode: res.statusCode!, body: resBody })
+        })
+      }
+    )
+    req.on('error', reject)
+    req.write(JSON.stringify(body))
+    req.end()
+  })
 }
 
 export const rpc = {
@@ -40,24 +71,23 @@ export const rpc = {
     }
   },
   async rpcRequest(rpcConfig: RpcServerConfig, postData: any, _type, declareType, instance) {
-    let result
+    let responseBody = ''
     try {
-      result = (
-        await axios.post(rpcConfig.url, postData, { headers: { 'summer-rpc-access-key': rpcConfig.accessKey } })
-      ).data
-    } catch (e) {
-      if (e.response.status === 404) {
-        Logger.error('RPC Fail: Remote url not found ' + rpcConfig.url)
-      } else {
-        Logger.error('RPC Fail', e.response.data)
+      const res = await httpPost(rpcConfig.url, postData, { 'summer-rpc-access-key': rpcConfig.accessKey })
+      if (res.statusCode === 404) {
+        throw new Error('RPC Fail: Remote url not found ' + rpcConfig.url)
       }
+      responseBody = res.body
+    } catch (e) {
+      Logger.error('RPC Fail:')
+      throw e
     }
     const allErrors = []
-    result = validateAndConvertType(declareType, '', result, allErrors, '', -1, instance)
+    responseBody = validateAndConvertType(declareType, '', responseBody, allErrors, '', -1, instance)
     if (allErrors.length) {
       throw new Error(JSON.stringify(allErrors))
     }
-    return result
+    return responseBody
   }
 }
 

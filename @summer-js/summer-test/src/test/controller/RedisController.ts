@@ -13,8 +13,10 @@ export class RedisController {
   // @PostConstruct
   // init() {
   //   Session.setStorage({
-  //     save: async (sessionId, obj) => {
-  //       await this.redisClient.set(sessionId, JSON.stringify(obj))
+  //     save: async (sessionId, key, value) => {
+  //       const sessionData = JSON.parse((await this.redisClient.get(sessionId)) || '{}')
+  //       sessionData[key] = value
+  //       await this.redisClient.set(sessionId, JSON.stringify(sessionData))
   //     },
   //     load: async (sessionId) => {
   //       const sessionData = await this.redisClient.get(sessionId)

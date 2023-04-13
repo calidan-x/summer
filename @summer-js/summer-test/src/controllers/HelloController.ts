@@ -1,4 +1,4 @@
-import { Controller, EnvConfig, Get } from '@summer-js/summer'
+import { Controller, Ctx, EnvConfig, Get, Context } from '@summer-js/summer'
 import { HelloService } from '../service'
 
 @Controller('/v1')
@@ -11,7 +11,9 @@ export class HelloController {
   neverTypeProp: never[]
 
   @Get
-  hello() {
+  hello(@Ctx ctx: Context) {
+    console.log(ctx.request)
+    console.log(ctx.request.headers)
     return 'Hello Summer!'
   }
 

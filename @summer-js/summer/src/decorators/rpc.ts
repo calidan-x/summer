@@ -47,6 +47,7 @@ export const RpcClient = (source: string, targetClass?: string) => {
             return result
           } else {
             Logger.error(source + ' not found in RPC_CONFIG.client')
+            return
           }
         }
       }

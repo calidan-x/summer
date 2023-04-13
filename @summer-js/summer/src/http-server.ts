@@ -91,13 +91,18 @@ export const httpServer = {
       return
     }
 
+    const headers = {}
+    for (let i = 0; i < req.rawHeaders.length; i += 2) {
+      headers[req.rawHeaders[i]] = req.rawHeaders[i + 1]
+    }
+
     const context: Context = {
       request: {
         method: req.method as any,
         path: requestPath,
         pathParams: {},
         queries: this.paramsToObject(new URLSearchParams(urlParts[1]).entries()),
-        headers: req.rawHeaders as any,
+        headers: headers,
         body: bodyData
       },
       ...getInitContextData()

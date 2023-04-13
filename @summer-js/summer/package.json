@@ -1,43 +1,42 @@
 {
-	"name": "@summer-js/summer",
-	"version": "0.0.105",
-	"description": "",
-	"main": "lib/index.js",
-	"module": "lib/index.js",
-	"files": [
-		"lib"
-	],
-	"scripts": {
-		"build": "tsc",
-		"release": "npm publish --access public"
-	},
-	"author": "Calidan",
-	"license": "ISC",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/calidan-x/summer"
-	},
-	"homepage": "https://summerjs.dev",
-	"keywords": [
-		"node",
-		"nodejs",
-		"backend",
-		"api"
-	],
-	"dependencies": {
-		"busboy": "^1.6.0",
-		"cookie": "^0.4.1",
-		"deepmerge": "^4.2.2",
-		"esbuild": "^0.15.12",
-		"mime": "^3.0.0",
-		"path-to-regexp": "^6.2.0",
-		"reflect-metadata": "0.1.13",
-		"ts-morph": "17.0.1",
-		"typescript": "5.0.2",
-		"axios": "0.27.2",
-		"node-cron": "3.0.2"
-	},
-	"devDependencies": {
-		"@types/node": "^18.11.17"
-	}
+  "name": "@summer-js/summer",
+  "version": "0.0.105",
+  "description": "",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "release": "npm publish --access public"
+  },
+  "author": "Calidan",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calidan-x/summer"
+  },
+  "homepage": "https://summerjs.dev",
+  "keywords": [
+    "node",
+    "nodejs",
+    "backend",
+    "api"
+  ],
+  "dependencies": {
+    "busboy": "^1.6.0",
+    "cookie": "^0.4.1",
+    "deepmerge": "^4.2.2",
+    "esbuild": "^0.15.12",
+    "mime": "^3.0.0",
+    "path-to-regexp": "^6.2.0",
+    "reflect-metadata": "0.1.13",
+    "ts-morph": "17.0.1",
+    "typescript": "5.0.2",
+    "node-cron": "3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.17"
+  }
 }

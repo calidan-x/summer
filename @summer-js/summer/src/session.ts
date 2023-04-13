@@ -70,8 +70,11 @@ export const session = {
     await this.storage.expire(sessionId, this.expireIn)
   },
   storage: {
-    save: (sessionId: string, sessionObject: Record<string, any>) => {
-      SESSIONS[sessionId] = sessionObject
+    save: (sessionId: string, key: string, value: any) => {
+      if (!SESSIONS[sessionId]) {
+        SESSIONS[sessionId] = {}
+      }
+      SESSIONS[sessionId][key] = value
     },
     load: (sessionId: string) => {
       return SESSIONS[sessionId] || {}
@@ -105,9 +108,7 @@ export const Session = {
     if (context) {
       let sessionId = session.getSessionId()
       if (sessionId) {
-        const sessionValue = (await session.storage.load(sessionId)) || {}
-        sessionValue[key] = value
-        await session.storage.save(sessionId, sessionValue)
+        await session.storage.save(sessionId, key, value)
       }
     }
   },
@@ -122,7 +123,7 @@ export const Session = {
     return undefined
   },
   setStorage(storage: {
-    save: (sessionId: string, sessionObject: Record<string, any>) => void
+    save: (sessionId: string, key: string, value: any) => void
     load: (sessionId: string) => any
     expire: (sessionId: string, expireIn: number) => void
   }) {
