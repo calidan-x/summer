@@ -2,6 +2,7 @@ import http, { Server } from 'http'
 import cluster from 'node:cluster'
 import os from 'node:os'
 import fs from 'fs'
+import url from 'url'
 
 import { Logger } from './logger'
 import { parseBody } from './body-parser'
@@ -73,8 +74,9 @@ export const httpServer = {
         return
       }
     }
-    const urlParts = req.url!.split('?')
-    const requestPath = urlParts[0].split('#')[0]
+
+    const urlObj = url.parse(req.url!, true)
+    const requestPath = urlObj.pathname!
 
     const staticHandleResult = handleStaticRequest(requestPath)
     if (staticHandleResult) {
@@ -101,7 +103,7 @@ export const httpServer = {
         method: req.method as any,
         path: requestPath,
         pathParams: {},
-        queries: this.paramsToObject(new URLSearchParams(urlParts[1]).entries()),
+        queries: { ...urlObj.query } as any,
         headers: headers,
         body: bodyData
       },

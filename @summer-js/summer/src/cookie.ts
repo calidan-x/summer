@@ -7,17 +7,18 @@ export interface CookieItem {
   options?: CookieSerializeOptions
 }
 
-export const responseCookies: CookieItem[] = []
+const CookieItems = Symbol('Set-Cookies')
 
 export const parseCookie = (ctx: Context) => {
   if (ctx.request.headers!.cookie) {
     ctx.cookies = cookie.parse(ctx.request.headers!.cookie) || {}
   }
-  responseCookies.splice(0, responseCookies.length)
 }
 
 export const assembleCookie = (ctx: Context) => {
-  ctx.response.headers['Set-Cookie'] = responseCookies.map((rc) => cookie.serialize(rc.name, rc.value, rc.options))
+  if (ctx[CookieItems] && ctx[CookieItems].length > 0) {
+    ctx.response.headers['Set-Cookie'] = ctx[CookieItems].map((rc) => cookie.serialize(rc.name, rc.value, rc.options))
+  }
 }
 
 export const Cookie = {
@@ -40,10 +41,14 @@ export const Cookie = {
     if (context) {
       context.cookies = context.cookies || {}
       context.cookies[name] = value
+      context[CookieItems] = context[CookieItems] || []
+      context[CookieItems].push({ name, value, options })
     }
-    responseCookies.push({ name, value, options })
   },
   clear(name: string, domain?: string) {
-    responseCookies.push({ name, value: '', options: { maxAge: 0, domain } })
+    const context = getContext()
+    if (context) {
+      context[CookieItems].push({ name, value: '', options: { maxAge: 0, domain } })
+    }
   }
 }

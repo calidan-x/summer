@@ -150,7 +150,7 @@ const serialize = (obj, declareType: any[]) => {
       obj[key] = serialize(obj[key], declareType)
     }
   } else {
-    if (typeof d0 === 'object') {
+    if (typeof d0 === 'object' && !Array.isArray(d0)) {
       if (d0[obj] && typeof obj === 'number') {
         obj = d0[obj]
       } else if (typeof d0[obj] !== 'number') {

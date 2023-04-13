@@ -29,6 +29,13 @@ class D {
   d: Date
 }
 
+type T = 'AA' | 'BB'
+
+class A {
+  a: T
+  b: T
+}
+
 @Controller
 export class SerializationController {
   @Get('/serialize')
@@ -55,5 +62,13 @@ export class SerializationController {
   @Get('/not-date')
   async dateSerialize() {
     return { d: 'not date' } as any as D
+  }
+
+  @Get('/union-type')
+  async unionTypeSerialize() {
+    const a = new A()
+    a.a = 'AA'
+    a.b = 'BB'
+    return a
   }
 }

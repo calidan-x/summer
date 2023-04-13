@@ -30,5 +30,11 @@ describe('Test Serialization', () => {
     expect(res.body).toStrictEqual({
       d: 'not date'
     })
+
+    res = await request.get('/union-type')
+    expect(res.body).toStrictEqual({
+      a: 'AA',
+      b: 'BB'
+    })
   })
 })
