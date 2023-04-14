@@ -43,7 +43,7 @@ export const getInitContextData = () => ({
         },
         get(obj, key: string) {
           const foundKey = Object.keys(obj).find((k) => k.toLowerCase() === key.toLowerCase())
-          return obj[foundKey || Symbol()]
+          return obj[foundKey!]
         }
       }
     ),
@@ -76,7 +76,7 @@ export const httpServer = {
     }
 
     const urlObj = url.parse(req.url!, true)
-    const requestPath = urlObj.pathname!
+    const requestPath = urlObj.pathname || ''
 
     const staticHandleResult = handleStaticRequest(requestPath)
     if (staticHandleResult) {
