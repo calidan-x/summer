@@ -76,7 +76,7 @@ export const httpServer = {
     }
 
     const urlObj = url.parse(req.url!, true)
-    const requestPath = urlObj.pathname || ''
+    const requestPath = urlObj.pathname || '/'
 
     const staticHandleResult = handleStaticRequest(requestPath)
     if (staticHandleResult) {
@@ -117,8 +117,7 @@ export const httpServer = {
 
     res.writeHead(context.response.statusCode, context.response.headers)
     if (!(context.response.body instanceof StreamingData)) {
-      res.write(context.response.body)
-      res.end()
+      res.end(context.response.body)
     } else {
       context.response.body.readable.pipe(res).on('end', () => {
         res.end()
