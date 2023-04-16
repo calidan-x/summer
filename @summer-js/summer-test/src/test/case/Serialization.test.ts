@@ -36,5 +36,12 @@ describe('Test Serialization', () => {
       a: 'AA',
       b: 'BB'
     })
+
+    res = await request.get('/prop-serialize')
+    expect(res.body).toStrictEqual({
+      name: 'John',
+      password: '*****',
+      gender: 'Male'
+    })
   })
 })

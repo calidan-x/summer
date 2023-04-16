@@ -1,4 +1,4 @@
-import { Controller, Get } from '@summer-js/summer'
+import { Controller, Get, Serialize } from '@summer-js/summer'
 
 enum Direction {
   UP = 0,
@@ -36,6 +36,18 @@ class A {
   b: T
 }
 
+enum Gender {
+  Male,
+  Female
+}
+
+class User {
+  name: string
+  @Serialize((value: string) => value.replace(/.+/g, '*****'))
+  password: string
+  gender: Gender
+}
+
 @Controller
 export class SerializationController {
   @Get('/serialize')
@@ -70,5 +82,14 @@ export class SerializationController {
     a.a = 'AA'
     a.b = 'BB'
     return a
+  }
+
+  @Get('/prop-serialize')
+  async propSerialize() {
+    const user = new User()
+    user.name = 'John'
+    user.password = 'my-password'
+    user.gender = Gender.Male
+    return user
   }
 }

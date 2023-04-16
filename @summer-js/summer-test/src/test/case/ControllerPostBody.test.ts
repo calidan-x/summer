@@ -11,6 +11,9 @@ const testRequestParam = async (requestValue: string, resultValue: any) => {
 
 const testErrorRequestParam = async (requestValue: string, errorMessage: any) => {
   const response = await request.post('/request-body-value', requestValue)
+  if (response.statusCode === 500) {
+    response.print()
+  }
   expect(response.rawBody).toContain(errorMessage)
 }
 

@@ -340,7 +340,7 @@ export const validateAndConvertType = (
         }
 
         for (const k of allProperties) {
-          let declareType = Reflect.getMetadata('DeclareType', d0.prototype, k)
+          let declareType = Reflect.getMetadata('DeclareType', d0.prototype, k) || []
 
           if (declareType[0] === undefined) {
             classInstance[k] = objectValue[k]

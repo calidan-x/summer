@@ -79,6 +79,9 @@ export const session = {
     load: (sessionId: string) => {
       return SESSIONS[sessionId] || {}
     },
+    clear: (sessionId: string) => {
+      delete SESSIONS[sessionId]
+    },
     expire: (sessionId: string, expireIn: number) => {
       if (expireTimers[sessionId]) {
         clearTimeout(expireTimers[sessionId])
@@ -112,6 +115,15 @@ export const Session = {
       }
     }
   },
+  async clear() {
+    const context = getContext()
+    if (context) {
+      let sessionId = session.getSessionId()
+      if (sessionId) {
+        await session.storage.clear(sessionId)
+      }
+    }
+  },
   async getAll() {
     const context = getContext()
     if (context) {
@@ -125,6 +137,7 @@ export const Session = {
   setStorage(storage: {
     save: (sessionId: string, key: string, value: any) => void
     load: (sessionId: string) => any
+    clear: (sessionId: string) => any
     expire: (sessionId: string, expireIn: number) => void
   }) {
     session.storage = storage
