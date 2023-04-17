@@ -74,36 +74,6 @@ export interface Context {
 
 export const asyncLocalStorage = new AsyncLocalStorage<Context>()
 
-const allSerializeKeys = new WeakMap()
-const cacheSerializeKeys = new WeakMap()
-export const addSerializeKeys = (clazz: any, serializeKey: string) => {
-  clazz = clazz.constructor
-  const serializeKeys = allSerializeKeys.get(clazz) || []
-  serializeKeys.push(serializeKey)
-  allSerializeKeys.set(clazz, serializeKeys)
-}
-
-export const getSerializeKeys = (clazz: any) => {
-  const cacheKeys = cacheSerializeKeys.get(clazz)
-  if (cacheKeys) {
-    return cacheKeys
-  }
-  let allKeys: string[] = []
-  if (typeof clazz === 'function') {
-    let clazzObj = new clazz()
-    while (true) {
-      allKeys.push(...(allSerializeKeys.get(clazzObj.constructor) || []))
-      clazzObj = clazzObj?.__proto__?.__proto__
-      if (!clazzObj) {
-        break
-      }
-    }
-  }
-  allKeys = Array.from(new Set(allKeys))
-  cacheSerializeKeys.set(clazz, allKeys)
-  return allKeys
-}
-
 const matchPathMethod = (path: string, httpMethod: string) => {
   let routeData = requestMapping[path]
 
@@ -143,20 +113,27 @@ const matchPathMethod = (path: string, httpMethod: string) => {
   return null
 }
 const serialize = (obj, declareType: any[]) => {
-  if (obj === null) {
-    return null
-  }
-  let [d0, d1, d2] = declareType || []
+  let [d0, , d2] = declareType || []
   if (typeof d0 === 'function' && d0.name === '') {
     d0 = d0()
   }
-  const isArray = d1 === Array
 
-  if (isArray) {
+  if (typeof obj !== 'object') {
+    if (typeof d0 === 'object' && !Array.isArray(d0)) {
+      if (d0[obj] && typeof obj === 'number') {
+        obj = d0[obj]
+      } else if (typeof d0[obj] !== 'number') {
+        for (const enumKey in d0) {
+          if (d0[enumKey] === obj) {
+            obj = enumKey
+          }
+        }
+      }
+    }
+  } else if (Array.isArray(obj)) {
     obj = (obj || []).map((item) => serialize(item, [d0, undefined, d2]))
-  } else if (typeof obj === 'object') {
-    const serializeKeys = d0 ? getSerializeKeys(d0) : Object.keys(obj)
-    for (const key of serializeKeys) {
+  } else {
+    for (const key in obj) {
       let declareType =
         Reflect.getMetadata('DeclareType', obj, key) ||
         (d0 ? Reflect.getMetadata('DeclareType', d0.prototype, key) : []) ||
@@ -184,18 +161,6 @@ const serialize = (obj, declareType: any[]) => {
         obj[key] = serialize(obj[key], declareType)
       } else {
         obj[key] = serializeFunc(obj[key])
-      }
-    }
-  } else {
-    if (typeof d0 === 'object' && !Array.isArray(d0)) {
-      if (d0[obj] && typeof obj === 'number') {
-        obj = d0[obj]
-      } else if (typeof d0[obj] !== 'number') {
-        for (const enumKey in d0) {
-          if (d0[enumKey] === obj) {
-            obj = enumKey
-          }
-        }
       }
     }
   }

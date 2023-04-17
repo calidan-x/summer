@@ -9,7 +9,6 @@ export { Logger } from './logger'
 export { SessionConfig, Session } from './session'
 export { RpcConfig } from './rpc'
 export { ServerConfig } from './http-server'
-import { addSerializeKeys } from './request-handler'
 export { getConfig, getEnvConfig, EnvConfig } from './config-handler'
 export { handler } from './serverless'
 export { Cookie } from './cookie'
@@ -39,21 +38,7 @@ declare global {
   Reflect.defineMetadata(propertyKey, propertyKey, target)
   declareType = declareType || []
   declareType[2] = declareType[2] || []
-  let d0 = declareType[0]
   Reflect.defineMetadata('DeclareType', declareType, target, propertyKey)
-  if (d0) {
-    if (typeof d0 === 'function' && d0.name === '') {
-      d0 = d0()
-    }
-    // enum or object
-    if (
-      (typeof d0 === 'object' && !Array.isArray(d0)) ||
-      declareType[1] === Array ||
-      ![Number, String, Boolean, _Int, Date].includes(d0)
-    ) {
-      addSerializeKeys(target, propertyKey as string)
-    }
-  }
 }
 ;(global as any)._ParamDeclareType =
   (declareType: any) => (target: Object, propertyKey: string | symbol, index: number) => {

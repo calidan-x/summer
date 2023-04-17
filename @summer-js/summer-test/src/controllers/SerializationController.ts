@@ -43,7 +43,9 @@ enum Gender {
 
 class User {
   name: string
-  @Serialize((value: string) => value.replace(/.+/g, '*****'))
+  @Serialize((value: string) => {
+    return value.replace(/.+/g, '*****')
+  })
   password: string
   gender: Gender
 }
@@ -91,5 +93,17 @@ export class SerializationController {
     user.password = 'my-password'
     user.gender = Gender.Male
     return user
+  }
+
+  @Get('/assign-serialize')
+  async assignSerialize() {
+    const obj = new ObjectClass()
+    const user = new User()
+    obj.direction = Direction.LEFT
+    user.name = 'John'
+    user.password = 'my-password'
+    user.gender = Gender.Male
+    obj['user'] = user
+    return obj
   }
 }
