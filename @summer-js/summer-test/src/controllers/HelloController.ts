@@ -10,14 +10,14 @@ export class HelloController {
   anyTypeProp: any[]
   neverTypeProp: never[]
 
-  @Get('/null')
-  null() {
-    return null
-  }
-
   @Get
   hello() {
     return 'Hello Summer!'
+  }
+
+  @Get('/null')
+  null() {
+    return null
   }
 
   @Get('^/v2/hello')

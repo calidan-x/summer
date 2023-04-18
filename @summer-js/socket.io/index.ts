@@ -36,7 +36,7 @@ class SocketIOPlugin extends SummerPlugin {
       }
 
       addInjectable(IO, () => socketIO)
-      if (process.env.SUMMER_ENV !== 'test') {
+      if (SUMMER_ENV !== 'test') {
         Logger.info('Socket.io initialized path: http://127.0.0.1:' + serverConfig.port + config.path)
       }
     }

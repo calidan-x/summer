@@ -266,18 +266,6 @@ program
         }
 
         build(options.env, { fullSourceMap: options.fullSourceMap, external: (options.external || '').split(',') })
-        // const esbuildOptInx = program.args.findIndex((arg) => arg === '--')
-        // const esbuildOpts = esbuildOptInx > 0 ? program.args.splice(esbuildOptInx + 1).join(' ') : ''
-        // const buildProcess = exec(
-        //   'npx esbuild ./compile/index.js --bundle --sourcemap --minify-whitespace  --platform=node --outfile=./build/index.js ' +
-        //     esbuildOpts
-        // )
-        // printProcessData(buildProcess)
-        // buildProcess.on('exit', (signal) => {
-        //   if (signal === 1) {
-        //     process.exit(signal)
-        //   }
-        // })
       } else {
         process.exit(1)
       }

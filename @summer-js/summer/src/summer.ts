@@ -14,9 +14,9 @@ const printSummerInfo = () => {
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
   if (!isSummerTesting) {
     console.log(`
-🔆SUMMER Ver ${process.env.SUMMER_VERSION}    \n
+🔆SUMMER Ver ${SUMMER_VERSION}    \n
 -------------------\n`)
-    process.env.SUMMER_ENV && console.log(`ENV: ${process.env.SUMMER_ENV}\n`)
+    SUMMER_ENV && console.log(`ENV: ${SUMMER_ENV}\n`)
   }
 }
 

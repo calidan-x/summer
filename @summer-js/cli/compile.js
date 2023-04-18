@@ -319,9 +319,9 @@ const stripColor = (str) => {
 const checkError = () => {
   const diagnostics = project.getPreEmitDiagnostics()
   if (diagnostics.length > 0) {
-    console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:')
+    console.error(stripColor('\x1b[31mError compiling source code:\x1b[0m'))
     console.log(stripColor(project.formatDiagnosticsWithColorAndContext(diagnostics)))
-    console.log('\x1b[33m%s\x1b[0m', '\nFound ' + diagnostics.length + ' Error' + (diagnostics.length > 1 ? 's' : ''))
+    console.log(stripColor(`\x1b[33m\nFound ${diagnostics.length} Error${diagnostics.length > 1 ? 's' : ''}\x1b[0m`))
     compiling = false
     return true
   }
@@ -430,12 +430,12 @@ let compiling = false
 let isFirstCompile = true
 const updateFileList = []
 const dirtyFiles = []
+let jsFiles = []
 const compile = async (compileAll = false) => {
   compiling = true
   const pluginIncs = []
   modifyActions = []
   const refreshFiles = []
-  const jsFiles = []
   console.log('COMPILE_START')
 
   for (const { event, updatePath } of updateFileList) {
@@ -450,7 +450,7 @@ const compile = async (compileAll = false) => {
           getAllReferencingSourceFiles(sf, dirtyFiles, refreshFiles)
         }
       }
-      if (updatePath.endsWith('.js')) {
+      if (updatePath.endsWith('.js') || updatePath.endsWith('.cjs') || updatePath.endsWith('.mjs')) {
         const sf = project.getSourceFile(path.resolve(updatePath))
         jsFiles.push(sf)
       }
@@ -703,9 +703,9 @@ const compile = async (compileAll = false) => {
   console.log('COMPILE_PROGRESS [ 100% ]')
 
   const statements = []
-  statements.push(`process.env.SUMMER_VERSION = "${summerPackage.version}";`)
-  statements.push(`process.env.SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
-  statements.push(`process.env.SUMMER_BUILD_TIME = "${Date.now()}";`)
+  statements.push(`(global as any).SUMMER_VERSION = "${summerPackage.version}";`)
+  statements.push(`(global as any).SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
+  statements.push(`(global as any).SUMMER_BUILD_TIME = ${Date.now()};`)
 
   if (fs.existsSync('./src/config/default.config.ts')) {
     if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {
@@ -750,6 +750,7 @@ const compile = async (compileAll = false) => {
     jsFiles.forEach((jf) => {
       project.emitSync({ targetSourceFile: jf })
     })
+    jsFiles = []
   }
   project.emitSync({ targetSourceFile: indexSourceFile })
   dirtyFiles.splice(0, dirtyFiles.length)
