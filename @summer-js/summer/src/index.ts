@@ -26,7 +26,7 @@ declare global {
   const _NotBlank: any
   const ClassCollect: any
   const SUMMER_ENV: string
-  const SUMMER_BUILD_TIME: number
+  const SUMMER_BUILD_TIMESTAMP: number
   const SUMMER_VERSION: string
 }
 

@@ -48,7 +48,7 @@ export const SWAGGER_CONFIG: SwaggerConfig = {
   readTypeORMComment: true,
   info: {
     title: 'Summer',
-    // description: 'Last build at: ' + new Date(Number(process.env.SUMMER_BUILD_TIME)),
+    // description: 'Last build at: ' + new Date(SUMMER_BUILD_TIMESTAMP),
     version: '1.0.0'
   },
 

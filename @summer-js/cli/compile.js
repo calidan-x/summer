@@ -705,7 +705,7 @@ const compile = async (compileAll = false) => {
   const statements = []
   statements.push(`(global as any).SUMMER_VERSION = "${summerPackage.version}";`)
   statements.push(`(global as any).SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
-  statements.push(`(global as any).SUMMER_BUILD_TIME = ${Date.now()};`)
+  statements.push(`(global as any).SUMMER_BUILD_TIMESTAMP = ${Date.now()};`)
 
   if (fs.existsSync('./src/config/default.config.ts')) {
     if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {
