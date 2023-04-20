@@ -70,6 +70,11 @@ export class BuildInDecoratorTestController {
     return 'Query' + id
   }
 
+  @Get('/query3')
+  query3(@Query('Id') id = 100) {
+    return 'Query' + id
+  }
+
   @Get('/queries')
   queries(@Queries queries: any) {
     return 'Query' + JSON.stringify(queries)

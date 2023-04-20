@@ -143,11 +143,11 @@ class EmptyRequest {
 class Search {
   isCity: boolean
   name: string
-  count: number
+  count = 100
 }
 
 class NullableRequest {
-  name: string | null
+  name?: string | null
 }
 
 @Controller

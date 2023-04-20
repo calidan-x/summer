@@ -28,7 +28,7 @@ export const data = {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'integer' },
+                      id: { type: 'number' },
                       firstName: { type: 'string' },
                       lastName: { type: 'string' },
                       isActive: { type: 'boolean' }
@@ -95,7 +95,7 @@ export const data = {
                 schema: {
                   type: 'object',
                   properties: {
-                    id: { type: 'integer' },
+                    id: { type: 'number' },
                     firstName: { type: 'string' },
                     lastName: { type: 'string' },
                     isActive: { type: 'boolean' }
@@ -145,7 +145,7 @@ export const data = {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'integer' },
+                      id: { type: 'number' },
                       content: { type: 'string', description: '内容' },
                       isDone: { type: 'boolean' }
                     },
@@ -200,10 +200,10 @@ export const data = {
                   dir: { type: 'array', items: { type: 'string', enum: ['Up', 'Down'] } },
                   intArr: { type: 'array', items: { type: 'integer' } },
                   field1: { type: 'array', items: { type: 'string' } },
-                  field2: { type: 'integer' },
+                  field2: { type: 'number' },
                   obj: {
                     type: 'object',
-                    properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                    properties: { a: { type: 'number' }, b: { type: 'string' } },
                     description: '',
                     required: ['a', 'b']
                   },
@@ -211,7 +211,7 @@ export const data = {
                   g: {
                     type: 'object',
                     properties: {
-                      a: { type: 'integer' },
+                      a: { type: 'number' },
                       b: { type: 'string' },
                       d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
                     },
@@ -231,7 +231,7 @@ export const data = {
                   x: {
                     type: 'object',
                     properties: {
-                      a: { type: 'integer' },
+                      a: { type: 'number' },
                       b: { type: 'string' },
                       d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
                     },
@@ -242,7 +242,7 @@ export const data = {
                     type: 'array',
                     items: {
                       type: 'object',
-                      properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                      properties: { a: { type: 'number' }, b: { type: 'string' } },
                       description: '',
                       required: ['a', 'b']
                     }
@@ -267,17 +267,17 @@ export const data = {
                     dir: { type: 'array', items: { type: 'string', enum: ['Up', 'Down'] } },
                     intArr: { type: 'array', items: { type: 'integer' } },
                     field1: { type: 'array', items: { type: 'string' } },
-                    field2: { type: 'integer' },
+                    field2: { type: 'number' },
                     obj: {
                       type: 'object',
-                      properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                      properties: { a: { type: 'number' }, b: { type: 'string' } },
                       description: ''
                     },
                     date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
                     g: {
                       type: 'object',
                       properties: {
-                        a: { type: 'integer' },
+                        a: { type: 'number' },
                         b: { type: 'string' },
                         d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
                       },
@@ -295,7 +295,7 @@ export const data = {
                     x: {
                       type: 'object',
                       properties: {
-                        a: { type: 'integer' },
+                        a: { type: 'number' },
                         b: { type: 'string' },
                         d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
                       },
@@ -305,7 +305,7 @@ export const data = {
                       type: 'array',
                       items: {
                         type: 'object',
-                        properties: { a: { type: 'integer' }, b: { type: 'string' } },
+                        properties: { a: { type: 'number' }, b: { type: 'string' } },
                         description: ''
                       }
                     },
@@ -346,7 +346,7 @@ export const data = {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'integer' },
+                      id: { type: 'number' },
                       name: { type: 'string', description: 'Name of the movie', example: '2022' },
                       year: { type: 'string', description: 'Movie Release Year', example: '2022' }
                     },
@@ -384,7 +384,7 @@ export const data = {
                 schema: {
                   type: 'object',
                   properties: {
-                    id: { type: 'integer' },
+                    id: { type: 'number' },
                     name: { type: 'string', description: 'Name of the movie', example: '2022' },
                     year: { type: 'string', description: 'Movie Release Year', example: '2022' }
                   },
@@ -411,7 +411,7 @@ export const data = {
                 schema: {
                   type: 'object',
                   properties: {
-                    id: { type: 'integer' },
+                    id: { type: 'number' },
                     name: { type: 'string', description: 'Name of the movie', example: '2022' },
                     year: { type: 'string', description: 'Movie Release Year', example: '2022' }
                   },
@@ -440,7 +440,7 @@ export const data = {
                   items: {
                     type: 'object',
                     properties: {
-                      id: { type: 'integer' },
+                      id: { type: 'number' },
                       name: { type: 'string', description: 'Name of the movie', example: '2022' },
                       year: { type: 'string', description: 'Movie Release Year', example: '2022' }
                     },
@@ -478,7 +478,7 @@ export const data = {
                 schema: {
                   type: 'object',
                   properties: {
-                    id: { type: 'integer' },
+                    id: { type: 'number' },
                     name: { type: 'string', description: 'Name of the movie', example: '2022' },
                     year: { type: 'string', description: 'Movie Release Year', example: '2022' }
                   },
@@ -505,7 +505,7 @@ export const data = {
                 schema: {
                   type: 'object',
                   properties: {
-                    id: { type: 'integer' },
+                    id: { type: 'number' },
                     name: { type: 'string', description: 'Name of the movie', example: '2022' },
                     year: { type: 'string', description: 'Movie Release Year', example: '2022' }
                   },
@@ -554,9 +554,9 @@ export const data = {
                   type: 'object',
                   properties: {
                     data: { example: '<UNKNOWN>' },
-                    pageNumber: { type: 'integer' },
-                    pageSize: { type: 'integer' },
-                    total: { type: 'integer' }
+                    pageNumber: { type: 'number' },
+                    pageSize: { type: 'number' },
+                    total: { type: 'number' }
                   },
                   description: ''
                 }
@@ -592,9 +592,9 @@ export const data = {
                         description: ''
                       }
                     },
-                    pageNumber: { type: 'integer' },
-                    pageSize: { type: 'integer' },
-                    total: { type: 'integer' }
+                    pageNumber: { type: 'number' },
+                    pageSize: { type: 'number' },
+                    total: { type: 'number' }
                   },
                   description: ''
                 }
@@ -626,17 +626,17 @@ export const data = {
                 type: 'object',
                 properties: {
                   string: { type: 'string' },
-                  number: { type: 'integer' },
+                  number: { type: 'number' },
                   int: { type: 'integer' },
                   boolean: { type: 'boolean' },
                   Date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
                   stringArray: { type: 'array', items: { type: 'string' } },
                   intArray: { type: 'array', items: { type: 'integer' } },
-                  numberArray: { type: 'array', items: { type: 'integer' } },
+                  numberArray: { type: 'array', items: { type: 'number' } },
                   booleanArray: { type: 'array', items: { type: 'boolean' } },
                   DateArray: { type: 'array', items: { type: 'string', example: '1999-12-31T16:00:00.000Z' } },
                   stringOptional: { type: 'string' },
-                  numberOptional: { type: 'integer' },
+                  numberOptional: { type: 'number' },
                   intOptional: { type: 'integer' },
                   booleanOptional: { type: 'boolean' },
                   DateOptional: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
@@ -819,17 +819,17 @@ export const data = {
                   type: 'object',
                   properties: {
                     string: { type: 'string' },
-                    number: { type: 'integer' },
+                    number: { type: 'number' },
                     int: { type: 'integer' },
                     boolean: { type: 'boolean' },
                     Date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
                     stringArray: { type: 'array', items: { type: 'string' } },
                     intArray: { type: 'array', items: { type: 'integer' } },
-                    numberArray: { type: 'array', items: { type: 'integer' } },
+                    numberArray: { type: 'array', items: { type: 'number' } },
                     booleanArray: { type: 'array', items: { type: 'boolean' } },
                     DateArray: { type: 'array', items: { type: 'string', example: '1999-12-31T16:00:00.000Z' } },
                     stringOptional: { type: 'string' },
-                    numberOptional: { type: 'integer' },
+                    numberOptional: { type: 'number' },
                     intOptional: { type: 'integer' },
                     booleanOptional: { type: 'boolean' },
                     DateOptional: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
@@ -906,17 +906,17 @@ export const data = {
                     type: 'object',
                     properties: {
                       string: { type: 'string' },
-                      number: { type: 'integer' },
+                      number: { type: 'number' },
                       int: { type: 'integer' },
                       boolean: { type: 'boolean' },
                       Date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
                       stringArray: { type: 'array', items: { type: 'string' } },
                       intArray: { type: 'array', items: { type: 'integer' } },
-                      numberArray: { type: 'array', items: { type: 'integer' } },
+                      numberArray: { type: 'array', items: { type: 'number' } },
                       booleanArray: { type: 'array', items: { type: 'boolean' } },
                       DateArray: { type: 'array', items: { type: 'string', example: '1999-12-31T16:00:00.000Z' } },
                       stringOptional: { type: 'string' },
-                      numberOptional: { type: 'integer' },
+                      numberOptional: { type: 'number' },
                       intOptional: { type: 'integer' },
                       booleanOptional: { type: 'boolean' },
                       DateOptional: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
@@ -987,7 +987,7 @@ export const data = {
                   a: { type: 'string', description: 'A', example: 'A Value' },
                   b: { type: 'integer', description: 'B', example: 1 },
                   c: { type: 'string' },
-                  d: { type: 'integer' }
+                  d: { type: 'number' }
                 },
                 description: '',
                 required: ['a', 'b', 'c', 'd']
@@ -1006,7 +1006,7 @@ export const data = {
                     a: { type: 'string', description: 'A', example: 'A Value' },
                     b: { type: 'integer', description: 'B', example: 1 },
                     c: { type: 'string' },
-                    d: { type: 'integer' }
+                    d: { type: 'number' }
                   },
                   description: ''
                 }
@@ -1022,6 +1022,16 @@ export const data = {
         summary: '',
         security: [],
         operationId: '7e5a1',
+        parameters: [],
+        responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
+      }
+    },
+    '/swagger-test/object-return': {
+      delete: {
+        tags: ['Swagger Apis'],
+        summary: '',
+        security: [],
+        operationId: '58ca0',
         parameters: [],
         responses: { '200': { description: '', content: { 'text/html': { schema: { type: 'string', example: '' } } } } }
       }
@@ -1065,13 +1075,13 @@ export const data = {
                       type: 'array',
                       items: {
                         type: 'object',
-                        properties: { field1: { type: 'string' }, field2: { type: 'integer' } },
+                        properties: { field1: { type: 'string' }, field2: { type: 'number' } },
                         description: ''
                       }
                     },
-                    pageNumber: { type: 'integer' },
-                    pageSize: { type: 'integer' },
-                    total: { type: 'integer' }
+                    pageNumber: { type: 'number' },
+                    pageSize: { type: 'number' },
+                    total: { type: 'number' }
                   },
                   description: ''
                 }
@@ -1110,13 +1120,13 @@ export const data = {
                       type: 'array',
                       items: {
                         type: 'object',
-                        properties: { field1: { type: 'string' }, field2: { type: 'integer' } },
+                        properties: { field1: { type: 'string' }, field2: { type: 'number' } },
                         description: ''
                       }
                     },
-                    pageNumber: { type: 'integer' },
-                    pageSize: { type: 'integer' },
-                    total: { type: 'integer' }
+                    pageNumber: { type: 'number' },
+                    pageSize: { type: 'number' },
+                    total: { type: 'number' }
                   },
                   description: ''
                 }

@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/summer-test",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "",
 	"scripts": {
 		"serve": "summer serve --env local",
@@ -30,6 +30,8 @@
 		"ts-jest": "^29.0.3",
 		"socket.io": "4.6.1",
 		"@elastic/elasticsearch": "7.15.0",
-		"@aws-sdk/client-s3": "^3.33.0"
+		"@aws-sdk/client-s3": "^3.33.0",
+		"@socket.io/redis-emitter": "^5.1.0",
+		"@socket.io/redis-adapter": "^8.1.0"
 	}
 }

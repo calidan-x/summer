@@ -8,6 +8,7 @@ describe('Swagger Test', () => {
     const result = await request.get(
       (config.SERVER_CONFIG.basePath || '') + config.SWAGGER_CONFIG.docPath + 'swagger-docs.json'
     )
+
     expect(result.body).toStrictEqual(data)
   })
 })

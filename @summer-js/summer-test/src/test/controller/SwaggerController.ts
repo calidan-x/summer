@@ -255,6 +255,11 @@ export class SwaggerController {
     return a
   }
 
+  @Delete('/object-return')
+  async objReturn() {
+    return { a: 123, b: 'Str', arr_: [1, 2, 4, 5], c: { gg: 123, ee: Date } }
+  }
+
   @Put('/wrong-return')
   async getWringReturn() {
     const a: InterfaceGenericRes<InterfaceRes> = { a: { a: 123, b: 'str' } }

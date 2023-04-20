@@ -211,7 +211,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     if (ALLTypeMapping[type]) {
       return ALLTypeMapping[type]
     }
-  } else {
+  } else if (!declareLine.includes('=')) {
     return '[]'
   }
 
@@ -229,7 +229,13 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
   if (!paramType) {
     paramType = parameter.getType()
-    paramType = paramType.getNonNullableType()
+    if (paramType.isUnion()) {
+      const unionTypes = paramType.getUnionTypes()
+      let hasUndefined = unionTypes.find((ut) => ut.isUndefined())
+      if (hasUndefined) {
+        paramType = paramType.getNonNullableType()
+      }
+    }
 
     if (paramType.isInterface()) {
       return '[]'
@@ -241,6 +247,15 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
 
   if (!paramType || paramType.isAnonymous()) {
     return '[]'
+  }
+
+  if (ALLTypeMapping[type]) {
+    return ALLTypeMapping[type]
+  }
+
+  const lowerCaseType = paramType.getText(parameter).toLowerCase()
+  if (ALLTypeMapping[lowerCaseType]) {
+    return ALLTypeMapping[lowerCaseType]
   }
 
   if (declareLine.indexOf('<') > 0) {
@@ -286,15 +301,31 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
     for (const ut of unionTypes) {
       if (ut.isStringLiteral()) {
         const suv = ut.getText()
-        unionArr.push(suv.replace(/['"]/g, ''))
+        unionArr.push(suv)
       } else if (ut.isNumberLiteral()) {
         const suv = ut.getText()
-        unionArr.push(Number(suv))
-      } else {
-        return '[]'
+        unionArr.push(suv)
+      } else if (ut.isBoolean()) {
+        const suv = ut.getText()
+        unionArr.push(suv)
+      } else if (ut.isString()) {
+        unionArr.push('String.prototype')
+      } else if (ut.isBoolean()) {
+        unionArr.push('Boolean.prototype')
+      } else if (ut.isNumber()) {
+        unionArr.push('Number.prototype')
+      } else if (ut.isNull()) {
+        unionArr.push('null')
       }
     }
-    return `[${JSON.stringify(unionArr)}]`
+    if (unionArr.length === 0) {
+      return '[]'
+    }
+
+    if (unionArr.length === 1 && unionArr[0] === 'null') {
+      return `[]`
+    }
+    return `[[${unionArr.join(',')}]]`
   } else if (paramType.isClass() || paramType.isEnum() || paramType.isEnumLiteral()) {
     return `[()=>${paramType.getText(parameter)}]`
   } else if (paramType.isStringLiteral() || paramType.isNumberLiteral()) {
@@ -473,7 +504,7 @@ const compile = async (compileAll = false) => {
 
   if (!isFirstCompile) {
     for (const sf of [...refreshFiles, ...jsFiles]) {
-      await sf.refreshFromFileSystem()
+      sf.refreshFromFileSystemSync()
     }
     project.resolveSourceFileDependencies()
   }
@@ -486,12 +517,12 @@ const compile = async (compileAll = false) => {
 
   const pathResolveActions = resolvePath(dirtyFiles, compileAll)
   for (const action of pathResolveActions) {
-    action()
+    await action()
   }
 
-  modifyActions.forEach((action) => {
-    action()
-  })
+  for (const action of modifyActions) {
+    await action()
+  }
 
   modifyActions = []
   updateFileList.splice(0, updateFileList.length)

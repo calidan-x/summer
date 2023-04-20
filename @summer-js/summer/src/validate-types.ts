@@ -223,10 +223,27 @@ export const validateAndConvertType = (
 
     case 'Union':
       value = propertyValue
-      if (!d0.includes(value)) {
+      if (!d0.includes(value) && !d0.includes(value.__proto__)) {
+        const types: string[] = []
+        const printArr = d0.filter((d) => {
+          if (d === String.prototype) {
+            types.push('String')
+          } else if (d === Number.prototype) {
+            types.push('Number')
+          } else if (d === Boolean.prototype) {
+            types.push('Boolean')
+          } else {
+            return true
+          }
+          return false
+        })
         allErrors.push({
           param: errorParam,
-          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not in ' + JSON.stringify(d0)
+          message:
+            typeDisplayText(propertyValue, isFirstLevel) +
+            ' is not in ' +
+            JSON.stringify(printArr) +
+            (types.length ? ' or [' + types.join(',') + ']' : '')
         })
       }
       break

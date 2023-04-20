@@ -557,7 +557,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
         }
       } else if (d0 === _Int || d0 === Number || d0 === BigInt) {
         schemeDesc = {
-          type: 'integer'
+          type: d0 === Number ? 'number' : 'integer'
         }
 
         const min = Reflect.getMetadata('min', dType.prototype, key)
@@ -596,9 +596,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
         }
       } else {
         if (d0 === undefined) {
-          schemeDesc = {
-            type: 'string'
-          }
+          schemeDesc = { type: 'object' }
         } else if (typeof d0 === 'string') {
           schemeDesc = {
             type: 'string',

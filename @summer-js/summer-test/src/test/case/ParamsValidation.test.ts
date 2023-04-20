@@ -87,8 +87,8 @@ describe('Controller Params Test', () => {
     await testRequestParam('false', 'boolean', false)
     let response = await request.get('/request-queries?isCity=true&name=shanghai&count=1')
     expect(response.body).toEqual({ isCity: true, name: 'shanghai', count: 1 })
-    response = await request.get('/request-queries?isCity=1&name=shanghai&count=1')
-    expect(response.body).toEqual({ isCity: true, name: 'shanghai', count: 1 })
+    response = await request.get('/request-queries?isCity=1&name=shanghai')
+    expect(response.body).toEqual({ isCity: true, name: 'shanghai', count: 100 })
     response = await request.get('/request-queries?isCity=false&name=new york&count=1')
     expect(response.body).toEqual({ isCity: false, name: 'new york', count: 1 })
   })
@@ -502,10 +502,22 @@ describe('Controller Params Test', () => {
   })
 
   test('test nullable', async () => {
-    const postBody = {
+    let postBody: any = {
+      name: 'string'
+    }
+    let result = await request.post('/request-key-validate/nullable', postBody)
+    expect(result.body).toStrictEqual(postBody)
+
+    postBody = {
       name: null
     }
-    const result = await request.post('/request-key-validate/nullable', postBody)
+    result = await request.post('/request-key-validate/nullable', postBody)
     expect(result.body).toStrictEqual(postBody)
+
+    postBody = {
+      name: 111
+    }
+    result = await request.post('/request-key-validate/nullable', postBody)
+    expect(result.statusCode).toBe(400)
   })
 })

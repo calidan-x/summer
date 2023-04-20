@@ -74,6 +74,18 @@ describe('Build-In Decorator Test', () => {
     expect(result.body).toEqual('Query' + randomNumber)
   })
 
+  test('test @Query default value', async () => {
+    let result = await request.get('/build-in-decorator/query3')
+    expect(result.body).toEqual('Query100')
+
+    const randomNumber = Math.ceil(Math.random() * 1000)
+    result = await request.get('/build-in-decorator/query3?Id=' + randomNumber)
+    expect(result.body).toEqual('Query' + randomNumber)
+
+    result = await request.get('/build-in-decorator/query3?Id=aaa')
+    expect(result.statusCode).toBe(400)
+  })
+
   test('test @Queries', async () => {
     const result = await request.get('/build-in-decorator/queries?id=123&name=Kate')
     expect(result.body).toEqual('Query' + JSON.stringify({ id: '123', name: 'Kate' }))
