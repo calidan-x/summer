@@ -133,6 +133,7 @@ const serialize = (obj, declareType: any[]) => {
   } else if (Array.isArray(obj)) {
     obj = (obj || []).map((item) => serialize(item, [d0, undefined, d2]))
   } else {
+    const t = { ...obj }
     for (const key in obj) {
       let declareType =
         Reflect.getMetadata('DeclareType', obj, key) ||
@@ -160,7 +161,7 @@ const serialize = (obj, declareType: any[]) => {
       if (!serializeFunc) {
         obj[key] = serialize(obj[key], declareType)
       } else {
-        obj[key] = serializeFunc(obj[key])
+        obj[key] = serializeFunc(obj[key], t)
       }
     }
   }

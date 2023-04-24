@@ -167,6 +167,9 @@ const addPropDecorator = (cls) => {
       }
 
       if (!p.getDecorators().find((d) => d.getName() === '_PropDeclareType')) {
+        if (type.includes('import(')) {
+          type = '[]'
+        }
         pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
       }
     }
