@@ -1,4 +1,4 @@
-import { getConfig } from './config-handler'
+import { getEnvConfig } from './config-handler'
 import { Logger } from './logger'
 import { middlewareAssembler } from './middleware'
 
@@ -13,7 +13,7 @@ export const iocContainer = {
   iocGenericInstanceMap: [],
   iocInstance: [],
   async resolveLoc() {
-    this.instanceiocClasses()
+    this.instanceIocClasses()
     this.resolveInject()
     await this.resolveAssign()
   },
@@ -88,7 +88,7 @@ export const iocContainer = {
       }
     }
   },
-  instanceiocClasses() {
+  instanceIocClasses() {
     this.iocClass.forEach((clazz: any) => {
       const classParams = Reflect.getMetadata('design:paramtypes', clazz)
       if (!classParams || (classParams && classParams.length === 0)) {
@@ -137,26 +137,14 @@ export const iocContainer = {
             injectClass = injectClass()
           }
 
-          if (array === Array) {
-            Logger.error(
-              'Injection cannot be an Array',
-              obj.constructor.name + '.' + injectKey + '[' + injectClass.name + ']'
-            )
-            process.exit()
-          }
-
           if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
-            if (genericParams.length === 0) {
-              obj[injectKey] = obj[injectKey] ?? this.getInstance(injectClass)
-            } else {
-              obj[injectKey] = obj[injectKey] ?? this.findGenericInstance(injectClass, genericParams)?.instance
+            if (array !== Array) {
+              if (genericParams.length === 0) {
+                obj[injectKey] = obj[injectKey] ?? this.getInstance(injectClass)
+              } else {
+                obj[injectKey] = obj[injectKey] ?? this.findGenericInstance(injectClass, genericParams)?.instance
+              }
             }
-
-            // if (!obj[injectKey]) {
-            //   if (!obj.$_autoInjectKeys.includes(injectKey)) {
-            //     Logger.error(injectKey + ':' + injectClass + ' is not injectable in ' + obj.constructor.name)
-            //   }
-            // }
           }
         }
         delete obj.$_pendingInject
@@ -177,7 +165,7 @@ export const iocContainer = {
     target._pendingAssign[propertyKey] = { decoratorFunc, args }
   },
   async resolveAssign() {
-    const config = getConfig()
+    const config = getEnvConfig()
     for (const obj of this.iocInstance) {
       if (obj._pendingAssign) {
         for (const assignKey in obj._pendingAssign) {

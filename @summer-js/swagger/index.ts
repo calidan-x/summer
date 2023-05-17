@@ -725,9 +725,10 @@ export class SummerSwaggerUIController {
       if (apiCate !== category) {
         return
       }
-      const roteInfo = findRoute(api.controllerClass, api.callMethod)
-      if (roteInfo) {
-        const { path, requestMethod, params } = roteInfo
+      const routeInfo = findRoute(api.controllerClass, api.callMethod)
+
+      if (routeInfo) {
+        const { path, requestMethod, params } = routeInfo
         let docPath = (path || '/').replace(/\/{2,}/g, '/')
         docPath = docPath.replace(/:([^/]+)/g, '{$1}')
         if (!swaggerJson.paths[docPath]) {
@@ -801,7 +802,7 @@ export class SummerSwaggerUIController {
             let isRequired = !(Reflect.getMetadata('optional', api.controller, api.callMethod) || [])[inx]
 
             const parameter: any = {
-              name: param.paramValues[0],
+              name: param.paramValues[1] || param.paramValues[0],
               in: paramType,
               required: isRequired
             }
