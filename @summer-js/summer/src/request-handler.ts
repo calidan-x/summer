@@ -74,7 +74,7 @@ export interface Context {
 
 export const asyncLocalStorage = new AsyncLocalStorage<Context>()
 
-const matchPathMethod = (path: string, httpMethod: string) => {
+export const matchPathMethod = (path: string, httpMethod: string) => {
   let routeData = requestMapping[path]
 
   // 直接匹配

@@ -28,6 +28,7 @@ import { requestMapping } from '@summer-js/summer/lib/request-mapping'
 import { getAbsoluteFSPath } from 'swagger-ui-dist'
 import { ClassDeclaration } from 'ts-morph'
 import fs from 'fs'
+import { matchPathMethod } from '@summer-js/summer/lib/request-handler'
 
 interface Schema {
   type: string
@@ -356,6 +357,7 @@ const allApis: (ControllerApiDoc & {
   controllerName: string
   callMethod: string
 })[] = []
+
 export const ApiDoc = (summary: string, options: ControllerApiDoc = {}) => {
   const opts = { order: 9999999, example: {} }
   Object.assign(opts, options)
@@ -951,6 +953,23 @@ export class SummerSwaggerUIController {
     delete outPutJSON.password
     return outPutJSON
   }
+}
+
+export const getApiDoc = (ctx: Context) => {
+  const match = matchPathMethod(ctx.request.path, ctx.request.method)
+  if (match !== null) {
+    const { controller, callMethod } = match
+    for (const apiTag of allTags) {
+      if (apiTag.controllerClass === controller.constructor) {
+        for (const api of allApis) {
+          if (api.controllerClass === controller.constructor && api.callMethod === callMethod) {
+            return { api, apiGroup: apiTag }
+          }
+        }
+      }
+    }
+  }
+  return null
 }
 
 addPlugin(SwaggerPlugin)

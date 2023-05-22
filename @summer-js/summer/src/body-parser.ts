@@ -42,12 +42,12 @@ export const parseBody = (req: Readable, method: string, headers): Promise<any> 
       })
       req.pipe(bb)
     } else {
-      let bodyData = ''
+      let bodyData: any[] = []
       req.on('data', (chunk) => {
-        bodyData += chunk
+        bodyData.push(chunk)
       })
       req.on('end', async () => {
-        resolve(bodyData)
+        resolve(Buffer.concat(bodyData).toString())
       })
     }
   })

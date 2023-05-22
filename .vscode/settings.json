@@ -1,11 +1,4 @@
 {
-  "cSpell.words": [
-    "Autowired",
-    "clazz",
-    "deepmerge",
-    "esbuild",
-    "middlewares",
-    "notype"
-  ],
+  "cSpell.words": ["Autowired", "clazz", "deepmerge", "esbuild", "middlewares", "notype", "openapi"],
   "typescript.tsdk": "node_modules/typescript/lib"
 }
