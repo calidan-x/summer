@@ -1,5 +1,5 @@
 import { Service } from '@summer-js/summer'
-import { Repository } from '@summer-js/typeorm'
+import { Repository, Transaction } from '@summer-js/typeorm'
 
 import { Todo } from '../entity/Todo'
 
@@ -14,5 +14,15 @@ export class TodoService {
   async addTodo() {
     const todo = new Todo()
     return this.todoRepository.save(todo)
+  }
+
+  @Transaction
+  async addTransaction() {
+    let todo = new Todo()
+    todo.id = 110
+    todo.content = ''
+    todo.isDone = false
+    await this.todoRepository.save(todo)
+    throw new Error('error')
   }
 }

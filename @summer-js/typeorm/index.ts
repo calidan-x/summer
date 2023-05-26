@@ -1,11 +1,21 @@
-import { Logger, SummerPlugin, addPlugin, pluginCollection, addInjectable, getEnvConfig } from '@summer-js/summer'
+import {
+  Logger,
+  SummerPlugin,
+  addPlugin,
+  pluginCollection,
+  addInjectable,
+  getEnvConfig,
+  createMethodDecorator
+} from '@summer-js/summer'
+import { AsyncLocalStorage } from 'async_hooks'
 import { ClassDeclaration } from 'ts-morph'
 import {
   DefaultNamingStrategy,
   DataSource,
   DataSourceOptions,
   Repository as TypeOrmRepository,
-  ObjectLiteral
+  ObjectLiteral,
+  EntityManager
 } from 'typeorm'
 import { snakeCase } from 'typeorm/util/StringUtils'
 
@@ -101,6 +111,28 @@ class TypeORMPlugin extends SummerPlugin {
 addPlugin(TypeORMPlugin)
 export default TypeORMPlugin
 
+const asyncLocalStorage = new AsyncLocalStorage<EntityManager>()
+
+export type TransactionOptions = { dataSourceName?: string }
+
+export const Transaction = createMethodDecorator(
+  async (ctx, invokeMethod?, transactionOptions?: TransactionOptions) => {
+    await transaction(async () => {
+      await invokeMethod(ctx.invocation.params)
+    }, transactionOptions)
+  }
+)
+
+export const transaction = async (exec: () => void, transactionOptions?: TransactionOptions) => {
+  const typeORMConfig = getEnvConfig('TYPEORM_CONFIG')
+  const dataSource = getDataSource(transactionOptions?.dataSourceName || Object.keys(typeORMConfig)[0])
+  await dataSource.transaction(async (transactionManager) => {
+    await asyncLocalStorage.run(transactionManager, async () => {
+      await exec()
+    })
+  })
+}
+
 export class Repository<
   Entity extends ObjectLiteral,
   // @ts-ignore
@@ -111,13 +143,36 @@ addInjectable(Repository, (entity: any, dataSourceName: string) => {
   const typeORMConfig = getEnvConfig('TYPEORM_CONFIG')
   if (Object.keys(typeORMConfig)[0]) {
     try {
-      return getDataSource(dataSourceName || Object.keys(typeORMConfig)[0]).getRepository(entity)
+      const repository = getDataSource(dataSourceName || Object.keys(typeORMConfig)[0]).getRepository(entity)
+      repository.save
+      const patchMethods = [
+        'save',
+        'remove',
+        'insert',
+        'update',
+        'delete',
+        'softRemove',
+        'recover',
+        'softDelete',
+        'restore',
+        'clear',
+        'increment',
+        'decrement'
+      ]
+      patchMethods.forEach((m) => {
+        const originMethod = repository[m]
+        repository[m] = (...args: any) => {
+          const transactionManager = asyncLocalStorage.getStore()
+          if (!transactionManager) {
+            return originMethod.apply(repository, args)
+          }
+          return transactionManager[m].apply(transactionManager, args)
+        }
+      })
+      return repository
     } catch (e) {
       Logger.error(e)
     }
   }
   return null
 })
-
-// // @ts-ignore
-// export type VarChar<T> = string

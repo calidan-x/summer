@@ -49,7 +49,7 @@ const generateMethodDecorator =
 
 type DecoratorMethodType<T = any> = (ctx: Context, invokeMethod: (args: any[]) => Promise<T>, ...args: any[]) => void
 
-interface MethodDecoratorType<T extends DecoratorMethodType> {
+export interface MethodDecoratorType<T extends DecoratorMethodType> {
   (...name: Parameters<OmitFirstAndSecondArg<T>>): MethodDecorator
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor): void
 }
