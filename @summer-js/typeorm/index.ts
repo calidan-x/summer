@@ -139,34 +139,62 @@ export class Repository<
   DataSourceName extends string = ''
 > extends TypeOrmRepository<Entity> {}
 
-addInjectable(Repository, (entity: any, dataSourceName: string) => {
+addInjectable(Repository, (entityClass: any, dataSourceName: string) => {
+  if (!entityClass) {
+    return null
+  }
   const typeORMConfig = getEnvConfig('TYPEORM_CONFIG')
   if (Object.keys(typeORMConfig)[0]) {
     try {
-      const repository = getDataSource(dataSourceName || Object.keys(typeORMConfig)[0]).getRepository(entity)
-      repository.save
+      const repository = getDataSource(dataSourceName || Object.keys(typeORMConfig)[0]).getRepository(entityClass)
       const patchMethods = [
+        // need Entity
+        'createQueryBuilder',
+        'count',
+        'countBy',
+        'find',
+        'findBy',
+        'findAndCount',
+        'findAndCountBy',
+        'findByIds',
+        'findOne',
+        'findOneBy',
+        'findOneById',
+        'findOneOrFail',
+        'findOneByOrFail',
         'save',
         'remove',
         'insert',
         'update',
         'delete',
         'softRemove',
-        'recover',
         'softDelete',
         'restore',
         'clear',
         'increment',
-        'decrement'
+        'decrement',
+        'preload',
+        'merge',
+        'create',
+        // no need Entity
+        '-',
+        'query',
+        'recover'
       ]
+
+      let shouldAddEntity = true
       patchMethods.forEach((m) => {
+        if (m === '-') {
+          shouldAddEntity = false
+        }
+        const _shouldAddEntity = shouldAddEntity
         const originMethod = repository[m]
         repository[m] = (...args: any) => {
           const transactionManager = asyncLocalStorage.getStore()
           if (!transactionManager) {
             return originMethod.apply(repository, args)
           }
-          return transactionManager[m].apply(transactionManager, args)
+          return transactionManager[m].apply(transactionManager, _shouldAddEntity ? [entityClass, ...args] : args)
         }
       })
       return repository

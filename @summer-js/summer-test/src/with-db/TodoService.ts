@@ -19,10 +19,14 @@ export class TodoService {
   @Transaction
   async addTransaction() {
     let todo = new Todo()
-    todo.id = 110
+    todo.id = 111
     todo.content = ''
     todo.isDone = false
-    await this.todoRepository.save(todo)
+    await this.todoRepository.insert(todo)
+    const a = await this.todoRepository.find({ where: { id: 111 } })
+    console.log(a)
+    const b = await this.todoRepository.query('select * from todo')
+    console.log(b)
     throw new Error('error')
   }
 }
