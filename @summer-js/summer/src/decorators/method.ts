@@ -42,7 +42,6 @@ const generateMethodDecorator =
         },
         ...args
       )
-      context.invocation = undefined
       return ret
     }
   }

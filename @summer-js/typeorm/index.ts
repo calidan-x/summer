@@ -5,7 +5,7 @@ import {
   pluginCollection,
   addInjectable,
   getEnvConfig,
-  createMethodDecorator
+  createClassAndMethodDecorator
 } from '@summer-js/summer'
 import { AsyncLocalStorage } from 'async_hooks'
 import { ClassDeclaration } from 'ts-morph'
@@ -115,7 +115,7 @@ const asyncLocalStorage = new AsyncLocalStorage<EntityManager>()
 
 export type TransactionOptions = { dataSourceName?: string }
 
-export const Transaction = createMethodDecorator(
+export const Transaction = createClassAndMethodDecorator(
   async (ctx, invokeMethod?, transactionOptions?: TransactionOptions) => {
     await transaction(async () => {
       await invokeMethod(ctx.invocation.params)

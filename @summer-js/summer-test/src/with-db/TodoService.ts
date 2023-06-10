@@ -22,11 +22,7 @@ export class TodoService {
     todo.id = 111
     todo.content = ''
     todo.isDone = false
-    await this.todoRepository.insert(todo)
-    const a = await this.todoRepository.find({ where: { id: 111 } })
-    console.log(a)
-    const b = await this.todoRepository.query('select * from todo')
-    console.log(b)
+    await this.todoRepository.save(todo)
     throw new Error('error')
   }
 }

@@ -250,9 +250,12 @@ export const validateAndConvertType = (
     case Array:
       let arrayValue: any = []
       try {
-        arrayValue = typeof propertyValue === 'string' ? JSON.parse(propertyValue) : propertyValue
+        arrayValue = typeof propertyValue === 'string' && isFirstLevel ? JSON.parse(propertyValue) : propertyValue
+        if (typeof arrayValue === 'number' && typeof propertyValue === 'string' && isFirstLevel) {
+          arrayValue = [arrayValue]
+        }
       } catch (e) {
-        if ((d0 === _Int || d0 === Number) && typeof propertyValue === 'string') {
+        if ((d0 === _Int || d0 === Number) && typeof propertyValue === 'string' && isFirstLevel) {
           arrayValue = propertyValue.split(',')
         } else {
           allErrors.push({

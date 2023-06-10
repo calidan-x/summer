@@ -3,7 +3,7 @@ import { OmitFirstAndSecondArg, ContextInvocation as Context } from './utility'
 
 type DecoratorMethodType<T = any> = (ctx: Context, invokeMethod: (args: any[]) => Promise<T>, ...args: any[]) => void
 
-interface MethodDecoratorType<T extends DecoratorMethodType> {
+export interface MethodDecoratorType<T extends DecoratorMethodType> {
   (...name: Parameters<OmitFirstAndSecondArg<T>>): ClassDecorator
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor): void
   (constructor: Function): void
@@ -29,7 +29,6 @@ const generateClassMethodDecorator =
           },
           ...args
         )
-        context.invocation = undefined
         return ret
       }
     } else {
@@ -53,7 +52,6 @@ const generateClassMethodDecorator =
               },
               ...args
             )
-            context.invocation = undefined
             return ret
           }
           Object.defineProperty(constructor.prototype, name, descriptor)

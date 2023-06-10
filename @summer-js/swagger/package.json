@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/swagger",
-	"version": "0.1.6",
+	"version": "0.1.8",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
@@ -9,7 +9,7 @@
 		"index.html"
 	],
 	"dependencies": {
-		"swagger-ui-dist": "^4.14.0"
+		"swagger-ui-dist": "^4.19.0"
 	},
 	"scripts": {
 		"build": "tsc",

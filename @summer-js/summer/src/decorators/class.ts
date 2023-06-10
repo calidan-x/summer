@@ -23,7 +23,6 @@ const generateClassDecorator =
             },
             ...args
           )
-          context.invocation = undefined
           return ret
         }
         Object.defineProperty(constructor.prototype, name, descriptor)

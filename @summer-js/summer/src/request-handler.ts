@@ -337,8 +337,25 @@ const patchRequestHeader = (ctx: Context, lCaseHeaders?: Record<string, string>)
   })
 }
 
+export type TraceFunction = (info: {
+  context: Context
+  startTimestamp: number
+  endTimestamp: number
+  error: Error | null
+}) => void
+let traceFunction: TraceFunction | null = null
+export const traceRequest = (traceCallback: TraceFunction) => {
+  traceFunction = traceCallback
+}
+
 export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<string, string>) => {
   await asyncLocalStorage.run(ctx, async () => {
+    let startTimestamp = 0
+    let traceError = null
+    if (traceFunction) {
+      startTimestamp = Date.now()
+    }
+
     try {
       patchRequestHeader(ctx, lowerCaseHeaders)
       decodeQuery(ctx)
@@ -378,6 +395,9 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
       } else {
         Logger.error(err)
         makeServerError(ctx)
+      }
+      if (traceFunction) {
+        traceError = err
       }
     }
 
@@ -424,6 +444,20 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
         Logger.error('Unhandled request response, this error may cause by middleware missing await for next()')
       }
       makeServerError(ctx)
+    }
+
+    if (traceFunction) {
+      try {
+        await traceFunction({
+          context:
+            parseInt(process.version.substring(1)) >= 17 ? structuredClone(ctx) : JSON.parse(JSON.stringify(ctx)),
+          startTimestamp,
+          endTimestamp: Date.now(),
+          error: traceError
+        })
+      } catch (e) {
+        Logger.error(e)
+      }
     }
 
     // compression

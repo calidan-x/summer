@@ -131,6 +131,10 @@ export const summerDestroy = async () => {
   }
 }
 
-process.on('unhandledRejection', function onError(err) {
-  Logger.error('Unhandled Rejection', err)
+process.on('unhandledRejection', (reason) => {
+  Logger.error('Unhandled Rejection', reason)
+})
+
+process.on('uncaughtException', (err) => {
+  Logger.error('Uncaught Exception', err)
 })
