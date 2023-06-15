@@ -553,9 +553,17 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
           type: 'file'
         }
       } else if (d0 === Date) {
-        schemeDesc = {
-          type: typeof new Date(2000, 0, 1).toJSON() === 'number' ? 'integer' : 'string',
-          example: new Date(2000, 0, 1).toJSON()
+        if (isRequest) {
+          schemeDesc = {
+            type: 'string',
+            example: '2000-01-01'
+          }
+        } else {
+          const isNumber = typeof new Date(2000, 0, 1).toJSON() === 'number'
+          schemeDesc = {
+            type: isNumber ? 'integer' : 'string',
+            example: isNumber ? new Date(2000, 0, 1).toJSON() : '2000-01-01'
+          }
         }
       } else if (d0 === _Int || d0 === Number || d0 === BigInt) {
         schemeDesc = {

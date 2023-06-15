@@ -207,13 +207,13 @@ export const data = {
                     description: '',
                     required: ['a', 'b']
                   },
-                  date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                  date: { type: 'string', example: '2000-01-01' },
                   g: {
                     type: 'object',
                     properties: {
                       a: { type: 'number' },
                       b: { type: 'string' },
-                      d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
+                      d: { type: 'string', example: '2000-01-01' }
                     },
                     description: '',
                     required: ['a', 'b', 'd']
@@ -223,7 +223,7 @@ export const data = {
                     properties: {
                       a: { type: 'boolean' },
                       b: { type: 'string' },
-                      d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
+                      d: { type: 'string', example: '2000-01-01' }
                     },
                     description: '',
                     required: ['a', 'b', 'd']
@@ -233,7 +233,7 @@ export const data = {
                     properties: {
                       a: { type: 'number' },
                       b: { type: 'string' },
-                      d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
+                      d: { type: 'string', example: '2000-01-01' }
                     },
                     description: '',
                     required: ['a', 'b', 'd']
@@ -273,13 +273,13 @@ export const data = {
                       properties: { a: { type: 'number' }, b: { type: 'string' } },
                       description: ''
                     },
-                    date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                    date: { type: 'string', example: '2000-01-01' },
                     g: {
                       type: 'object',
                       properties: {
                         a: { type: 'number' },
                         b: { type: 'string' },
-                        d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
+                        d: { type: 'string', example: '2000-01-01' }
                       },
                       description: ''
                     },
@@ -288,7 +288,7 @@ export const data = {
                       properties: {
                         a: { type: 'boolean' },
                         b: { type: 'string' },
-                        d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
+                        d: { type: 'string', example: '2000-01-01' }
                       },
                       description: ''
                     },
@@ -297,7 +297,7 @@ export const data = {
                       properties: {
                         a: { type: 'number' },
                         b: { type: 'string' },
-                        d: { type: 'string', example: '1999-12-31T16:00:00.000Z' }
+                        d: { type: 'string', example: '2000-01-01' }
                       },
                       description: ''
                     },
@@ -629,17 +629,17 @@ export const data = {
                   number: { type: 'number' },
                   int: { type: 'integer' },
                   boolean: { type: 'boolean' },
-                  Date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                  Date: { type: 'string', example: '2000-01-01' },
                   stringArray: { type: 'array', items: { type: 'string' } },
                   intArray: { type: 'array', items: { type: 'integer' } },
                   numberArray: { type: 'array', items: { type: 'number' } },
                   booleanArray: { type: 'array', items: { type: 'boolean' } },
-                  DateArray: { type: 'array', items: { type: 'string', example: '1999-12-31T16:00:00.000Z' } },
+                  DateArray: { type: 'array', items: { type: 'string', example: '2000-01-01' } },
                   stringOptional: { type: 'string' },
                   numberOptional: { type: 'number' },
                   intOptional: { type: 'integer' },
                   booleanOptional: { type: 'boolean' },
-                  DateOptional: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                  DateOptional: { type: 'string', example: '2000-01-01' },
                   obj: {
                     type: 'object',
                     properties: {
@@ -822,17 +822,17 @@ export const data = {
                     number: { type: 'number' },
                     int: { type: 'integer' },
                     boolean: { type: 'boolean' },
-                    Date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                    Date: { type: 'string', example: '2000-01-01' },
                     stringArray: { type: 'array', items: { type: 'string' } },
                     intArray: { type: 'array', items: { type: 'integer' } },
                     numberArray: { type: 'array', items: { type: 'number' } },
                     booleanArray: { type: 'array', items: { type: 'boolean' } },
-                    DateArray: { type: 'array', items: { type: 'string', example: '1999-12-31T16:00:00.000Z' } },
+                    DateArray: { type: 'array', items: { type: 'string', example: '2000-01-01' } },
                     stringOptional: { type: 'string' },
                     numberOptional: { type: 'number' },
                     intOptional: { type: 'integer' },
                     booleanOptional: { type: 'boolean' },
-                    DateOptional: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                    DateOptional: { type: 'string', example: '2000-01-01' },
                     obj: {
                       type: 'object',
                       properties: {
@@ -909,17 +909,17 @@ export const data = {
                       number: { type: 'number' },
                       int: { type: 'integer' },
                       boolean: { type: 'boolean' },
-                      Date: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                      Date: { type: 'string', example: '2000-01-01' },
                       stringArray: { type: 'array', items: { type: 'string' } },
                       intArray: { type: 'array', items: { type: 'integer' } },
                       numberArray: { type: 'array', items: { type: 'number' } },
                       booleanArray: { type: 'array', items: { type: 'boolean' } },
-                      DateArray: { type: 'array', items: { type: 'string', example: '1999-12-31T16:00:00.000Z' } },
+                      DateArray: { type: 'array', items: { type: 'string', example: '2000-01-01' } },
                       stringOptional: { type: 'string' },
                       numberOptional: { type: 'number' },
                       intOptional: { type: 'integer' },
                       booleanOptional: { type: 'boolean' },
-                      DateOptional: { type: 'string', example: '1999-12-31T16:00:00.000Z' },
+                      DateOptional: { type: 'string', example: '2000-01-01' },
                       obj: {
                         type: 'object',
                         properties: {
