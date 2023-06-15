@@ -131,7 +131,7 @@ const md5 = (str: string) => {
 }
 
 const swaggerJson: SwaggerDoc = {
-  openapi: '3.0.3',
+  openapi: '3.1.0',
   docPath: '',
   info: { title: '', version: '' },
   tags: [],
@@ -828,6 +828,18 @@ export class SummerSwaggerUIController {
             } else if (ptype === 'object') {
               schema = {
                 ...getTypeDesc(d0, d2, true)
+              }
+            } else if (typeof d0 === 'object') {
+              let isStringEnum = true
+              for (const k in d0) {
+                if (typeof d0[k] === 'number') {
+                  isStringEnum = false
+                  break
+                }
+              }
+              schema = {
+                type: 'string',
+                enum: isStringEnum ? Object.keys(d0) : Object.keys(d0).filter((key) => typeof d0[key] === 'number')
               }
             } else {
               parameter.schema = { type }

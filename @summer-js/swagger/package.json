@@ -9,7 +9,7 @@
 		"index.html"
 	],
 	"dependencies": {
-		"swagger-ui-dist": "^4.19.0"
+		"swagger-ui-dist": "^5.0.0"
 	},
 	"scripts": {
 		"build": "tsc",
