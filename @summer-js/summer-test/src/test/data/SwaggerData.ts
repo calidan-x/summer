@@ -1,5 +1,5 @@
 export const data = {
-  openapi: '3.0.3',
+  openapi: '3.1.0',
   info: { title: 'Summer', version: '1.0.0' },
   tags: [
     { name: 'Person相关服务', description: '' },
