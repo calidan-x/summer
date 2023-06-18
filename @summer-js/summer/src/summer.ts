@@ -13,10 +13,10 @@ import { scheduledTask } from './scheduled-tasks'
 const printSummerInfo = () => {
   const isSummerTesting = process.env.SUMMER_TESTING !== undefined
   if (!isSummerTesting) {
-    console.log(`
-🔆SUMMER Ver ${SUMMER_VERSION}    \n
--------------------\n`)
-    SUMMER_ENV && console.log(`ENV: ${SUMMER_ENV}\n`)
+    console.log(`　
+🔆SUMMER Ver ${SUMMER_VERSION}    \n　
+-------------------\n　`)
+    SUMMER_ENV && console.log(`ENV: ${SUMMER_ENV}\n　`)
   }
 }
 
