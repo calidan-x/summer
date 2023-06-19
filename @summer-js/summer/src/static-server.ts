@@ -70,7 +70,7 @@ export const handleStaticRequest = (requestPath: string): StaticResult | null =>
 
         if (requestFile) {
           const mineType = mine.getType(path.extname(requestFile).replace('.', ''))
-          const headers = { 'Cache-Control': 'max-age=2592000' }
+          const headers = { 'Cache-Control': 'max-age=3600' }
           if (mineType) {
             headers['Content-Type'] = mineType
           }

@@ -36,7 +36,7 @@
       }
 
       .panel {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: sans-serif;
         width: 250px;
         height: 100px;
         text-align: center;
@@ -56,6 +56,7 @@
       }
 
       .panel button {
+        font-family: sans-serif;
         margin-top: 5px;
         cursor: pointer;
         background-color: #4990e2;
@@ -68,12 +69,64 @@
       .panel button:active {
         background-color: #316198;
       }
+
+      #loading {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .lds-ring {
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+      }
+
+      .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        border: 4px solid #d3d3d3;
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: #d3d3d3 transparent transparent transparent;
+      }
+      .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+      }
+      .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+      }
+      .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+      }
+      @keyframes lds-ring {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
   </head>
 
   <body>
     <div id="swagger-ui"></div>
-
+    <div id="loading">
+      <div class="lds-ring">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
     <script src="swagger-res/swagger-ui-bundle.js" charset="UTF-8"></script>
     <script src="swagger-res/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
     <script>
@@ -81,8 +134,20 @@
         var xhttp = new XMLHttpRequest()
         xhttp.onreadystatechange = function () {
           if (this.readyState == 4 && this.status == 200) {
+            document.getElementById('loading').style.display = 'none'
             if (this.responseText === '') {
               document.getElementById('mask').style.display = 'block'
+            } else {
+              const ui = SwaggerUIBundle({
+                //{{URLS}}
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+                plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+                layout: 'StandaloneLayout',
+                validatorUrl: 'none'
+              })
+              window.ui = ui
             }
           }
         }
@@ -91,15 +156,7 @@
       }
 
       window.onload = function () {
-        const ui = SwaggerUIBundle({
-          //{{URLS}}
-          dom_id: '#swagger-ui',
-          deepLinking: true,
-          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-          plugins: [SwaggerUIBundle.plugins.DownloadUrl],
-          layout: 'StandaloneLayout'
-        })
-        window.ui = ui
+        checkPassword()
       }
 
       function setCookie(cname, cvalue) {
@@ -110,8 +167,6 @@
         setCookie('password', document.getElementById('access-password').value)
         setTimeout('location.reload()', 500)
       }
-
-      checkPassword()
     </script>
     <div class="mask" id="mask">
       <div class="panel">

@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import zlib from 'zlib'
 import { Readable } from 'stream'
 
 import { Context, StreamingData, requestHandler } from './request-handler'
@@ -9,6 +8,7 @@ import { getEnvConfig } from './config-handler'
 import { getInitContextData, ServerConfig } from './http-server'
 import { parseBody } from './body-parser'
 import { startOptions, summerInit } from './summer'
+import { getGZipData } from './utils'
 
 export const getServerType = () => {
   let serverType: 'Normal' | 'AWSLambda' | 'AliFC' = 'Normal'
@@ -16,18 +16,6 @@ export const getServerType = () => {
     serverType = 'AWSLambda'
   }
   return serverType
-}
-
-const getGZipData = async (data: string): Promise<string> => {
-  return new Promise((resolve, rejected) => {
-    zlib.gzip(data, function (error, gzippedResponse) {
-      if (error) {
-        rejected(error)
-      } else {
-        resolve(gzippedResponse.toString('base64'))
-      }
-    })
-  })
 }
 
 // Serverless
@@ -70,8 +58,10 @@ export const handler = async (...args) => {
         }
 
         if (staticHandleResult.filePath) {
-          if (['.css', '.js', '.txt'].includes(path.extname(staticHandleResult.filePath))) {
-            resData.body = await getGZipData(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }))
+          if (['.css', '.js', '.txt', '.html'].includes(path.extname(staticHandleResult.filePath))) {
+            resData.body = (
+              await getGZipData(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }))
+            ).toString('base64')
             resData.headers['Content-Encoding'] = 'gzip'
           } else {
             resData.body = fs.readFileSync(staticHandleResult.filePath, { encoding: 'base64' })

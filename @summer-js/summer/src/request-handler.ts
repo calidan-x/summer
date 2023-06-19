@@ -56,7 +56,7 @@ export class StreamingData {
 
 export interface ResponseContext {
   statusCode: number
-  headers: Record<string, string | string[]>
+  headers: Record<string, string>
   body: any
 }
 
@@ -465,8 +465,10 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
     if (serverConfig.compression && serverConfig.compression.enable) {
       const contentType = ctx.response.headers['Content-Type']
       if (
-        !ctx.response.headers['Content-Encoding'] &&
-        (contentType.includes('application/json') || contentType.includes('text/html'))
+        (!ctx.response.headers['Content-Encoding'] &&
+          (contentType.includes('application/json') || contentType.includes('text/html'))) ||
+        contentType.includes('text/css') ||
+        contentType.includes('application/javascript')
       ) {
         if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
           ctx.response.body = await zip(ctx.response.body)

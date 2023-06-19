@@ -3,11 +3,12 @@ import cluster from 'node:cluster'
 import os from 'node:os'
 import fs from 'fs'
 import url from 'url'
+import path from 'path'
 
 import { Logger } from './logger'
 import { parseBody } from './body-parser'
 import { StreamingData, requestHandler } from './request-handler'
-import { Context } from './'
+import { Context, getGZipData } from './'
 import { handleStaticRequest } from './static-server'
 
 interface StaticConfig {
@@ -80,14 +81,25 @@ export const httpServer = {
 
     const staticHandleResult = handleStaticRequest(requestPath)
     if (staticHandleResult) {
-      res.writeHead(staticHandleResult.code, staticHandleResult.headers)
       if (staticHandleResult.filePath) {
-        fs.createReadStream(staticHandleResult.filePath)
-          .pipe(res)
-          .on('end', () => {
-            res.end()
-          })
+        let responseBody: Buffer | null = null
+        if (['.css', '.js', '.txt', '.html'].includes(path.extname(staticHandleResult.filePath))) {
+          responseBody = await getGZipData(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }))
+          staticHandleResult.headers['Content-Encoding'] = 'gzip'
+        }
+        res.writeHead(staticHandleResult.code, staticHandleResult.headers)
+        if (responseBody) {
+          res.write(responseBody)
+          res.end()
+        } else {
+          fs.createReadStream(staticHandleResult.filePath)
+            .pipe(res)
+            .on('end', () => {
+              res.end()
+            })
+        }
       } else {
+        res.writeHead(staticHandleResult.code, staticHandleResult.headers)
         res.end()
       }
       return
