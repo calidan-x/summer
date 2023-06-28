@@ -475,9 +475,13 @@ const getRequiredKeys = (t: any, isRequest: boolean) => {
   return requireKeys
 }
 
-const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
+const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean, deep = 0) => {
   if (getType(dType) !== 'object') {
     return { type: getType(dType) }
+  }
+
+  if (deep == 20) {
+    return { type: 'object' }
   }
 
   const typeDesc = {}
@@ -512,10 +516,10 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean) => {
       let propDescription = Reflect.getMetadata('Api:PropDescription', dType.prototype, key)
       let propExample = Reflect.getMetadata('Api:PropExample', dType.prototype, key)
       if (isArray) {
-        typeDesc[key] = { type: 'array', items: getTypeDesc(d0, typeParams, isRequest) }
+        typeDesc[key] = { type: 'array', items: getTypeDesc(d0, typeParams, isRequest, deep + 1) }
       } else {
         const typeParams = d2
-        typeDesc[key] = getTypeDesc(d0, typeParams, isRequest)
+        typeDesc[key] = getTypeDesc(d0, typeParams, isRequest, deep + 1)
       }
       if (propDescription) {
         typeDesc[key].description = propDescription

@@ -36,13 +36,15 @@ export class StreamingData {
   downloadFileName: string
 
   constructor(
-    filePathOrReadStream: string | Readable,
+    filePathOrReadStreamOrDataBuffer: string | Readable | Buffer,
     options: { contentType?: string; downloadFileName?: string } = {}
   ) {
-    if (typeof filePathOrReadStream === 'string') {
-      this.readable = fs.createReadStream(filePathOrReadStream)
+    if (typeof filePathOrReadStreamOrDataBuffer === 'string') {
+      this.readable = fs.createReadStream(filePathOrReadStreamOrDataBuffer)
+    } else if (filePathOrReadStreamOrDataBuffer instanceof Buffer) {
+      this.readable = Readable.from(filePathOrReadStreamOrDataBuffer)
     } else {
-      this.readable = filePathOrReadStream
+      this.readable = filePathOrReadStreamOrDataBuffer
     }
     const { contentType, downloadFileName } = options
     if (contentType) {
