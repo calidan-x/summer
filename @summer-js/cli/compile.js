@@ -784,7 +784,9 @@ const compile = async (compileAll = false) => {
   }
 
   if (compileAll) {
-    project.emitSync()
+    project.getSourceFiles().forEach((sf) => {
+      project.emitSync({ targetSourceFile: sf })
+    })
   } else {
     dirtyFiles.forEach((df) => {
       project.emitSync({ targetSourceFile: df })
