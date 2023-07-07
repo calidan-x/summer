@@ -3,7 +3,7 @@ import cluster from 'node:cluster'
 import { getServerType } from './serverless'
 import { SummerPlugin } from './index'
 import { httpServer } from './http-server'
-import { iocContainer } from './ioc'
+import { IocContainer } from './ioc'
 import { rpc } from './rpc'
 import { expireTimers, session } from './session'
 import { getEnvConfig } from './config-handler'
@@ -87,7 +87,7 @@ export const summerInit = async (options?: SummerStartOptions) => {
   }
   if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
     await httpServer.startServer(config['SERVER_CONFIG'], async () => {
-      await iocContainer.resolveLoc()
+      await IocContainer.resolveLoc()
       rpc.resolveRpc()
       for (const plugin of pluginIncs) {
         plugin.postInit && plugin.postInit(config[plugin.configKey])
@@ -96,7 +96,7 @@ export const summerInit = async (options?: SummerStartOptions) => {
       options && options.after && options.after(config)
     })
   } else {
-    await iocContainer.resolveLoc()
+    await IocContainer.resolveLoc()
     rpc.resolveRpc()
     for (const plugin of pluginIncs) {
       plugin.postInit && plugin.postInit(config[plugin.configKey])

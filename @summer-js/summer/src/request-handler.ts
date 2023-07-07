@@ -6,7 +6,7 @@ import { basename, extname } from 'path'
 import { gzip } from 'node:zlib'
 import { promisify } from 'node:util'
 import { getEnvConfig } from './config-handler'
-import { getInjectable, iocContainer } from './ioc'
+import { getInjectable, IocContainer } from './ioc'
 import { Logger } from './logger'
 import { middlewares } from './middleware'
 import { requestMapping } from './request-mapping'
@@ -84,7 +84,7 @@ export const matchPathMethod = (path: string, httpMethod: string) => {
     const methodData = routeData[httpMethod] || routeData['REQUEST']
     if (methodData) {
       return {
-        controller: iocContainer.getInstance(methodData.controllerClass),
+        controller: IocContainer.getInstance(methodData.controllerClass),
         ...methodData
       }
     }
@@ -104,7 +104,7 @@ export const matchPathMethod = (path: string, httpMethod: string) => {
             pathParams[pk] = decodeURIComponent(pathParamArray[inx + 1])
           })
           return {
-            controller: iocContainer.getInstance(methodData.controllerClass),
+            controller: IocContainer.getInstance(methodData.controllerClass),
             pathParams,
             ...methodData
           }

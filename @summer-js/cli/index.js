@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @ts-check
 
 import { exec, spawn } from 'child_process'
 import kill from 'tree-kill'
@@ -16,7 +17,7 @@ let spinner
 var copyRecursiveSync = function (src, dest) {
   var exists = fs.existsSync(src)
   var stats = exists && fs.statSync(src)
-  var isDirectory = exists && stats.isDirectory()
+  var isDirectory = exists && stats && stats.isDirectory()
   if (isDirectory) {
     fs.mkdirSync(dest)
     fs.readdirSync(src).forEach(function (childItemName) {
@@ -63,8 +64,7 @@ const printProcessData = (p) => {
     if (spinner.isSpinning) {
       spinner.stop()
     }
-    //@ts-ignore
-    process.stdout.write(data)
+    process.stdout.write(data.toString())
   })
 }
 
@@ -130,7 +130,7 @@ const build = (env, { fullSourceMap = false, external = [] }) => {
 }
 
 // name & version
-const packageInfo = JSON.parse(fs.readFileSync('./package.json'))
+const packageInfo = JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf8' }))
 program.version(packageInfo.version)
 
 // SERVE
@@ -151,7 +151,7 @@ program
         }
 
         compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile watch`)
-        compileProcess.stdout.on('data', (dataLines) => {
+        compileProcess.stdout?.on('data', (dataLines) => {
           dataLines.split('\n').forEach((data) => {
             if (data.trim().startsWith('COMPILE_START')) {
               clearScreen()
@@ -184,7 +184,7 @@ program
           })
         })
 
-        compileProcess.stderr.on('data', (data) => {
+        compileProcess.stderr?.on('data', (data) => {
           if (serveProcess) {
             kill(serveProcess.pid)
             serveProcess = null

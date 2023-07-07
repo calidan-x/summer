@@ -1,10 +1,9 @@
-import { Config, Controller, Get, PostConstruct } from '@summer-js/summer'
+import { Controller, EnvConfig, Get, PostConstruct } from '@summer-js/summer'
 import { TestService2 } from '@/test/service'
 
-@Controller('/loc')
+@Controller('/ioc')
 export class LocController {
-  @Config('POST_CONSTRUCT_CONFIG')
-  config
+  config: EnvConfig<'POST_CONSTRUCT_CONFIG'>
 
   testService2: TestService2
 

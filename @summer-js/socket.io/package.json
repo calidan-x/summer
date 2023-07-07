@@ -1,11 +1,11 @@
 {
 	"name": "@summer-js/socket.io",
-	"version": "0.1.11",
+	"version": "0.1.12",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
 	"devDependencies": {
-		"socket.io": "4.6.1"
+		"socket.io": "^4.7.1"
 	},
 	"scripts": {
 		"build": "tsc",

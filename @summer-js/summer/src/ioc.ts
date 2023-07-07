@@ -6,7 +6,7 @@ export interface Class<T> extends Function {
   new (...args: any[]): T
 }
 
-export const iocContainer = {
+export const IocContainer = {
   iocClass: [],
   iocInstanceMap: new WeakMap(),
   generateFunction: new WeakMap(),
@@ -62,10 +62,6 @@ export const iocContainer = {
   pendingIocClass(clazz: any) {
     if (!this.iocClass.includes(clazz)) {
       this.iocClass.push(clazz)
-      // auto injection
-      Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
-        iocContainer.pendingInject(clazz.prototype, key, true)
-      })
     }
   },
 
@@ -90,6 +86,11 @@ export const iocContainer = {
   },
   instanceIocClasses() {
     this.iocClass.forEach((clazz: any) => {
+      // auto injection
+      Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
+        IocContainer.pendingInject(clazz.prototype, key, true)
+      })
+
       const classParams = Reflect.getMetadata('design:paramtypes', clazz)
       if (!classParams || (classParams && classParams.length === 0)) {
         const generateFunction = this.generateFunction.get(clazz)
@@ -195,12 +196,12 @@ export const iocContainer = {
 }
 
 export const getInjectable = <T>(clazz: Class<T>, params: any[] = []): T => {
-  return iocContainer.getInstance(clazz, params)
+  return IocContainer.getInstance(clazz, params)
 }
 
 export const addInjectable = <T>(clazz: Class<T>, generateFunction?: (...params: any[]) => any) => {
-  iocContainer.pendingIocClass(clazz)
+  IocContainer.pendingIocClass(clazz)
   if (generateFunction) {
-    iocContainer.generateFunction.set(clazz, generateFunction)
+    IocContainer.generateFunction.set(clazz, generateFunction)
   }
 }

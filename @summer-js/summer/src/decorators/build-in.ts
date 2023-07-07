@@ -1,3 +1,4 @@
+import { Context } from 'node:vm'
 import { restfulMethodDecorator } from './method'
 import { createParamDecorator } from './param'
 import { createPropertyDecorator } from './property'
@@ -11,23 +12,31 @@ export const Delete = restfulMethodDecorator('DELETE')
 export const Request = restfulMethodDecorator('REQUEST')
 
 // params
-export const Ctx = createParamDecorator((ctx) => ctx)
+export const Ctx = createParamDecorator((ctx: Context) => ctx)
 
-export const _bodyConvertFunc = (ctx) => ctx.request.body
+export const _bodyConvertFunc = (ctx: Context) => {
+  if (ctx.request.headers['Content-Type'] === 'application/json') {
+    return JSON.parse(ctx.request.body)
+  }
+  return ctx.request.body
+}
 export const Body = createParamDecorator(_bodyConvertFunc)
 
-export const _queriesConvertFunc = (ctx) => ctx.request.queries
+export const _queriesConvertFunc = (ctx: Context) => ctx.request.queries
 export const Queries = createParamDecorator(_queriesConvertFunc)
 
-export const _queryConvertFunc = (ctx, paramName: string, name: string) => ctx.request.queries[name || paramName]
+export const _queryConvertFunc = (ctx: Context, paramName: string, name: string) =>
+  ctx.request.queries[name || paramName]
 export const Query = createParamDecorator(_queryConvertFunc)
 
-export const _pathParamConvertFunc = (ctx, paramName: string, name: string) => ctx.request.pathParams[name || paramName]
+export const _pathParamConvertFunc = (ctx: Context, paramName: string, name: string) =>
+  ctx.request.pathParams[name || paramName]
 export const PathParam = createParamDecorator(_pathParamConvertFunc)
 
 // export const Session = createParamDecorator((ctx) => ctx.session)
 
-export const _headerConvertFunc = (ctx, paramName: string, name: string) => ctx.request.headers[name || paramName]
+export const _headerConvertFunc = (ctx: Context, paramName: string, name: string) =>
+  ctx.request.headers[name || paramName]
 export const Header = createParamDecorator(_headerConvertFunc)
 
 // export const _headersConvertFunc = (ctx) => ctx.request.headers
@@ -36,7 +45,7 @@ export const Header = createParamDecorator(_headerConvertFunc)
 // export const Cookie = createParamDecorator((ctx, paramName: string, name: string) =>
 //   ctx.cookies ? ctx.cookies[name || paramName] : undefined
 // )
-export const RequestPath = createParamDecorator((ctx) => ctx.request.path)
+export const RequestPath = createParamDecorator((ctx: Context) => ctx.request.path)
 
 // property
 ;(global as any)._EnvConfig = createPropertyDecorator(async (config, _propertyName, configKey?: string) => {

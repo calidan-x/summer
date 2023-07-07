@@ -5,7 +5,7 @@ import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
-import { Project, ClassDeclaration, EnumDeclaration } from 'ts-morph'
+import { Project, ClassDeclaration, SourceFile } from 'ts-morph'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -24,7 +24,7 @@ const project = new Project({
   tsConfigFilePath: './tsconfig.json'
 })
 
-const slash = (path) => {
+const slash = (/** @type {string} */ path) => {
   const isExtendedLengthPath = /^\\\\\?\\/.test(path)
   const hasNonAscii = /[^\u0000-\u0080]+/.test(path)
   if (isExtendedLengthPath || hasNonAscii) {
@@ -53,7 +53,12 @@ const TypeMapping = {
   void: '[]'
 }
 
-const getAllReferencingSourceFiles = (sf, allRefFiles, refreshFiles, deep = 0) => {
+const getAllReferencingSourceFiles = (
+  /** @type {SourceFile} */ sf,
+  /** @type {SourceFile[]} */ allRefFiles,
+  /** @type {SourceFile[]} */ refreshFiles,
+  deep = 0
+) => {
   if (!sf) {
     return
   }
@@ -89,7 +94,7 @@ const getAllReferencingSourceFiles = (sf, allRefFiles, refreshFiles, deep = 0) =
   }
 }
 
-const addFileImport = (typeString, clazz) => {
+const addFileImport = (/** @type {string} */ typeString, /** @type {ClassDeclaration} */ clazz) => {
   if (typeString && typeString.indexOf('import("') >= 0) {
     let statement = ''
     while (true) {
@@ -123,23 +128,20 @@ const addFileImport = (typeString, clazz) => {
     }
 
     if (statement) {
-      clazz
-        .getSourceFile()
-        .getImportDeclarations()[0]
-        .replaceWithText(statement + clazz.getSourceFile().getImportDeclarations()[0].getText())
+      clazz.getSourceFile().addStatements(statement)
     }
   }
 }
 
 let ALLTypeMapping = {}
-const addPropDecorator = (cls) => {
+const addPropDecorator = (/** type @type {ClassDeclaration} */ cls) => {
   if (!cls) {
     return
   }
 
   ALLTypeMapping = { ...TypeMapping }
-
-  const typeParameters = cls.getTypeParameters().map((tp) => tp.getText(cls))
+  let statements = ''
+  const typeParameters = cls.getTypeParameters().map((tp) => tp.getText())
   cls.getProperties().forEach((p) => {
     let type = getDeclareType(p.getText(), p, undefined, typeParameters)
     const pendingDecorators = []
@@ -175,15 +177,13 @@ const addPropDecorator = (cls) => {
     }
 
     if (pendingDecorators.length) {
-      modifyActions.push(() => {
-        let decoratorText = ''
-        pendingDecorators.forEach((d) => {
-          decoratorText += `@${d.name}(${d.arguments.join(',')}) `
-        })
-        p.replaceWithText(decoratorText + p.getText())
+      pendingDecorators.forEach((d) => {
+        statements += `\n${d.name}(${d.arguments.join(',')})(${cls.getName()}.prototype,'${p.getName()}');`
       })
     }
   })
+
+  return statements
 }
 
 // [0, Array,[]]
@@ -191,7 +191,7 @@ const addPropDecorator = (cls) => {
 // [{e1:12,e2:33}, undefined,[]]
 // [["val1","val2"], undefined,[]]
 
-const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
+const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType, typeParams) => {
   // interface
   if (declareLine.startsWith(':{')) {
     return '[]'
@@ -340,9 +340,7 @@ const getDeclareType = (declareLine, parameter, paramType, typeParams) => {
   return type
 }
 
-let modifyActions = []
-
-const stripColor = (str) => {
+const stripColor = (/** @type {string} */ str) => {
   const isTerminal = process.env.TERM !== undefined
   if (isTerminal) {
     return str
@@ -350,8 +348,11 @@ const stripColor = (str) => {
   return str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, '')
 }
 
-const checkError = () => {
-  const diagnostics = project.getPreEmitDiagnostics()
+const checkError = (/** @type {SourceFile[]} */ updateFileList) => {
+  let diagnostics = []
+  for (const sf of updateFileList) {
+    diagnostics.push(...sf.getPreEmitDiagnostics())
+  }
   if (diagnostics.length > 0) {
     console.error(stripColor('\x1b[31mError compiling source code:\x1b[0m'))
     console.log(stripColor(project.formatDiagnosticsWithColorAndContext(diagnostics)))
@@ -464,7 +465,11 @@ let compiling = false
 let isFirstCompile = true
 const updateFileList = []
 const dirtyFiles = []
+/** @type {SourceFile[]} */
 let jsFiles = []
+/** @type {(()=>void)[]} */
+let modifyActions = []
+
 const compile = async (compileAll = false) => {
   compiling = true
   const pluginIncs = []
@@ -481,12 +486,16 @@ const compile = async (compileAll = false) => {
             dirtyFiles.push(sf)
           }
         } else {
-          getAllReferencingSourceFiles(sf, dirtyFiles, refreshFiles)
+          if (sf) {
+            getAllReferencingSourceFiles(sf, dirtyFiles, refreshFiles)
+          }
         }
       }
       if (updatePath.endsWith('.js') || updatePath.endsWith('.cjs') || updatePath.endsWith('.mjs')) {
         const sf = project.getSourceFile(path.resolve(updatePath))
-        jsFiles.push(sf)
+        if (sf) {
+          jsFiles.push(sf)
+        }
       }
     }
     if (['add'].includes(event)) {
@@ -512,7 +521,7 @@ const compile = async (compileAll = false) => {
     project.resolveSourceFileDependencies()
   }
 
-  if (checkError()) {
+  if (checkError(dirtyFiles)) {
     updateFileList.splice(0, updateFileList.length)
     isFirstCompile = false
     return
@@ -603,10 +612,12 @@ const compile = async (compileAll = false) => {
       continue
     }
 
+    let fileDataTypeStatement = ''
     for (const cls of sf.getClasses()) {
-      addPropDecorator(cls)
+      fileDataTypeStatement += addPropDecorator(cls)
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller') {
+          let returnTypeStatements = ''
           cls.getMethods().forEach((cMethod) => {
             if (cMethod.getDecorators().length > 0) {
               cMethod.getParameters().forEach((param) => {
@@ -623,6 +634,7 @@ const compile = async (compileAll = false) => {
                       arguments: []
                     })
                   }
+
                   modifyActions.push(() => {
                     param.addDecorators(decorators)
                   })
@@ -644,20 +656,10 @@ const compile = async (compileAll = false) => {
               returnTypeStr = returnType.getText(cls)
               const declareType = getDeclareType(':' + returnTypeStr, cls, returnType)
 
-              modifyActions.splice(0, 0, () => {
-                cMethod.addDecorator({
-                  name: '_ReturnDeclareType',
-                  arguments: [declareType]
-                })
-                cMethod.getChildren()[0].replaceWithText(
-                  cMethod
-                    .getChildren()[0]
-                    .getText()
-                    .replace(/\n[^\n]*@_ReturnDeclareType/g, ' @_ReturnDeclareType')
-                )
-              })
+              returnTypeStatements += `\n_ReturnDeclareType(${declareType})(${cls.getName()}.prototype,'${cMethod.getName()}');`
             }
           })
+          fileDataTypeStatement += returnTypeStatements
         } else if (classDecorator.getName() === 'RpcClient') {
           const pendingProperties = []
           const pendingMethods = []
@@ -692,6 +694,7 @@ const compile = async (compileAll = false) => {
               })
             }
           })
+
           modifyActions.push(() => {
             cls.addMethods(pendingMethods)
             pendingProperties.forEach((p) => {
@@ -709,6 +712,7 @@ const compile = async (compileAll = false) => {
                       arguments: [getDeclareType(param.getText(), param)]
                     }
                   ]
+
                   modifyActions.push(() => {
                     param.addDecorators(decorators)
                   })
@@ -726,6 +730,10 @@ const compile = async (compileAll = false) => {
         })
       }
     }
+
+    modifyActions.push(() => {
+      sf.getSourceFile().addStatements(fileDataTypeStatement)
+    })
     console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 150) / sourceFiles.length / 10).toFixed(0) + '% ]')
   }
 

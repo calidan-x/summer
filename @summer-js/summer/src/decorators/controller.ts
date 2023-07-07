@@ -1,4 +1,4 @@
-import { iocContainer } from '../ioc'
+import { IocContainer } from '../ioc'
 import { requestMappingAssembler } from '../request-mapping'
 
 interface ControllerDecoratorType {
@@ -13,12 +13,12 @@ export const Controller: ControllerDecoratorType = (...args: any[]) => {
   }
   if (typeof args[0] === 'string') {
     return (controllerClass: any) => {
-      iocContainer.pendingIocClass(controllerClass)
+      IocContainer.pendingIocClass(controllerClass)
       requestMappingAssembler.addControllerRoute(controllerClass.name, args[0])
       requestMappingAssembler.nextController()
     }
   } else {
-    iocContainer.pendingIocClass(args[0])
+    IocContainer.pendingIocClass(args[0])
     requestMappingAssembler.addControllerRoute(args[0].name, '')
     requestMappingAssembler.nextController()
   }

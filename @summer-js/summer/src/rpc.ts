@@ -3,7 +3,7 @@ import http from 'http'
 import { URL } from 'url'
 
 import { validateAndConvertType } from './validate-types'
-import { iocContainer } from './ioc'
+import { IocContainer } from './ioc'
 import { Logger } from './logger'
 
 interface RpcServerConfig {
@@ -44,7 +44,7 @@ export const rpc = {
   rpcInstance: {},
   addRpcClass(clazz: any) {
     this.rpcClass.push(clazz)
-    iocContainer.pendingIocClass(clazz)
+    IocContainer.pendingIocClass(clazz)
   },
   resolveRpc() {
     this.rpcClass.forEach((rc) => {

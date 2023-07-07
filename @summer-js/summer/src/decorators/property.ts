@@ -1,10 +1,10 @@
-import { iocContainer } from '../ioc'
+import { IocContainer } from '../ioc'
 import { OmitFirstAndSecondArg } from './utility'
 
 const generatePropertyDecorator =
   (decoratorMethod: any, ...args: any[]) =>
   (target: Object, propertyKey: string) => {
-    iocContainer.pendingAssign(target, propertyKey, decoratorMethod, args)
+    IocContainer.pendingAssign(target, propertyKey, decoratorMethod, args)
   }
 
 type DecoratorMethodType = (config: any, propertyName: string, ...args: any[]) => any

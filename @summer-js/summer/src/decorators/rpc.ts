@@ -1,4 +1,4 @@
-import { iocContainer } from '../ioc'
+import { IocContainer } from '../ioc'
 import { Logger } from './../logger'
 import { getEnvConfig } from './../config-handler'
 
@@ -22,7 +22,7 @@ export const RpcProvider: RpcProviderDecoratorType = (...args) => {
 
 export const RpcClient = (source: string, targetClass?: string) => {
   return (target: any) => {
-    iocContainer.pendingIocClass(target)
+    IocContainer.pendingIocClass(target)
     Object.getOwnPropertyNames(target.prototype).forEach((method) => {
       if (typeof target.prototype[method] === 'function' && method !== 'constructor') {
         target.prototype[method] = async (...args) => {

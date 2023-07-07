@@ -1,6 +1,6 @@
 import { Logger, SummerPlugin, addPlugin, getInjectable, getEnvConfig } from '@summer-js/summer'
 import { httpServer } from '@summer-js/summer/lib/http-server'
-import { addInjectable, iocContainer } from '@summer-js/summer/lib/ioc'
+import { addInjectable, IocContainer } from '@summer-js/summer/lib/ioc'
 import { validateAndConvertType, ValidateError } from '@summer-js/summer/lib/validate-types'
 import { Server, ServerOptions } from 'socket.io'
 
@@ -92,11 +92,11 @@ export class IO extends Server {}
 export const SocketIOController: ControllerDecoratorType = (...args: any[]) => {
   if (args.length === 0) {
     return (clazz: any) => {
-      iocContainer.pendingIocClass(clazz)
+      IocContainer.pendingIocClass(clazz)
       socketIOControllers.push(clazz)
     }
   } else {
-    iocContainer.pendingIocClass(args[0])
+    IocContainer.pendingIocClass(args[0])
     socketIOControllers.push(args[0])
   }
 }

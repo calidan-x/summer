@@ -1,6 +1,6 @@
 import { Logger } from '../logger'
 import { errorHandle } from '../error'
-import { iocContainer } from '../ioc'
+import { IocContainer } from '../ioc'
 
 interface ErrorHandlerType {
   (): ClassDecorator
@@ -12,7 +12,7 @@ export const ErrorHandler: ErrorHandlerType = (...args) => {
   const instanceHandler = (target) => {
     if (!errorHandle.errorHandlerClass) {
       errorHandle.errorHandlerClass = target
-      iocContainer.pendingIocClass(target)
+      IocContainer.pendingIocClass(target)
     } else {
       Logger.error('Duplicate ErrorHandler')
       process.exit()
