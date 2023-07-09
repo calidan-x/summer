@@ -852,7 +852,7 @@ if (watch) {
         const timeStart = Date.now()
         await compile()
         // console.log(' Compile Time: ' + (Date.now() - timeStart) / 1000 + 's\n')
-      }, 40)
+      }, 100)
     })
 } else {
   compile(true)
