@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // @ts-check
-import fs from 'fs'
+import fs, { unlink } from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
@@ -478,15 +478,13 @@ const compile = async (compileAll = false) => {
   console.log('COMPILE_START')
 
   for (const { event, updatePath } of updateFileList) {
-    if (['add', 'change'].includes(event)) {
+    if (['change', 'add'].includes(event)) {
       if (updatePath.endsWith('.ts')) {
         const sf = project.getSourceFile(path.resolve(updatePath))
-        if (isFirstCompile) {
-          if (sf) {
+        if (sf) {
+          if (isFirstCompile) {
             dirtyFiles.push(sf)
-          }
-        } else {
-          if (sf) {
+          } else {
             getAllReferencingSourceFiles(sf, dirtyFiles, refreshFiles)
           }
         }
@@ -500,16 +498,23 @@ const compile = async (compileAll = false) => {
     }
     if (['add'].includes(event)) {
       if (updatePath.endsWith('.ts')) {
-        project.addSourceFilesAtPaths(updatePath)
+        const sourceFiles = project.addSourceFilesAtPaths(updatePath)
+        if (!isFirstCompile) {
+          dirtyFiles.push(sourceFiles[0])
+        }
       }
     }
     if (['unlink'].includes(event)) {
       try {
         const unlinkSourceFile = project.getSourceFileOrThrow(updatePath)
         getAllReferencingSourceFiles(unlinkSourceFile, dirtyFiles, refreshFiles)
-        const inx = dirtyFiles.findIndex((sf) => sf === unlinkSourceFile)
+        let inx = dirtyFiles.findIndex((sf) => sf === unlinkSourceFile)
         dirtyFiles.splice(inx, 1)
+        inx = refreshFiles.findIndex((sf) => sf === unlinkSourceFile)
+        refreshFiles.splice(inx, 1)
         project.removeSourceFile(unlinkSourceFile)
+        fs.rmSync(updatePath.replace(/^src/, 'compile').replace(/\.ts$/, '.js'))
+        fs.rmSync(updatePath.replace(/^src/, 'compile').replace(/\.ts$/, '.js.map'))
       } catch (e) {}
     }
   }
@@ -785,10 +790,16 @@ const compile = async (compileAll = false) => {
 
   if (compileAll) {
     project.getSourceFiles().forEach((sf) => {
+      if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
+        return
+      }
       project.emitSync({ targetSourceFile: sf })
     })
   } else {
     dirtyFiles.forEach((df) => {
+      if (df.getFilePath().endsWith('.test.ts')) {
+        return
+      }
       project.emitSync({ targetSourceFile: df })
     })
     jsFiles.forEach((jf) => {
