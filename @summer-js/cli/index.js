@@ -14,6 +14,11 @@ const clearScreen = () => process.stdout.write(process.platform === 'win32' ? '\
 const isTerminal = process.stdout.isTTY
 let spinner
 
+const animation = {
+  interval: 80,
+  frames: ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘']
+}
+
 var copyRecursiveSync = function (src, dest) {
   var exists = fs.existsSync(src)
   var stats = exists && fs.statSync(src)
@@ -33,7 +38,7 @@ const printProcessData = (p) => {
     if (typeof dataLines === 'string') {
       let isProgressCommand = false
       dataLines.split('\n').forEach((data) => {
-        if (['COMPILE_START', 'COMPILE_DONE'].includes(data.toString().trim())) {
+        if (['COMPILE_START', 'COMPILE_DONE', 'COMPILE_INIT'].includes(data.toString().trim())) {
           isProgressCommand = true
           return
         } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
@@ -141,7 +146,9 @@ program
   .action((options) => {
     let compileProcess = null
     let serveProcess = null
-    spinner = ora('COMPILING...')
+    spinner = ora()
+    spinner.color = 'yellow'
+    spinner.spinner = animation
 
     const serve = () => {
       try {
@@ -153,8 +160,14 @@ program
         compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile watch`)
         compileProcess.stdout?.on('data', (dataLines) => {
           dataLines.split('\n').forEach((data) => {
-            if (data.trim().startsWith('COMPILE_START')) {
+            if (data.trim().startsWith('COMPILE_INIT')) {
               clearScreen()
+              spinner.text = 'INITING...'
+              spinner.start()
+            } else if (data.trim().startsWith('COMPILE_START')) {
+              if (spinner.text !== 'INITING...') {
+                clearScreen()
+              }
               spinner.text = 'COMPILING...'
               spinner.start()
               if (serveProcess) {
@@ -220,7 +233,9 @@ program
   .option('-e, --env [ENV_NAME]', '')
   .option('-- [JEST_OPTIONS]', '')
   .action((options) => {
-    spinner = ora('COMPILING...')
+    spinner = ora('INITING...')
+    spinner.color = 'yellow'
+    spinner.spinner = animation
     spinner.start()
     const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile test`)
     printProcessData(compileProcess)
@@ -251,7 +266,9 @@ program
   .option('-fsm, --fullSourceMap', '')
   .option('-ext, --external [NODE_MODULES]', '')
   .action((options) => {
-    spinner = ora('COMPILING...')
+    spinner = ora('INITING...')
+    spinner.color = 'yellow'
+    spinner.spinner = animation
     spinner.start()
     const compileProcess = exec(`cross-env SUMMER_ENV=${options.env} summer-compile`)
     printProcessData(compileProcess)

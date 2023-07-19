@@ -1,12 +1,11 @@
 {
 	"name": "summer-packages",
-	"version": "0.1.14",
+	"version": "0.1.15",
 	"description": "",
 	"scripts": {
 		"build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build && npm -w @summer-js/elasticsearch run build && npm -w @summer-js/redis run build && npm -w @summer-js/socket.io run build && npm -w @summer-js/graphql run build",
 		"test-all": "npm -w @summer-js/summer-test run test",
-		"pubulish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w @summer-js/elasticsearch run release && npm -w @summer-js/redis run release && npm -w @summer-js/socket.io run release && npm -w @summer-js/graphql run release && npm -w create-summer run release",
-		"unpublish-all": "npm unpublish create-summer@1.0.11"
+		"publish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w @summer-js/elasticsearch run release && npm -w @summer-js/redis run release && npm -w @summer-js/socket.io run release && npm -w @summer-js/graphql run release && npm -w create-summer run release"
 	},
 	"repository": {
 		"type": "git",

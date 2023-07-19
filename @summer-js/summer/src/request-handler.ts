@@ -448,18 +448,9 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
       makeServerError(ctx)
     }
 
+    let responseBody = ''
     if (traceFunction) {
-      try {
-        await traceFunction({
-          context:
-            parseInt(process.version.substring(1)) >= 17 ? structuredClone(ctx) : JSON.parse(JSON.stringify(ctx)),
-          startTimestamp,
-          endTimestamp: Date.now(),
-          error: traceError
-        })
-      } catch (e) {
-        Logger.error(e)
-      }
+      responseBody = ctx.response.body
     }
 
     // compression
@@ -477,6 +468,22 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
           ctx.response.headers['Content-Encoding'] = 'gzip'
         }
       }
+    }
+
+    if (traceFunction) {
+      setTimeout(async () => {
+        try {
+          ctx.response.body = responseBody
+          await traceFunction!({
+            context: ctx,
+            startTimestamp,
+            endTimestamp: Date.now(),
+            error: traceError
+          })
+        } catch (e) {
+          Logger.error(e)
+        }
+      })
     }
   })
 }

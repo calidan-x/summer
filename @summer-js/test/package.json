@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/test",
-	"version": "0.1.14",
+	"version": "0.1.15",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
@@ -10,7 +10,6 @@
 		"setup-jest.js"
 	],
 	"dependencies": {
-		"query-string": "^7.1.1",
 		"@types/jest": "^29.2.0",
 		"ts-jest": "^29.0.3",
 		"jest": "^29.2.2"

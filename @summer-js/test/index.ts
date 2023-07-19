@@ -1,7 +1,6 @@
 import { Context, requestHandler, waitForStart, summerDestroy } from '@summer-js/summer'
 import { unzipSync } from 'node:zlib'
 import { getInitContextData } from '@summer-js/summer/lib/http-server'
-import queryString from 'query-string'
 import merge from 'deepmerge'
 import path from 'path'
 
@@ -135,12 +134,9 @@ const sendRequest = async <T>(method: any, path: string, requestParams: FullRequ
 }
 
 const parseUrl = (requestPath: string) => {
-  const qInx = requestPath.indexOf('?')
-  if (qInx < 0 || requestPath.endsWith('?')) {
-    return { path: requestPath, queries: {} }
-  }
-  const queries = queryString.parse(requestPath.substring(qInx + 1, requestPath.length))
-  const path = requestPath.substring(0, qInx)
+  const url = new URL(requestPath, 'https://summerjs.dev')
+  const queries = Object.fromEntries(url.searchParams)
+  const path = url.pathname
   return { path, queries }
 }
 

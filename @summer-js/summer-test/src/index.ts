@@ -25,5 +25,15 @@ summerStart({
 })
 
 // traceRequest((info) => {
-//   console.log(info['sss'].sss!)
+//   console.log('-----')
+//   console.log(info.context)
 // })
+
+// codeCheck({
+//   controller() {},
+//   api() {}
+// })
+
+// 检查文件存放位置
+// 检查API命名
+// 检查类命名

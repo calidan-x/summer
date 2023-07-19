@@ -20,6 +20,7 @@ let PLUGINS = []
 fs.rmSync('./compile', { recursive: true, force: true })
 fs.mkdirSync('./compile')
 
+console.log('COMPILE_INIT')
 const project = new Project({
   tsConfigFilePath: './tsconfig.json'
 })
@@ -351,6 +352,9 @@ const stripColor = (/** @type {string} */ str) => {
 const checkError = (/** @type {SourceFile[]} */ updateFileList) => {
   let diagnostics = []
   for (const sf of updateFileList) {
+    if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
+      continue
+    }
     diagnostics.push(...sf.getPreEmitDiagnostics())
   }
   if (diagnostics.length > 0) {

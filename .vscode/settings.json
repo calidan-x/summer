@@ -1,4 +1,17 @@
 {
-  "cSpell.words": ["Autowired", "clazz", "deepmerge", "esbuild", "impt", "middlewares", "notype", "openapi"],
+  "cSpell.words": [
+    "Autowired",
+    "Calidan",
+    "clazz",
+    "deepmerge",
+    "esbuild",
+    "impt",
+    "INITING",
+    "middlewares",
+    "notype",
+    "openapi",
+    "ormconfig",
+    "outfile"
+  ],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

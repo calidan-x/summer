@@ -2,7 +2,6 @@ import http, { Server } from 'http'
 import cluster from 'node:cluster'
 import os from 'node:os'
 import fs from 'fs'
-import url from 'url'
 import path from 'path'
 
 import { Logger } from './logger'
@@ -76,7 +75,7 @@ export const httpServer = {
       }
     }
 
-    const urlObj = url.parse(req.url!, true)
+    const urlObj = new URL(req.url!, 'https://summerjs.dev')
     const requestPath = urlObj.pathname || '/'
 
     const staticHandleResult = handleStaticRequest(requestPath)
@@ -115,7 +114,7 @@ export const httpServer = {
         method: req.method as any,
         path: requestPath,
         pathParams: {},
-        queries: { ...urlObj.query } as any,
+        queries: { ...Object.fromEntries(urlObj.searchParams) } as any,
         headers: headers,
         body: bodyData
       },

@@ -374,15 +374,20 @@ export const ApiDoc = (summary: string, options: ControllerApiDoc = {}) => {
 }
 
 const findRoute = (controllerClass: any, callMethod: string) => {
+  const routes: {
+    path: string
+    requestMethod: string
+    params: any
+  }[] = []
   for (const path in requestMapping) {
     for (const requestMethod in requestMapping[path]) {
       const route = requestMapping[path][requestMethod]
       if (route.controllerClass === controllerClass && route.callMethod === callMethod) {
-        return { path, requestMethod, params: route.params }
+        routes.push({ path, requestMethod, params: route.params })
       }
     }
   }
-  return null
+  return routes
 }
 
 const findTag = (controllerClass: string) => {
@@ -739,9 +744,8 @@ export class SummerSwaggerUIController {
       if (apiCate !== category) {
         return
       }
-      const routeInfo = findRoute(api.controllerClass, api.callMethod)
-
-      if (routeInfo) {
+      const routeInfos = findRoute(api.controllerClass, api.callMethod)
+      for (const routeInfo of routeInfos) {
         const { path, requestMethod, params } = routeInfo
         let docPath = (path || '/').replace(/\/{2,}/g, '/')
         docPath = docPath.replace(/:([^/]+)/g, '{$1}')
@@ -936,14 +940,13 @@ export class SummerSwaggerUIController {
           schema.example = successResExample
         }
 
-        const route = findRoute(api.controllerClass, api.callMethod)!
         swaggerJson.paths[docPath][requestMethod.toLowerCase()] = {
           tags: [findTag(api.controllerClass)],
           summary: api.summary,
           description: api.description,
           deprecated: api.deprecated,
           security: security.length > 0 ? security : [],
-          operationId: md5(route.requestMethod + route.path).substring(0, 5),
+          operationId: md5(routeInfo.requestMethod + routeInfo.path).substring(0, 5),
           parameters,
           requestBody,
           responses: {
