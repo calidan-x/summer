@@ -7,7 +7,6 @@ import {
   ServerConfig,
   addPlugin,
   Logger,
-  Ctx,
   Context,
   ResponseError,
   Cookie,
@@ -684,7 +683,7 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean, deep = 0
 @Controller('/-summer-swagger-ui')
 export class SummerSwaggerUIController {
   @Get
-  redirect(@Ctx ctx: Context) {
+  redirect(@Context ctx: Context) {
     const serverConfig: ServerConfig = getEnvConfig('SERVER_CONFIG')
     ctx.response.statusCode = 301
     ctx.response.headers = {

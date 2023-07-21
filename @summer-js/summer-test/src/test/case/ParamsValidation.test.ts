@@ -409,11 +409,35 @@ describe('Controller Params Test', () => {
   })
 
   test('test Date', async () => {
-    const postBody = {
+    let postBody: any = {
       date: '2012-12-12T00:00:00.000Z'
     }
-    const result = await request.post('/request-key-validate/date', postBody)
+    let result = await request.post('/request-key-validate/date', postBody)
     expect(result.body).toStrictEqual(postBody)
+
+    postBody = {
+      date: '2012-12-12'
+    }
+    result = await request.post('/request-key-validate/date', postBody)
+    expect(result.body.date).toStrictEqual('2012-12-12T00:00:00.000Z')
+
+    postBody = {
+      date: 1355270400000
+    }
+    result = await request.post('/request-key-validate/date', postBody)
+    expect(result.body.date).toStrictEqual('2012-12-12T00:00:00.000Z')
+
+    postBody = {
+      date: '1355270400000'
+    }
+    result = await request.post('/request-key-validate/date', postBody)
+    expect(result.body.date).toStrictEqual('2012-12-12T00:00:00.000Z')
+
+    postBody = {
+      date: '1355270=400000'
+    }
+    result = await request.post('/request-key-validate/date', postBody)
+    expect(result.statusCode).toBe(400)
   })
 
   test('test generic', async () => {

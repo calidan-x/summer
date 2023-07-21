@@ -167,14 +167,27 @@ export const validateAndConvertType = (
       }
       break
     case Date:
-      const timeStamp = Date.parse(propertyValue)
-      if (!timeStamp || isNaN(timeStamp)) {
+      if (typeof propertyValue === 'string') {
+        if (/^\d{13}$/.test(propertyValue)) {
+          value = new Date(parseInt(propertyValue))
+        } else {
+          const timeStamp = Date.parse(propertyValue)
+          if (!timeStamp || isNaN(timeStamp)) {
+            allErrors.push({
+              param: errorParam,
+              message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to Date'
+            })
+          } else {
+            value = new Date(timeStamp)
+          }
+        }
+      } else if (typeof propertyValue === 'number') {
+        value = new Date(propertyValue)
+      } else {
         allErrors.push({
           param: errorParam,
           message: 'error parsing ' + typeDisplayText(propertyValue, isFirstLevel) + ' to Date'
         })
-      } else {
-        value = new Date(timeStamp)
       }
       break
     case Boolean:

@@ -96,7 +96,7 @@ describe('Build-In Decorator Test', () => {
     expect(result.body).toEqual('Bodyhello')
   })
 
-  test('test @Ctx', async () => {
+  test('test @Context', async () => {
     const result = await request.get('/build-in-decorator/ctx')
     expect(result.body).toEqual('Ctx/build-in-decorator/ctx')
   })

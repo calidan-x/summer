@@ -11,7 +11,6 @@ import {
   Queries,
   Header,
   Context,
-  Ctx,
   Body,
   RequestPath,
   Session,
@@ -91,7 +90,7 @@ export class BuildInDecoratorTestController {
   }
 
   @Get('/ctx')
-  ctx(@Ctx context: Context) {
+  ctx(@Context context: Context) {
     return 'Ctx' + context.request.path
   }
 

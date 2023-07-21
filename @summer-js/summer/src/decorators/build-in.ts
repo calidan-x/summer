@@ -1,4 +1,4 @@
-import { Context } from 'node:vm'
+import { Context } from '../request-handler'
 import { restfulMethodDecorator } from './method'
 import { createParamDecorator } from './param'
 import { createPropertyDecorator } from './property'
@@ -12,11 +12,14 @@ export const Delete = restfulMethodDecorator('DELETE')
 export const Request = restfulMethodDecorator('REQUEST')
 
 // params
+/**
+ * @deprecated Please use '@Context'
+ */
 export const Ctx = createParamDecorator((ctx: Context) => ctx)
 
 export const _bodyConvertFunc = (ctx: Context) => {
   if (ctx.request.headers['Content-Type'] === 'application/json') {
-    return JSON.parse(ctx.request.body)
+    return JSON.parse(ctx.request.body!)
   }
   return ctx.request.body
 }
@@ -33,18 +36,10 @@ export const _pathParamConvertFunc = (ctx: Context, paramName: string, name: str
   ctx.request.pathParams[name || paramName]
 export const PathParam = createParamDecorator(_pathParamConvertFunc)
 
-// export const Session = createParamDecorator((ctx) => ctx.session)
-
 export const _headerConvertFunc = (ctx: Context, paramName: string, name: string) =>
   ctx.request.headers[name || paramName]
 export const Header = createParamDecorator(_headerConvertFunc)
 
-// export const _headersConvertFunc = (ctx) => ctx.request.headers
-// export const Headers = createParamDecorator(_headerConvertFunc)
-
-// export const Cookie = createParamDecorator((ctx, paramName: string, name: string) =>
-//   ctx.cookies ? ctx.cookies[name || paramName] : undefined
-// )
 export const RequestPath = createParamDecorator((ctx: Context) => ctx.request.path)
 
 // property

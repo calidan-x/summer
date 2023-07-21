@@ -18,6 +18,7 @@ import { rpc } from './rpc'
 import { OtherErrors, NotFoundError, ResponseError, ValidationError } from './error'
 import { errorHandle } from './error'
 import { ServerConfig } from './http-server'
+import { createParamDecorator } from './decorators'
 
 const zip = promisify(gzip)
 
@@ -73,6 +74,7 @@ export interface Context {
     params: any[]
   }
 }
+export const Context = createParamDecorator((ctx: Context) => ctx)
 
 export const asyncLocalStorage = new AsyncLocalStorage<Context>()
 

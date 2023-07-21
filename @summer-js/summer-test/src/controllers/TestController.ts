@@ -1,9 +1,9 @@
-import { Controller, Get } from '@summer-js/summer'
+import { Controller, Get, Query } from '@summer-js/summer'
 
 @Controller
 export class TestController {
   @Get
-  test() {
-    return 'test'
+  test(@Query date: Date) {
+    return date
   }
 }

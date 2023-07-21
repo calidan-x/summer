@@ -1,4 +1,4 @@
-import { Controller, Ctx, Get, Context } from '@summer-js/summer'
+import { Controller, Get, Context } from '@summer-js/summer'
 
 @Controller('/res-headers')
 export class CorsTestController {
@@ -13,7 +13,7 @@ export class CorsTestController {
   }
 
   @Get('/modify-return')
-  headerModifyReturn(@Ctx context: Context) {
+  headerModifyReturn(@Context context: Context) {
     context.response.headers['Content-Type'] = 'text/plain'
     return { a: 'a', b: 'b' }
   }
