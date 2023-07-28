@@ -357,6 +357,7 @@ const checkError = (/** @type {SourceFile[]} */ updateFileList) => {
     }
     diagnostics.push(...sf.getPreEmitDiagnostics())
   }
+
   if (diagnostics.length > 0) {
     console.error(stripColor('\x1b[31mError compiling source code:\x1b[0m'))
     console.log(stripColor(project.formatDiagnosticsWithColorAndContext(diagnostics)))
@@ -528,6 +529,16 @@ const compile = async (compileAll = false) => {
       sf.refreshFromFileSystemSync()
     }
     project.resolveSourceFileDependencies()
+  }
+
+  // for not dev mode
+  if (compileAll) {
+    project.getSourceFiles().forEach((sf) => {
+      if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
+        return
+      }
+      dirtyFiles.push(sf)
+    })
   }
 
   if (checkError(dirtyFiles)) {
@@ -792,25 +803,18 @@ const compile = async (compileAll = false) => {
     return
   }
 
-  if (compileAll) {
-    project.getSourceFiles().forEach((sf) => {
-      if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
-        return
-      }
-      project.emitSync({ targetSourceFile: sf })
-    })
-  } else {
-    dirtyFiles.forEach((df) => {
-      if (df.getFilePath().endsWith('.test.ts')) {
-        return
-      }
-      project.emitSync({ targetSourceFile: df })
-    })
-    jsFiles.forEach((jf) => {
-      project.emitSync({ targetSourceFile: jf })
-    })
-    jsFiles = []
-  }
+  dirtyFiles.forEach((df) => {
+    if (process.env.SUMMER_ENV !== 'test' && df.getFilePath().endsWith('.test.ts')) {
+      return
+    }
+    project.emitSync({ targetSourceFile: df })
+  })
+
+  jsFiles.forEach((jf) => {
+    project.emitSync({ targetSourceFile: jf })
+  })
+  jsFiles = []
+
   project.emitSync({ targetSourceFile: indexSourceFile })
   dirtyFiles.splice(0, dirtyFiles.length)
 
