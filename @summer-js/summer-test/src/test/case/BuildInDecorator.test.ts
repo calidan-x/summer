@@ -87,8 +87,11 @@ describe('Build-In Decorator Test', () => {
   })
 
   test('test @Queries', async () => {
-    const result = await request.get('/build-in-decorator/queries?id=123&name=Kate')
-    expect(result.body).toEqual('Query' + JSON.stringify({ id: '123', name: 'Kate' }))
+    let result = await request.get('/build-in-decorator/queries?ids=1,2,3&obj={"a":1,"b":2}')
+    expect(result.body).toEqual('Query' + JSON.stringify({ ids: [1, 2, 3], obj: { a: 1, b: 2 } }))
+
+    result = await request.get('/build-in-decorator/queries?ids=[3,2,1]&obj={"a":1,"b":2}')
+    expect(result.body).toEqual('Query' + JSON.stringify({ ids: [3, 2, 1], obj: { a: 1, b: 2 } }))
   })
 
   test('test @Body', async () => {

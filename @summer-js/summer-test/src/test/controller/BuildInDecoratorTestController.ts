@@ -17,6 +17,16 @@ import {
   Cookie
 } from '@summer-js/summer'
 
+export class Obj {
+  a: number
+  b: number
+}
+
+export class Q {
+  ids: number[]
+  obj: Obj
+}
+
 @Controller('/build-in-decorator')
 export class BuildInDecoratorTestController {
   @Get('/get')
@@ -75,7 +85,7 @@ export class BuildInDecoratorTestController {
   }
 
   @Get('/queries')
-  queries(@Queries queries: any) {
+  queries(@Queries queries: Q) {
     return 'Query' + JSON.stringify(queries)
   }
 

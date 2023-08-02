@@ -13,8 +13,7 @@ import {
   Pattern,
   Validate,
   Header,
-  Len,
-  IgnoreUnknownProperties
+  Len
 } from '@summer-js/summer'
 import { Dog } from '../../dto/request/Dog'
 
@@ -42,13 +41,7 @@ class BlankRequest {
   blankKey!: string
 }
 
-@IgnoreUnknownProperties
 class IgnoreUnknownProps {
-  a: number
-  b: string
-}
-
-class ValidateUnknownProps {
   a: number
   b: string
 }
@@ -238,11 +231,6 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/ignore-unknown-props')
   ignoreUnknownProp(@Body request: IgnoreUnknownProps) {
-    return request
-  }
-
-  @Post('/request-key-validate/validate-unknown-props')
-  validateUnknownProp(@Body request: ValidateUnknownProps) {
     return request
   }
 

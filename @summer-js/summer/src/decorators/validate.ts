@@ -20,11 +20,6 @@ interface ValidateDecoratorType {
   (target: any, propertyKey: string): void
 }
 
-interface ValidateDecoratorClassType {
-  (): ClassDecorator
-  (target: any): void
-}
-
 export const Max =
   (max: number, validateMessage?: ValidateMessage) =>
   (...arg) => {
@@ -97,15 +92,6 @@ const NotBlank: ValidateDecoratorType = (...args) => {
   }
 }
 ;(global as any)._NotBlank = NotBlank
-
-// @ts-ignore
-export const IgnoreUnknownProperties: ValidateDecoratorClassType = (...args) => {
-  if (args.length === 0) {
-    return (target: any) => Reflect.defineMetadata('ignoreUnknownProperties', true, target)
-  } else {
-    Reflect.defineMetadata('ignoreUnknownProperties', true, args[0])
-  }
-}
 
 export const Pattern =
   (regExp: RegExp, validateMessage?: ValidateMessage) =>

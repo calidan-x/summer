@@ -177,10 +177,6 @@ describe('Controller Params Test', () => {
     let result = await request.post('/request-key-validate/ignore-unknown-props', { a: 123, b: 'str', c: 100 })
     expect(result.statusCode).toBe(200)
     expect(result.body).toStrictEqual({ a: 123, b: 'str' })
-
-    result = await request.post('/request-key-validate/validate-unknown-props', { a: 123, b: 'str', c: 100 })
-    expect(result.statusCode).toBe(400)
-    expect(result.rawBody).toContain("'c' is not a valid key of")
   })
 
   test('test optional and required and empty key', async () => {

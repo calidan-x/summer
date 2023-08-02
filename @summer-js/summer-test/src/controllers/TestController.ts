@@ -1,10 +1,20 @@
-import { Controller, Get, Query } from '@summer-js/summer'
+import { Controller, Get, Queries } from '@summer-js/summer'
+
+class B {
+  a: number
+  b: number
+}
+
+export class DD {
+  ids: number[]
+  a: B
+}
 
 @Controller
 export class TestController {
   @Get
-  test(@Query date: Date) {
-    // const a = 1
-    return date
+  test(@Queries ids: DD) {
+    console.log(ids)
+    return ids
   }
 }

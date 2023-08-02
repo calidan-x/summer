@@ -263,12 +263,12 @@ export const validateAndConvertType = (
     case Array:
       let arrayValue: any = []
       try {
-        arrayValue = typeof propertyValue === 'string' && isFirstLevel ? JSON.parse(propertyValue) : propertyValue
-        if (typeof arrayValue === 'number' && typeof propertyValue === 'string' && isFirstLevel) {
+        arrayValue = typeof propertyValue === 'string' ? JSON.parse(propertyValue) : propertyValue
+        if (typeof arrayValue === 'number' && typeof propertyValue === 'string') {
           arrayValue = [arrayValue]
         }
       } catch (e) {
-        if ((d0 === _Int || d0 === Number) && typeof propertyValue === 'string' && isFirstLevel) {
+        if ((d0 === _Int || d0 === Number) && typeof propertyValue === 'string') {
           arrayValue = propertyValue.split(',')
         } else {
           allErrors.push({
@@ -279,6 +279,7 @@ export const validateAndConvertType = (
           break
         }
       }
+
       if (!Array.isArray(arrayValue)) {
         allErrors.push({
           param: errorParam,
@@ -346,29 +347,14 @@ export const validateAndConvertType = (
       } else {
         const allProperties: string[] = []
         let proto = d0
-        let ignoreUnknownProperties = false
         while (proto.name) {
-          if (Reflect.getMetadata('ignoreUnknownProperties', proto)) {
-            ignoreUnknownProperties = true
-          }
           allProperties.push(...Reflect.getOwnMetadataKeys(proto.prototype))
           proto = proto.__proto__
         }
 
-        if (!ignoreUnknownProperties) {
-          for (const k in objectValue) {
-            if (!allProperties.includes(k)) {
-              allErrors.push({
-                param: errorParam,
-                message: typeDisplayText(k, isFirstLevel) + ' is not a valid key of ' + d0.name
-              })
-            }
-          }
-        } else {
-          for (const k of Object.keys(objectValue)) {
-            if (!allProperties.includes(k)) {
-              delete objectValue[k]
-            }
+        for (const k of Object.keys(objectValue)) {
+          if (!allProperties.includes(k)) {
+            delete objectValue[k]
           }
         }
 
