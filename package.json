@@ -1,6 +1,6 @@
 {
 	"name": "summer-packages",
-	"version": "0.1.18",
+	"version": "0.1.19",
 	"description": "",
 	"scripts": {
 		"build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build && npm -w @summer-js/elasticsearch run build && npm -w @summer-js/redis run build && npm -w @summer-js/socket.io run build && npm -w @summer-js/graphql run build",
