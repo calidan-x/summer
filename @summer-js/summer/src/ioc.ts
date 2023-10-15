@@ -37,7 +37,7 @@ export const IocContainer = {
     const className = clazz.name
     if (params.length === 0) {
       if (this.iocInstanceMap.has(clazz)) {
-        Logger.error('Duplicate Class: ' + className)
+        Logger.error('Duplicated Class: ' + className)
         process.exit()
       }
       this.iocInstanceMap.set(clazz, instance)

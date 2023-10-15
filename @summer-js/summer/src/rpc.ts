@@ -54,7 +54,7 @@ export const rpc = {
   addRpcInstance(instance: object) {
     const className = instance.constructor.name
     if (this.rpcInstance[className]) {
-      Logger.error('Duplicate ClassName: ' + className)
+      Logger.error('Duplicated ClassName: ' + className)
       process.exit()
     }
     this.rpcInstance[className] = instance

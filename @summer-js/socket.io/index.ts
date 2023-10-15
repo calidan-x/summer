@@ -59,11 +59,13 @@ class SocketIOPlugin extends SummerPlugin {
             if (typeof controller[method] === 'function' && method !== 'constructor') {
               socket.on(controllerClass._$Events[method], async (data) => {
                 const declareTypes = Reflect.getMetadata('DeclareTypes', controller, method)
-                let dataDType = declareTypes[1]
                 const errors: ValidateError[] = []
                 let d = data
-                if (dataDType) {
-                  d = validateAndConvertType(dataDType, '', data, errors, method, 1, controller)
+                if (declareTypes) {
+                  const dataDType = declareTypes[1]
+                  if (dataDType) {
+                    d = validateAndConvertType(dataDType, '', data, errors, method, 1, controller)
+                  }
                 }
                 if (errors.length === 0) {
                   controller[method](socket, d)

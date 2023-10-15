@@ -22,7 +22,7 @@ export const requestMappingAssembler = {
   addMethodRoute(path: string, httpMethod: string, callMethod: string, controllerClass: Class<any>) {
     if (this.controllerRequestMapping[path] && this.controllerRequestMapping[path][httpMethod]) {
       Logger.error(
-        `Duplicate request routes: ${httpMethod} ${path || '/'} in ${controllerClass.name}.${callMethod}() and ${
+        `Duplicated request routes: ${httpMethod} ${path || '/'} in ${controllerClass.name}.${callMethod}() and ${
           this.controllerRequestMapping[path][httpMethod]['controllerName']
         }.${this.controllerRequestMapping[path][httpMethod]['callMethod']}()`
       )
@@ -52,7 +52,7 @@ export const requestMappingAssembler = {
       ;['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'REQUEST'].forEach((reqMethod) => {
         if (pathMappingData[reqMethod] && this.controllerRequestMapping[path][reqMethod]) {
           Logger.error(
-            `Duplicate request routes: ${reqMethod} ${fullPath || '/'} in ${JSON.stringify([
+            `Duplicated request routes: ${reqMethod} ${fullPath || '/'} in ${JSON.stringify([
               pathMappingData[reqMethod].controllerName,
               controllerName
             ])}`

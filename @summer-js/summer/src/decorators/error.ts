@@ -14,7 +14,7 @@ export const ErrorHandler: ErrorHandlerType = (...args) => {
       errorHandle.errorHandlerClass = target
       IocContainer.pendingIocClass(target)
     } else {
-      Logger.error('Duplicate ErrorHandler')
+      Logger.error('Duplicated ErrorHandler')
       process.exit()
     }
   }
