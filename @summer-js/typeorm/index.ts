@@ -117,18 +117,18 @@ export type TransactionOptions = { dataSourceName?: string }
 
 export const Transaction = createClassAndMethodDecorator(
   async (ctx, invokeMethod?, transactionOptions?: TransactionOptions) => {
-    await transaction(async () => {
-      await invokeMethod(ctx.invocation.params)
+    return await transaction(async () => {
+      return await invokeMethod(ctx.invocation.params)
     }, transactionOptions)
   }
 )
 
-export const transaction = async (exec: () => void, transactionOptions?: TransactionOptions) => {
+export const transaction = async (exec: () => any, transactionOptions?: TransactionOptions) => {
   const typeORMConfig = getEnvConfig('TYPEORM_CONFIG')
   const dataSource = getDataSource(transactionOptions?.dataSourceName || Object.keys(typeORMConfig)[0])
-  await dataSource.transaction(async (transactionManager) => {
-    await asyncLocalStorage.run(transactionManager, async () => {
-      await exec()
+  return await dataSource.transaction(async (transactionManager) => {
+    return await asyncLocalStorage.run(transactionManager, async () => {
+      return await exec()
     })
   })
 }

@@ -17,12 +17,7 @@ export class TodoService {
   }
 
   @Transaction
-  async addTransaction() {
-    let todo = new Todo()
-    todo.id = 111
-    todo.content = ''
-    todo.isDone = false
-    await this.todoRepository.save(todo)
-    throw new Error('error')
+  async test() {
+    return 'test'
   }
 }
