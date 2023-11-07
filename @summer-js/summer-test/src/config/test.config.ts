@@ -1,3 +1,4 @@
+import { RedisConfig } from '@summer-js/redis'
 import { SocketIOConfig } from '@summer-js/socket.io'
 import { SessionConfig, ServerConfig, RpcConfig } from '@summer-js/summer'
 import { SwaggerConfig } from '@summer-js/swagger'
@@ -61,3 +62,8 @@ export const MySQL = {
 }
 
 export const SOCKET_IO_CONFIG: SocketIOConfig = {}
+
+export const REDIS_CONFIG: RedisConfig = {
+  port: 6379,
+  host: '127.0.0.1'
+}

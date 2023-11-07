@@ -1,53 +1,60 @@
 import { Logger, SummerPlugin, addPlugin, addInjectable } from '@summer-js/summer'
 import IORedis, { RedisOptions } from 'ioredis'
 
-let redisClient: IORedis
-
 export type RedisConfig = RedisOptions | string
+// @ts-ignore
+export class RedisClient<ClientKey = 'default'> extends IORedis {}
 
 class Redis extends SummerPlugin {
   configKey = 'REDIS_CONFIG'
+  config: RedisOptions
+  redisClients: Record<string, IORedis> = {}
 
-  async init(config) {
-    if (config) {
-      await this.connect(config)
+  async init(_config) {
+    if (_config) {
+      this.config = _config
     }
-  }
-
-  async connect(options: RedisOptions) {
-    const isSummerTesting = process.env.SUMMER_TESTING !== undefined
-    redisClient = new IORedis(options)
-    await new Promise((resolve) => {
-      redisClient.on('connect', () => {
-        if (!isSummerTesting) {
-          Logger.info('Redis Connected')
-        }
-        resolve('')
-      })
-      redisClient.on('error', (message) => {
-        Logger.error(message)
-        resolve('')
-      })
+    addInjectable(RedisClient, async (key = 'default') => {
+      return await this.connectAndGetInstance(key)
     })
   }
 
-  async destroy() {
-    if (redisClient) {
-      try {
-        redisClient.disconnect()
-      } catch (e) {}
+  async connectAndGetInstance(key: string) {
+    if (this.config) {
+      const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+      let redisClient = this.redisClients[key]
+      if (!redisClient) {
+        redisClient = new IORedis(this.config)
+        this.redisClients[key] = redisClient
+        await new Promise((resolve) => {
+          redisClient.on('connect', () => {
+            if (!isSummerTesting) {
+              Logger.info(`Redis Client(${key}) Connected `)
+            }
+            resolve('')
+          })
+          redisClient.on('error', (message) => {
+            Logger.error(message)
+            resolve('')
+          })
+        })
+      }
+      return redisClient
     }
+    return null
+  }
+
+  async destroy() {
+    try {
+      for (const redisClient of Object.values(this.redisClients)) {
+        redisClient.disconnect()
+      }
+    } catch (e) {}
   }
 }
 
 addPlugin(Redis)
 export default Redis
-
-// @ts-ignore
-export class RedisClient extends IORedis {}
-addInjectable(RedisClient, () => {
-  return redisClient
-})
 
 /*
 interface LockOptions {

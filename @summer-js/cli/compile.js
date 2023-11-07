@@ -262,7 +262,7 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     return ALLTypeMapping[lowerCaseType]
   }
 
-  if (declareLine.indexOf('<') > 0) {
+  if (paramType.getText(parameter).indexOf('<') > 0) {
     const baseType = paramType.getText(parameter).replace(/<.+>/, '').replace('[]', '')
     const typeArgs = paramType
       .getTypeArguments()

@@ -13,7 +13,7 @@ export const IocContainer = {
   iocGenericInstanceMap: [],
   iocInstance: [],
   async resolveLoc() {
-    this.instanceIocClasses()
+    await this.instanceIocClasses()
     this.resolveInject()
     await this.resolveAssign()
   },
@@ -65,7 +65,7 @@ export const IocContainer = {
     }
   },
 
-  pendingInject(target: any, propertyKey: string, auto = false) {
+  pendingInject(target: any, propertyKey: string) {
     let [injectClass, array, genericParams] = Reflect.getMetadata('DeclareType', target, propertyKey)
     if (injectClass === undefined) {
       return
@@ -79,16 +79,14 @@ export const IocContainer = {
     }
     if (!target.$_pendingInject[propertyKey]) {
       target.$_pendingInject[propertyKey] = [injectClass, array, genericParams]
-      if (auto) {
-        target.$_autoInjectKeys.push(propertyKey)
-      }
+      target.$_autoInjectKeys.push(propertyKey)
     }
   },
-  instanceIocClasses() {
-    this.iocClass.forEach((clazz: any) => {
+  async instanceIocClasses() {
+    for (const clazz of this.iocClass) {
       // auto injection
       Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
-        IocContainer.pendingInject(clazz.prototype, key, true)
+        IocContainer.pendingInject(clazz.prototype, key)
       })
 
       const classParams = Reflect.getMetadata('design:paramtypes', clazz)
@@ -98,13 +96,14 @@ export const IocContainer = {
         if (!generateFunction) {
           instance = new clazz()
         } else {
-          instance = generateFunction()
+          instance = await generateFunction()
         }
         this.addInstance(clazz, [], instance)
       }
-    })
-    this.iocClass.forEach((clazz: any) => {
-      Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
+    }
+
+    for (const clazz of this.iocClass) {
+      for (const key of Reflect.getOwnMetadataKeys(clazz.prototype)) {
         let [injectClass, , genericParams] = Reflect.getMetadata('DeclareType', clazz.prototype, key)
         if (typeof injectClass === 'function' && injectClass.name === '') {
           injectClass = injectClass()
@@ -112,6 +111,7 @@ export const IocContainer = {
         genericParams = genericParams.map((p) => {
           return typeof p[0] === 'function' && !p[0].name ? p[0]() : p[0]
         })
+
         if (genericParams.length > 0) {
           if (this.iocClass.find((lc) => lc === injectClass)) {
             if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
@@ -119,13 +119,14 @@ export const IocContainer = {
               this.addInstance(
                 injectClass,
                 genericParams,
-                generateFunction ? generateFunction(...genericParams) : new injectClass(...genericParams)
+                generateFunction ? await generateFunction(...genericParams) : new injectClass(...genericParams)
               )
             }
           }
         }
-      })
-    })
+      }
+    }
+
     middlewareAssembler.init()
   },
   resolveInject() {
@@ -137,7 +138,6 @@ export const IocContainer = {
           if (typeof injectClass === 'function' && injectClass.name === '') {
             injectClass = injectClass()
           }
-
           if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
             if (array !== Array) {
               if (genericParams.length === 0) {

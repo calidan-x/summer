@@ -186,7 +186,7 @@ program
                   spinner.stop()
                 }
                 console.error(
-                  '\x1b[31mError starting server: ./compile/index.js not exist\n\nPlease check tsconfig.ts "include" should not contains files out of ./src\x1b[0m'
+                  '\x1b[31mError starting server: ./compile/index.js not exist\n\nPlease check tsconfig.json "include" should not contains files out of ./src\x1b[0m'
                 )
               }
             } else {
