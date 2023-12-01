@@ -162,11 +162,7 @@ const serialize = (obj, declareType: any[]) => {
         })
       }
       const serializeFunc = Reflect.getMetadata('Serialize', obj, key)
-      if (!serializeFunc) {
-        obj[key] = serialize(obj[key], declareType)
-      } else {
-        obj[key] = serializeFunc(obj[key], t)
-      }
+      obj[key] = serializeFunc ? serializeFunc(obj[key], t) : serialize(obj[key], declareType)
     }
   }
 

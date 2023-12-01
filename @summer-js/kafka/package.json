@@ -1,11 +1,11 @@
 {
-  "name": "@summer-js/graphql",
+  "name": "@summer-js/kafka",
   "version": "0.1.21",
   "description": "",
   "main": "lib/index.js",
   "module": "lib/index.js",
-  "peerDependencies": {
-    "graphql": "^16.6.0"
+  "devDependencies": {
+    "kafkajs": "^2.2.4"
   },
   "scripts": {
     "build": "tsc",

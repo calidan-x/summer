@@ -1,4 +1,4 @@
-import { Controller, Get, Serialize } from '@summer-js/summer'
+import { Controller, Get, Ignore, Serialize } from '@summer-js/summer'
 
 enum Direction {
   UP = 0,
@@ -48,6 +48,28 @@ class User {
   })
   password: string
   gender: Gender
+
+  @Serialize((value: string) => {
+    if (value === undefined) {
+      return 'nick'
+    }
+    return value
+  })
+  nickName
+
+  @Ignore
+  salary: number
+
+  @Ignore
+  city: string
+
+  @Ignore
+  country: string
+
+  @Serialize((_, obj: User) => {
+    return obj.city + ', ' + obj.country
+  })
+  address: string
 }
 
 @Controller
@@ -92,6 +114,9 @@ export class SerializationController {
     user.name = 'John'
     user.password = 'my-password'
     user.gender = Gender.Male
+    user.salary = 10000
+    user.city = 'New York'
+    user.country = 'US'
     return user
   }
 
@@ -103,6 +128,9 @@ export class SerializationController {
     user.name = 'John'
     user.password = 'my-password'
     user.gender = Gender.Male
+    user.salary = 10000
+    user.city = 'New York'
+    user.country = 'US'
     obj['user'] = user
     return obj
   }

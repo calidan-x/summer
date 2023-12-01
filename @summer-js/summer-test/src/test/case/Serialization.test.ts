@@ -41,7 +41,9 @@ describe('Test Serialization', () => {
     expect(res.body).toStrictEqual({
       name: 'John',
       password: '*****',
-      gender: 'Male'
+      gender: 'Male',
+      nickName: 'nick',
+      address: 'New York, US'
     })
 
     res = await request.get('/assign-serialize')
@@ -50,7 +52,9 @@ describe('Test Serialization', () => {
       user: {
         name: 'John',
         password: '*****',
-        gender: 'Male'
+        gender: 'Male',
+        nickName: 'nick',
+        address: 'New York, US'
       }
     })
   })

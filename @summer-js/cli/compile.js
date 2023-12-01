@@ -139,7 +139,6 @@ const addPropDecorator = (/** type @type {ClassDeclaration} */ cls) => {
   if (!cls) {
     return
   }
-
   ALLTypeMapping = { ...TypeMapping }
   let statements = ''
   const typeParameters = cls.getTypeParameters().map((tp) => tp.getText())
@@ -174,6 +173,14 @@ const addPropDecorator = (/** type @type {ClassDeclaration} */ cls) => {
           type = '[]'
         }
         pendingDecorators.push({ name: '_PropDeclareType', arguments: [type] })
+      }
+
+      if (p.getDecorators().find((d) => d.getName() === 'Serialize')) {
+        if (p.getInitializer() === undefined) {
+          modifyActions.push(() => {
+            p.setInitializer('undefined')
+          })
+        }
       }
     }
 

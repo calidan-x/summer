@@ -1,9 +1,11 @@
 import { ServerConfig, SessionConfig, RpcConfig } from '@summer-js/summer'
 import { SwaggerConfig } from '@summer-js/swagger'
 import { TypeORMConfig } from '@summer-js/typeorm'
+import { MongoDBConfig } from '@summer-js/mongodb'
 // import { ElasticSearchConfig } from '@summer-js/elasticsearch'
 import { RedisConfig } from '@summer-js/redis'
 import { SocketIOConfig } from '@summer-js/socket.io'
+import { KafkaConfig, logLevel } from 'kafkajs'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
   DATA_SOURCE: {
@@ -83,3 +85,19 @@ export const REDIS_CONFIG: RedisConfig = {
 }
 
 export const SOCKET_IO_CONFIG: SocketIOConfig = {}
+
+export const MONGODB_CONFIG: MongoDBConfig = {
+  DefaultSource: {
+    url: 'mongodb://localhost:27017',
+    db: 'db',
+    collectionNameConvert(name) {
+      return name.replace(/([A-Z])/g, '_$1').toLowerCase()
+    }
+  }
+}
+
+export const KAFKA_CONFIG: KafkaConfig = {
+  clientId: 'client2',
+  brokers: ['127.0.0.1:9092'],
+  logLevel: logLevel.ERROR
+}

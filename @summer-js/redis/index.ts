@@ -29,7 +29,7 @@ class Redis extends SummerPlugin {
         await new Promise((resolve) => {
           redisClient.on('connect', () => {
             if (!isSummerTesting) {
-              Logger.info(`Redis Client(${key}) Connected `)
+              Logger.info(`Redis Client<${key}> Connected `)
             }
             resolve('')
           })

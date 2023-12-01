@@ -15,7 +15,8 @@ import {
   DataSourceOptions,
   Repository as TypeOrmRepository,
   ObjectLiteral,
-  EntityManager
+  EntityManager,
+  EntityTarget
 } from 'typeorm'
 import { snakeCase } from 'typeorm/util/StringUtils'
 
@@ -133,13 +134,10 @@ export const transaction = async (exec: () => any, transactionOptions?: Transact
   })
 }
 
-export class Repository<
-  Entity extends ObjectLiteral,
-  // @ts-ignore
-  DataSourceName extends string = ''
-> extends TypeOrmRepository<Entity> {}
-
-addInjectable(Repository, (entityClass: any, dataSourceName: string) => {
+export const getRepository = <Entity extends ObjectLiteral>(
+  entityClass: EntityTarget<Entity>,
+  dataSourceName: string = ''
+): TypeOrmRepository<Entity> | null => {
   if (!entityClass) {
     return null
   }
@@ -203,4 +201,14 @@ addInjectable(Repository, (entityClass: any, dataSourceName: string) => {
     }
   }
   return null
+}
+
+export class Repository<
+  Entity extends ObjectLiteral,
+  // @ts-ignore
+  DataSourceName extends string = ''
+> extends TypeOrmRepository<Entity> {}
+
+addInjectable(Repository, (entityClass: any, dataSourceName: string) => {
+  return getRepository(entityClass, dataSourceName)
 })

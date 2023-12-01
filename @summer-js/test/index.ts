@@ -203,3 +203,8 @@ export class Request {
 }
 
 export const request = new Request()
+
+export const waitForSecond = (seconds: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, seconds * 1000)
+  })

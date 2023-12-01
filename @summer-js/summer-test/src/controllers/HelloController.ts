@@ -1,6 +1,9 @@
-import { Controller, EnvConfig, Get } from '@summer-js/summer'
+import { Body, Controller, EnvConfig, Get, Post } from '@summer-js/summer'
 import { HelloService } from '../service'
 
+export class A {
+  a?: 'a' | 'b' | 'c'
+}
 @Controller('/v1')
 export class HelloController {
   serverConfig: EnvConfig<'SERVER_CONFIG'>
@@ -38,5 +41,10 @@ export class HelloController {
   @Get('/import-inject-test')
   testInjectFromHelloService() {
     return this.helloService.getInfo()
+  }
+
+  @Post('/ttt')
+  ttt(@Body a: A) {
+    return a
   }
 }

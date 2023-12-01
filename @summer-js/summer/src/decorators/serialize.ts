@@ -3,3 +3,5 @@ export const Serialize = (serializeFunction: (value: any, obj?: any) => any): Pr
     Reflect.defineMetadata('Serialize', serializeFunction, target, key)
   }
 }
+
+export const Ignore = Serialize(() => undefined)
