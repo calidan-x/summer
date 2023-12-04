@@ -117,7 +117,7 @@ const asyncLocalStorage = new AsyncLocalStorage<EntityManager>()
 export type TransactionOptions = { dataSourceName?: string }
 
 export const Transaction = createClassAndMethodDecorator(
-  async (ctx, invokeMethod?, transactionOptions?: TransactionOptions) => {
+  async (ctx, invokeMethod, transactionOptions?: TransactionOptions) => {
     return await transaction(async () => {
       return await invokeMethod(ctx.invocation.params)
     }, transactionOptions)

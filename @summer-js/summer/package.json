@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/summer",
-	"version": "0.1.22",
+	"version": "0.1.23",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
@@ -33,8 +33,8 @@
 		"mime": "^3.0.0",
 		"path-to-regexp": "^6.2.1",
 		"reflect-metadata": "0.1.13",
-		"ts-morph": "19.0.0",
-		"typescript": "^5.1.6",
+		"ts-morph": "21.0.1",
+		"typescript": "^5.3.2",
 		"node-cron": "3.0.2"
 	},
 	"devDependencies": {

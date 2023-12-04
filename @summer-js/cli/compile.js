@@ -178,7 +178,7 @@ const addPropDecorator = (/** type @type {ClassDeclaration} */ cls) => {
       if (p.getDecorators().find((d) => d.getName() === 'Serialize')) {
         if (p.getInitializer() === undefined) {
           modifyActions.push(() => {
-            p.setInitializer('undefined')
+            p.setInitializer('undefined as any')
           })
         }
       }

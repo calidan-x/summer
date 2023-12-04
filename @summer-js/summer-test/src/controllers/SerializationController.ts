@@ -41,7 +41,7 @@ enum Gender {
   Female
 }
 
-class User {
+export class User {
   name: string
   @Serialize((value: string) => {
     return value.replace(/.+/g, '*****')

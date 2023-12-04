@@ -1,7 +1,7 @@
 import { Controller, createClassAndMethodDecorator, Get, Put } from '@summer-js/summer'
 import jwt from 'jsonwebtoken'
 
-export const RequireLogin = createClassAndMethodDecorator(async (ctx, invokeMethod?) => {
+export const RequireLogin = createClassAndMethodDecorator(async (ctx, invokeMethod) => {
   const token = ctx.request.headers['authentication']
   try {
     jwt.verify(token, 'xxxxxxxx')
