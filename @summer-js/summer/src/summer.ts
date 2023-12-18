@@ -32,6 +32,18 @@ export const addPlugin = (plugin: any) => {
   plugins.push(plugin)
 }
 
+interface Type<T> extends Function {
+  new (...args: any[]): T
+}
+export const getPlugin = <T>(plugin: Type<T>): T | null => {
+  for (const p of pluginIncs) {
+    if (p instanceof plugin) {
+      return p
+    }
+  }
+  return null
+}
+
 export const pluginCollection = {}
 ;(global as any).ClassCollect = (collectionName: string) => {
   return (target: any) => {

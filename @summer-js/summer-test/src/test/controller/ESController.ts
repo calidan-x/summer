@@ -4,6 +4,7 @@ import { ESClient } from '@summer-js/elasticsearch'
 @Controller('/es')
 export class ESController {
   esClient: ESClient
+  esClient2: ESClient<'Default'>
 
   @Get('/search')
   async run() {

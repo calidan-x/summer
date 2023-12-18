@@ -249,11 +249,19 @@ export class Consumer<groupId extends string> implements KafkaConsumer {
   events: ConsumerEvents
 }
 
+const consumes: {
+  method: any
+  topic: string
+  groupId: string
+  fromBeginning: boolean
+  consumeType: 'EachMessage' | 'EachBatch'
+}[] = []
+
 class KafkaPlugin extends SummerPlugin {
   configKey = 'KAFKA_CONFIG'
   config: KafkaConfig
   kafkaClient: Kafka
-  consumers: Record<string, KafkaConsumer> = {}
+  consumers: KafkaConsumer[] = []
   producer: KafkaProducer
 
   async init(_config) {
@@ -285,29 +293,47 @@ class KafkaPlugin extends SummerPlugin {
     })
 
     addInjectable(Consumer, async (groupId: string) => {
-      if (!groupId) {
-        return null
-      }
-      const kafkaClient = await this.connectAndGetInstance()
-      if (kafkaClient) {
-        if (this.consumers[groupId]) {
-          return this.consumers[groupId]
-        }
-        const isSummerTesting = process.env.SUMMER_TESTING !== undefined
-        try {
-          const consumer = kafkaClient.consumer({ groupId })
-          await consumer.connect()
-          this.consumers[groupId] = consumer
-          if (!isSummerTesting) {
-            Logger.info(`Kafka Consumer(groupId:${groupId}) Connected`)
-          }
-          return consumer
-        } catch (error) {
-          Logger.error(error)
-        }
-      }
-      return null
+      return await this.getConsumer(groupId)
     })
+
+    for (const c of consumes) {
+      const { method, topic, groupId, fromBeginning, consumeType } = c
+      const consumer = await this.getConsumer(groupId, topic)
+      if (consumer) {
+        await consumer.subscribe({ topic, fromBeginning })
+        if (consumeType === 'EachMessage') {
+          consumer.run({
+            eachMessage: method
+          })
+        } else if (consumeType === 'EachBatch') {
+          consumer.run({
+            eachBatch: method
+          })
+        }
+      }
+    }
+  }
+
+  async getConsumer(groupId: string, topic: string = '') {
+    if (!groupId) {
+      return null
+    }
+    const kafkaClient = await this.connectAndGetInstance()
+    if (kafkaClient) {
+      const isSummerTesting = process.env.SUMMER_TESTING !== undefined
+      try {
+        const consumer = kafkaClient.consumer({ groupId })
+        await consumer.connect()
+        this.consumers[groupId] = consumer
+        if (!isSummerTesting) {
+          Logger.info(`Kafka Consumer(groupId:${groupId}${topic ? `, topic:${topic}` : ''}) Connected`)
+        }
+        return consumer
+      } catch (error) {
+        Logger.error(error)
+      }
+    }
+    return null
   }
 
   async connectAndGetInstance() {
@@ -322,7 +348,7 @@ class KafkaPlugin extends SummerPlugin {
 
   async destroy() {
     try {
-      for (const consumer of Object.values(this.consumers)) {
+      for (const consumer of this.consumers) {
         await consumer.disconnect()
       }
       await this.producer.disconnect()
@@ -332,3 +358,21 @@ class KafkaPlugin extends SummerPlugin {
 
 addPlugin(KafkaPlugin)
 export default KafkaPlugin
+
+export const Consume = ({
+  topic,
+  groupId,
+  consumeType = 'EachMessage',
+  fromBeginning = true
+}: {
+  topic: string
+  groupId: string
+  consumeType?: 'EachMessage' | 'EachBatch'
+  fromBeginning?: boolean
+}) => {
+  return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
+    consumes.push({ method: target[propertyKey], topic, groupId, fromBeginning, consumeType })
+  }
+}
+
+export { EachMessagePayload } from 'kafkajs'
