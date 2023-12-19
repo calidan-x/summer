@@ -83,6 +83,7 @@ export const IocContainer = {
     }
   },
   async instanceIocClasses() {
+    // instance all ungeneric classes
     for (const clazz of this.iocClass) {
       // auto injection
       Reflect.getOwnMetadataKeys(clazz.prototype).forEach((key) => {
@@ -95,13 +96,12 @@ export const IocContainer = {
         let instance: any
         if (!generateFunction) {
           instance = new clazz()
-        } else {
-          instance = await generateFunction()
+          this.addInstance(clazz, [], instance)
         }
-        this.addInstance(clazz, [], instance)
       }
     }
 
+    // instance all generic classes and function generated classes in ioc classes
     for (const clazz of this.iocClass) {
       for (const key of Reflect.getOwnMetadataKeys(clazz.prototype)) {
         let [injectClass, , genericParams] = Reflect.getMetadata('DeclareType', clazz.prototype, key)
@@ -112,10 +112,16 @@ export const IocContainer = {
           return typeof p[0] === 'function' && !p[0].name ? p[0]() : p[0]
         })
 
-        if (genericParams.length > 0) {
-          if (this.iocClass.find((lc) => lc === injectClass)) {
-            if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
-              const generateFunction = this.generateFunction.get(injectClass)
+        if (this.iocClass.find((lc) => lc === injectClass)) {
+          if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
+            const generateFunction = this.generateFunction.get(injectClass)
+            if (generateFunction) {
+              this.addInstance(
+                injectClass,
+                genericParams,
+                generateFunction ? await generateFunction(...genericParams) : new injectClass(...genericParams)
+              )
+            } else if (genericParams.length > 0) {
               this.addInstance(
                 injectClass,
                 genericParams,

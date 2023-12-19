@@ -1,4 +1,4 @@
-import { Logger, SummerPlugin, addPlugin, addInjectable } from '@summer-js/summer'
+import { Logger, SummerPlugin, addPlugin, addInjectable, getInjectable } from '@summer-js/summer'
 import {
   Kafka,
   KafkaConfig,
@@ -250,6 +250,7 @@ export class Consumer<groupId extends string> implements KafkaConsumer {
 }
 
 const consumes: {
+  target: any
   method: any
   topic: string
   groupId: string
@@ -297,17 +298,27 @@ class KafkaPlugin extends SummerPlugin {
     })
 
     for (const c of consumes) {
-      const { method, topic, groupId, fromBeginning, consumeType } = c
+      const { target, method, topic, groupId, fromBeginning, consumeType } = c
       const consumer = await this.getConsumer(groupId, topic)
       if (consumer) {
         await consumer.subscribe({ topic, fromBeginning })
         if (consumeType === 'EachMessage') {
           consumer.run({
-            eachMessage: method
+            eachMessage: async (msg) => {
+              const service = getInjectable(target.constructor)
+              if (service) {
+                service[method](msg)
+              }
+            }
           })
         } else if (consumeType === 'EachBatch') {
           consumer.run({
-            eachBatch: method
+            eachBatch: async (msg) => {
+              const service = getInjectable(target.constructor)
+              if (service) {
+                service[method](msg)
+              }
+            }
           })
         }
       }
@@ -370,8 +381,8 @@ export const Consume = ({
   consumeType?: 'EachMessage' | 'EachBatch'
   fromBeginning?: boolean
 }) => {
-  return (target: any, propertyKey: string, _descriptor: PropertyDescriptor) => {
-    consumes.push({ method: target[propertyKey], topic, groupId, fromBeginning, consumeType })
+  return (target: any, method: string, _descriptor: PropertyDescriptor) => {
+    consumes.push({ target, method, topic, groupId, fromBeginning, consumeType })
   }
 }
 
