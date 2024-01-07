@@ -2,6 +2,9 @@ const addZero = (num: number) => (num < 10 ? '0' + num : num + '')
 
 const timePrefix = () => {
   const now = new Date()
+  if (timeOffset) {
+    now.setMinutes(now.getMinutes() + timeOffset)
+  }
   const date = now.getFullYear() + '-' + addZero(now.getMonth() + 1) + '-' + addZero(now.getDate())
   const time = addZero(now.getHours()) + ':' + addZero(now.getMinutes()) + ':' + addZero(now.getSeconds())
   return `[${date} ${time}]`
@@ -18,6 +21,7 @@ const print = (color: string, type: string, method: string, message?: any, ...op
   }
 }
 
+let timeOffset = 0
 export const Logger = {
   [sLogType]: ['Log', 'Warn', 'Error', 'Info', 'Debug'],
   get enableTypes() {
@@ -25,6 +29,9 @@ export const Logger = {
   },
   set enableTypes(enable: LogType) {
     this[sLogType] = enable
+  },
+  setTimeZone(timeZone: number) {
+    timeOffset = timeZone * 60 + new Date().getTimezoneOffset()
   },
   info(message?: any, ...optionalParams: any[]) {
     if (this[sLogType].includes('Info')) {

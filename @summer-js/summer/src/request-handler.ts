@@ -427,7 +427,9 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
           }
 
           if (downloadFileName) {
-            ctx.response.headers['Content-Disposition'] = `attachment; filename="${downloadFileName}"`
+            ctx.response.headers['Content-Disposition'] = `attachment; filename="${encodeURIComponent(
+              downloadFileName
+            )}"`
           }
           const contentType = body.contentType ?? mimeType ?? 'application/octet-stream'
           ctx.response.headers['Content-Type'] = ctx.response.headers['Content-Type'] || contentType

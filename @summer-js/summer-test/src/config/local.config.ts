@@ -4,7 +4,7 @@ import { TypeORMConfig } from '@summer-js/typeorm'
 import { MongoDBConfig } from '@summer-js/mongodb'
 import { RedisConfig } from '@summer-js/redis'
 import { SocketIOConfig } from '@summer-js/socket.io'
-import { KafkaConfig, logLevel } from 'kafkajs'
+// import { KafkaConfig, logLevel } from 'kafkajs'
 import { ElasticSearchConfig } from '@summer-js/elasticsearch'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
@@ -96,8 +96,8 @@ export const MONGODB_CONFIG: MongoDBConfig = {
   }
 }
 
-export const KAFKA_CONFIG: KafkaConfig = {
-  clientId: 'client2',
-  brokers: ['127.0.0.1:9092'],
-  logLevel: logLevel.ERROR
-}
+// export const KAFKA_CONFIG: KafkaConfig = {
+//   clientId: 'client2',
+//   brokers: ['127.0.0.1:9092'],
+//   logLevel: logLevel.ERROR
+// }

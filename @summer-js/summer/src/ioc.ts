@@ -116,17 +116,9 @@ export const IocContainer = {
           if (typeof injectClass === 'function' && /^\s*class\s+/.test(injectClass.toString())) {
             const generateFunction = this.generateFunction.get(injectClass)
             if (generateFunction) {
-              this.addInstance(
-                injectClass,
-                genericParams,
-                generateFunction ? await generateFunction(...genericParams) : new injectClass(...genericParams)
-              )
+              this.addInstance(injectClass, genericParams, await generateFunction(...genericParams))
             } else if (genericParams.length > 0) {
-              this.addInstance(
-                injectClass,
-                genericParams,
-                generateFunction ? await generateFunction(...genericParams) : new injectClass(...genericParams)
-              )
+              this.addInstance(injectClass, genericParams, new injectClass(...genericParams))
             }
           }
         }

@@ -28,6 +28,8 @@ declare global {
   const SUMMER_ENV: string
   const SUMMER_BUILD_TIMESTAMP: number
   const SUMMER_VERSION: string
+  const SERVICE_NAME: string
+  const SERVICE_VERSION: string
 }
 
 ;(global as any)._Int = class _Int {}

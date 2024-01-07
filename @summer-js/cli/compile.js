@@ -12,6 +12,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const summerPackage = JSON.parse(fs.readFileSync(__dirname + '/../summer/package.json', { encoding: 'utf-8' }))
+const servicePackage = JSON.parse(fs.readFileSync('./package.json', { encoding: 'utf-8' }))
 
 const watch = process.argv[2] === 'watch'
 
@@ -460,7 +461,6 @@ const resolvePath = (dirtyFiles, compileAll) => {
         ) {
           return
         }
-
         pathResolveActions.push(() => {
           impt.setModuleSpecifier(
             './' +
@@ -553,6 +553,9 @@ const compile = async (compileAll = false) => {
     isFirstCompile = false
     return
   }
+
+  const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
+  indexSourceFile.refreshFromFileSystemSync()
 
   const pathResolveActions = resolvePath(dirtyFiles, compileAll)
   for (const action of pathResolveActions) {
@@ -775,6 +778,8 @@ const compile = async (compileAll = false) => {
   statements.push(`(global as any).SUMMER_VERSION = "${summerPackage.version}";`)
   statements.push(`(global as any).SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
   statements.push(`(global as any).SUMMER_BUILD_TIMESTAMP = ${Date.now()};`)
+  statements.push(`(global as any).SERVICE_NAME = "${servicePackage.name}";`)
+  statements.push(`(global as any).SERVICE_VERSION = "${servicePackage.version || ''}";`)
 
   if (fs.existsSync('./src/config/default.config.ts')) {
     if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {
@@ -799,8 +804,6 @@ const compile = async (compileAll = false) => {
     statements.push('import "' + path.replace(/\.ts$/, '') + '";')
   })
 
-  const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
-  indexSourceFile.refreshFromFileSystemSync()
   indexSourceFile.getChildAtIndex(0).replaceWithText(statements.join('') + indexSourceFile.getChildAtIndex(0).getText())
 
   project.resolveSourceFileDependencies()

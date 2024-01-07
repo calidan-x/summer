@@ -19,7 +19,7 @@ class Redis extends SummerPlugin {
     })
   }
 
-  async connectAndGetInstance(key: string) {
+  async connectAndGetInstance(key: string = 'default') {
     if (this.config) {
       const isSummerTesting = process.env.SUMMER_TESTING !== undefined
       let redisClient = this.redisClients[key]

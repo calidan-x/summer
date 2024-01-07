@@ -16,7 +16,10 @@ const printSummerInfo = () => {
     console.log(`　
 🔆SUMMER Ver ${SUMMER_VERSION}    \n　
 -------------------\n　`)
-    SUMMER_ENV && console.log(`ENV: ${SUMMER_ENV}\n　`)
+    const serviceNameParts = SERVICE_NAME.split('/')
+    console.log(
+      serviceNameParts[serviceNameParts.length - 1].toUpperCase() + ' ' + (SUMMER_ENV ? `ENV: ${SUMMER_ENV}\n　` : '')
+    )
   }
 }
 
