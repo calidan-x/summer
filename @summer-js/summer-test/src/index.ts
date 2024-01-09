@@ -1,12 +1,7 @@
-import { summerStart, handler, Logger, createPropertyDecorator } from '@summer-js/summer'
+import { summerStart, handler, Logger, replaceEnvConfigValue } from '@summer-js/summer'
 import { getDataSource } from '@summer-js/typeorm'
-import { createClient } from 'redis'
 
 export { handler }
-
-export const HttpClient = createPropertyDecorator(() => {
-  return createClient({ url: 'redis://alice:foobared@awesome.redis.server:6380' })
-})
 
 const runMigrations = async () => {
   const output = await getDataSource('DATA_SOURCE').runMigrations()
@@ -16,6 +11,11 @@ const runMigrations = async () => {
 }
 
 summerStart({
+  async init() {
+    replaceEnvConfigValue((value) => {
+      return value
+    })
+  },
   async before() {
     if (SUMMER_ENV !== 'prod') {
       await runMigrations()

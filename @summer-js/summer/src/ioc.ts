@@ -1,5 +1,4 @@
 import { getEnvConfig } from './config-handler'
-import { Logger } from './logger'
 import { middlewareAssembler } from './middleware'
 
 export interface Class<T> extends Function {
@@ -34,14 +33,11 @@ export const IocContainer = {
     if (!instance) {
       return
     }
-    const className = clazz.name
     if (params.length === 0) {
-      if (this.iocInstanceMap.has(clazz)) {
-        Logger.error('Duplicated Class: ' + className)
-        process.exit()
+      if (!this.iocInstanceMap.has(clazz)) {
+        this.iocInstanceMap.set(clazz, instance)
+        this.iocInstance.push(instance)
       }
-      this.iocInstanceMap.set(clazz, instance)
-      this.iocInstance.push(instance)
     } else {
       const genericInstance = this.findGenericInstance(clazz, params)
       if (!genericInstance) {

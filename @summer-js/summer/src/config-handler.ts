@@ -15,6 +15,27 @@ export const getEnvConfig = (key?: string): any => {
   return key ? finalConfig[key] : finalConfig
 }
 
+const loopKeyValue = (config: any, updateFunc: (value: any) => any) => {
+  if (Array.isArray(config)) {
+    config.forEach((cfg) => {
+      loopKeyValue(cfg, updateFunc)
+    })
+  } else if (typeof config === 'object') {
+    Object.entries(config).forEach(([key, value]) => {
+      if (typeof value === 'function') {
+      } else if (typeof value !== 'object') {
+        config[key] = updateFunc(value)
+      } else {
+        loopKeyValue(value, updateFunc)
+      }
+    })
+  }
+}
+
+export const replaceEnvConfigValue = (updateFunc: (value: any) => any) => {
+  loopKeyValue(_envConfig, updateFunc)
+}
+
 /**
  * @deprecated Please use getEnvConfig() instead
  */

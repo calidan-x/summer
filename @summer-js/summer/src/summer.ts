@@ -24,6 +24,7 @@ const printSummerInfo = () => {
 }
 
 interface SummerStartOptions {
+  init?: (config: any) => any
   before?: (config: any) => void
   after?: (config: any) => void
 }
@@ -82,6 +83,8 @@ export const summerInit = async (options?: SummerStartOptions) => {
   if (cluster.isPrimary && !isSummerTesting) {
     printSummerInfo()
   }
+
+  options && options.init && (await options.init(config))
 
   if (config['SERVER_CONFIG'] && isNormalServer && !isSummerTesting) {
     await httpServer.createServer(config['SERVER_CONFIG'])
