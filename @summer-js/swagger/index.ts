@@ -541,8 +541,14 @@ const getTypeDesc = (dType: any, typeParams: any[], isRequest: boolean, deep = 0
         }
       }
 
+      if (Array.isArray(d0)) {
+        schemeDesc = {
+          type: 'string',
+          enum: Object.values(d0)
+        }
+      }
       // string enum
-      if (typeof d0 === 'object' && isStringEnum) {
+      else if (typeof d0 === 'object' && isStringEnum) {
         schemeDesc = {
           type: 'string',
           enum: Object.keys(d0)
@@ -693,7 +699,9 @@ export class SummerSwaggerUIController {
   }
 
   @Get('/index')
-  getSwaggerUIPage(@Query('urls.primaryName') @_ParamDeclareType([String]) @_Optional primaryName?: string) {
+  getSwaggerUIPage(
+    @Query('urls.primaryName') @_ParamDeclareType([String], 'primaryName') @_Optional primaryName?: string
+  ) {
     let allPages = allTags.map((at) => at.category || '')
     allPages = Array.from(new Set(allPages)).sort()
     let indexHTML = fs.readFileSync('./resource/swagger-res/index.html', { encoding: 'utf-8' })
@@ -719,7 +727,7 @@ export class SummerSwaggerUIController {
   }
 
   @Get('/swagger-docs.json')
-  getSwaggerDocument(@Query @_ParamDeclareType([String]) @_Optional category?: string) {
+  getSwaggerDocument(@Query @_ParamDeclareType([String], 'category') @_Optional category?: string) {
     if (swaggerJson.password) {
       if (swaggerJson.password !== Cookie.get('password')) {
         return ''

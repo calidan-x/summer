@@ -105,6 +105,7 @@ const build = (env, { fullSourceMap = false, external = [] }) => {
       entryPoints: ['./compile/index.js'],
       bundle: true,
       platform: 'node',
+      charset: 'utf8',
       minifyWhitespace: true,
       sourcemap: true,
       outfile: './build/index.js',

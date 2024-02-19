@@ -40,12 +40,16 @@ declare global {
   Reflect.defineMetadata('DeclareType', declareType, target, propertyKey)
 }
 ;(global as any)._ParamDeclareType =
-  (declareType: any) => (target: Object, propertyKey: string | symbol, index: number) => {
+  (declareType: any, name: string) => (target: Object, propertyKey: string | symbol, index: number) => {
     let existingParameterTypes: any[] = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey) || []
     declareType = declareType || []
     declareType[2] = declareType[2] || []
     existingParameterTypes[index] = declareType
     Reflect.defineMetadata('DeclareTypes', existingParameterTypes, target, propertyKey)
+
+    let existingParameterNames: any[] = Reflect.getOwnMetadata('DeclareNames', target, propertyKey) || []
+    existingParameterNames[index] = name
+    Reflect.defineMetadata('DeclareNames', existingParameterNames, target, propertyKey)
   }
 ;(global as any)._ReturnDeclareType = (declareType: any) => (target: Object, propertyKey: string | symbol) => {
   declareType = declareType || []

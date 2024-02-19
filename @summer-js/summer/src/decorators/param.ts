@@ -2,14 +2,20 @@ import { Context } from '../request-handler'
 import { requestMappingAssembler } from '../request-mapping'
 import { OmitFirstAndSecondArg } from './utility'
 
-const getArgName = (func, argIndex: number) => {
-  var args = func.toString().match(/.*?\(([^)]*)\)/)[1]
-  return args.split(',').map(function (arg) {
-    return arg
-      .split('=')[0]
-      .replace(/\/\*.*\*\//g, '')
-      .trim()
-  })[argIndex]
+// not working any more, esbuild will change param name
+// const getArgName = (func, argIndex: number) => {
+//   var args = func.toString().match(/.*?\(([^)]*)\)/)[1]
+//   return args.split(',').map(function (arg) {
+//     return arg
+//       .split('=')[0]
+//       .replace(/\/\*.*\*\//g, '')
+//       .trim()
+//   })[argIndex]
+// }
+
+const getArgName = (target: any, method: string, argIndex: number) => {
+  let parameterNames: any[] = Reflect.getOwnMetadata('DeclareNames', target, method) || []
+  return parameterNames[argIndex]
 }
 
 // const getArgType = (target: Object, propertyKey: string, parameterIndex: number) => {
@@ -32,7 +38,7 @@ const generateParamDecorator =
     if (!args) {
       args = []
     }
-    args.splice(0, 0, getArgName(target[propertyKey], parameterIndex))
+    args.splice(0, 0, getArgName(target, propertyKey, parameterIndex))
     requestMappingAssembler.addParam(paramMethod, args, declareType, parameterIndex)
   }
 

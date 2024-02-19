@@ -571,12 +571,16 @@ const compile = async (compileAll = false) => {
 
   const sourceFiles = project.getSourceFiles()
 
-  let importFilesList = []
+  const getImportSourceFiles = (sf) => {
+    const imports = sf.getImportDeclarations()
+    return imports.map((impt) => impt.getModuleSpecifierSourceFile()).filter((sf) => sf)
+  }
 
+  let importFilesList = []
   for (const sf of sourceFiles) {
     ;['default.config.ts', process.env.SUMMER_ENV + '.config.ts'].forEach((configFileName) => {
       if (sf.getFilePath().indexOf(configFileName) > 0) {
-        const refSourceFiles = sf.getReferencedSourceFiles()
+        const refSourceFiles = getImportSourceFiles(sf)
         refSourceFiles.forEach((refSourceFile) => {
           const found = slash(refSourceFile.getFilePath()).match(/@summer-js\/[^/]+/)
           if (found) {
@@ -584,7 +588,7 @@ const compile = async (compileAll = false) => {
               PLUGINS.push(found[0])
             }
           } else {
-            refSourceFile.getReferencedSourceFiles().forEach((refSf) => {
+            getImportSourceFiles(refSourceFile).forEach((refSf) => {
               const found = slash(refSf.getFilePath()).match(/@summer-js\/[^/]+/)
               if (found) {
                 if (found[0] !== '@summer-js/summer') {
@@ -655,7 +659,7 @@ const compile = async (compileAll = false) => {
                   const decorators = [
                     {
                       name: '_ParamDeclareType',
-                      arguments: [getDeclareType(param.getText(), param)]
+                      arguments: [getDeclareType(param.getText(), param), "'" + param.getName() + "'"]
                     }
                   ]
                   if (param.hasQuestionToken() || param.hasInitializer()) {
@@ -813,16 +817,18 @@ const compile = async (compileAll = false) => {
     return
   }
 
+  const emissions = []
   dirtyFiles.forEach((df) => {
     if (process.env.SUMMER_ENV !== 'test' && df.getFilePath().endsWith('.test.ts')) {
       return
     }
-    project.emitSync({ targetSourceFile: df })
+    emissions.push(project.emit({ targetSourceFile: df }))
   })
 
   jsFiles.forEach((jf) => {
-    project.emitSync({ targetSourceFile: jf })
+    emissions.push(project.emit({ targetSourceFile: jf }))
   })
+  await Promise.all(emissions)
   jsFiles = []
 
   project.emitSync({ targetSourceFile: indexSourceFile })

@@ -1,14 +1,27 @@
-import { Body, Controller, Post } from '@summer-js/summer'
+import { Body, Controller, Post, Query } from '@summer-js/summer'
+// import { ApiDocGroup } from '@summer-js/swagger'
 
-export class DD {
-  d: Date
+export enum D2 {
+  M,
+  F
 }
 
-@Controller
+export enum D3 {
+  M = 'M',
+  F = 'F'
+}
+
+export class DD {
+  d1?: 'male' | null
+  // d2: D2
+  // d3: D3
+}
+
+@Controller('/test')
+// @ApiDocGroup('Test')
 export class TestController {
   @Post
-  test(@Body dd: DD) {
-    console.log(typeof dd.d)
-    return dd
+  test(@Body dd: DD, @Query name: string) {
+    return dd + name
   }
 }
