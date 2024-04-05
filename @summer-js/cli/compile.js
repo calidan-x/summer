@@ -739,13 +739,20 @@ const compile = async (compileAll = false) => {
           cls.getMethods().forEach((cMethod) => {
             if (cMethod.getDecorators().length > 0) {
               cMethod.getParameters().forEach((param, inx) => {
-                if (inx === 1) {
+                if (inx >= 1) {
                   const decorators = [
                     {
                       name: '_ParamDeclareType',
                       arguments: [getDeclareType(param.getText(), param)]
                     }
                   ]
+
+                  if (param.hasQuestionToken() || param.hasInitializer()) {
+                    decorators.push({
+                      name: '_Optional',
+                      arguments: []
+                    })
+                  }
 
                   modifyActions.push(() => {
                     param.addDecorators(decorators)

@@ -3,8 +3,8 @@ import { OmitFirstAndSecondArg, ContextInvocation as Context } from './utility'
 
 type DecoratorMethodType<T = any> = (ctx: Context, invokeMethod: (args: any[]) => Promise<T>, ...args: any[]) => void
 
-export interface MethodDecoratorType<T extends DecoratorMethodType> {
-  (...name: Parameters<OmitFirstAndSecondArg<T>>): ClassDecorator
+export interface ClassMethodDecoratorType<T extends DecoratorMethodType> {
+  (...name: Parameters<OmitFirstAndSecondArg<T>>): any
   (target: Object, propertyKey: string, descriptor: PropertyDescriptor): void
   (constructor: Function): void
 }
@@ -61,7 +61,7 @@ const generateClassMethodDecorator =
   }
 
 export const createClassAndMethodDecorator =
-  <T extends DecoratorMethodType>(paramMethod: T): MethodDecoratorType<T> =>
+  <T extends DecoratorMethodType>(paramMethod: T): ClassMethodDecoratorType<T> =>
   // @ts-ignore
   (...dArgs: any[]) => {
     if (dArgs.length === 1 && dArgs[0].toString().startsWith('class ')) {

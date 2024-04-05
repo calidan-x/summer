@@ -13,7 +13,8 @@ import {
   Pattern,
   Validate,
   Header,
-  Len
+  Len,
+  PathParam
 } from '@summer-js/summer'
 import { Dog } from '../../dto/request/Dog'
 
@@ -201,6 +202,11 @@ export class ParamsValidationController {
   @Get('/request-queries')
   async requestQueries(@Queries search?: Search) {
     return search!
+  }
+
+  @Get('/path-param/:param')
+  async pathParam(@PathParam param: number) {
+    return param
   }
 
   @Post('/request-body-value')

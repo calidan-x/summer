@@ -3,7 +3,7 @@ import { Context } from '.'
 
 const corsHeader = (context: Context) => ({
   'Access-Control-Allow-Origin': context.request.headers['origin'] || '*',
-  'Access-Control-Allow-Methods': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS',
   'Access-Control-Allow-Headers': context.request.headers['access-control-request-headers'] || '*',
   'Access-Control-Allow-Credentials': 'true'
 })

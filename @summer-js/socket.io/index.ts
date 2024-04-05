@@ -57,21 +57,45 @@ class SocketIOPlugin extends SummerPlugin {
         socketIO.on('connection', (socket) => {
           for (const method in controllerClass._$Events) {
             if (typeof controller[method] === 'function' && method !== 'constructor') {
-              socket.on(controllerClass._$Events[method], async (data) => {
+              socket.on(controllerClass._$Events[method], async (...params) => {
                 const declareTypes = Reflect.getMetadata('DeclareTypes', controller, method)
-                const errors: ValidateError[] = []
-                let d = data
-                if (declareTypes) {
-                  const dataDType = declareTypes[1]
-                  if (dataDType) {
-                    d = validateAndConvertType(dataDType, '', data, errors, method, 1, controller)
+                for (let inx = 1; inx < declareTypes.length; inx++) {
+                  const p = params[inx - 1]
+                  const errors: ValidateError[] = []
+                  let d = p
+                  if (declareTypes && typeof p !== 'function') {
+                    const dataDType = declareTypes[inx]
+                    if (dataDType) {
+                      d = validateAndConvertType(dataDType, `params[${inx}]`, p, errors, method, inx, controller)
+                    }
+                  }
+                  if (errors.length > 0) {
+                    socket.emit('error', { errors: errors })
+                    return
+                  } else {
+                    params[inx - 1] = d
                   }
                 }
-                if (errors.length === 0) {
-                  controller[method](socket, d)
-                } else {
-                  socket.emit('error', { errors: errors })
-                }
+                // params.forEach((p, inx) => {
+                //   const errors: ValidateError[] = []
+                //   let d = p
+                //   if (declareTypes && typeof p !== 'function') {
+                //     const dataDType = declareTypes[inx + 1]
+                //     console.log(dataDType)
+                //     console.log(p)
+                //     console.log('=====')
+                //     if (dataDType) {
+                //       d = validateAndConvertType(dataDType, '', p, errors, method, inx + 1, controller)
+                //     }
+                //   }
+                //   if (errors.length > 0) {
+                //     socket.emit('error', { errors: errors })
+                //     return
+                //   } else {
+                //     params[inx] = d
+                //   }
+                // })
+                controller[method](socket, ...params)
               })
             }
           }

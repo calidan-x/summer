@@ -43,6 +43,13 @@ const testErrorRequestParam = async (requestValue: string, convertType: TestType
 }
 
 describe('Controller Params Test', () => {
+  test('path param', async () => {
+    let response = await request.get('/path-param/123')
+    expect(response.body).toEqual('123')
+    response = await request.get('/path-param/xxxx')
+    expect(response.statusCode).toEqual(400)
+  })
+
   test('test no type request value', async () => {
     await testRequestParam('hello', 'notype', 'hello')
   })

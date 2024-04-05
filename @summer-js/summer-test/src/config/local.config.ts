@@ -5,7 +5,7 @@ import { TypeORMConfig } from '@summer-js/typeorm'
 import { RedisConfig } from '@summer-js/redis'
 import { SocketIOConfig } from '@summer-js/socket.io'
 // import { KafkaConfig, logLevel } from 'kafkajs'
-import { ElasticSearchConfig } from '@summer-js/elasticsearch'
+// import { ElasticSearchConfig } from '@summer-js/elasticsearch'
 
 export const TYPEORM_CONFIG: TypeORMConfig = {
   DATA_SOURCE: {
@@ -75,9 +75,9 @@ export const RPC_CONFIG: RpcConfig = {
   }
 }
 
-export const ELASTICSEARCH_CONFIG: ElasticSearchConfig = {
-  Default: { node: 'http://localhost:9200' }
-}
+// export const ELASTICSEARCH_CONFIG: ElasticSearchConfig = {
+//   Default: { node: 'http://localhost:9200' }
+// }
 
 export const REDIS_CONFIG: RedisConfig = {
   port: 6379,

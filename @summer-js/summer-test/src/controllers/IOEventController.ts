@@ -30,8 +30,10 @@ export class IOEventController {
   }
 
   @On
-  message(socket: Socket, data: Dog) {
+  message(socket: Socket, data: Dog, data2: number, _callback: (data: any) => void) {
     console.log(data)
+    console.log(data2)
+    // callback({ status: 'OK' })
     socket.emit('message', { hi: '你好' })
   }
 

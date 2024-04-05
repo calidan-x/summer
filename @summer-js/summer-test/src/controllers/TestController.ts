@@ -1,27 +1,15 @@
-import { Body, Controller, Post, Query } from '@summer-js/summer'
-// import { ApiDocGroup } from '@summer-js/swagger'
+import { Controller, Get, PathParam, createClassAndMethodDecorator } from '@summer-js/summer'
 
-export enum D2 {
-  M,
-  F
-}
-
-export enum D3 {
-  M = 'M',
-  F = 'F'
-}
-
-export class DD {
-  d1?: 'male' | null
-  // d2: D2
-  // d3: D3
-}
+const A = createClassAndMethodDecorator(async (ctx, invokeMethod, _param1: string) => {
+  return await invokeMethod(ctx.invocation.params)
+})
 
 @Controller('/test')
-// @ApiDocGroup('Test')
+@A('param1')
 export class TestController {
-  @Post
-  test(@Body dd: DD, @Query name: string) {
-    return dd + name
+  @Get('/:id')
+  @A('param1')
+  test(@PathParam id: number[]) {
+    console.log(id)
   }
 }
