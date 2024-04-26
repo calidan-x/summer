@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/typeorm",
-	"version": "0.1.31",
+	"version": "0.1.32",
 	"description": "",
 	"main": "lib/index.js",
 	"files": [
@@ -27,6 +27,6 @@
 	},
 	"homepage": "https://summerjs.dev",
 	"dependencies": {
-		"typeorm": "^0.3.10"
+		"typeorm": "^0.3.20"
 	}
 }
