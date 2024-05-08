@@ -91,25 +91,24 @@ export const matchPathMethod = (path: string, httpMethod: string) => {
       }
     }
   }
+
   // 正则匹配
-  else {
-    const paths = Object.keys(requestMapping)
-    for (let i = 0; i < paths.length; i++) {
-      routeData = requestMapping[paths[i]]
-      const methodData = routeData[httpMethod] || routeData['REQUEST']
-      if (methodData) {
-        const pathParamArray = routeData.pathRegExp.exec(path)
-        if (pathParamArray) {
-          const pathKeys = routeData.pathKeys
-          const pathParams = {}
-          pathKeys.forEach((pk, inx) => {
-            pathParams[pk] = decodeURIComponent(pathParamArray[inx + 1])
-          })
-          return {
-            controller: IocContainer.getInstance(methodData.controllerClass),
-            pathParams,
-            ...methodData
-          }
+  const paths = Object.keys(requestMapping)
+  for (let i = 0; i < paths.length; i++) {
+    routeData = requestMapping[paths[i]]
+    const methodData = routeData[httpMethod] || routeData['REQUEST']
+    if (methodData) {
+      const pathParamArray = routeData.pathRegExp.exec(path)
+      if (pathParamArray) {
+        const pathKeys = routeData.pathKeys
+        const pathParams = {}
+        pathKeys.forEach((pk, inx) => {
+          pathParams[pk] = decodeURIComponent(pathParamArray[inx + 1])
+        })
+        return {
+          controller: IocContainer.getInstance(methodData.controllerClass),
+          pathParams,
+          ...methodData
         }
       }
     }

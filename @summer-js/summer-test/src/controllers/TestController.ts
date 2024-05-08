@@ -1,15 +1,14 @@
-import { Controller, Get, PathParam, createClassAndMethodDecorator } from '@summer-js/summer'
-
-const A = createClassAndMethodDecorator(async (ctx, invokeMethod, _param1: string) => {
-  return await invokeMethod(ctx.invocation.params)
-})
+import { Controller, Get, PathParam, Post } from '@summer-js/summer'
 
 @Controller('/test')
-@A('param1')
 export class TestController {
   @Get('/:id')
-  @A('param1')
-  test(@PathParam id: number[]) {
-    console.log(id)
+  test(@PathParam id: string) {
+    return id
+  }
+
+  @Post('/:id')
+  test2(@PathParam id: string) {
+    return id
   }
 }

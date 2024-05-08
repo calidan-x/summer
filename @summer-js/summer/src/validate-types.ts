@@ -69,7 +69,11 @@ export const validateAndConvertType = (
 
   switch (checkType) {
     case String:
-      value = isFirstLevel ? propertyValue + '' : propertyValue
+      value = isFirstLevel
+        ? typeof propertyValue === 'object'
+          ? JSON.stringify(propertyValue)
+          : propertyValue + ''
+        : propertyValue
       if (typeof value !== 'string') {
         allErrors.push({
           param: errorParam,
