@@ -7,7 +7,6 @@ import { IocContainer } from './ioc'
 import { rpc } from './rpc'
 import { expireTimers, session } from './session'
 import { getEnvConfig } from './config-handler'
-import { Logger } from './logger'
 import { scheduledTask } from './scheduled-tasks'
 
 const printSummerInfo = () => {
@@ -148,11 +147,3 @@ export const summerDestroy = async () => {
     plugin.destroy && (await plugin.destroy())
   }
 }
-
-process.on('unhandledRejection', (reason) => {
-  Logger.error('Unhandled Rejection', reason)
-})
-
-process.on('uncaughtException', (err) => {
-  Logger.error('Uncaught Exception', err)
-})
