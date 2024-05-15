@@ -19,6 +19,7 @@ import { OtherErrors, NotFoundError, ResponseError, ValidationError } from './er
 import { errorHandle } from './error'
 import { ServerConfig } from './http-server'
 import { createParamDecorator } from './decorators'
+import { serialize } from './utils'
 
 const zip = promisify(gzip)
 
@@ -114,58 +115,6 @@ export const matchPathMethod = (path: string, httpMethod: string) => {
     }
   }
   return null
-}
-const serialize = (obj, declareType: any[]) => {
-  let [d0, , d2] = declareType || []
-  if (typeof d0 === 'function' && d0.name === '') {
-    d0 = d0()
-  }
-
-  if (typeof obj !== 'object') {
-    if (typeof d0 === 'object' && !Array.isArray(d0)) {
-      if (d0[obj] && typeof obj === 'number') {
-        obj = d0[obj]
-      } else if (typeof d0[obj] !== 'number') {
-        for (const enumKey in d0) {
-          if (d0[enumKey] === obj) {
-            obj = enumKey
-          }
-        }
-      }
-    }
-  } else if (Array.isArray(obj)) {
-    obj = (obj || []).map((item) => serialize(item, [d0, undefined, d2]))
-  } else {
-    const t = { ...obj }
-    for (const key in obj) {
-      let declareType =
-        Reflect.getMetadata('DeclareType', obj, key) ||
-        (d0 ? Reflect.getMetadata('DeclareType', d0.prototype, key) : []) ||
-        []
-      if (typeof declareType[0] === 'number') {
-        if (d2) {
-          const d1Type = declareType[1]
-          declareType = d2[declareType[0]] || []
-          if (d1Type) {
-            declareType[1] = d1Type
-          }
-        } else {
-          declareType = []
-        }
-      }
-      if (declareType[2]) {
-        declareType[2].forEach((d, inx) => {
-          if (typeof d[0] === 'number') {
-            declareType[2][inx] = d2[d[0]]
-          }
-        })
-      }
-      const serializeFunc = Reflect.getMetadata('Serialize', obj, key)
-      obj[key] = serializeFunc ? serializeFunc(obj[key], t) : serialize(obj[key], declareType)
-    }
-  }
-
-  return obj
 }
 
 export const applyResponse = (ctx: Context, responseData: any, returnDeclareType: any[]) => {

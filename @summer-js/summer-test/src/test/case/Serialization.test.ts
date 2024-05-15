@@ -1,6 +1,38 @@
+import { Serialize, serialize } from '@summer-js/summer'
 import { request } from '@summer-js/test'
 
+export class Dog {
+  name: string
+  age: number
+  @Serialize((_, obj: Dog) => {
+    if (obj.age > 10) {
+      return 'old'
+    }
+    return 'young'
+  })
+  ageType: string
+}
+
 describe('Test Serialization', () => {
+  test('test serialization function', async () => {
+    const dog = new Dog()
+    dog.name = 'Max'
+    dog.age = 3
+    expect(serialize(dog)).toEqual({
+      name: 'Max',
+      age: 3,
+      ageType: 'young'
+    })
+
+    dog.name = 'Max'
+    dog.age = 12
+    expect(serialize(dog)).toEqual({
+      name: 'Max',
+      age: 12,
+      ageType: 'old'
+    })
+  })
+
   test('test serialization', async () => {
     let res = await request.get('/serialize')
     expect(res.body).toStrictEqual([
