@@ -36,7 +36,7 @@ export const getGZipData = async (data: string): Promise<Buffer> => {
   })
 }
 
-export const serialize = (obj, declareType: any[] = []) => {
+export const serialize = <T>(obj: T, declareType: any[] = []): T => {
   let [d0, , d2] = declareType || []
   if (typeof d0 === 'function' && d0.name === '') {
     d0 = d0()
@@ -49,13 +49,13 @@ export const serialize = (obj, declareType: any[] = []) => {
       } else if (typeof d0[obj] !== 'number') {
         for (const enumKey in d0) {
           if (d0[enumKey] === obj) {
-            obj = enumKey
+            obj = enumKey as any
           }
         }
       }
     }
   } else if (Array.isArray(obj)) {
-    obj = (obj || []).map((item) => serialize(item, [d0, undefined, d2]))
+    obj = (obj || []).map((item) => serialize(item, [d0, undefined, d2])) as any
   } else {
     const t = { ...obj }
     for (const key in obj) {

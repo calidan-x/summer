@@ -42,4 +42,9 @@ export class IOEventController {
     console.log(data)
     socket.emit('evt', '你好2')
   }
+
+  @On
+  disconnecting(socket: Socket) {
+    console.log(socket.data)
+  }
 }
