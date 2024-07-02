@@ -38,9 +38,8 @@ export class IOEventController {
   }
 
   @On('ev t')
-  event2(socket: Socket, data) {
+  event2(_socket: Socket, data: Dog[]) {
     console.log(data)
-    socket.emit('evt', '你好2')
   }
 
   @On
