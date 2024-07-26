@@ -1,5 +1,3 @@
-import zlib from 'zlib'
-
 export const fillData = <T>(instance: T, fillData: Partial<T> & Omit<Record<string, any>, keyof T>) => {
   for (const k in fillData) {
     let propType = Reflect.getMetadata('DeclareType', instance as any, k)
@@ -22,18 +20,6 @@ export const convertData = <T>(data: Partial<T> & Omit<Record<string, any>, keyo
     }
   }
   return instance
-}
-
-export const getGZipData = async (data: string): Promise<Buffer> => {
-  return new Promise((resolve, rejected) => {
-    zlib.gzip(data, function (error, gzippedResponse) {
-      if (error) {
-        rejected(error)
-      } else {
-        resolve(gzippedResponse)
-      }
-    })
-  })
 }
 
 export const serialize = <T>(obj: T, declareType: any[] = []): T => {

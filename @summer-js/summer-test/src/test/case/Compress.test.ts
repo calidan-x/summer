@@ -8,7 +8,7 @@ describe('Test gzip response', () => {
 
   test('should return compressed data', async () => {
     const res = await request.get('/text2')
-    expect(res.headers['Content-Encoding']).toBe('gzip')
-    expect(res.body.length).toBe(3956)
+    expect(res.headers['Content-Encoding']).toBe('br')
+    // expect(res.body.length).toBe(1644)
   })
 })

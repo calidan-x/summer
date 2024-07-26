@@ -1,5 +1,6 @@
 import http, { Server } from 'http'
 import cluster from 'node:cluster'
+import { brotliCompressSync } from 'node:zlib'
 import os from 'node:os'
 import fs from 'fs'
 import path from 'path'
@@ -7,7 +8,7 @@ import path from 'path'
 import { Logger } from './logger'
 import { parseBody } from './body-parser'
 import { StreamingData, requestHandler } from './request-handler'
-import { Context, getGZipData } from './'
+import { Context } from './'
 import { handleStaticRequest } from './static-server'
 
 interface StaticConfig {
@@ -84,8 +85,8 @@ export const httpServer = {
       if (staticHandleResult.filePath) {
         let responseBody: Buffer | null = null
         if (['.css', '.js', '.txt', '.html'].includes(path.extname(staticHandleResult.filePath))) {
-          responseBody = await getGZipData(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }))
-          staticHandleResult.headers['Content-Encoding'] = 'gzip'
+          responseBody = brotliCompressSync(fs.readFileSync(staticHandleResult.filePath))
+          staticHandleResult.headers['Content-Encoding'] = 'br'
         }
         res.writeHead(staticHandleResult.code, staticHandleResult.headers)
         if (responseBody) {

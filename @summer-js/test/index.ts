@@ -1,5 +1,4 @@
 import { Context, requestHandler, waitForStart, summerDestroy } from '@summer-js/summer'
-import { unzipSync } from 'node:zlib'
 import { getInitContextData } from '@summer-js/summer/lib/http-server'
 import merge from 'deepmerge'
 import path from 'path'
@@ -76,9 +75,6 @@ const sendRequest = async <T>(method: any, path: string, requestParams: FullRequ
     ...getInitContextData()
   }
   await requestHandler(context)
-  if (context.response.headers['Content-Encoding'] === 'gzip') {
-    context.response.body = unzipSync(context.response.body).toString('utf-8')
-  }
   const rawBody = context.response.body
 
   try {

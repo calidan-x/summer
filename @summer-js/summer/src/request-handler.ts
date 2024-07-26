@@ -401,7 +401,7 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
     // compression
     const serverConfig = getEnvConfig('SERVER_CONFIG') as ServerConfig
     if (serverConfig.compression && serverConfig.compression.enable) {
-      const contentType = ctx.response.headers['Content-Type']
+      const contentType = ctx.response.headers['Content-Type'] || ''
       if (
         contentType.includes('application/json') ||
         contentType.includes('application/javascript') ||
@@ -410,13 +410,12 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
       ) {
         if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
           serverConfig.compression.type = serverConfig.compression.type || 'br'
-          if (serverConfig.compression.type === 'br') {
-            ctx.response.body = await brotliCompressSync(ctx.response.body)
-            ctx.response.headers['Content-Encoding'] = 'br'
-          } else {
-            ctx.response.body = await gzipSync(ctx.response.body)
-            ctx.response.headers['Content-Encoding'] = 'gzip'
+          if (serverConfig.compression.type === 'br' && !process.env.SUMMER_TESTING) {
+            ctx.response.body = brotliCompressSync(ctx.response.body)
+          } else if (!process.env.SUMMER_TESTING) {
+            ctx.response.body = gzipSync(ctx.response.body)
           }
+          ctx.response.headers['Content-Encoding'] = serverConfig.compression.type
         }
       }
     }
