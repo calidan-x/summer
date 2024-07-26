@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { Readable } from 'stream'
-import { brotliCompressSync } from 'zlib'
+import { brotliCompressSync, constants } from 'zlib'
 
 import { Context, StreamingData, requestHandler } from './request-handler'
 import { handleStaticRequest } from './static-server'
@@ -59,9 +59,9 @@ export const handler = async (...args) => {
 
         if (staticHandleResult.filePath) {
           if (['.css', '.js', '.txt', '.html'].includes(path.extname(staticHandleResult.filePath))) {
-            resData.body = brotliCompressSync(
-              fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' })
-            ).toString('base64')
+            resData.body = brotliCompressSync(fs.readFileSync(staticHandleResult.filePath, { encoding: 'utf-8' }), {
+              params: { [constants.BROTLI_PARAM_QUALITY]: 4 }
+            }).toString('base64')
             resData.headers['Content-Encoding'] = 'br'
           } else {
             resData.body = fs.readFileSync(staticHandleResult.filePath, { encoding: 'base64' })

@@ -1,6 +1,6 @@
 import http, { Server } from 'http'
 import cluster from 'node:cluster'
-import { brotliCompressSync } from 'node:zlib'
+import { brotliCompressSync, constants } from 'node:zlib'
 import os from 'node:os'
 import fs from 'fs'
 import path from 'path'
@@ -85,7 +85,9 @@ export const httpServer = {
       if (staticHandleResult.filePath) {
         let responseBody: Buffer | null = null
         if (['.css', '.js', '.txt', '.html'].includes(path.extname(staticHandleResult.filePath))) {
-          responseBody = brotliCompressSync(fs.readFileSync(staticHandleResult.filePath))
+          responseBody = brotliCompressSync(fs.readFileSync(staticHandleResult.filePath), {
+            params: { [constants.BROTLI_PARAM_QUALITY]: 4 }
+          })
           staticHandleResult.headers['Content-Encoding'] = 'br'
         }
         res.writeHead(staticHandleResult.code, staticHandleResult.headers)

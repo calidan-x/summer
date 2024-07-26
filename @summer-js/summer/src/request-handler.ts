@@ -3,7 +3,7 @@ import { Readable } from 'node:stream'
 import fs from 'fs'
 import mine from 'mime'
 import { basename, extname } from 'path'
-import { gzipSync, brotliCompressSync } from 'node:zlib'
+import { gzipSync, brotliCompressSync, constants } from 'node:zlib'
 import { getEnvConfig } from './config-handler'
 import { getInjectable, IocContainer } from './ioc'
 import { Logger } from './logger'
@@ -411,7 +411,9 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
         if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
           serverConfig.compression.type = serverConfig.compression.type || 'br'
           if (serverConfig.compression.type === 'br' && !process.env.SUMMER_TESTING) {
-            ctx.response.body = brotliCompressSync(ctx.response.body)
+            ctx.response.body = brotliCompressSync(ctx.response.body, {
+              params: { [constants.BROTLI_PARAM_QUALITY]: 4 }
+            })
           } else if (!process.env.SUMMER_TESTING) {
             ctx.response.body = gzipSync(ctx.response.body)
           }
