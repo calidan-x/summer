@@ -26,6 +26,7 @@ export interface ServerConfig {
   workersNumber?: number
   compression?: {
     enable: boolean
+    type?: 'gzip' | 'br'
     threshold?: number
   }
 }

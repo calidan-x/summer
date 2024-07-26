@@ -3,8 +3,7 @@ import { Readable } from 'node:stream'
 import fs from 'fs'
 import mine from 'mime'
 import { basename, extname } from 'path'
-import { gzip } from 'node:zlib'
-import { promisify } from 'node:util'
+import { gzipSync, brotliCompressSync } from 'node:zlib'
 import { getEnvConfig } from './config-handler'
 import { getInjectable, IocContainer } from './ioc'
 import { Logger } from './logger'
@@ -20,8 +19,6 @@ import { errorHandle } from './error'
 import { ServerConfig } from './http-server'
 import { createParamDecorator } from './decorators'
 import { serialize } from './utils'
-
-const zip = promisify(gzip)
 
 interface RequestContext {
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS'
@@ -406,14 +403,20 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
     if (serverConfig.compression && serverConfig.compression.enable) {
       const contentType = ctx.response.headers['Content-Type']
       if (
-        (!ctx.response.headers['Content-Encoding'] &&
-          (contentType.includes('application/json') || contentType.includes('text/html'))) ||
-        contentType.includes('text/css') ||
-        contentType.includes('application/javascript')
+        contentType.includes('application/json') ||
+        contentType.includes('application/javascript') ||
+        contentType.includes('text/html') ||
+        contentType.includes('text/css')
       ) {
         if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
-          ctx.response.body = await zip(ctx.response.body)
-          ctx.response.headers['Content-Encoding'] = 'gzip'
+          serverConfig.compression.type = serverConfig.compression.type || 'br'
+          if (serverConfig.compression.type === 'br') {
+            ctx.response.body = await brotliCompressSync(ctx.response.body)
+            ctx.response.headers['Content-Encoding'] = 'br'
+          } else {
+            ctx.response.body = await gzipSync(ctx.response.body)
+            ctx.response.headers['Content-Encoding'] = 'gzip'
+          }
         }
       }
     }
