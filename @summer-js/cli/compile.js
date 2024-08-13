@@ -97,7 +97,7 @@ const getAllReferencingSourceFiles = (
 }
 
 const addFileImport = (/** @type {string} */ typeString, /** @type {ClassDeclaration} */ clazz) => {
-  if (typeString && typeString.indexOf('import("') >= 0) {
+  if (typeString && typeString.indexOf('import("') >= 0 && typeString.indexOf('node_modules/') < 0) {
     let statement = ''
     while (true) {
       const importReg = /import\("([^"]+)"\)\.([^<^>^\[^\]]+)/

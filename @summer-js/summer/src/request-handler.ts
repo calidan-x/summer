@@ -409,7 +409,7 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
         contentType.includes('text/css')
       ) {
         if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
-          serverConfig.compression.type = serverConfig.compression.type || 'br'
+          serverConfig.compression.type = serverConfig.compression.type || 'gzip'
           if (serverConfig.compression.type === 'br' && !process.env.SUMMER_TESTING) {
             ctx.response.body = brotliCompressSync(ctx.response.body, {
               params: { [constants.BROTLI_PARAM_QUALITY]: 4 }
