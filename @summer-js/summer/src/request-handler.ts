@@ -269,15 +269,18 @@ const patchRequestHeader = (ctx: Context, lCaseHeaders?: Record<string, string>)
   if (!lowerCaseHeader) {
     lowerCaseHeader = {}
     Object.keys(ctx.request.headers || {}).forEach((key) => {
-      lowerCaseHeader![key.toLocaleLowerCase()] = ctx.request.headers[key]!
+      lowerCaseHeader![key.toLowerCase()] = ctx.request.headers[key]!
     })
   }
   ctx.request.headers = new Proxy(ctx.request.headers as any, {
-    get(_target, key: string) {
-      return lowerCaseHeader![key.toLocaleLowerCase()]
+    set(target, key: string, value: string) {
+      const foundKey = Object.keys(target).find((k) => k.toLowerCase() === key.toLowerCase())
+      target[foundKey || key] = value
+      lowerCaseHeader[key.toLowerCase()] = value
+      return true
     },
-    set(_) {
-      return false
+    get(_target, key: string) {
+      return lowerCaseHeader![key.toLowerCase()]
     }
   })
 }

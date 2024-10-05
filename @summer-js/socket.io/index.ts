@@ -1,4 +1,4 @@
-import { Logger, SummerPlugin, addPlugin, getInjectable, getEnvConfig } from '@summer-js/summer'
+import { Logger, SummerPlugin, addPlugin, getInjectable, getEnvConfig, ServerConfig } from '@summer-js/summer'
 import { httpServer } from '@summer-js/summer/lib/http-server'
 import { addInjectable, IocContainer } from '@summer-js/summer/lib/ioc'
 import { validateAndConvertType, ValidateError } from '@summer-js/summer/lib/validate-types'
@@ -20,7 +20,7 @@ class SocketIOPlugin extends SummerPlugin {
 
   async init(config) {
     if (config) {
-      const serverConfig = getEnvConfig('SERVER_CONFIG')
+      const serverConfig = getEnvConfig<ServerConfig>('SERVER_CONFIG')
       const basePath = serverConfig.basePath
       config.path = config.path || '/socket.io/'
       if (basePath) {

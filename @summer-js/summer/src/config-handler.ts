@@ -2,7 +2,7 @@ import merge from 'deepmerge'
 
 let _envConfig: any = null
 
-export const getEnvConfig = (key?: string): any => {
+export const getEnvConfig = <T = any>(key?: string): T => {
   if (_envConfig) {
     return key ? _envConfig[key] : _envConfig
   }
