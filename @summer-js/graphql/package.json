@@ -1,11 +1,11 @@
 {
 	"name": "@summer-js/graphql",
-	"version": "0.1.40",
+	"version": "0.1.41",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
 	"peerDependencies": {
-		"graphql": "^16.6.0"
+		"graphql": "^16.9.0"
 	},
 	"scripts": {
 		"build": "tsc",

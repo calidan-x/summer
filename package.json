@@ -1,38 +1,38 @@
 {
-  "name": "summer-packages",
-  "version": "0.1.40",
-  "description": "",
-  "scripts": {
-    "install-all": "npm -ws install",
-    "audit-all": "npm -ws audit",
-    "build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build && npm -w @summer-js/elasticsearch run build && npm -w @summer-js/redis run build && npm -w @summer-js/socket.io run build && npm -w @summer-js/graphql run build && npm -w @summer-js/mongodb run build && npm -w @summer-js/kafka run build",
-    "test-all": "npm -w @summer-js/summer-test run test",
-    "publish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w @summer-js/elasticsearch run release && npm -w @summer-js/redis run release && npm -w @summer-js/socket.io run release && npm -w @summer-js/graphql run release && npm -w @summer-js/mongodb run release && npm -w @summer-js/kafka run release && npm -w create-summer run release"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calidan-x/summer.git"
-  },
-  "author": "Calidan",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/calidan-x/summer/issues"
-  },
-  "homepage": "https://github.com/calidan-x/summer#readme",
-  "workspaces": [
-    "create-summer",
-    "@summer-js/summer",
-    "@summer-js/typeorm",
-    "@summer-js/summer-test",
-    "@summer-js/cli",
-    "@summer-js/test",
-    "@summer-js/node-test",
-    "@summer-js/swagger",
-    "@summer-js/elasticsearch",
-    "@summer-js/redis",
-    "@summer-js/socket.io",
-    "@summer-js/graphql",
-    "@summer-js/mongodb",
-    "@summer-js/kafka"
-  ]
+	"name": "summer-packages",
+	"version": "0.1.41",
+	"description": "",
+	"scripts": {
+		"install-all": "npm -ws install",
+		"audit-all": "npm -ws audit",
+		"build-all": "npm -w @summer-js/summer run build && npm -w @summer-js/typeorm run build && npm -w @summer-js/test run build && npm -w @summer-js/swagger run build && npm -w @summer-js/elasticsearch run build && npm -w @summer-js/redis run build && npm -w @summer-js/socket.io run build && npm -w @summer-js/graphql run build && npm -w @summer-js/mongodb run build && npm -w @summer-js/kafka run build",
+		"test-all": "npm -w @summer-js/summer-test run test",
+		"publish-all": "npm -w @summer-js/cli run release && npm -w @summer-js/summer run release && npm -w @summer-js/test run release && npm -w @summer-js/swagger run release && npm -w @summer-js/typeorm run release && npm -w @summer-js/elasticsearch run release && npm -w @summer-js/redis run release && npm -w @summer-js/socket.io run release && npm -w @summer-js/graphql run release && npm -w @summer-js/mongodb run release && npm -w @summer-js/kafka run release && npm -w create-summer run release"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calidan-x/summer.git"
+	},
+	"author": "Calidan",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/calidan-x/summer/issues"
+	},
+	"homepage": "https://github.com/calidan-x/summer#readme",
+	"workspaces": [
+		"create-summer",
+		"@summer-js/summer",
+		"@summer-js/typeorm",
+		"@summer-js/summer-test",
+		"@summer-js/cli",
+		"@summer-js/test",
+		"@summer-js/node-test",
+		"@summer-js/swagger",
+		"@summer-js/elasticsearch",
+		"@summer-js/redis",
+		"@summer-js/socket.io",
+		"@summer-js/graphql",
+		"@summer-js/mongodb",
+		"@summer-js/kafka"
+	]
 }

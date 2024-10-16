@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { Context, getContext } from '.'
 import { Cookie } from './cookie'
 import { Logger } from './logger'
-import { CookieSerializeOptions } from 'cookie'
+import { SerializeOptions } from 'cookie'
 
 const md5 = (str: string) => {
   return crypto.createHash('md5').update(str).digest('hex')
@@ -13,7 +13,7 @@ export interface SessionConfig {
   expireIn: number
   mode?: 'Cookie' | 'Header'
   sessionName?: string
-  cookieOptions?: CookieSerializeOptions
+  cookieOptions?: SerializeOptions
 }
 
 const SESSIONS = {}

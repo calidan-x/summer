@@ -64,7 +64,7 @@ export interface ResponseContext {
 export interface Context {
   request: RequestContext
   response: ResponseContext
-  cookies?: Record<string, string>
+  cookies?: Record<string, string | undefined>
   data: Record<string, any>
   invocation?: {
     className: string

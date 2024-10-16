@@ -44,9 +44,8 @@ export const requestMappingAssembler = {
   },
   addControllerRoute(controllerName: string, controllerPath: string) {
     Object.keys(this.controllerRequestMapping).forEach((path) => {
-      const keys: any[] = []
       const fullPath = path.startsWith('^') ? path.replace(/\^/g, '') : controllerPath + path
-      const regexp = pathToRegexp(fullPath, keys)
+      const { regexp, keys } = pathToRegexp(fullPath)
 
       let pathMappingData = requestMapping[fullPath] || {}
       ;['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'REQUEST'].forEach((reqMethod) => {

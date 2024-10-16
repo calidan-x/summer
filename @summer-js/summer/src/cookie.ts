@@ -1,23 +1,23 @@
-import cookie, { CookieSerializeOptions } from 'cookie'
+import { SerializeOptions, parse, serialize } from 'cookie'
 import { Context, getContext } from '.'
 
 export interface CookieItem {
   name: string
   value: string
-  options?: CookieSerializeOptions
+  options?: SerializeOptions
 }
 
 const CookieItems = Symbol('Set-Cookies')
 
 export const parseCookie = (ctx: Context) => {
   if (ctx.request.headers!.cookie) {
-    ctx.cookies = cookie.parse(ctx.request.headers!.cookie) || {}
+    ctx.cookies = parse(ctx.request.headers!.cookie) || {}
   }
 }
 
 export const assembleCookie = (ctx: Context) => {
   if (ctx[CookieItems] && ctx[CookieItems].length > 0) {
-    ctx.response.headers['Set-Cookie'] = ctx[CookieItems].map((rc) => cookie.serialize(rc.name, rc.value, rc.options))
+    ctx.response.headers['Set-Cookie'] = ctx[CookieItems].map((rc) => serialize(rc.name, rc.value, rc.options))
   }
 }
 
@@ -36,7 +36,7 @@ export const Cookie = {
     }
     return undefined
   },
-  set(name: string, value: string, options?: CookieSerializeOptions) {
+  set(name: string, value: string, options?: SerializeOptions) {
     const context = getContext()
     if (context) {
       context.cookies = context.cookies || {}

@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/test",
-	"version": "0.1.40",
+	"version": "0.1.41",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
@@ -10,9 +10,9 @@
 		"setup-jest.js"
 	],
 	"dependencies": {
-		"@types/jest": "^29.2.0",
-		"ts-jest": "^29.0.3",
-		"jest": "^29.2.2"
+		"@types/jest": "^29.5.13",
+		"ts-jest": "^29.2.5",
+		"jest": "^29.7.0"
 	},
 	"scripts": {
 		"build": "tsc",

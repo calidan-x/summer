@@ -163,21 +163,23 @@ class SwaggerPlugin extends SummerPlugin {
       if (config.docPath) {
         // change path
         requestMapping[config.docPath.replace(/\/$/, '')] = requestMapping['/-summer-swagger-ui']
-        requestMapping[config.docPath.replace(/\/$/, '')].pathRegExp = pathToRegexp(config.docPath)
+        requestMapping[config.docPath.replace(/\/$/, '')].pathRegExp = pathToRegexp(config.docPath).regexp
         delete requestMapping['/-summer-swagger-ui']
 
         requestMapping[config.docPath] = requestMapping['/-summer-swagger-ui/index']
-        requestMapping[config.docPath].pathRegExp = pathToRegexp(config.docPath)
+        requestMapping[config.docPath].pathRegExp = pathToRegexp(config.docPath).regexp
         delete requestMapping['/-summer-swagger-ui/index']
 
         requestMapping[`${config.docPath}swagger-docs.json`] = requestMapping['/-summer-swagger-ui/swagger-docs.json']
         requestMapping[`${config.docPath}swagger-docs.json`].pathRegExp = pathToRegexp(
           `${config.docPath}swagger-docs.json`
-        )
+        ).regexp
         delete requestMapping['/-summer-swagger-ui/swagger-docs.json']
 
         requestMapping[`${config.docPath}check-password`] = requestMapping['/-summer-swagger-ui/check-password']
-        requestMapping[`${config.docPath}check-password`].pathRegExp = pathToRegexp(`${config.docPath}check-password`)
+        requestMapping[`${config.docPath}check-password`].pathRegExp = pathToRegexp(
+          `${config.docPath}check-password`
+        ).regexp
         delete requestMapping['/-summer-swagger-ui/check-password']
       }
     }
