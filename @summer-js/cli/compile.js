@@ -201,8 +201,8 @@ const addPropDecorator = (/** type @type {ClassDeclaration} */ cls) => {
 // [["val1","val2"], undefined,[]]
 
 const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType, typeParams) => {
-  // interface
-  if (declareLine.startsWith(':{')) {
+  // interface or node_modules
+  if (declareLine.startsWith(':{') || declareLine.startsWith(':import(')) {
     return '[]'
   }
 
