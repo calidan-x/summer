@@ -43,7 +43,7 @@ export class StreamingData {
     } else if (filePathOrReadStreamOrDataBuffer instanceof Buffer) {
       this.readable = Readable.from(filePathOrReadStreamOrDataBuffer)
     } else {
-      this.readable = filePathOrReadStreamOrDataBuffer
+      this.readable = filePathOrReadStreamOrDataBuffer as Readable
     }
     const { contentType, downloadFileName } = options
     if (contentType) {

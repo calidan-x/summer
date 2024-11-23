@@ -1,6 +1,6 @@
 {
 	"name": "summer-packages",
-	"version": "0.1.41",
+	"version": "0.1.42",
 	"description": "",
 	"scripts": {
 		"install-all": "npm -ws install",

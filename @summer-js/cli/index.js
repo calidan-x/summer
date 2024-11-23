@@ -246,7 +246,7 @@ program
         const jestOptInx = program.args.findIndex((arg) => arg === '--')
         const jestOpts = jestOptInx > 0 ? program.args.splice(jestOptInx + 1).join(' ') : ''
         const withColor = isTerminal ? '--colors' : ''
-        const testProcess = exec('jest ' + withColor + ' ' + jestOpts)
+        const testProcess = exec(`cross-env SUMMER_ENV=${options.env} jest ${withColor} ${jestOpts}`)
         printProcessData(testProcess)
         testProcess.on('exit', (signal) => {
           if (signal === 1) {

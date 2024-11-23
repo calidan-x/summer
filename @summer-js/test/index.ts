@@ -2,6 +2,7 @@ import { Context, requestHandler, waitForStart, summerDestroy } from '@summer-js
 import { getInitContextData } from '@summer-js/summer/lib/http-server'
 import merge from 'deepmerge'
 import path from 'path'
+;(global as any).SUMMER_ENV = process.env.SUMMER_ENV
 
 const initTest = async () => {
   process.env.SUMMER_TESTING = 'true'
