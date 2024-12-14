@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/graphql",
-	"version": "0.1.42",
+	"version": "0.1.43",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
