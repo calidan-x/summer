@@ -1,7 +1,7 @@
 import { IocContainer } from '../ioc'
 
 interface InjectableDecoratorType {
-  (): ClassDecorator
+  (options?: { tags: string[] }): ClassDecorator
   (target: any): void
 }
 
@@ -12,7 +12,14 @@ export const Injectable: InjectableDecoratorType = (...args) => {
       IocContainer.pendingIocClass(clazz)
     }
   } else {
-    IocContainer.pendingIocClass(args[0])
+    if (args[0].tags) {
+      return (clazz: any) => {
+        clazz.prototype.__$tags__ = args[0].tags
+        IocContainer.pendingIocClass(clazz)
+      }
+    } else {
+      IocContainer.pendingIocClass(args[0])
+    }
   }
 }
 

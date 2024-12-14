@@ -1,10 +1,14 @@
-import { Context, Controller, Get } from '@summer-js/summer'
+import { Body, Controller, Patch } from '@summer-js/summer'
+
+export class Pet {
+  name: string
+  age?: number
+}
 
 @Controller('/test')
 export class TestController {
-  @Get('/user')
-  test(@Context ctx: Context) {
-    ctx.request.headers['accept-Language'] = 'sss'
-    return ''
+  @Patch('/pet')
+  test(@Body pet: Partial<Pet>) {
+    return pet
   }
 }

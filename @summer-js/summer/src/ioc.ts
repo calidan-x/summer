@@ -193,6 +193,22 @@ export const getInjectable = <T>(clazz: Class<T>, params: any[] = []): T => {
   return IocContainer.getInstance(clazz, params)
 }
 
+export const getService = getInjectable
+
+export const getInjectablesByTags = <T>(tags: string[]): T[] => {
+  return IocContainer.iocInstance.filter((inc: any) => {
+    let contains = false
+    tags.forEach((t) => {
+      if (inc.constructor.prototype.__$tags__?.includes(t)) {
+        contains = true
+      }
+    })
+    return contains
+  })
+}
+
+export const getServicesByTags = getInjectablesByTags
+
 export const addInjectable = <T>(clazz: Class<T>, generateFunction?: (...params: any[]) => any) => {
   IocContainer.pendingIocClass(clazz)
   if (generateFunction) {

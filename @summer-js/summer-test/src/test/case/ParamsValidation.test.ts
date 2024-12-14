@@ -186,6 +186,25 @@ describe('Controller Params Test', () => {
     expect(result.body).toStrictEqual({ a: 123, b: 'str' })
   })
 
+  test('test partial', async () => {
+    let result = await request.patch('/request-key-validate/partial', {
+      key1: 'val'
+    })
+    expect(result.statusCode).toBe(200)
+    result = await request.patch('/request-key-validate/partial', {
+      key2: 'val'
+    })
+    expect(result.statusCode).toBe(200)
+    result = await request.patch('/request-key-validate/partial', {
+      key1: ''
+    })
+    expect(result.statusCode).toBe(400)
+    result = await request.patch('/request-key-validate/partial', {
+      key2: ''
+    })
+    expect(result.statusCode).toBe(200)
+  })
+
   test('test optional and required and empty key', async () => {
     let result = await request.post('/request-key-validate/optional', {
       optionalKey: 'optionalKey',

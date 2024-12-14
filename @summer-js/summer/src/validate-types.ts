@@ -21,7 +21,8 @@ export const validateAndConvertType = (
   methodName = '',
   paramIndex = -1,
   instance: any = undefined,
-  propertyNamePath = ''
+  propertyNamePath = '',
+  isPartial = false
 ) => {
   const isFirstLevel = paramIndex >= 0
 
@@ -29,14 +30,16 @@ export const validateAndConvertType = (
     return propertyValue
   }
 
-  let [d0, d1, d2] = declareType || []
+  let [d0, d1, d2, d3 = false] = declareType || []
 
   if (typeof d0 === 'function' && d0.name === '') {
     d0 = d0()
   }
 
   if (d0 === undefined && d1 !== Array) {
-    if (propertyValue === undefined || propertyValue === null) {
+    if (isPartial && propertyValue === undefined) {
+      return propertyValue
+    } else if (propertyValue === undefined || propertyValue === null) {
       let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
       validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
     }
@@ -60,7 +63,10 @@ export const validateAndConvertType = (
 
   let value: any = undefined
   let errorParam = propertyNamePath + (propertyNamePath && !propertyName.startsWith('[') ? '.' : '') + propertyName
-  if (propertyValue === undefined || propertyValue === null) {
+
+  if (isPartial && propertyValue === undefined) {
+    return propertyValue
+  } else if (propertyValue === undefined || propertyValue === null) {
     validateRequired(instance, methodName, paramIndex, propertyName, errorParam, propertyValue, allErrors)
     return propertyValue
   }
@@ -394,7 +400,8 @@ export const validateAndConvertType = (
             '',
             -1,
             classInstance,
-            errorParam
+            errorParam,
+            d3
           )
           if (objectValue[k] === undefined) {
             continue

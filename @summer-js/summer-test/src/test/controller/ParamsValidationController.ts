@@ -14,7 +14,8 @@ import {
   Validate,
   Header,
   Len,
-  PathParam
+  PathParam,
+  Patch
 } from '@summer-js/summer'
 import { Dog } from '../../dto/request/Dog'
 
@@ -36,6 +37,11 @@ class OptionalRequest {
   optionalKey?: string
   requiredKey: string
   optionalInteger?: int
+}
+
+class PartialRequest {
+  key1: string
+  key2?: string
 }
 
 class BlankRequest {
@@ -217,6 +223,11 @@ export class ParamsValidationController {
 
   @Post('/request-key-validate/optional')
   optionalKey(@Body request: OptionalRequest) {
+    return request
+  }
+
+  @Patch('/request-key-validate/partial')
+  partialKey(@Body request: Partial<PartialRequest>) {
     return request
   }
 

@@ -239,8 +239,15 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     }
   }
 
+  let isPartial = false
   if (!paramType) {
-    paramType = parameter.getType()
+    if (parameter.getType().getText(parameter).startsWith('Partial<')) {
+      paramType = parameter.getType().getAliasTypeArguments()[0]
+      isPartial = true
+    } else {
+      paramType = parameter.getType()
+    }
+
     if (paramType.isUnion()) {
       const unionTypes = paramType.getUnionTypes()
       let hasUndefined = unionTypes.find((ut) => ut.isUndefined())
@@ -285,11 +292,11 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     try {
       const targetTarget = paramType.getTargetType()
       if (targetTarget.isClass()) {
-        return `[${baseType},undefined,[${typeArgs}]]`
+        return `[${baseType},undefined,[${typeArgs}],${isPartial}]`
       } else if (paramType.isArray()) {
         const pType = paramType.getArrayElementTypeOrThrow()
         if (pType.isClass()) {
-          return `[${baseType},Array,[${typeArgs}]]`
+          return `[${baseType},Array,[${typeArgs}],${isPartial}]`
         } else {
           return '[]'
         }
@@ -303,7 +310,7 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     type = type.replace(/\[\]$/, '')
     const pType = paramType.getArrayElementTypeOrThrow()
     if (pType.isClass() || pType.isEnum()) {
-      return `[()=>${type},Array]`
+      return `[()=>${type},Array,undefined,${isPartial}]`
     } else {
       type = TypeMapping[type]
     }
@@ -337,11 +344,11 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     if (unionArr.length === 1 && unionArr[0] === 'null') {
       return `[]`
     }
-    return `[[${unionArr.join(',')}]]`
+    return `[[${unionArr.join(',')}],undefined,undefined,${isPartial}]`
   } else if (paramType.isClass() || paramType.isEnum() || paramType.isEnumLiteral()) {
-    return `[()=>${paramType.getText(parameter)}]`
+    return `[()=>${paramType.getText(parameter)},undefined,undefined,${isPartial}]`
   } else if (paramType.isStringLiteral() || paramType.isNumberLiteral()) {
-    return `[${paramType.getText(parameter)}]`
+    return `[${paramType.getText(parameter)},undefined,undefined,${isPartial}]`
   } else {
     type = ALLTypeMapping[type]
   }
@@ -659,7 +666,7 @@ const compile = async (compileAll = false) => {
                   const decorators = [
                     {
                       name: '_ParamDeclareType',
-                      arguments: [getDeclareType(param.getText(), param), "'" + param.getName() + "'"]
+                      arguments: [getDeclareType(param.getText(), param), "'" + param.getName() + "'", 'true']
                     }
                   ]
                   if (param.hasQuestionToken() || param.hasInitializer()) {
