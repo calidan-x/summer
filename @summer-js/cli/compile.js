@@ -65,33 +65,17 @@ const getAllReferencingSourceFiles = (
     return
   }
 
-  if (!refreshFiles.includes(sf)) {
-    if (deep === 0) {
-      refreshFiles.push(sf)
-    } else {
-      sf.getClasses().forEach((cls) => {
-        if (cls.getDecorators().find((d) => d.getName() === 'Controller')) {
-          refreshFiles.push(sf)
-        }
-      })
-    }
+  if (!refreshFiles.includes(sf) && deep == 0) {
+    refreshFiles.push(sf)
   }
 
   if (!allRefFiles.includes(sf)) {
     allRefFiles.push(sf)
-    sf.getExportSymbols().forEach((es) => {
-      es.getDeclarations().forEach((d) => {
-        try {
-          // @ts-ignore
-          d.findReferencesAsNodes().forEach((node) => {
-            const refSourceFile = node.getSourceFile()
-            if (allRefFiles.includes(refSourceFile)) {
-              return
-            }
-            getAllReferencingSourceFiles(refSourceFile, allRefFiles, refreshFiles, deep + 1)
-          })
-        } catch (e) {}
-      })
+    sf.getReferencingSourceFiles().forEach((refSourceFile) => {
+      if (allRefFiles.includes(refSourceFile)) {
+        return
+      }
+      getAllReferencingSourceFiles(refSourceFile, allRefFiles, refreshFiles, deep + 1)
     })
   }
 }
@@ -562,7 +546,6 @@ const compile = async (compileAll = false) => {
   }
 
   const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
-  indexSourceFile.refreshFromFileSystemSync()
 
   const pathResolveActions = resolvePath(dirtyFiles, compileAll)
   for (const action of pathResolveActions) {
@@ -661,24 +644,15 @@ const compile = async (compileAll = false) => {
           let returnTypeStatements = ''
           cls.getMethods().forEach((cMethod) => {
             if (cMethod.getDecorators().length > 0) {
-              cMethod.getParameters().forEach((param) => {
+              cMethod.getParameters().forEach((param, inx) => {
                 if (param.getDecorators().length > 0) {
-                  const decorators = [
-                    {
-                      name: '_ParamDeclareType',
-                      arguments: [getDeclareType(param.getText(), param), "'" + param.getName() + "'", 'true']
-                    }
-                  ]
+                  fileDataTypeStatement += `\n_ParamDeclareType(${getDeclareType(
+                    param.getText(),
+                    param
+                  )},'${param.getName()}')(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
                   if (param.hasQuestionToken() || param.hasInitializer()) {
-                    decorators.push({
-                      name: '_Optional',
-                      arguments: []
-                    })
+                    fileDataTypeStatement += `\n_Optional()(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
                   }
-
-                  modifyActions.push(() => {
-                    param.addDecorators(decorators)
-                  })
                 }
               })
 
@@ -747,23 +721,15 @@ const compile = async (compileAll = false) => {
             if (cMethod.getDecorators().length > 0) {
               cMethod.getParameters().forEach((param, inx) => {
                 if (inx >= 1) {
-                  const decorators = [
-                    {
-                      name: '_ParamDeclareType',
-                      arguments: [getDeclareType(param.getText(), param)]
+                  if (param.getDecorators().length > 0) {
+                    fileDataTypeStatement += `\n_ParamDeclareType(${getDeclareType(
+                      param.getText(),
+                      param
+                    )},'${param.getName()}')(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
+                    if (param.hasQuestionToken() || param.hasInitializer()) {
+                      fileDataTypeStatement += `\n_Optional()(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
                     }
-                  ]
-
-                  if (param.hasQuestionToken() || param.hasInitializer()) {
-                    decorators.push({
-                      name: '_Optional',
-                      arguments: []
-                    })
                   }
-
-                  modifyActions.push(() => {
-                    param.addDecorators(decorators)
-                  })
                 }
               })
             }
@@ -782,47 +748,26 @@ const compile = async (compileAll = false) => {
     modifyActions.push(() => {
       sf.getSourceFile().addStatements(fileDataTypeStatement)
     })
-    console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 150) / sourceFiles.length / 10).toFixed(0) + '% ]')
+    console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 300) / sourceFiles.length / 10).toFixed(0) + '% ]')
   }
 
   modifyActions.forEach((action, inx) => {
-    console.log('COMPILE_PROGRESS [ ' + (((inx * 850) / modifyActions.length + 150) / 10).toFixed(0) + '% ]')
+    console.log('COMPILE_PROGRESS [ ' + (((inx * 700) / modifyActions.length + 300) / 10).toFixed(0) + '% ]')
     action()
   })
 
   console.log('COMPILE_PROGRESS [ 100% ]')
 
   const statements = []
-  statements.push(`(global as any).SUMMER_VERSION = "${summerPackage.version}";`)
-  statements.push(`(global as any).SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
-  statements.push(`(global as any).SUMMER_BUILD_TIMESTAMP = ${Date.now()};`)
-  statements.push(`(global as any).SERVICE_NAME = "${servicePackage.name}";`)
-  statements.push(`(global as any).SERVICE_VERSION = "${servicePackage.version || ''}";`)
-
-  if (fs.existsSync('./src/config/default.config.ts')) {
-    if (fs.readFileSync('./src/config/default.config.ts', { encoding: 'utf-8' }).trim().length > 0) {
-      const defaultConfigSourceFile = project.getSourceFileOrThrow('./src/config/default.config.ts')
-      defaultConfigSourceFile.refreshFromFileSystemSync()
-      defaultConfigSourceFile.addStatements('global["$$_DEFAULT_CONFIG"] = exports')
-
-      statements.push('import "./config/default.config";')
-    }
-  }
-  if (fs.existsSync(`./src/config/${process.env.SUMMER_ENV}.config.ts`)) {
-    if (fs.readFileSync(`./src/config/${process.env.SUMMER_ENV}.config.ts`, { encoding: 'utf-8' }).trim().length > 0) {
-      const envConfigSourceFile = project.getSourceFileOrThrow(`./src/config/${process.env.SUMMER_ENV}.config.ts`)
-      envConfigSourceFile.refreshFromFileSystemSync()
-      envConfigSourceFile.addStatements('global["$$_ENV_CONFIG"] = exports')
-
-      statements.push(`import "./config/${process.env.SUMMER_ENV}.config";`)
-    }
-  }
+  statements.push(`(global).SUMMER_VERSION = "${summerPackage.version}";`)
+  statements.push(`(global).SUMMER_ENV = "${process.env.SUMMER_ENV || ''}";`)
+  statements.push(`(global).SUMMER_BUILD_TIMESTAMP = ${Date.now()};`)
+  statements.push(`(global).SERVICE_NAME = "${servicePackage.name}";`)
+  statements.push(`(global).SERVICE_VERSION = "${servicePackage.version || ''}";`)
 
   Array.from(new Set(importFilesList)).forEach((path) => {
-    statements.push('import "' + path.replace(/\.ts$/, '') + '";')
+    statements.push('require("' + path.replace(/\.ts$/, '') + '");')
   })
-
-  indexSourceFile.getChildAtIndex(0).replaceWithText(statements.join('') + indexSourceFile.getChildAtIndex(0).getText())
 
   project.resolveSourceFileDependencies()
 
@@ -845,7 +790,32 @@ const compile = async (compileAll = false) => {
   await Promise.all(emissions)
   jsFiles = []
 
+  const defaultConfigPath = './compile/config/default.config.js'
+  if (fs.existsSync(defaultConfigPath)) {
+    const content = fs.readFileSync(defaultConfigPath, { encoding: 'utf-8' }).trim()
+    if (content.indexOf('exports.') > 0) {
+      if (content.indexOf('$$_DEFAULT_CONFIG') < 0) {
+        fs.appendFileSync(defaultConfigPath, '\nglobal["$$_DEFAULT_CONFIG"] = exports;')
+      }
+      statements.push('require("./config/default.config");')
+    }
+  }
+
+  const envConfigPath = `./compile/config/${process.env.SUMMER_ENV}.config.js`
+  if (fs.existsSync(envConfigPath)) {
+    const content = fs.readFileSync(envConfigPath, { encoding: 'utf-8' }).trim()
+    if (content.indexOf('exports.') > 0) {
+      if (content.indexOf('$$_ENV_CONFIG') < 0) {
+        fs.appendFileSync(envConfigPath, '\nglobal["$$_ENV_CONFIG"] = exports;')
+      }
+      statements.push(`require("./config/${process.env.SUMMER_ENV}.config");`)
+    }
+  }
+
   project.emitSync({ targetSourceFile: indexSourceFile })
+  const compileIndexPath = indexSourceFile.getFilePath().replace('/src/', '/compile/').replace(/.ts$/, '.js')
+  const indexFileContent = fs.readFileSync(compileIndexPath, { encoding: 'utf-8' })
+  fs.writeFileSync(compileIndexPath, statements.join('') + indexFileContent)
   dirtyFiles.splice(0, dirtyFiles.length)
 
   for (const p of pluginIncs) {

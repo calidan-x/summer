@@ -158,10 +158,11 @@ const callControllerMethod = async (ctx: Context) => {
     for (let i = 0; i < params.length; i++) {
       const param = params[i]
       if (param) {
-        let paramValue = param.paramMethod(ctx, ...param.paramValues)
+        const declareNames = Reflect.getMetadata('DeclareNames', controller, callMethod) || []
+        let paramValue = param.paramMethod(ctx, declareNames[i], ...param.paramValues)
         const convertedValue = await validateAndConvertType(
-          param.declareType,
-          param.paramValues[0],
+          Reflect.getMetadata('DeclareTypes', controller, callMethod)?.[i],
+          param.paramValues[0] || declareNames[i] || '',
           paramValue,
           allErrors,
           callMethod,

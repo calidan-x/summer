@@ -13,33 +13,33 @@ import { OmitFirstAndSecondArg } from './utility'
 //   })[argIndex]
 // }
 
-const getArgName = (target: any, method: string, argIndex: number) => {
-  let parameterNames: any[] = Reflect.getOwnMetadata('DeclareNames', target, method) || []
-  return parameterNames[argIndex]
-}
+// const getArgName = (target: any, method: string, argIndex: number) => {
+//   let parameterNames: any[] = Reflect.getOwnMetadata('DeclareNames', target, method) || []
+//   return parameterNames[argIndex]
+// }
 
 // const getArgType = (target: Object, propertyKey: string, parameterIndex: number) => {
 //   const types = Reflect.getMetadata('design:paramtypes', target, propertyKey)
 //   return types[parameterIndex]
 // }
 
-const getArgDeclareType = (target: Object, propertyKey: string, parameterIndex: number) => {
-  const types = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey)
-  if (!types) {
-    return undefined
-  }
-  return types[parameterIndex]
-}
+// export const getArgDeclareType = (target: Object, propertyKey: string, parameterIndex: number) => {
+//   const types = Reflect.getOwnMetadata('DeclareTypes', target, propertyKey)
+//   if (!types) {
+//     return undefined
+//   }
+//   return types[parameterIndex]
+// }
 
 const generateParamDecorator =
   (paramMethod: any, ...args: any[]) =>
-  (target: Object, propertyKey: string, parameterIndex: number) => {
-    const declareType = getArgDeclareType(target, propertyKey, parameterIndex)
+  (_target: Object, _propertyKey: string, parameterIndex: number) => {
+    // const declareType = getArgDeclareType(target, propertyKey, parameterIndex)
     if (!args) {
       args = []
     }
-    args.splice(0, 0, getArgName(target, propertyKey, parameterIndex))
-    requestMappingAssembler.addParam(paramMethod, args, declareType, parameterIndex)
+    // args.splice(0, 0, getArgName(target, propertyKey, parameterIndex))
+    requestMappingAssembler.addParam(paramMethod, args, undefined, parameterIndex)
   }
 
 type DecoratorMethodType = (ctx: Context, ...args: any[]) => any

@@ -11,7 +11,6 @@ const timePrefix = () => {
 }
 
 type LogType = ('Log' | 'Warn' | 'Error' | 'Info' | 'Debug')[]
-const sLogType = Symbol('LogEnable')
 const isTerminal = process.env.TERM !== undefined
 const print = (color: string, type: string, method: string, message?: any, ...optionalParams: any[]) => {
   if (!isTerminal) {
@@ -22,39 +21,39 @@ const print = (color: string, type: string, method: string, message?: any, ...op
 }
 
 let timeOffset = 0
+let sLogType: LogType = ['Log', 'Warn', 'Error', 'Info', 'Debug']
 export const Logger = {
-  [sLogType]: ['Log', 'Warn', 'Error', 'Info', 'Debug'],
   get enableTypes() {
-    return this.EnableType
+    return sLogType
   },
   set enableTypes(enable: LogType) {
-    this[sLogType] = enable
+    sLogType = enable
   },
   setTimeZone(timeZone: number) {
     timeOffset = timeZone * 60 + new Date().getTimezoneOffset()
   },
   info(message?: any, ...optionalParams: any[]) {
-    if (this[sLogType].includes('Info')) {
+    if (sLogType.includes('Info')) {
       print('32m', '[INFO]', 'info', message, ...optionalParams)
     }
   },
   error(message?: any, ...optionalParams: any[]) {
-    if (this[sLogType].includes('Error')) {
+    if (sLogType.includes('Error')) {
       print('31m', '[ERROR]', 'error', message, ...optionalParams)
     }
   },
   warn(message?: any, ...optionalParams: any[]) {
-    if (this[sLogType].includes('Warn')) {
+    if (sLogType.includes('Warn')) {
       print('33m', '[WARN]', 'warn', message, ...optionalParams)
     }
   },
   log(message?: any, ...optionalParams: any[]) {
-    if (this[sLogType].includes('Log')) {
+    if (sLogType.includes('Log')) {
       console.log(timePrefix(), '[LOG]', message, ...optionalParams)
     }
   },
   debug(message?: any, ...optionalParams: any[]) {
-    if (this[sLogType].includes('Debug')) {
+    if (sLogType.includes('Debug')) {
       print('36m', '[DEBUG]', 'debug', message, ...optionalParams)
     }
   }

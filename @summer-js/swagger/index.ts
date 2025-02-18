@@ -764,10 +764,10 @@ export class SummerSwaggerUIController {
         const parameters: any[] = []
         let requestBody: any = undefined
         let isFormBody = false
-        params.forEach((param) => {
+        params.forEach((param, inx) => {
           const paramType = getParamType(param.paramMethod.toString())
           if (paramType === 'body') {
-            let [d0] = param.declareType
+            let [d0] = Reflect.getMetadata('DeclareTypes', api.controller, api.callMethod)?.[inx]
             d0 = convertType(d0)
             if (typeof d0 === 'function') {
               for (const key of getAllProps(d0)) {
@@ -782,7 +782,7 @@ export class SummerSwaggerUIController {
 
         // request structure
         params.forEach((param, inx) => {
-          let [d0, d1, d2] = param.declareType
+          let [d0, d1, d2] = Reflect.getMetadata('DeclareTypes', api.controller, api.callMethod)?.[inx]
           d0 = convertType(d0)
           let paramType = getParamType(param.paramMethod.toString())
           if (isFormBody && paramType === 'body') {
@@ -829,7 +829,9 @@ export class SummerSwaggerUIController {
             let isRequired = !(Reflect.getMetadata('optional', api.controller, api.callMethod) || [])[inx]
 
             const parameter: any = {
-              name: param.paramValues[1] || param.paramValues[0],
+              name:
+                param.paramValues[0] ||
+                (Reflect.getMetadata('DeclareNames', api.controller, api.callMethod) || [])[inx],
               in: paramType,
               required: isRequired
             }
