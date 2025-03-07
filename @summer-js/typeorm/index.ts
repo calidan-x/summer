@@ -134,19 +134,22 @@ export const transaction = async (exec: () => any, transactionOptions?: Transact
   })
 }
 
-const repositoryCache = {}
+const repositoryCache: Record<string, WeakMap<any, any>> = {}
 export const getRepository = <Entity extends ObjectLiteral>(
   entityClass: EntityTarget<Entity>,
   dataSourceName: string = ''
-): TypeOrmRepository<Entity> | null => {
+): TypeOrmRepository<Entity> => {
   if (!entityClass) {
-    return null
+    return null as any
   }
   const typeORMConfig = getEnvConfig('TYPEORM_CONFIG')
   if (Object.keys(typeORMConfig)[0]) {
     const dsName = dataSourceName || Object.keys(typeORMConfig)[0]
     if (repositoryCache[dsName]) {
-      return repositoryCache[dsName]
+      const repository = repositoryCache[dsName].get(entityClass)
+      if (repository) {
+        return repository
+      }
     }
     try {
       const repository = getDataSource(dsName).getRepository(entityClass)
@@ -200,13 +203,16 @@ export const getRepository = <Entity extends ObjectLiteral>(
           return transactionManager[m].apply(transactionManager, _shouldAddEntity ? [entityClass, ...args] : args)
         }
       })
-      repositoryCache[dsName] = repository
+      if (!repositoryCache[dsName]) {
+        repositoryCache[dsName] = new WeakMap()
+      }
+      repositoryCache[dsName].set(entityClass, repository)
       return repository
     } catch (e) {
       Logger.error(e)
     }
   }
-  return null
+  return null as any
 }
 
 export class Repository<

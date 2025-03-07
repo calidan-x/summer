@@ -47,12 +47,12 @@ export const IocContainer = {
       }
     }
   },
-  getInstance<T>(clazz: Class<T>, params: any[] = []): T | null {
+  getInstance<T>(clazz: Class<T>, params: any[] = []): T {
     if (params.length === 0) {
       return this.iocInstanceMap.get(clazz)
     } else {
       const genericInstance = this.findGenericInstance(clazz, params)
-      return genericInstance ? genericInstance.instance : null
+      return genericInstance ? genericInstance.instance : (null as any)
     }
   },
   pendingIocClass(clazz: any) {
@@ -189,7 +189,7 @@ export const IocContainer = {
   }
 }
 
-export const getInjectable = <T>(clazz: Class<T>, params: any[] = []): T | null => {
+export const getInjectable = <T>(clazz: Class<T>, params: any[] = []): T => {
   return IocContainer.getInstance(clazz, params)
 }
 

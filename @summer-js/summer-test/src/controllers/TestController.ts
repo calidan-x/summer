@@ -13,7 +13,7 @@ export class TestController {
   }
 
   @Get('/a')
-  a(@Query q: int) {
-    console.log(q)
+  a(@Query a: string) {
+    console.log(a)
   }
 }
