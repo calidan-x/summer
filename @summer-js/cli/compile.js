@@ -525,6 +525,7 @@ const compile = async (compileAll = false) => {
   if (!isFirstCompile) {
     for (const sf of [...refreshFiles, ...jsFiles]) {
       sf.refreshFromFileSystemSync()
+      sf.getNodesReferencingOtherSourceFiles()
     }
     project.resolveSourceFileDependencies()
   }

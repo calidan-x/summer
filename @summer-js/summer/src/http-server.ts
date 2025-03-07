@@ -77,8 +77,18 @@ export const httpServer = {
       }
     }
 
-    const urlObj = new URL(req.url!, 'https://summerjs.dev')
+    const urlObj = new URL(decodeURI(req.url!), 'https://summerjs.dev')
     const requestPath = urlObj.pathname || '/'
+
+    const queries = {}
+    for (let [key, val] of urlObj.searchParams.entries()) {
+      if (key.endsWith('[]')) {
+        key = key.slice(0, -2)
+        ;(queries[key] || (queries[key] = [])).push(val)
+      } else {
+        queries[key] = val
+      }
+    }
 
     const staticHandleResult = handleStaticRequest(requestPath)
     if (staticHandleResult) {
@@ -118,7 +128,7 @@ export const httpServer = {
         method: req.method as any,
         path: requestPath,
         pathParams: {},
-        queries: { ...Object.fromEntries(urlObj.searchParams) } as any,
+        queries,
         headers: headers,
         body: bodyData
       },

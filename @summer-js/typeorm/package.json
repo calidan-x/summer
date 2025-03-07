@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/typeorm",
-	"version": "0.1.44",
+	"version": "0.1.45",
 	"description": "",
 	"main": "lib/index.js",
 	"files": [

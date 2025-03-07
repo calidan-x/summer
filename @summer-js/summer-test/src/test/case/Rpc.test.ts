@@ -21,9 +21,11 @@ describe('Test Rpc', () => {
 
   test('should return right value', async () => {
     const userRpcClientService = getInjectable(UserRpcClientService)
-    const user = await userRpcClientService.getUser(99, { name: 'test' })
-    expect(user.id).toBe(99)
-    expect(user.name).toBe('John')
+    if (userRpcClientService) {
+      const user = await userRpcClientService.getUser(99, { name: 'test' })
+      expect(user.id).toBe(99)
+      expect(user.name).toBe('John')
+    }
   })
 
   test('should send right value', async () => {

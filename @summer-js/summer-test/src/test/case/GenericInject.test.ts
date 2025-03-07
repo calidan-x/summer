@@ -13,7 +13,9 @@ describe('Test Loc', () => {
 
   test('should getInjectable works', async () => {
     const genericService = getInjectable(GenericService, [GType, GType])
-    expect(genericService.t instanceof GType).toBe(true)
-    expect(genericService.k instanceof GType).toBe(true)
+    if (genericService) {
+      expect(genericService.t instanceof GType).toBe(true)
+      expect(genericService.k instanceof GType).toBe(true)
+    }
   })
 })

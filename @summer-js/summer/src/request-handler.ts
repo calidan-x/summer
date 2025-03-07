@@ -254,16 +254,6 @@ const makeRequestError = (ctx: Context, responseError: ResponseError) => {
   ctx.response.body = responseError.body
 }
 
-const decodeQuery = (ctx: Context) => {
-  Object.keys(ctx.request.queries).forEach((key) => {
-    if (ctx.request.queries[key] !== '') {
-      ctx.request.queries[key] = decodeURIComponent(ctx.request.queries[key]!)
-    } else {
-      delete ctx.request.queries[key]
-    }
-  })
-}
-
 const patchRequestHeader = (ctx: Context, lCaseHeaders?: Record<string, string>) => {
   // header case-insensitive
   let lowerCaseHeader = lCaseHeaders
@@ -307,7 +297,6 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
 
     try {
       patchRequestHeader(ctx, lowerCaseHeaders)
-      decodeQuery(ctx)
       if (ctx.request.body === '') {
         delete ctx.request.body
       }

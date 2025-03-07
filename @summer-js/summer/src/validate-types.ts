@@ -127,17 +127,18 @@ export const validateAndConvertType = (
       break
     case Number:
     case _Int:
+      const numberOrInteger = checkType === _Int ? 'an integer' : 'a number'
       const numVal = Number(propertyValue)
       if (typeof propertyValue === 'boolean' || propertyValue === null || propertyValue === '') {
         allErrors.push({
           param: errorParam,
-          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a number'
+          message: typeDisplayText(propertyValue, isFirstLevel) + ' is not ' + numberOrInteger
         })
       } else if (d0 === Number) {
         if (Number.isNaN(numVal) || typeof numVal !== 'number') {
           allErrors.push({
             param: errorParam,
-            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not a number'
+            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not ' + numberOrInteger
           })
         }
         value = numVal
@@ -145,7 +146,7 @@ export const validateAndConvertType = (
         if (!Number.isInteger(numVal)) {
           allErrors.push({
             param: errorParam,
-            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not an integer'
+            message: typeDisplayText(propertyValue, isFirstLevel) + ' is not ' + numberOrInteger
           })
         }
         value = numVal

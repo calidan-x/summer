@@ -134,6 +134,7 @@ export const transaction = async (exec: () => any, transactionOptions?: Transact
   })
 }
 
+const repositoryCache = {}
 export const getRepository = <Entity extends ObjectLiteral>(
   entityClass: EntityTarget<Entity>,
   dataSourceName: string = ''
@@ -143,8 +144,12 @@ export const getRepository = <Entity extends ObjectLiteral>(
   }
   const typeORMConfig = getEnvConfig('TYPEORM_CONFIG')
   if (Object.keys(typeORMConfig)[0]) {
+    const dsName = dataSourceName || Object.keys(typeORMConfig)[0]
+    if (repositoryCache[dsName]) {
+      return repositoryCache[dsName]
+    }
     try {
-      const repository = getDataSource(dataSourceName || Object.keys(typeORMConfig)[0]).getRepository(entityClass)
+      const repository = getDataSource(dsName).getRepository(entityClass)
       const patchMethods = [
         // need Entity
         'createQueryBuilder',
@@ -195,6 +200,7 @@ export const getRepository = <Entity extends ObjectLiteral>(
           return transactionManager[m].apply(transactionManager, _shouldAddEntity ? [entityClass, ...args] : args)
         }
       })
+      repositoryCache[dsName] = repository
       return repository
     } catch (e) {
       Logger.error(e)
