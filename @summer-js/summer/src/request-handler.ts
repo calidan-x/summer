@@ -3,7 +3,7 @@ import { Readable } from 'node:stream'
 import fs from 'fs'
 import mine from 'mime'
 import { basename, extname } from 'path'
-import { gzipSync, brotliCompressSync, constants } from 'node:zlib'
+import { constants, createBrotliCompress, createGzip } from 'node:zlib'
 import { getEnvConfig } from './config-handler'
 import { getInjectable, IocContainer } from './ioc'
 import { Logger } from './logger'
@@ -402,15 +402,24 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
         contentType.includes('text/css')
       ) {
         if (ctx.response.body.length > (serverConfig.compression.threshold ?? 860)) {
-          serverConfig.compression.type = serverConfig.compression.type || 'gzip'
-          if (serverConfig.compression.type === 'br' && !process.env.SUMMER_TESTING) {
-            ctx.response.body = brotliCompressSync(ctx.response.body, {
-              params: { [constants.BROTLI_PARAM_QUALITY]: 4 }
-            })
-          } else if (!process.env.SUMMER_TESTING) {
-            ctx.response.body = gzipSync(ctx.response.body)
+          let compressionType = serverConfig.compression.type
+          if (!compressionType) {
+            compressionType = (ctx.request.headers['accept-encoding'] || '').includes('br') ? 'br' : 'gzip'
           }
-          ctx.response.headers['Content-Encoding'] = serverConfig.compression.type
+          if (!process.env.SUMMER_TESTING) {
+            const readableStream = Readable.from(ctx.response.body)
+            ctx.response.body = readableStream.pipe(
+              compressionType === 'br'
+                ? createBrotliCompress({
+                    params: {
+                      [constants.BROTLI_PARAM_QUALITY]: 4,
+                      [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_TEXT
+                    }
+                  })
+                : createGzip()
+            )
+          }
+          ctx.response.headers['Content-Encoding'] = compressionType
         }
       }
     }

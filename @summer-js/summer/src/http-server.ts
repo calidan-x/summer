@@ -1,6 +1,7 @@
 import http, { Server } from 'http'
 import cluster from 'node:cluster'
-import { brotliCompressSync, constants } from 'node:zlib'
+import { Readable } from 'node:stream'
+import { constants, createBrotliCompress, createGzip } from 'node:zlib'
 import os from 'node:os'
 import fs from 'fs'
 import path from 'path'
@@ -93,24 +94,25 @@ export const httpServer = {
     const staticHandleResult = handleStaticRequest(requestPath)
     if (staticHandleResult) {
       if (staticHandleResult.filePath) {
-        let responseBody: Buffer | null = null
+        let readSteam: Readable = fs.createReadStream(staticHandleResult.filePath)
+        const compressMode = (req.headers['accept-encoding'] || '').includes('br') ? 'br' : 'gzip'
         if (['.css', '.js', '.txt', '.html'].includes(path.extname(staticHandleResult.filePath))) {
-          responseBody = brotliCompressSync(fs.readFileSync(staticHandleResult.filePath), {
-            params: { [constants.BROTLI_PARAM_QUALITY]: 4 }
-          })
-          staticHandleResult.headers['Content-Encoding'] = 'br'
+          readSteam = readSteam.pipe(
+            compressMode === 'br'
+              ? createBrotliCompress({
+                  params: {
+                    [constants.BROTLI_PARAM_QUALITY]: 4,
+                    [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_TEXT
+                  }
+                })
+              : createGzip()
+          )
+          staticHandleResult.headers['Content-Encoding'] = compressMode
         }
         res.writeHead(staticHandleResult.code, staticHandleResult.headers)
-        if (responseBody) {
-          res.write(responseBody)
+        readSteam.pipe(res).on('end', () => {
           res.end()
-        } else {
-          fs.createReadStream(staticHandleResult.filePath)
-            .pipe(res)
-            .on('end', () => {
-              res.end()
-            })
-        }
+        })
       } else {
         res.writeHead(staticHandleResult.code, staticHandleResult.headers)
         res.end()
@@ -139,10 +141,15 @@ export const httpServer = {
     ;(res as any).$SummerContext = context
 
     await requestHandler(context, req.headers as any)
-
     res.writeHead(context.response.statusCode, context.response.headers)
     if (!(context.response.body instanceof StreamingData)) {
-      res.end(context.response.body)
+      if (context.response.body instanceof Readable) {
+        context.response.body.pipe(res).on('end', () => {
+          res.end()
+        })
+      } else {
+        res.end(context.response.body)
+      }
     } else {
       context.response.body.readable.pipe(res).on('end', () => {
         res.end()
