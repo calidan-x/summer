@@ -5,7 +5,7 @@ import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
-import { Project, ClassDeclaration, SourceFile } from 'ts-morph'
+import { Project, ClassDeclaration, SourceFile, SyntaxKind } from 'ts-morph'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -602,6 +602,23 @@ const compile = async (compileAll = false) => {
         })
       }
     })
+
+    for (const statement of sf.getVariableStatements()) {
+      const declaration = statement.getDeclarations()[0]
+      if (declaration) {
+        if (declaration.getType().isAnonymous()) {
+          for (const comment of statement.getLeadingCommentRanges()) {
+            if (/@auto-import *$/.test(comment.getText())) {
+              const funcName = statement.getDeclarations()[0].getName()
+              if (funcName) {
+                autoImportDecorators.push(funcName)
+              }
+            }
+          }
+        }
+      }
+    }
+
     for (const func of sf.getFunctions()) {
       for (const comment of func.getLeadingCommentRanges()) {
         if (/@auto-import *$/.test(comment.getText())) {
