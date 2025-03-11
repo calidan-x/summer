@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // @ts-check
-import fs, { unlink } from 'fs'
+import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
@@ -568,6 +568,17 @@ const compile = async (compileAll = false) => {
   }
 
   let importFilesList = []
+  const autoImportDecorators = [
+    'ClassCollect',
+    'Service',
+    'SocketIOController',
+    'Injectable',
+    'RpcProvider',
+    'RpcClient',
+    'Middleware',
+    'Controller',
+    'ErrorHandler'
+  ]
   for (const sf of sourceFiles) {
     ;['default.config.ts', process.env.SUMMER_ENV + '.config.ts'].forEach((configFileName) => {
       if (sf.getFilePath().indexOf(configFileName) > 0) {
@@ -591,6 +602,16 @@ const compile = async (compileAll = false) => {
         })
       }
     })
+    for (const func of sf.getFunctions()) {
+      for (const comment of func.getLeadingCommentRanges()) {
+        if (/@auto-import *$/.test(comment.getText())) {
+          const funcName = func.getName()
+          if (funcName) {
+            autoImportDecorators.push(funcName)
+          }
+        }
+      }
+    }
   }
 
   PLUGINS = Array.from(new Set(PLUGINS))
@@ -603,18 +624,6 @@ const compile = async (compileAll = false) => {
       pluginIncs.push(new P())
     } catch (e) {}
   }
-
-  const autoImportDecorators = [
-    'ClassCollect',
-    'Service',
-    'SocketIOController',
-    'Injectable',
-    'RpcProvider',
-    'RpcClient',
-    'Middleware',
-    'Controller',
-    'ErrorHandler'
-  ]
 
   let compileCounter = 0
   for (const sf of sourceFiles) {
