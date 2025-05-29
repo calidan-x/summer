@@ -745,17 +745,15 @@ const compile = async (compileAll = false) => {
           })
         } else if (classDecorator.getName() === 'SocketIOController') {
           cls.getMethods().forEach((cMethod) => {
-            if (cMethod.getDecorators().length > 0) {
+            if (cMethod.getDecorators().find((d) => d.getName() === 'On')) {
               cMethod.getParameters().forEach((param, inx) => {
                 if (inx >= 1) {
-                  if (param.getDecorators().length > 0) {
-                    fileDataTypeStatement += `\n_ParamDeclareType(${getDeclareType(
-                      param.getText(),
-                      param
-                    )},'${param.getName()}')(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
-                    if (param.hasQuestionToken() || param.hasInitializer()) {
-                      fileDataTypeStatement += `\n_Optional()(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
-                    }
+                  fileDataTypeStatement += `\n_ParamDeclareType(${getDeclareType(
+                    param.getText(),
+                    param
+                  )},'${param.getName()}')(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
+                  if (param.hasQuestionToken() || param.hasInitializer()) {
+                    fileDataTypeStatement += `\n_Optional()(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
                   }
                 }
               })
