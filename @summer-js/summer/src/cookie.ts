@@ -48,9 +48,7 @@ export const Cookie = {
   clear(name: string, domain?: string) {
     const context = getContext()
     if (context) {
-      if (!context[CookieItems]) {
-        context[CookieItems] = []
-      }
+      context[CookieItems] = context[CookieItems] || []
       context[CookieItems].push({ name, value: '', options: { maxAge: 0, domain } })
     }
   }
