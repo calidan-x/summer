@@ -55,6 +55,10 @@ const printProcessData = (p) => {
         spinner.stop()
       }
       process.stdout.write(dataLines)
+      if (compileTime > 0) {
+        console.log('\x1b[33mCompile Time: ' + compileTime + 's\n\x1b[0m')
+        compileTime = 0
+      }
     }
   })
 
@@ -88,13 +92,33 @@ const plugin = {
   }
 }
 
+const sizeFormat = (size) => {
+  if (size > 1024 * 1024) {
+    return Math.round((size * 100) / (1024 * 1024)) / 100 + 'MB'
+  }
+  return Math.round((size * 100) / 1024) / 100 + 'KB'
+}
+
 const getFileSize = (file) => {
   const stats = fs.statSync(file)
   const fileSizeInBytes = stats.size
-  if (fileSizeInBytes > 1024 * 1024) {
-    return Math.round((fileSizeInBytes * 100) / (1024 * 1024)) / 100 + 'MB'
+  return sizeFormat(fileSizeInBytes)
+}
+
+const getFolderSize = (dirPath) => {
+  let totalSize = 0
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name)
+
+    if (entry.isDirectory()) {
+      totalSize += getFolderSize(fullPath) // 递归
+    } else if (entry.isFile()) {
+      const stats = fs.statSync(fullPath)
+      totalSize += stats.size
+    }
   }
-  return Math.round((fileSizeInBytes * 100) / 1024) / 100 + 'KB'
+  return totalSize
 }
 
 // external: string[]
@@ -120,7 +144,7 @@ const build = (env, { fullSourceMap = false, external = [] }) => {
         console.log('build/index.js      ' + getFileSize('build/index.js'))
         console.log('build/index.js.map  ' + getFileSize('build/index.js.map'))
         if (fs.existsSync('build/resource')) {
-          console.log('build/resource')
+          console.log('build/resource      ' + sizeFormat(getFolderSize('build/resource')))
         }
         console.log()
       }
@@ -140,6 +164,8 @@ const packageInfo = JSON.parse(fs.readFileSync('./package.json', { encoding: 'ut
 program.version(packageInfo.version)
 
 // SERVE
+let compileStartTime = 0
+let compileTime = 0
 program
   .command('serve')
   .description('start dev server')
@@ -169,6 +195,7 @@ program
               if (spinner.text !== 'INITING...') {
                 clearScreen()
               }
+              compileStartTime = Date.now()
               spinner.text = 'COMPILING...'
               spinner.start()
               if (serveProcess) {
@@ -178,6 +205,7 @@ program
             } else if (data.trim().startsWith('COMPILE_PROGRESS')) {
               spinner.text = 'COMPILING...' + data.trim().replace('COMPILE_PROGRESS', '')
             } else if (data.trim().startsWith('COMPILE_DONE')) {
+              compileTime = (Date.now() - compileStartTime) / 1000
               spinner.text = 'STARTING...'
               if (fs.existsSync('./compile/index.js')) {
                 serveProcess = spawn('node', ['--enable-source-maps', './compile/index.js'])

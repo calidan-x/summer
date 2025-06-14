@@ -45,11 +45,15 @@ export const Cookie = {
       context[CookieItems].push({ name, value, options })
     }
   },
-  clear(name: string, domain?: string) {
+  clear(name: string, options?: SerializeOptions) {
     const context = getContext()
     if (context) {
       context[CookieItems] = context[CookieItems] || []
-      context[CookieItems].push({ name, value: '', options: { maxAge: 0, domain } })
+      context[CookieItems].push({
+        name,
+        value: '',
+        options: { maxAge: 0, ...options }
+      })
     }
   }
 }

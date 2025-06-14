@@ -1,19 +1,18 @@
-import { Body, Controller, Get, Patch, Query } from '@summer-js/summer'
+import { Controller, Get, Patch } from '@summer-js/summer'
 
-export class Pet {
-  name: string
-  age?: number
-}
+import { t } from './Test6'
+import { PetService } from './TestService'
 
 @Controller('/test')
 export class TestController {
+  petService: PetService
   @Patch('/pet')
-  test(@Body pet: Partial<Pet>) {
-    return pet
+  test() {
+    return this.petService.getPet()
   }
 
   @Get('/a')
-  a(@Query a: string) {
-    console.log(a)
+  a() {
+    console.log(t)
   }
 }

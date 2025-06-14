@@ -1,0 +1,15 @@
+init compile
+init error
+init compile interrupt
+
+add a ts file
+add a js file
+
+update a ts file
+update a js file
+update error
+
+delete a ts file
+delete a js file
+
+return not same

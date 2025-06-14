@@ -246,6 +246,9 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     if (!paramType.isStringLiteral()) {
       paramType = paramType.getApparentType()
     }
+  } else if (paramType.getText(parameter).startsWith('Partial<')) {
+    isPartial = true
+    paramType = paramType.getAliasTypeArguments()[0]
   }
 
   if (!paramType || paramType.isAnonymous()) {
@@ -336,7 +339,6 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
   } else {
     type = ALLTypeMapping[type]
   }
-
   return type
 }
 
@@ -348,24 +350,26 @@ const stripColor = (/** @type {string} */ str) => {
   return str.replace(/\x1B[[(?);]{0,2}(;?\d)*./g, '')
 }
 
-const checkError = (/** @type {SourceFile[]} */ updateFileList) => {
+const checkError = (/** @type {SourceFile[]} */ checkFileList) => {
   let diagnostics = []
-  for (const sf of updateFileList) {
+  let counter = 0
+  let hasError = false
+  let returnErrorCount = 0
+  for (const sf of checkFileList) {
     if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
       continue
     }
-    diagnostics.push(...sf.getPreEmitDiagnostics())
-  }
+    const fileDiagnostics = sf.getPreEmitDiagnostics()
+    if (fileDiagnostics.length > 0) {
+      if (!hasError) {
+        hasError = true
+        console.error(stripColor('\x1b[31mError compiling source code:\n\x1b[0m'))
+      }
+      console.log(stripColor(project.formatDiagnosticsWithColorAndContext(fileDiagnostics)))
+    }
+    diagnostics.push(...fileDiagnostics)
 
-  if (diagnostics.length > 0) {
-    console.error(stripColor('\x1b[31mError compiling source code:\x1b[0m'))
-    console.log(stripColor(project.formatDiagnosticsWithColorAndContext(diagnostics)))
-    console.log(stripColor(`\x1b[33m\nFound ${diagnostics.length} Error${diagnostics.length > 1 ? 's' : ''}\x1b[0m`))
-    compiling = false
-    return true
-  }
-
-  for (const sf of project.getSourceFiles()) {
+    // check multi return type
     for (const cls of sf.getClasses()) {
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller') {
@@ -402,15 +406,25 @@ const checkError = (/** @type {SourceFile[]} */ updateFileList) => {
             } catch (e) {}
 
             if (returnTypeStr.indexOf('|') > 0) {
-              console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:\n')
-              console.error('\x1b[31m%s\x1b[0m', cls.getSourceFile().getFilePath())
+              if (!hasError) {
+                hasError = true
+                console.error('\x1b[31m%s\x1b[0m', 'Error compiling source code:\n')
+              }
+              returnErrorCount++
               console.error(
-                '\x1b[31m%s\x1b[0m',
+                `\n\x1b[36m${path.relative(process.cwd(), cls.getSourceFile().getFilePath())}\x1b[0m:\x1b[33m${
+                  cMethod.getStartLineNumber() + 1
+                }\x1b[0m:\x1b[33m1\x1b[0m`
+              )
+              console.error(
                 cls.getName() + '.' + cMethod.getName() + '()' + ' should return consistent type for api response'
               )
-              console.error('\x1b[31m%s\x1b[0m', '# ' + returnTypeStr.replace(/import\("[^"]+"\)\./g, '') + '\n')
-              console.error('\x1b[31m%s\x1b[0m', 'Or add "as any" to return type to ignore this error')
-              compiling = false
+              console.error(
+                '\nReturn types: \x1b[33m%s\x1b[0m',
+                returnTypeStr.replace(/import\("[^"]+"\)\./g, '') + '\n'
+              )
+              console.error('Or add "as any" to return type to ignore this error')
+              hasError = true
             }
 
             if (!returnTypeStr.startsWith('{') && !returnType.isInterface()) {
@@ -424,22 +438,35 @@ const checkError = (/** @type {SourceFile[]} */ updateFileList) => {
         }
       }
     }
+
+    counter++
+    console.log('COMPILE_PROGRESS [ ' + (((counter * 450) / checkFileList.length + 0) / 10).toFixed(0) + '% ]')
   }
 
-  if (!compiling) {
+  if (diagnostics.length > 0) {
+    console.log(
+      stripColor(
+        `\x1b[33m\nFound ${diagnostics.length + returnErrorCount} Error${diagnostics.length > 1 ? 's' : ''}\x1b[0m`
+      )
+    )
+    compiling = false
     return true
   }
 
-  return false
+  if (hasError) {
+    compiling = false
+  }
+
+  return hasError
 }
 
-const resolvePath = (dirtyFiles, compileAll) => {
+const resolvePath = (dirtyFiles) => {
   if (Object.keys(project.getCompilerOptions().paths || {}).length === 0) {
     return []
   }
   const pathResolveActions = []
-  for (const sf of project.getSourceFiles()) {
-    if (sf.getFilePath().endsWith('.d.ts') || (!dirtyFiles.includes(sf) && !compileAll)) {
+  for (const sf of dirtyFiles) {
+    if (sf.getFilePath().endsWith('.d.ts')) {
       continue
     }
     sf.getImportDeclarations().forEach((impt) => {
@@ -467,98 +494,118 @@ const resolvePath = (dirtyFiles, compileAll) => {
 let compiling = false
 let isFirstCompile = true
 const updateFileList = []
-const dirtyFiles = []
-/** @type {SourceFile[]} */
-let jsFiles = []
+
 /** @type {(()=>void)[]} */
 let modifyActions = []
 
-const compile = async (compileAll = false) => {
+const compile = async () => {
   compiling = true
   const pluginIncs = []
-  modifyActions = []
-  const refreshFiles = []
-  console.log('COMPILE_START')
 
+  // refresh from file system
+  /** @type {SourceFile[]} */
+  const refreshFiles = []
+
+  // refresh an recompile js
+  /** @type {SourceFile[]} */
+  const dirtyFiles = []
+
+  // type check files
+  /** @type {SourceFile[]} */
+  let checkFiles = []
+
+  modifyActions = []
+
+  const preUpdateFilesCount = updateFileList.length
+
+  console.log('COMPILE_START')
   for (const { event, updatePath } of updateFileList) {
-    if (['change', 'add'].includes(event)) {
-      if (updatePath.endsWith('.ts')) {
+    if (['change'].includes(event)) {
+      if (
+        updatePath.endsWith('.ts') ||
+        updatePath.endsWith('.js') ||
+        updatePath.endsWith('.cjs') ||
+        updatePath.endsWith('.mjs')
+      ) {
         const sf = project.getSourceFile(path.resolve(updatePath))
         if (sf) {
-          if (isFirstCompile) {
-            dirtyFiles.push(sf)
-          } else {
-            getAllReferencingSourceFiles(sf, dirtyFiles, refreshFiles)
-          }
-        }
-      }
-      if (updatePath.endsWith('.js') || updatePath.endsWith('.cjs') || updatePath.endsWith('.mjs')) {
-        const sf = project.getSourceFile(path.resolve(updatePath))
-        if (sf) {
-          jsFiles.push(sf)
+          sf.refreshFromFileSystemSync()
+          refreshFiles.push(sf)
         }
       }
     }
+
     if (['add'].includes(event)) {
-      if (updatePath.endsWith('.ts')) {
-        const sourceFiles = project.addSourceFilesAtPaths(updatePath)
-        if (!isFirstCompile) {
-          dirtyFiles.push(sourceFiles[0])
+      if (
+        updatePath.endsWith('.ts') ||
+        updatePath.endsWith('.js') ||
+        updatePath.endsWith('.cjs') ||
+        updatePath.endsWith('.mjs')
+      ) {
+        const sf = project.addSourceFilesAtPaths(updatePath)[0]
+        if (sf) {
+          refreshFiles.push(sf)
         }
       }
     }
+
     if (['unlink'].includes(event)) {
       try {
         const unlinkSourceFile = project.getSourceFileOrThrow(updatePath)
-        getAllReferencingSourceFiles(unlinkSourceFile, dirtyFiles, refreshFiles)
-        let inx = dirtyFiles.findIndex((sf) => sf === unlinkSourceFile)
-        dirtyFiles.splice(inx, 1)
-        inx = refreshFiles.findIndex((sf) => sf === unlinkSourceFile)
-        refreshFiles.splice(inx, 1)
         project.removeSourceFile(unlinkSourceFile)
-        fs.rmSync(updatePath.replace(/^src/, 'compile').replace(/\.ts$/, '.js'))
-        fs.rmSync(updatePath.replace(/^src/, 'compile').replace(/\.ts$/, '.js.map'))
+        const ext = path.extname(updatePath)
+        fs.rmSync(updatePath.replace(/^src/, 'compile').replace(new RegExp(`${ext}$`), '.js'))
+        fs.rmSync(updatePath.replace(/^src/, 'compile').replace(new RegExp(`${ext}$`), '.js.map'))
       } catch (e) {}
     }
   }
 
-  if (!isFirstCompile) {
-    for (const sf of [...refreshFiles, ...jsFiles]) {
-      sf.refreshFromFileSystemSync()
-      sf.getNodesReferencingOtherSourceFiles()
+  // type check
+  project.getSourceFiles().forEach((sf) => {
+    sf.getFilePath()
+    if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
+      return
     }
-    project.resolveSourceFileDependencies()
-  }
-
-  // for not dev mode
-  if (compileAll) {
-    project.getSourceFiles().forEach((sf) => {
-      if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
-        return
-      }
+    checkFiles.push(sf)
+    if (isFirstCompile) {
       dirtyFiles.push(sf)
-    })
+    } else {
+      refreshFiles.forEach((rf) => {
+        if (!dirtyFiles.includes(rf)) {
+          dirtyFiles.push(rf)
+        }
+      })
+      sf.getClasses().forEach((cls) => {
+        for (const classDecorator of cls.getDecorators()) {
+          if (['Controller', 'SocketIOController', 'RpcClient'].includes(classDecorator.getName())) {
+            if (!dirtyFiles.includes(sf)) {
+              dirtyFiles.push(sf)
+            }
+            break
+          }
+        }
+      })
+    }
+  })
+
+  if (isFirstCompile) {
+    checkFiles = checkFiles.sort(
+      (a, b) => fs.statSync(b.getFilePath()).mtime.getTime() - fs.statSync(a.getFilePath()).mtime.getTime()
+    )
+  } else {
+    checkFiles = checkFiles.sort((a, b) => (refreshFiles.includes(a) ? 0 : 1) - (refreshFiles.includes(b) ? 0 : 1))
   }
 
-  if (checkError(dirtyFiles)) {
-    updateFileList.splice(0, updateFileList.length)
-    isFirstCompile = false
+  if (checkError(checkFiles)) {
     return
   }
 
   const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
-
-  const pathResolveActions = resolvePath(dirtyFiles, compileAll)
-  for (const action of pathResolveActions) {
-    await action()
-  }
+  const pathResolveActions = resolvePath(isFirstCompile ? dirtyFiles : refreshFiles)
 
   for (const action of modifyActions) {
     await action()
   }
-
-  modifyActions = []
-  updateFileList.splice(0, updateFileList.length)
 
   const sourceFiles = project.getSourceFiles()
 
@@ -602,33 +649,6 @@ const compile = async (compileAll = false) => {
         })
       }
     })
-
-    for (const statement of sf.getVariableStatements()) {
-      const declaration = statement.getDeclarations()[0]
-      if (declaration) {
-        if (declaration.getType().isAnonymous()) {
-          for (const comment of statement.getLeadingCommentRanges()) {
-            if (/@auto-import *$/.test(comment.getText())) {
-              const funcName = statement.getDeclarations()[0].getName()
-              if (funcName) {
-                autoImportDecorators.push(funcName)
-              }
-            }
-          }
-        }
-      }
-    }
-
-    for (const func of sf.getFunctions()) {
-      for (const comment of func.getLeadingCommentRanges()) {
-        if (/@auto-import *$/.test(comment.getText())) {
-          const funcName = func.getName()
-          if (funcName) {
-            autoImportDecorators.push(funcName)
-          }
-        }
-      }
-    }
   }
 
   PLUGINS = Array.from(new Set(PLUGINS))
@@ -643,9 +663,8 @@ const compile = async (compileAll = false) => {
   }
 
   let compileCounter = 0
-  for (const sf of sourceFiles) {
+  for (const sf of dirtyFiles) {
     compileCounter++
-
     if (sf.getFilePath().endsWith('.d.ts') || (watch && sf.getFilePath().endsWith('.test.ts'))) {
       continue
     }
@@ -657,10 +676,6 @@ const compile = async (compileAll = false) => {
           importFilesList.push('./' + slash(path.relative(path.resolve() + '/src', cls.getSourceFile().getFilePath())))
         }
       }
-    }
-
-    if (!dirtyFiles.includes(sf) && !compileAll) {
-      continue
     }
 
     let fileDataTypeStatement = ''
@@ -697,7 +712,6 @@ const compile = async (compileAll = false) => {
 
               returnTypeStr = returnType.getText(cls)
               const declareType = getDeclareType(':' + returnTypeStr, cls, returnType)
-
               returnTypeStatements += `\n_ReturnDeclareType(${declareType})(${cls.getName()}.prototype,'${cMethod.getName()}');`
             }
           })
@@ -771,14 +785,19 @@ const compile = async (compileAll = false) => {
     }
 
     modifyActions.push(() => {
-      sf.getSourceFile().addStatements(fileDataTypeStatement)
+      sf.addStatements(fileDataTypeStatement)
     })
-    console.log('COMPILE_PROGRESS [ ' + ((compileCounter * 300) / sourceFiles.length / 10).toFixed(0) + '% ]')
+    console.log('COMPILE_PROGRESS [ ' + (((compileCounter * 100) / sourceFiles.length + 450) / 10).toFixed(0) + '% ]')
   }
 
-  modifyActions.forEach((action, inx) => {
-    console.log('COMPILE_PROGRESS [ ' + (((inx * 700) / modifyActions.length + 300) / 10).toFixed(0) + '% ]')
+  pathResolveActions.forEach((action, inx) => {
     action()
+    console.log('COMPILE_PROGRESS [ ' + (((inx * 200) / pathResolveActions.length + 550) / 10).toFixed(0) + '% ]')
+  })
+
+  modifyActions.forEach((action, inx) => {
+    action()
+    console.log('COMPILE_PROGRESS [ ' + (((inx * 150) / modifyActions.length + 750) / 10).toFixed(0) + '% ]')
   })
 
   console.log('COMPILE_PROGRESS [ 100% ]')
@@ -794,9 +813,14 @@ const compile = async (compileAll = false) => {
     statements.push('require("' + path.replace(/\.ts$/, '') + '");')
   })
 
-  project.resolveSourceFileDependencies()
+  // project.resolveSourceFileDependencies()
 
-  if (updateFileList.length > 0) {
+  if (updateFileList.length > preUpdateFilesCount) {
+    if (isFirstCompile) {
+      dirtyFiles.forEach((df) => {
+        df.refreshFromFileSystemSync()
+      })
+    }
     compile()
     return
   }
@@ -809,11 +833,7 @@ const compile = async (compileAll = false) => {
     emissions.push(project.emit({ targetSourceFile: df }))
   })
 
-  jsFiles.forEach((jf) => {
-    emissions.push(project.emit({ targetSourceFile: jf }))
-  })
   await Promise.all(emissions)
-  jsFiles = []
 
   const defaultConfigPath = './compile/config/default.config.js'
   if (fs.existsSync(defaultConfigPath)) {
@@ -846,7 +866,9 @@ const compile = async (compileAll = false) => {
   for (const p of pluginIncs) {
     p.postCompile && (await p.postCompile(isFirstCompile))
   }
+
   isFirstCompile = false
+  updateFileList.splice(0, updateFileList.length)
 
   console.log('COMPILE_DONE')
   compiling = false
@@ -875,6 +897,7 @@ if (watch) {
       } else {
         delete fileHashes[path]
       }
+
       updateFileList.push({ event, updatePath: path })
 
       if (compileTimer) {
@@ -882,11 +905,11 @@ if (watch) {
       }
       compileTimer = setTimeout(async () => {
         compileTimer = null
-        const timeStart = Date.now()
-        await compile()
-        // console.log(' Compile Time: ' + (Date.now() - timeStart) / 1000 + 's\n')
+        if (!compiling) {
+          await compile()
+        }
       }, 100)
     })
 } else {
-  compile(true)
+  compile()
 }
