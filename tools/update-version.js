@@ -25,10 +25,10 @@ if (!newVersion) {
   process.exit()
 }
 
-if (newVersion.split('.').length !== 3) {
-  console.error('Error: Version must like 1.0.0')
-  process.exit()
-}
+// if (newVersion.split('.').length !== 3) {
+//   console.error('Error: Version must like 1.0.0')
+//   process.exit()
+// }
 
 packageFiles.forEach((f) => {
   const content = fs.readFileSync(f, { encoding: 'utf-8' })
