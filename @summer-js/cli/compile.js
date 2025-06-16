@@ -649,6 +649,15 @@ const compile = async () => {
         })
       }
     })
+
+    // add import file list
+    for (const cls of sf.getClasses()) {
+      for (const classDecorator of cls.getDecorators()) {
+        if (autoImportDecorators.includes(classDecorator.getName())) {
+          importFilesList.push('./' + slash(path.relative(path.resolve() + '/src', cls.getSourceFile().getFilePath())))
+        }
+      }
+    }
   }
 
   PLUGINS = Array.from(new Set(PLUGINS))
@@ -667,15 +676,6 @@ const compile = async () => {
     compileCounter++
     if (sf.getFilePath().endsWith('.d.ts') || (watch && sf.getFilePath().endsWith('.test.ts'))) {
       continue
-    }
-
-    // add import file list
-    for (const cls of sf.getClasses()) {
-      for (const classDecorator of cls.getDecorators()) {
-        if (autoImportDecorators.includes(classDecorator.getName())) {
-          importFilesList.push('./' + slash(path.relative(path.resolve() + '/src', cls.getSourceFile().getFilePath())))
-        }
-      }
     }
 
     let fileDataTypeStatement = ''
@@ -787,7 +787,7 @@ const compile = async () => {
     modifyActions.push(() => {
       sf.addStatements(fileDataTypeStatement)
     })
-    console.log('COMPILE_PROGRESS [ ' + (((compileCounter * 100) / sourceFiles.length + 450) / 10).toFixed(0) + '% ]')
+    console.log('COMPILE_PROGRESS [ ' + (((compileCounter * 100) / dirtyFiles.length + 450) / 10).toFixed(0) + '% ]')
   }
 
   pathResolveActions.forEach((action, inx) => {

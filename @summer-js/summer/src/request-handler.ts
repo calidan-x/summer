@@ -311,7 +311,6 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
       parseCookie(ctx)
       await session.handleSession(ctx)
       await callMiddleware(ctx)
-      assembleCookie(ctx)
     } catch (err) {
       const { errorHandlerClass, errorMap } = errorHandle
       if (errorHandlerClass) {
@@ -337,6 +336,8 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
       if (traceFunction) {
         traceError = err
       }
+    } finally {
+      assembleCookie(ctx)
     }
 
     const body = ctx.response.body
