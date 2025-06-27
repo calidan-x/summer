@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/mongodb",
-	"version": "0.1.52-rc.2",
+	"version": "0.1.52-rc.3",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",
