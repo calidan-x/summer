@@ -9,6 +9,7 @@ interface ScheduledTask {
 }
 
 export const scheduledTask = {
+  defaultTimeZone: '',
   scheduledTasks: [],
   cornTasks: [],
   fixedRateTasks: [],
@@ -17,6 +18,11 @@ export const scheduledTask = {
   },
   start() {
     this.scheduledTasks.forEach((st: ScheduledTask) => {
+      if ((st.cronOrFixedRate as any).cron) {
+        if (!(st.cronOrFixedRate as any).timeZone) {
+          ;(st.cronOrFixedRate as any).timeZone = this.defaultTimeZone
+        }
+      }
       const task = () => {
         const inc = getInjectable(st.class)
         if (inc) {

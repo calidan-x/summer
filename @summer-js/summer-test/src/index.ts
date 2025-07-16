@@ -1,7 +1,9 @@
-import { summerStart, handler, Logger, replaceEnvConfigValue } from '@summer-js/summer'
+import { summerStart, handler, Logger, replaceEnvConfigValue, Scheduled } from '@summer-js/summer'
 import { getDataSource } from '@summer-js/typeorm'
 
 export { handler }
+
+Scheduled.setDefaultTimeZone('Asia/ShangHai')
 
 const runMigrations = async () => {
   const output = await getDataSource('DATA_SOURCE').runMigrations()

@@ -5,10 +5,12 @@ export const Scheduled = (
 ): MethodDecorator => {
   return (target: any, methodName: string) => {
     if ((cronOrFixedRate as any).cron) {
-      ;(cronOrFixedRate as any).timeZone = (cronOrFixedRate as any).timeZone || Scheduled.defaultTimeZone
+      ;(cronOrFixedRate as any).timeZone = (cronOrFixedRate as any).timeZone
     }
     scheduledTask.add({ class: target.constructor, methodName, cronOrFixedRate })
   }
 }
 
-Scheduled.defaultTimeZone = undefined as string | undefined
+Scheduled.setDefaultTimeZone = (timeZone: string) => {
+  scheduledTask.defaultTimeZone = timeZone
+}
