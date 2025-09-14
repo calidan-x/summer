@@ -53,7 +53,9 @@ export const pluginCollection = {}
     if (!pluginCollection[collectionName]) {
       pluginCollection[collectionName] = []
     }
-    pluginCollection[collectionName].push(target)
+    if (!pluginCollection[collectionName].includes(target)) {
+      pluginCollection[collectionName].push(target)
+    }
   }
 }
 

@@ -52,20 +52,23 @@ class TypeORMPlugin extends SummerPlugin {
     }
 
     if (isEntity) {
-      this.collectClass(clazz, 'AllEntities', modifyActions)
-      // console.log(clazz.getName())
-      // clazz.getProperties().forEach((p) => {
-      //   p.getChildren().forEach((c, inx) => {
-      //     console.log(inx, c.getText(), c.compilerNode.kind.toString())
-      //     console.log('\n')
-      //   })
-      //   console.log(p.getText())
-      // })
-    }
-
-    const imps = clazz.getImplements()
-    if (imps.length > 0 && imps[0].getText() === 'MigrationInterface') {
-      this.collectClass(clazz, 'AllMigrations', modifyActions)
+      const statement = `ClassCollect('AllEntities')(${clazz.getName()})`
+      if (!clazz.getSourceFile().getText().includes(statement)) {
+        modifyActions.push(() => {
+          clazz.getSourceFile().addStatements(statement)
+        })
+      }
+    } else {
+      const imps = clazz.getImplements()
+      if (imps.length > 0 && imps[0].getText() === 'MigrationInterface') {
+        this.collectClass(clazz)
+        const statement = `ClassCollect('AllMigrations')(${clazz.getName()})`
+        if (!clazz.getSourceFile().getText().includes(statement)) {
+          modifyActions.push(() => {
+            clazz.getSourceFile().addStatements(statement)
+          })
+        }
+      }
     }
   }
 

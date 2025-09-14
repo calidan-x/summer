@@ -114,7 +114,10 @@ const addFileImport = (/** @type {string} */ typeString, /** @type {ClassDeclara
     }
 
     if (statement) {
-      clazz.getSourceFile().addStatements(statement)
+      const sf = clazz.getSourceFile()
+      if (!sf.getText().includes(statement)) {
+        sf.addStatements(statement)
+      }
     }
   }
 }
@@ -560,7 +563,14 @@ const compile = async () => {
     }
   }
 
-  // type check
+  if (!isFirstCompile) {
+    refreshFiles.forEach((rf) => {
+      if (!dirtyFiles.includes(rf)) {
+        dirtyFiles.push(rf)
+      }
+    })
+  }
+
   project.getSourceFiles().forEach((sf) => {
     sf.getFilePath()
     if (process.env.SUMMER_ENV !== 'test' && sf.getFilePath().endsWith('.test.ts')) {
@@ -570,11 +580,6 @@ const compile = async () => {
     if (isFirstCompile) {
       dirtyFiles.push(sf)
     } else {
-      refreshFiles.forEach((rf) => {
-        if (!dirtyFiles.includes(rf)) {
-          dirtyFiles.push(rf)
-        }
-      })
       sf.getClasses().forEach((cls) => {
         for (const classDecorator of cls.getDecorators()) {
           if (['Controller', 'SocketIOController', 'RpcClient'].includes(classDecorator.getName())) {
@@ -616,7 +621,6 @@ const compile = async () => {
 
   let importFilesList = []
   const autoImportDecorators = [
-    'ClassCollect',
     'Service',
     'SocketIOController',
     'Injectable',
@@ -679,10 +683,12 @@ const compile = async () => {
     }
 
     let fileDataTypeStatement = ''
+    let isController = false
     for (const cls of sf.getClasses()) {
       fileDataTypeStatement += addPropDecorator(cls)
       for (const classDecorator of cls.getDecorators()) {
         if (classDecorator.getName() === 'Controller') {
+          isController = true
           let returnTypeStatements = ''
           cls.getMethods().forEach((cMethod) => {
             if (cMethod.getDecorators().length > 0) {
@@ -690,7 +696,9 @@ const compile = async () => {
                 if (param.getDecorators().length > 0) {
                   fileDataTypeStatement += `\n_ParamDeclareType(${getDeclareType(
                     param.getText(),
-                    param
+                    param,
+                    undefined,
+                    undefined
                   )},'${param.getName()}')(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
                   if (param.hasQuestionToken() || param.hasInitializer()) {
                     fileDataTypeStatement += `\n_Optional()(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
@@ -711,7 +719,7 @@ const compile = async () => {
               }
 
               returnTypeStr = returnType.getText(cls)
-              const declareType = getDeclareType(':' + returnTypeStr, cls, returnType)
+              const declareType = getDeclareType(':' + returnTypeStr, cls, returnType, undefined)
               returnTypeStatements += `\n_ReturnDeclareType(${declareType})(${cls.getName()}.prototype,'${cMethod.getName()}');`
             }
           })
@@ -742,7 +750,8 @@ const compile = async () => {
                       getDeclareType(
                         ':' + (returnPromiseType ? returnPromiseType.getText(cls) : ''),
                         p,
-                        returnPromiseType
+                        returnPromiseType,
+                        undefined
                       )
                     ]
                   }
@@ -758,13 +767,16 @@ const compile = async () => {
             })
           })
         } else if (classDecorator.getName() === 'SocketIOController') {
+          isController = true
           cls.getMethods().forEach((cMethod) => {
             if (cMethod.getDecorators().find((d) => d.getName() === 'On')) {
               cMethod.getParameters().forEach((param, inx) => {
                 if (inx >= 1) {
                   fileDataTypeStatement += `\n_ParamDeclareType(${getDeclareType(
                     param.getText(),
-                    param
+                    param,
+                    undefined,
+                    undefined
                   )},'${param.getName()}')(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
                   if (param.hasQuestionToken() || param.hasInitializer()) {
                     fileDataTypeStatement += `\n_Optional()(${cls.getName()}.prototype,'${cMethod.getName()}',${inx});`
@@ -785,8 +797,13 @@ const compile = async () => {
     }
 
     modifyActions.push(() => {
-      sf.addStatements(fileDataTypeStatement)
+      if (!sf.getText().includes(fileDataTypeStatement) && fileDataTypeStatement) {
+        sf.addStatements(fileDataTypeStatement)
+      } else if (isController) {
+        sf['_ignore_emit'] = true
+      }
     })
+
     console.log('COMPILE_PROGRESS [ ' + (((compileCounter * 100) / dirtyFiles.length + 450) / 10).toFixed(0) + '% ]')
   }
 
@@ -828,6 +845,9 @@ const compile = async () => {
   const emissions = []
   dirtyFiles.forEach((df) => {
     if (process.env.SUMMER_ENV !== 'test' && df.getFilePath().endsWith('.test.ts')) {
+      return
+    }
+    if (df['_ignore_emit']) {
       return
     }
     emissions.push(project.emit({ targetSourceFile: df }))

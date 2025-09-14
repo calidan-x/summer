@@ -13,21 +13,7 @@ export class SummerPlugin {
   destroy() {}
 
   #classCollection: any[] = []
-  collectClass(clazz: ClassDeclaration, collectName: string, modifyActions: (() => void)[]) {
-    modifyActions.push(() => {
-      clazz.getDecorators().forEach((d) => {
-        if (d.getName() === 'ClassCollect') {
-          d.remove()
-        }
-      })
-      clazz.addDecorator({ name: 'ClassCollect', arguments: ["'" + collectName + "'"] })
-      clazz.getChildren()[0].replaceWithText(
-        clazz
-          .getChildren()[0]
-          .getText()
-          .replace(/\n[^\n]*@ClassCollect/g, ' @ClassCollect')
-      )
-    })
+  collectClass(clazz: ClassDeclaration) {
     this.#classCollection.push(clazz)
   }
   getClassCollection() {
