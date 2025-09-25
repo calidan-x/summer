@@ -203,6 +203,23 @@ describe('Controller Params Test', () => {
       key2: ''
     })
     expect(result.statusCode).toBe(200)
+
+    result = await request.patch('/request-key-validate/partial-optional', {
+      key1: 'val'
+    })
+    expect(result.statusCode).toBe(200)
+    result = await request.patch('/request-key-validate/partial-optional', {
+      key2: 'val'
+    })
+    expect(result.statusCode).toBe(200)
+    result = await request.patch('/request-key-validate/partial-optional', {
+      key1: ''
+    })
+    expect(result.statusCode).toBe(400)
+    result = await request.patch('/request-key-validate/partial-optional', {
+      key2: ''
+    })
+    expect(result.statusCode).toBe(200)
   })
 
   test('test optional and required and empty key', async () => {

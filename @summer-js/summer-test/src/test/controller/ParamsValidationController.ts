@@ -231,6 +231,11 @@ export class ParamsValidationController {
     return request
   }
 
+  @Patch('/request-key-validate/partial-optional')
+  partialOptionalKey(@Body request?: Partial<PartialRequest>) {
+    return request as any
+  }
+
   @Post('/optional-body')
   optionalBody(@Body request?: int) {
     return typeof request + request

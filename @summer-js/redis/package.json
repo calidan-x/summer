@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/redis",
-	"version": "0.1.54",
+	"version": "0.1.55",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",

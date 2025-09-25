@@ -228,12 +228,7 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
 
   let isPartial = false
   if (!paramType) {
-    if (parameter.getType().getText(parameter).startsWith('Partial<')) {
-      paramType = parameter.getType().getAliasTypeArguments()[0]
-      isPartial = true
-    } else {
-      paramType = parameter.getType()
-    }
+    paramType = parameter.getType()
 
     if (paramType.isUnion()) {
       const unionTypes = paramType.getUnionTypes()
@@ -241,6 +236,11 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
       if (hasUndefined) {
         paramType = paramType.getNonNullableType()
       }
+    }
+
+    if (paramType.getText(parameter).startsWith('Partial<')) {
+      paramType = paramType.getAliasTypeArguments()[0]
+      isPartial = true
     }
 
     if (paramType.isInterface()) {
