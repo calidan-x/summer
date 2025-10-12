@@ -68,7 +68,7 @@ export const serialize = <T>(obj: T, declareType: any[] = []): T => {
         })
       }
       const serializeFunc = Reflect.getMetadata('Serialize', obj, key)
-      obj[key] = serializeFunc ? serializeFunc(obj[key], t) : serialize(obj[key], declareType)
+      obj[key] = serializeFunc ? serialize(serializeFunc(obj[key], t), declareType) : serialize(obj[key], declareType)
     }
   }
 
