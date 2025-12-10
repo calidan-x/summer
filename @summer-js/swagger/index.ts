@@ -757,7 +757,7 @@ export class SummerSwaggerUIController {
       for (const routeInfo of routeInfos) {
         const { path, requestMethod, params } = routeInfo
         let docPath = (path || '/').replace(/\/{2,}/g, '/')
-        docPath = docPath.replace(/:([^/]+)/g, '{$1}')
+        docPath = docPath.replace(/:([a-zA-Z0-9_]+)/g, '{$1}')
         if (!swaggerJson.paths[docPath]) {
           swaggerJson.paths[docPath] = {}
         }

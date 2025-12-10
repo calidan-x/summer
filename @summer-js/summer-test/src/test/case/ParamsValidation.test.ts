@@ -204,6 +204,9 @@ describe('Controller Params Test', () => {
     })
     expect(result.statusCode).toBe(200)
 
+    result = await request.patch('/request-key-validate/partial', {})
+    expect(result.statusCode).toBe(200)
+
     result = await request.patch('/request-key-validate/partial-optional', {
       key1: 'val'
     })
