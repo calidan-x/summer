@@ -1,6 +1,6 @@
 {
 	"name": "@summer-js/kafka",
-	"version": "0.1.56",
+	"version": "0.1.58",
 	"description": "",
 	"main": "lib/index.js",
 	"module": "lib/index.js",

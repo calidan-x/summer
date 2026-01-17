@@ -56,7 +56,7 @@ type EnumToString<T, Enums extends any[]> = {
   [K in keyof T]: T[K] extends Date
     ? number
     : T[K] extends object
-    ? EnumToString<T[K], Enums>
+    ? EnumToString<Required<T[K]>, Enums>
     : ForEach<T[K], Enums> extends never
     ? T[K]
     : ForEach<T[K], Enums>
@@ -64,8 +64,11 @@ type EnumToString<T, Enums extends any[]> = {
 
 export const SERIALIZE_ENUMS = Symbol('__enums__')
 type EnumsOf<T> = T extends { [SERIALIZE_ENUMS]: infer E extends any[] } ? E : []
-
-export const serialize = <T>(obj: T, declareType: any[] = []): EnumToString<T, EnumsOf<T>> => {
+interface SerializeFunction {
+  <T>(obj: T[], declareType?: any[]): EnumToString<Required<T>, EnumsOf<T>>[]
+  <T>(obj: T, declareType?: any[]): EnumToString<Required<T>, EnumsOf<T>>
+}
+export const serialize: SerializeFunction = <T>(obj: T | T[], declareType: any[] = []): any => {
   const newObj = deepCloneInstance(obj)
   return _serialize(newObj, declareType)
 }

@@ -16,13 +16,13 @@ export enum Animal2 {
 
 export class G {
   a: number
-  animal: Animal
+  animal?: Animal
 }
 
 export class A {
   [SERIALIZE_ENUMS]: [Animal, typeof Animal, Animal2, typeof Animal2]
 
-  animal: Animal
+  animal?: Animal
   animal2: Animal2
   age: number
   createTime: Date
@@ -47,14 +47,27 @@ export class TestController {
     a.g[0].animal = Animal.Cat
     a.createTime
 
+    const b = new A()
+    b.animal = Animal.Pig
+
     const serializedA = serialize(a)
+    // const serializedA: EnumToString<A, [Animal, typeof Animal, Animal2, typeof Animal2]>
     serializedA.animal2 = 'Cow2'
-    serializedA.g[0].animal = 'Dog'
+    serializedA.animal = 'Dog'
+    serializedA.g[0].animal = 'Pig'
     serializedA.createTime = 1
 
     console.log('1', a)
     console.log('2', serializedA)
     console.log('3', serialize(serializedA))
+
+    const serializedArr = serialize([a, b])
+    console.log(serializedArr)
+    // const aaa:         EnumToString<A, [Animal, typeof Animal, Animal2, typeof Animal2]>
+    const aaa = serializedArr[0]
+    aaa.animal2 = 'Cat'
+    aaa.animal = 'Pig'
+    /// serializedArr[0].animal = 'Pig'
 
     return a
   }
