@@ -48,18 +48,18 @@ const deepCloneInstance = (instance) => {
 
 type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
 
-type ForEach<K, T extends any[], Result = never> = T extends [infer First, infer Second, ...infer Rest]
-  ? ForEach<K, Rest, Result | (Equal<K, First> extends true ? keyof Second : never)>
+type GetKeys<K, T extends any[], Result = never> = T extends [infer First, infer Second, ...infer Rest]
+  ? GetKeys<K, Rest, Result | (Equal<K, First> extends true ? keyof Second : never)>
   : Result
 
 type EnumToString<T, Enums extends any[]> = {
   [K in keyof T]: T[K] extends Date
-    ? number
+    ? Date
     : T[K] extends object
     ? EnumToString<Required<T[K]>, Enums>
-    : ForEach<T[K], Enums> extends never
+    : GetKeys<T[K], Enums> extends never
     ? T[K]
-    : ForEach<T[K], Enums>
+    : GetKeys<T[K], Enums>
 }
 
 export const SERIALIZE_ENUMS = Symbol('__enums__')

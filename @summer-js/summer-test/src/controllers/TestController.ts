@@ -55,7 +55,7 @@ export class TestController {
     serializedA.animal2 = 'Cow2'
     serializedA.animal = 'Dog'
     serializedA.g[0].animal = 'Pig'
-    serializedA.createTime = 1
+    serializedA.createTime = new Date()
 
     console.log('1', a)
     console.log('2', serializedA)
