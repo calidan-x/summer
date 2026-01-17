@@ -22,7 +22,55 @@ export const convertData = <T>(data: Partial<T> & Omit<Record<string, any>, keyo
   return instance
 }
 
-export const serialize = <T>(obj: T, declareType: any[] = []): T => {
+const deepCloneInstance = (instance) => {
+  if (Array.isArray(instance)) {
+    return instance.map((item) => (item && typeof item === 'object' ? deepCloneInstance(item) : item))
+  }
+
+  if (instance instanceof Date) {
+    return new Date(instance)
+  }
+
+  const clone = Object.create(Object.getPrototypeOf(instance))
+  const keys = Object.keys(instance)
+  for (const key of keys) {
+    if (instance.hasOwnProperty(key)) {
+      const value = instance[key]
+      if (value && typeof value === 'object') {
+        clone[key] = deepCloneInstance(value)
+      } else {
+        clone[key] = value
+      }
+    }
+  }
+  return clone
+}
+
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
+
+type ForEach<K, T extends any[], Result = never> = T extends [infer First, infer Second, ...infer Rest]
+  ? ForEach<K, Rest, Result | (Equal<K, First> extends true ? keyof Second : never)>
+  : Result
+
+type EnumToString<T, Enums extends any[]> = {
+  [K in keyof T]: T[K] extends Date
+    ? number
+    : T[K] extends object
+    ? EnumToString<T[K], Enums>
+    : ForEach<T[K], Enums> extends never
+    ? T[K]
+    : ForEach<T[K], Enums>
+}
+
+export const SERIALIZE_ENUMS = Symbol('__enums__')
+type EnumsOf<T> = T extends { [SERIALIZE_ENUMS]: infer E extends any[] } ? E : []
+
+export const serialize = <T>(obj: T, declareType: any[] = []): EnumToString<T, EnumsOf<T>> => {
+  const newObj = deepCloneInstance(obj)
+  return _serialize(newObj, declareType)
+}
+
+const _serialize = <T>(obj: T, declareType: any[] = []): T => {
   let [d0, , d2] = declareType || []
   if (typeof d0 === 'function' && d0.name === '') {
     d0 = d0()
@@ -41,9 +89,9 @@ export const serialize = <T>(obj: T, declareType: any[] = []): T => {
       }
     }
   } else if (Array.isArray(obj)) {
-    obj = (obj || []).map((item) => serialize(item, [d0, undefined, d2])) as any
+    obj = (obj || []).map((item) => _serialize(item, [d0, undefined, d2])) as any
   } else {
-    const t = { ...obj }
+    const keep = { ...obj }
     for (const key in obj) {
       let declareType =
         Reflect.getMetadata('DeclareType', obj, key) ||
@@ -68,7 +116,9 @@ export const serialize = <T>(obj: T, declareType: any[] = []): T => {
         })
       }
       const serializeFunc = Reflect.getMetadata('Serialize', obj, key)
-      obj[key] = serializeFunc ? serialize(serializeFunc(obj[key], t), declareType) : serialize(obj[key], declareType)
+      obj[key] = serializeFunc
+        ? _serialize(serializeFunc(obj[key], keep), declareType)
+        : _serialize(obj[key], declareType)
     }
   }
 
