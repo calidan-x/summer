@@ -51,6 +51,7 @@ export class TestController {
     b.animal = Animal.Pig
 
     const serializedA = serialize(a)
+
     // const serializedA: EnumToString<A, [Animal, typeof Animal, Animal2, typeof Animal2]>
     serializedA.animal2 = 'Cow2'
     serializedA.animal = 'Dog'

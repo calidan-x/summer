@@ -27,6 +27,10 @@ const deepCloneInstance = (instance) => {
     return instance.map((item) => (item && typeof item === 'object' ? deepCloneInstance(item) : item))
   }
 
+  if (instance?.toJSON) {
+    return instance
+  }
+
   if (instance instanceof Date) {
     return new Date(instance)
   }
@@ -56,10 +60,10 @@ type EnumToString<T, Enums extends any[]> = {
   [K in keyof T]: T[K] extends Date
     ? Date
     : T[K] extends object
-    ? EnumToString<Required<T[K]>, Enums>
-    : GetKeys<T[K], Enums> extends never
-    ? T[K]
-    : GetKeys<T[K], Enums>
+      ? EnumToString<Required<T[K]>, Enums>
+      : GetKeys<T[K], Enums> extends never
+        ? T[K]
+        : GetKeys<T[K], Enums>
 }
 
 export const SERIALIZE_ENUMS = Symbol('__enums__')
