@@ -13,10 +13,12 @@ export const restfulMethodDecorator =
   (...dArgs): MethodDecorator => {
     if (dArgs.length <= 1) {
       return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        Reflect.defineMetadata('Method', httpMethod, target, propertyKey)
         requestMappingAssembler.addMethodRoute(dArgs[0] || '', httpMethod, propertyKey, target.constructor)
         requestMappingAssembler.addMethodDescriptor(descriptor)
       }
     } else {
+      Reflect.defineMetadata('Method', httpMethod, dArgs[0], dArgs[1])
       requestMappingAssembler.addMethodRoute('', httpMethod, dArgs[1], dArgs[0].constructor)
       requestMappingAssembler.addMethodDescriptor(dArgs[2])
     }

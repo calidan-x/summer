@@ -35,26 +35,28 @@ const generateClassMethodDecorator =
       const constructor = target as Function
       Object.getOwnPropertyNames(constructor.prototype).forEach((name) => {
         if (typeof constructor.prototype[name] === 'function' && name !== 'constructor') {
-          const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, name)!
-          const originalFunc = descriptor.value
-          descriptor.value = async function (...arg) {
-            const context = asyncLocalStorage.getStore() || ({} as Context)
-            context.invocation = {
-              className: constructor.name,
-              methodName: name,
-              params: arg || []
+          if (Reflect.getMetadata('Method', constructor.prototype, name)) {
+            const descriptor = Object.getOwnPropertyDescriptor(constructor.prototype, name)!
+            const originalFunc = descriptor.value
+            descriptor.value = async function (...arg) {
+              const context = asyncLocalStorage.getStore() || ({} as Context)
+              context.invocation = {
+                className: constructor.name,
+                methodName: name,
+                params: arg || []
+              }
+              const ret = await decoratorCall(
+                context,
+                async (mArgs) => {
+                  checkValidationError(originalFunc, context)
+                  return await originalFunc.apply(this, mArgs)
+                },
+                ...args
+              )
+              return ret
             }
-            const ret = await decoratorCall(
-              context,
-              async (mArgs) => {
-                checkValidationError(originalFunc, context)
-                return await originalFunc.apply(this, mArgs)
-              },
-              ...args
-            )
-            return ret
+            Object.defineProperty(constructor.prototype, name, descriptor)
           }
-          Object.defineProperty(constructor.prototype, name, descriptor)
         }
       })
     }

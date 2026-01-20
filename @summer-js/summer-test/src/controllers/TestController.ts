@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, serialize, SERIALIZE_ENUMS } from '@summer-js/summer'
+import {
+  Body,
+  Controller,
+  createClassAndMethodDecorator,
+  Get,
+  Post,
+  PostConstruct,
+  serialize,
+  SERIALIZE_ENUMS
+} from '@summer-js/summer'
 
 import { PetService } from './TestService'
 
@@ -29,13 +38,27 @@ export class A {
   g: G[]
 }
 
+const RequireLogin = createClassAndMethodDecorator(async (ctx, invokeMethod) => {
+  console.log('拦截器调用')
+  return await invokeMethod(ctx.invocation.params)
+})
+
 @Controller('/test')
+@RequireLogin
 export class TestController {
   petService: PetService
 
   @Get('/pet')
   test() {
     return this.petService.getPet()
+  }
+
+  @PostConstruct
+  c() {}
+
+  @Get('/b')
+  b() {
+    this.c()
   }
 
   @Get('/a')
