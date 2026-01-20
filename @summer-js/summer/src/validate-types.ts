@@ -80,6 +80,7 @@ export const validateAndConvertType = (
           ? JSON.stringify(propertyValue)
           : propertyValue + ''
         : propertyValue
+
       if (typeof value !== 'string') {
         allErrors.push({
           param: errorParam,
@@ -370,6 +371,9 @@ export const validateAndConvertType = (
         }
 
         for (const k of allProperties) {
+          if (k === '[SERIALIZE_ENUMS]') {
+            continue
+          }
           let declareType = Reflect.getMetadata('DeclareType', d0.prototype, k) || []
 
           if (declareType[0] === undefined) {

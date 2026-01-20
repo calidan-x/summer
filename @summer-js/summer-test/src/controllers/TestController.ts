@@ -1,4 +1,4 @@
-import { Controller, Get, serialize, SERIALIZE_ENUMS } from '@summer-js/summer'
+import { Body, Controller, Get, Post, serialize, SERIALIZE_ENUMS } from '@summer-js/summer'
 
 import { PetService } from './TestService'
 
@@ -71,5 +71,10 @@ export class TestController {
     /// serializedArr[0].animal = 'Pig'
 
     return a
+  }
+
+  @Post('/aaa')
+  aaaa(@Body a: A) {
+    console.log(a)
   }
 }
