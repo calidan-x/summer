@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "noImplicitAny": false,
     "noImplicitReturns": true,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
@@ -8,11 +9,14 @@
     "types": ["node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "rewriteRelativeImportExtensions": true,
     "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./lib",
-    "moduleResolution": "Node",
-    "module": "commonjs",
+    "rootDir": "./src",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "strictPropertyInitialization": false,
     "declaration": true
   },
   "exclude": ["**/*.d.ts"]

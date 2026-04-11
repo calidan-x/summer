@@ -40,7 +40,7 @@ const httpPost = (url: string, body, headers) => {
 }
 
 export const rpc = {
-  rpcClass: [],
+  rpcClass: [] as any[],
   rpcInstance: {},
   addRpcClass(clazz: any) {
     this.rpcClass.push(clazz)

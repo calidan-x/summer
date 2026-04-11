@@ -10,9 +10,9 @@ interface ScheduledTask {
 
 export const scheduledTask = {
   defaultTimeZone: '',
-  scheduledTasks: [],
-  cornTasks: [],
-  fixedRateTasks: [],
+  scheduledTasks: [] as any[],
+  cornTasks: [] as any[],
+  fixedRateTasks: [] as any[],
   add(scheduledTask: ScheduledTask) {
     this.scheduledTasks.push(scheduledTask)
   },

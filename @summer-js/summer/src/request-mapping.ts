@@ -4,8 +4,8 @@ import { Logger } from './logger'
 
 export const requestMapping = {}
 export const requestMappingAssembler = {
-  params: [],
-  controllerMethodDescriptors: [],
+  params: [] as any[],
+  controllerMethodDescriptors: [] as any[],
   controllerRequestMapping: {},
   nextController() {
     this.controllerMethodDescriptors = []

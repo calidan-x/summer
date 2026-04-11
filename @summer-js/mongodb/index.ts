@@ -21,7 +21,7 @@ class MongoDB extends SummerPlugin {
   config: MongoDBConfig
   mangoClients: Record<string, MongoDBClient> = {}
 
-  async init(_config) {
+  async init(_config: any) {
     if (_config) {
       this.config = _config
     }

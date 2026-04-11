@@ -23,7 +23,7 @@ export const session = {
   sessionName: 'SUMMER_SESSION',
   expireIn: 0,
   mode: 'Cookie' as 'Cookie' | 'Header',
-  cookieOptions: { httpOnly: true },
+  cookieOptions: { httpOnly: true } as { httpOnly?: boolean },
   init(config: SessionConfig) {
     this.enabled = true
     if (config.sessionName) {
@@ -62,6 +62,9 @@ export const session = {
       return
     }
     let sessionId = this.getSessionId()
+    if (!sessionId) {
+      return
+    }
     if (session.mode === 'Cookie') {
       Cookie.set(this.sessionName, sessionId, this.cookieOptions)
     } else if (session.mode === 'Header') {

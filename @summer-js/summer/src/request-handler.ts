@@ -223,7 +223,7 @@ const handleRpc = async (ctx: Context) => {
           const result = await rpc.call(rpcData.class, rpcData.method, rpcData.data || [])
           ctx.response.statusCode = 200
           ctx.response.body = JSON.stringify(result)
-        } catch (e) {
+        } catch (e: any) {
           Logger.error(e)
           ctx.response.statusCode = 400
           ctx.response.body = JSON.stringify({ error: e.message })
@@ -311,7 +311,7 @@ export const requestHandler = async (ctx: Context, lowerCaseHeaders?: Record<str
       parseCookie(ctx)
       await session.handleSession(ctx)
       await callMiddleware(ctx)
-    } catch (err) {
+    } catch (err: any) {
       const { errorHandlerClass, errorMap } = errorHandle
       if (errorHandlerClass) {
         const errorHandler = getInjectable(errorHandlerClass)!

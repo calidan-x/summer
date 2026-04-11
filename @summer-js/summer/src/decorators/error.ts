@@ -29,7 +29,7 @@ export const ErrorHandler: ErrorHandlerType = (...args) => {
 }
 
 export const E = (err: any): MethodDecorator => {
-  return (_target: any, method: string) => {
-    errorHandle.errorMap.push({ type: err, method: method })
+  return (_target: any, method: string | symbol) => {
+    errorHandle.errorMap.push({ type: err, method: method as string })
   }
 }

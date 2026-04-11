@@ -10,7 +10,7 @@ class Redis extends SummerPlugin {
   config: RedisOptions
   redisClients: Record<string, IORedis> = {}
 
-  async init(_config) {
+  async init(_config: any) {
     if (_config) {
       this.config = _config
     }

@@ -3,7 +3,7 @@ import { getInjectable } from './ioc'
 
 export const middlewares: any[] = []
 export const middlewareAssembler = {
-  middlewareClasses: [],
+  middlewareClasses: [] as any[],
   add(middleware, options: MiddlewareOptions) {
     middleware.options = options
     this.middlewareClasses.push(middleware)

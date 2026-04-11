@@ -9,10 +9,12 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
+    "noImplicitAny": false,
     "esModuleInterop": true,
     "outDir": "./compile",
-    "moduleResolution": "Node",
     "allowJs": true,
+    "ignoreDeprecations": "6.0",
+    "moduleResolution": "node",
     "module": "commonjs",
     "paths": {
       "@/*": ["./src/*"]

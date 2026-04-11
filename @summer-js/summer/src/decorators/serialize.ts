@@ -1,5 +1,5 @@
 export const Serialize = (serializeFunction: (value: any, obj?: any) => any): PropertyDecorator => {
-  return (target: any, key: string) => {
+  return (target: any, key: string | symbol) => {
     Reflect.defineMetadata('Serialize', serializeFunction, target, key)
   }
 }
