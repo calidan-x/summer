@@ -5,7 +5,7 @@ import fs from 'fs'
 import crypto from 'crypto'
 import chokidar from 'chokidar'
 import path from 'path'
-import { Project, ClassDeclaration, SourceFile, SyntaxKind } from 'ts-morph'
+import { Project, ClassDeclaration, SourceFile } from 'ts-morph'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -800,7 +800,9 @@ const compile = async () => {
       if (!sf.getText().includes(fileDataTypeStatement) && fileDataTypeStatement) {
         sf.addStatements(fileDataTypeStatement)
       } else if (isController) {
-        sf['_ignore_emit'] = true
+        if (!isFirstCompile) {
+          sf['_ignore_emit'] = true
+        }
       }
     })
 
