@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
     "noImplicitReturns": true,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
@@ -11,9 +13,12 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./compile",
-    "allowJs": true,
-    "moduleResolution": "Node",
+    "rootDir": "./src",
+    "lib": ["es6"],
+    "ignoreDeprecations": "6.0",
+    "moduleResolution": "node",
     "module": "commonjs",
+    "allowJs": true,
     "paths": {
       "@/*": ["./src/*"]
     }
