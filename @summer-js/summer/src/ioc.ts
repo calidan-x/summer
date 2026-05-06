@@ -6,11 +6,11 @@ export interface Class<T> extends Function {
 }
 
 export const IocContainer = {
-  iocClass: [],
+  iocClass: [] as any[],
   iocInstanceMap: new WeakMap(),
   generateFunction: new WeakMap(),
-  iocGenericInstanceMap: [],
-  iocInstance: [],
+  iocGenericInstanceMap: [] as any[],
+  iocInstance: [] as any[],
   async resolveLoc() {
     await this.instanceIocClasses()
     this.resolveInject()
@@ -18,7 +18,7 @@ export const IocContainer = {
   },
   findGenericInstance(clazz: Class<any>, params: any[]) {
     const typeKey = [clazz, ...params]
-    const genericInstance = this.iocGenericInstanceMap.find(({ key }) => {
+    const genericInstance = this.iocGenericInstanceMap.find(({ key }: { key: any[] }) => {
       let equal = true
       key.forEach((item, inx) => {
         if (item !== typeKey[inx]) {

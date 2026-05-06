@@ -262,10 +262,10 @@ class KafkaPlugin extends SummerPlugin {
   configKey = 'KAFKA_CONFIG'
   config: KafkaConfig
   kafkaClient: Kafka
-  consumers: KafkaConsumer[] = []
+  consumers: Record<string, KafkaConsumer> = {}
   producer: KafkaProducer
 
-  async init(_config) {
+  async init(_config: any) {
     if (_config) {
       this.config = _config
     }
@@ -305,7 +305,7 @@ class KafkaPlugin extends SummerPlugin {
         if (consumeType === 'EachMessage') {
           consumer.run({
             eachMessage: async (msg) => {
-              const service = getInjectable(target.constructor)
+              const service: any = getInjectable(target.constructor)
               if (service) {
                 service[method](msg)
               }
@@ -314,7 +314,7 @@ class KafkaPlugin extends SummerPlugin {
         } else if (consumeType === 'EachBatch') {
           consumer.run({
             eachBatch: async (msg) => {
-              const service = getInjectable(target.constructor)
+              const service: any = getInjectable(target.constructor)
               if (service) {
                 service[method](msg)
               }
@@ -359,7 +359,7 @@ class KafkaPlugin extends SummerPlugin {
 
   async destroy() {
     try {
-      for (const consumer of this.consumers) {
+      for (const consumer of Object.values(this.consumers)) {
         await consumer.disconnect()
       }
       await this.producer.disconnect()

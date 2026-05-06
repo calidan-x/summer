@@ -11,8 +11,8 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./lib",
-    "moduleResolution": "Node",
-    "module": "commonjs",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "declaration": true
   },
   "exclude": ["**/*.d.ts"]

@@ -5,9 +5,9 @@ export type ElasticSearchConfig = Record<string, ClientOptions>
 
 class ElasticSearch extends SummerPlugin {
   configKey = 'ELASTICSEARCH_CONFIG'
-  clients = {}
+  clients: any = {}
 
-  async init(config) {
+  async init(config: any) {
     addInjectable(ESClient, async (dataSourceName: string) => {
       if (!config) {
         return null

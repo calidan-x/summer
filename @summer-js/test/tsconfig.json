@@ -1,18 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "noImplicitReturns":true,
-    "noUnusedParameters":true,
-    "noUnusedLocals":true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "strictNullChecks": true,
-    "types": ["node","jest"],
+    "types": ["node", "jest"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "sourceMap": true,
     "esModuleInterop": true,
     "outDir": "./lib",
-    "moduleResolution": "Node",
-    "module": "commonjs",
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
     "declaration": true
   },
   "exclude": ["**/*.d.ts"]

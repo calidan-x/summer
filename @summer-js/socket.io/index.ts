@@ -18,7 +18,7 @@ let socketIO: Server
 class SocketIOPlugin extends SummerPlugin {
   configKey = 'SOCKET_IO_CONFIG'
 
-  async init(config) {
+  async init(config: any) {
     if (config) {
       const serverConfig = getEnvConfig<ServerConfig>('SERVER_CONFIG')
       const basePath = serverConfig.basePath
@@ -41,7 +41,7 @@ class SocketIOPlugin extends SummerPlugin {
       }
     }
   }
-  async postInit(config) {
+  async postInit(config: any) {
     if (config) {
       for (const controllerClass of socketIOControllers) {
         const controller = getInjectable(controllerClass) as any
