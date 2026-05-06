@@ -104,12 +104,7 @@ const addFileImport = (/** @type {string} */ typeString, /** @type {ClassDeclara
       })
 
       if (!imported) {
-        const importFilePath =
-          './' +
-          slash(
-            path.relative(path.dirname(slash(clazz.getSourceFile().getFilePath())), JSON.parse('"' + result[1] + '"'))
-          )
-        statement += `import { ${importName} } from '${importFilePath}';`
+        statement += `import { ${importName} } from '${slash(result[1])}';`
       }
     }
 
@@ -193,7 +188,7 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     return '[]'
   }
 
-  const parts = declareLine.split(/:([^:]*)$/s)
+  const parts = declareLine.split(/:([^:]*)$/)
   let type = '[]'
   if (parts.length > 1) {
     type = parts[1]
