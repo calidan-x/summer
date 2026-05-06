@@ -1,27 +1,27 @@
 {
-  "name": "@summer-js/mongodb",
-  "version": "0.1.64",
-  "description": "",
-  "main": "lib/index.js",
-  "module": "lib/index.js",
-  "type": "commonjs",
-  "strictPropertyInitialization": false,
-  "devDependencies": {
-    "mongodb": "^7.1.1"
-  },
-  "scripts": {
-    "build": "tsc",
-    "pre-release": "npm publish --tag rc --access public",
-    "release": "npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calidan-x/summer.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/calidan-x/summer/issues"
-  },
-  "homepage": "https://summerjs.dev"
+	"name": "@summer-js/mongodb",
+	"version": "0.1.65",
+	"description": "",
+	"main": "lib/index.js",
+	"module": "lib/index.js",
+	"type": "commonjs",
+	"strictPropertyInitialization": false,
+	"devDependencies": {
+		"mongodb": "^7.1.1"
+	},
+	"scripts": {
+		"build": "tsc",
+		"pre-release": "npm publish --tag rc --access public",
+		"release": "npm publish --access public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calidan-x/summer.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/calidan-x/summer/issues"
+	},
+	"homepage": "https://summerjs.dev"
 }

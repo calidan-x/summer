@@ -1,39 +1,39 @@
 {
-  "name": "@summer-js/test",
-  "version": "0.1.64",
-  "description": "",
-  "main": "lib/index.js",
-  "module": "lib/index.js",
-  "type": "commonjs",
-  "files": [
-    "lib",
-    "jest-preset.js",
-    "setup-jest.js"
-  ],
-  "dependencies": {
-    "@types/jest": "^30.0.0",
-    "ts-jest": "^29.4.9",
-    "jest": "^30.3.0"
-  },
-  "scripts": {
-    "build": "tsc",
-    "pre-release": "npm publish --tag rc --access public",
-    "release": "npm publish --access public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/calidan-x/summer.git"
-  },
-  "keywords": [
-    "node",
-    "nodejs",
-    "backend",
-    "api"
-  ],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/calidan-x/summer/issues"
-  },
-  "homepage": "https://summerjs.dev"
+	"name": "@summer-js/test",
+	"version": "0.1.65",
+	"description": "",
+	"main": "lib/index.js",
+	"module": "lib/index.js",
+	"type": "commonjs",
+	"files": [
+		"lib",
+		"jest-preset.js",
+		"setup-jest.js"
+	],
+	"dependencies": {
+		"@types/jest": "^30.0.0",
+		"ts-jest": "^29.4.9",
+		"jest": "^30.3.0"
+	},
+	"scripts": {
+		"build": "tsc",
+		"pre-release": "npm publish --tag rc --access public",
+		"release": "npm publish --access public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/calidan-x/summer.git"
+	},
+	"keywords": [
+		"node",
+		"nodejs",
+		"backend",
+		"api"
+	],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/calidan-x/summer/issues"
+	},
+	"homepage": "https://summerjs.dev"
 }
