@@ -104,7 +104,7 @@ const addFileImport = (/** @type {string} */ typeString, /** @type {ClassDeclara
       })
 
       if (!imported) {
-        statement += `import { ${importName} } from '${slash(result[1])}';`
+        statement += `import { ${importName} } from '${result[1]}';`
       }
     }
 
@@ -183,8 +183,11 @@ const addPropDecorator = (/** type @type {ClassDeclaration} */ cls) => {
 // [["val1","val2"], undefined,[]]
 
 const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType, typeParams) => {
-  // interface or node_modules
-  if (declareLine.startsWith(':{') || declareLine.startsWith(':import(')) {
+  if (
+    declareLine.startsWith(':{') ||
+    declareLine.startsWith(':import(') ||
+    (paramType?.isInterface() && paramType?.getText() !== 'Date')
+  ) {
     return '[]'
   }
 
@@ -267,7 +270,12 @@ const getDeclareType = (/** @type {string} */ declareLine, parameter, paramType,
     const typeArgs = paramType
       .getTypeArguments()
       .map((tArg, inx) => {
-        if (!(tArg.getText(parameter).indexOf('<') > 0 && tArg.getTargetType && tArg.getTargetType()?.isInterface())) {
+        if (
+          tArg.getText(parameter).indexOf('<') > 0 ||
+          (tArg?.getTargetType && tArg?.getTargetType()?.isInterface()) ||
+          (tArg?.isInterface && tArg?.isInterface())
+        ) {
+        } else {
           addFileImport(tArg.getText(parameter), parameter)
         }
         return getDeclareType(':' + tArg.getText(parameter), parameter, tArg, typeParams)
@@ -427,9 +435,11 @@ const checkError = (/** @type {SourceFile[]} */ checkFileList) => {
 
             if (!returnTypeStr.startsWith('{') && !returnType.isInterface()) {
               if (!(returnTypeStr.indexOf('<') > 0 && returnType.getTargetType()?.isInterface())) {
-                modifyActions.push(() => {
-                  addFileImport(returnTypeStr, cls)
-                })
+                if (returnType.getSymbol()) {
+                  modifyActions.push(() => {
+                    addFileImport(returnTypeStr, cls)
+                  })
+                }
               }
             }
           }
@@ -601,7 +611,6 @@ const compile = async () => {
   }
 
   const indexSourceFile = project.getSourceFileOrThrow('src/index.ts')
-  const pathResolveActions = resolvePath(isFirstCompile ? dirtyFiles : refreshFiles)
 
   for (const action of modifyActions) {
     await action()
@@ -804,6 +813,7 @@ const compile = async () => {
     console.log('COMPILE_PROGRESS [ ' + (((compileCounter * 100) / dirtyFiles.length + 450) / 10).toFixed(0) + '% ]')
   }
 
+  const pathResolveActions = resolvePath(isFirstCompile ? dirtyFiles : refreshFiles)
   pathResolveActions.forEach((action, inx) => {
     action()
     console.log('COMPILE_PROGRESS [ ' + (((inx * 200) / pathResolveActions.length + 550) / 10).toFixed(0) + '% ]')

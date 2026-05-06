@@ -1,7 +1,7 @@
 import { Service } from '@summer-js/summer'
 import { getRepository } from './DataSource'
 
-import { Person } from '../entity'
+import { Person } from '@/entity'
 
 @Service
 export class PersonService {
